@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 import 'dart:convert';
 
-import 'package:notus/notus.dart';
+import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 

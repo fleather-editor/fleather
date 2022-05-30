@@ -2,9 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:notus/notus.dart';
 import 'package:quill_delta/quill_delta.dart';
 
+import 'document.dart';
+import 'document/attributes.dart';
 import 'heuristics/delete_rules.dart';
 import 'heuristics/format_rules.dart';
 import 'heuristics/insert_rules.dart';

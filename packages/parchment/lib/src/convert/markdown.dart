@@ -4,8 +4,9 @@
 
 import 'dart:convert';
 
-import 'package:notus/notus.dart';
 import 'package:quill_delta/quill_delta.dart';
+
+import '../document/attributes.dart';
 
 class NotusMarkdownCodec extends Codec<Delta, String> {
   const NotusMarkdownCodec();

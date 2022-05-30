@@ -2,8 +2,9 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:notus/notus.dart';
 import 'package:quill_delta/quill_delta.dart';
+
+import '../document/attributes.dart';
 
 /// A heuristic rule for format (retain) operations.
 abstract class FormatRule {
