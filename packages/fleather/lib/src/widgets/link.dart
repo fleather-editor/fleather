@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:notus/notus.dart';
+import 'package:parchment/parchment.dart';
 
 /// List of possible actions returned from [LinkActionPickerDelegate].
 enum LinkMenuAction {

@@ -4,7 +4,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:fleather/fleather.dart';
 
 void main() {
   group('$ZefyrController', () {

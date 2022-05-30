@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:notus/notus.dart';
-import 'package:zefyr/util.dart';
+import 'package:parchment/parchment.dart';
+import 'package:fleather/util.dart';
 
 import '../rendering/editable_text_block.dart';
 import 'controller.dart';

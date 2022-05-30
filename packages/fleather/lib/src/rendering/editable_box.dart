@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart';
-import 'package:notus/notus.dart';
+import 'package:parchment/parchment.dart';
 
 /// A common interface to render boxes which represent a piece of rich text
 /// content.

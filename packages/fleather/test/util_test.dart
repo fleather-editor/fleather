@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
-import 'package:zefyr/util.dart';
+import 'package:fleather/util.dart';
 
 void main() {
   group('getPositionDelta', () {
