@@ -31,12 +31,12 @@ dependencies:
   google_fonts: ^1.1.0
   file: ^6.1.2
   path_provider: ^2.0.2
-  zefyr:
+  fleather:
     path: ../
 
 dependency_overrides:
-  notus:
-    path: ../../notus
+  parchment:
+    path: ../../parchment
 
 dev_dependencies:
   flutter_test:
