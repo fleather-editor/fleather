@@ -1,7 +1,7 @@
-name: zefyr
+name: fleather
 description: Clean, minimalistic and collaboration-ready rich text editor for Flutter.
 version: 1.0.0-rc.5
-homepage: https://github.com/memspace/zefyr
+homepage: https://github.com/fleather-editor/fleather
 
 environment:
   sdk: '>=2.15.0 <3.0.0'
@@ -12,7 +12,7 @@ dependencies:
   collection: ^1.14.6
   url_launcher: ^6.0.9
   quill_delta: ^3.0.0-nullsafety.1
-  notus: ^1.0.0-rc.2
+  parchment: ^1.0.0-rc.2
   characters: ^1.0.0
 
 dev_dependencies:
