@@ -13,7 +13,7 @@ abstract class FormatRule {
 
   /// Applies heuristic rule to a retain (format) operation on a [document] and
   /// returns resulting [Delta].
-  Delta? apply(Delta document, int index, int length, NotusAttribute attribute);
+  Delta? apply(Delta document, int index, int length, ParchmentAttribute attribute);
 }
 
 /// Produces Delta with line-level attributes applied strictly to
@@ -23,8 +23,8 @@ class ResolveLineFormatRule extends FormatRule {
 
   @override
   Delta? apply(
-      Delta document, int index, int length, NotusAttribute attribute) {
-    if (attribute.scope != NotusAttributeScope.line) return null;
+      Delta document, int index, int length, ParchmentAttribute attribute) {
+    if (attribute.scope != ParchmentAttributeScope.line) return null;
 
     var result = Delta()..retain(index);
     final iter = DeltaIterator(document);
@@ -60,7 +60,7 @@ class ResolveLineFormatRule extends FormatRule {
     return result;
   }
 
-  Delta _applyAttribute(String text, Operation op, NotusAttribute attribute,
+  Delta _applyAttribute(String text, Operation op, ParchmentAttribute attribute,
       {bool firstOnly = false}) {
     final result = Delta();
     var offset = 0;
@@ -68,13 +68,13 @@ class ResolveLineFormatRule extends FormatRule {
     while (lf >= 0) {
       Map<String, dynamic> actualStyle = attribute.toJson();
 
-      NotusStyle opStyle = NotusStyle.fromJson(op.attributes);
-      if (opStyle.containsSame(NotusAttribute.block.checkList) &&
-          opStyle.containsSame(NotusAttribute.checked) &&
-          attribute.key == NotusAttribute.block.key &&
-          attribute.value != NotusAttribute.block.checkList.value) {
+      ParchmentStyle opStyle = ParchmentStyle.fromJson(op.attributes);
+      if (opStyle.containsSame(ParchmentAttribute.block.checkList) &&
+          opStyle.containsSame(ParchmentAttribute.checked) &&
+          attribute.key == ParchmentAttribute.block.key &&
+          attribute.value != ParchmentAttribute.block.checkList.value) {
         // Unset checked state when changing block style from checkList to something else
-        actualStyle[NotusAttribute.checked.key] = null;
+        actualStyle[ParchmentAttribute.checked.key] = null;
       }
       result..retain(lf - offset)..retain(1, actualStyle);
 
@@ -98,8 +98,8 @@ class ResolveInlineFormatRule extends FormatRule {
 
   @override
   Delta? apply(
-      Delta document, int index, int length, NotusAttribute attribute) {
-    if (attribute.scope != NotusAttributeScope.inline) return null;
+      Delta document, int index, int length, ParchmentAttribute attribute) {
+    if (attribute.scope != ParchmentAttributeScope.inline) return null;
 
     final result = Delta()..retain(index);
     final iter = DeltaIterator(document);
@@ -136,8 +136,8 @@ class FormatLinkAtCaretPositionRule extends FormatRule {
 
   @override
   Delta? apply(
-      Delta document, int index, int length, NotusAttribute attribute) {
-    if (attribute.key != NotusAttribute.link.key) return null;
+      Delta document, int index, int length, ParchmentAttribute attribute) {
+    if (attribute.key != ParchmentAttribute.link.key) return null;
     // If user selection is not collapsed we let it fallback to default rule
     // which simply applies the attribute to selected range.
     // This may still not be a bulletproof approach as selection can span

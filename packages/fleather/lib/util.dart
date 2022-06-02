@@ -47,8 +47,8 @@ int getPositionDelta(Delta user, Delta actual) {
 }
 
 TextDirection getDirectionOfNode(StyledNode node) {
-  final direction = node.style.get(NotusAttribute.direction);
-  if (direction == NotusAttribute.rtl) {
+  final direction = node.style.get(ParchmentAttribute.direction);
+  if (direction == ParchmentAttribute.rtl) {
     return TextDirection.rtl;
   }
   return TextDirection.ltr;

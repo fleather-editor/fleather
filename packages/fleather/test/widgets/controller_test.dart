@@ -11,7 +11,7 @@ void main() {
     late ZefyrController controller;
 
     setUp(() {
-      var doc = NotusDocument();
+      var doc = ParchmentDocument();
       controller = ZefyrController(doc);
     });
 
@@ -81,12 +81,12 @@ void main() {
         notified = true;
       });
       controller.replaceText(0, 0, 'Words');
-      controller.formatText(0, 5, NotusAttribute.bold);
+      controller.formatText(0, 5, ParchmentAttribute.bold);
       expect(notified, isTrue);
       expect(
         controller.document.toDelta(),
         Delta()
-          ..insert('Words', NotusAttribute.bold.toJson())
+          ..insert('Words', ParchmentAttribute.bold.toJson())
           ..insert('\n'),
       );
       // expect(controller.lastChangeSource, ChangeSource.local);
@@ -98,11 +98,11 @@ void main() {
         notified = true;
       });
       controller.replaceText(0, 0, 'Words');
-      controller.formatText(2, 0, NotusAttribute.bold);
+      controller.formatText(2, 0, ParchmentAttribute.bold);
       // Test that doing nothing does reset the toggledStyle.
       controller.replaceText(2, 0, '');
       controller.replaceText(2, 0, 'n');
-      controller.formatText(3, 0, NotusAttribute.bold);
+      controller.formatText(3, 0, ParchmentAttribute.bold);
       controller.replaceText(3, 0, 'B');
       expect(notified, isTrue);
 
@@ -110,7 +110,7 @@ void main() {
         controller.document.toDelta(),
         Delta()
           ..insert('Won')
-          ..insert('B', NotusAttribute.bold.toJson())
+          ..insert('B', ParchmentAttribute.bold.toJson())
           ..insert('rds')
           ..insert('\n'),
       );
@@ -123,9 +123,9 @@ void main() {
         notified = true;
       });
       controller.replaceText(0, 0, 'Words');
-      controller.formatText(1, 0, NotusAttribute.bold);
+      controller.formatText(1, 0, ParchmentAttribute.bold);
       controller.replaceText(1, 0, 'B');
-      controller.formatText(2, 0, NotusAttribute.bold.unset);
+      controller.formatText(2, 0, ParchmentAttribute.bold.unset);
       controller.replaceText(2, 0, 'u');
 
       expect(notified, isTrue);
@@ -133,7 +133,7 @@ void main() {
         controller.document.toDelta(),
         Delta()
           ..insert('W')
-          ..insert('B', NotusAttribute.bold.toJson())
+          ..insert('B', ParchmentAttribute.bold.toJson())
           ..insert('uords')
           ..insert('\n'),
       );
@@ -147,12 +147,12 @@ void main() {
       });
       var selection = const TextSelection(baseOffset: 0, extentOffset: 5);
       controller.replaceText(0, 0, 'Words', selection: selection);
-      controller.formatSelection(NotusAttribute.bold);
+      controller.formatSelection(ParchmentAttribute.bold);
       expect(notified, isTrue);
       expect(
         controller.document.toDelta(),
         Delta()
-          ..insert('Words', NotusAttribute.bold.toJson())
+          ..insert('Words', ParchmentAttribute.bold.toJson())
           ..insert('\n'),
       );
       // expect(controller.lastChangeSource, ChangeSource.local);
@@ -161,18 +161,18 @@ void main() {
     test('getSelectionStyle', () {
       var selection = const TextSelection.collapsed(offset: 3);
       controller.replaceText(0, 0, 'Words', selection: selection);
-      controller.formatText(0, 5, NotusAttribute.bold);
+      controller.formatText(0, 5, ParchmentAttribute.bold);
       var result = controller.getSelectionStyle();
-      expect(result.values, [NotusAttribute.bold]);
+      expect(result.values, [ParchmentAttribute.bold]);
     });
 
     test('getSelectionStyle with toggled style', () {
       var selection = const TextSelection.collapsed(offset: 3);
       controller.replaceText(0, 0, 'Words', selection: selection);
-      controller.formatText(3, 0, NotusAttribute.bold);
+      controller.formatText(3, 0, ParchmentAttribute.bold);
 
       var result = controller.getSelectionStyle();
-      expect(result.values, [NotusAttribute.bold]);
+      expect(result.values, [ParchmentAttribute.bold]);
     });
 
     test('preserve inline format when replacing text from the first character',
@@ -181,13 +181,13 @@ void main() {
       controller.addListener(() {
         notified = true;
       });
-      controller.formatText(0, 0, NotusAttribute.bold);
+      controller.formatText(0, 0, ParchmentAttribute.bold);
       controller.replaceText(0, 0, 'Word');
       expect(notified, isTrue);
       expect(
         controller.document.toDelta(),
         Delta()
-          ..insert('Word', NotusAttribute.bold.toJson())
+          ..insert('Word', ParchmentAttribute.bold.toJson())
           ..insert('\n'),
       );
       // expect(controller.lastChangeSource, ChangeSource.local);

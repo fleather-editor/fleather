@@ -5,18 +5,18 @@
 import 'package:parchment/parchment.dart';
 import 'package:test/test.dart';
 
-NotusDocument dartconfDoc() {
-  return NotusDocument()..insert(0, 'DartConf\nLos Angeles');
+ParchmentDocument dartconfDoc() {
+  return ParchmentDocument()..insert(0, 'DartConf\nLos Angeles');
 }
 
-final ul = NotusAttribute.ul.toJson();
-final h1 = NotusAttribute.h1.toJson();
+final ul = ParchmentAttribute.ul.toJson();
+final h1 = ParchmentAttribute.h1.toJson();
 
 void main() {
-  group('$NotusHeuristics', () {
+  group('$ParchmentHeuristics', () {
     test('ensures heuristics are applied', () {
       final doc = dartconfDoc();
-      final heuristics = NotusHeuristics(
+      final heuristics = ParchmentHeuristics(
         formatRules: [],
         insertRules: [],
         deleteRules: [],
@@ -31,7 +31,7 @@ void main() {
       }, throwsStateError);
 
       expect(() {
-        heuristics.applyFormatRules(doc, 0, 1, NotusAttribute.bold);
+        heuristics.applyFormatRules(doc, 0, 1, ParchmentAttribute.bold);
       }, throwsStateError);
     });
   });

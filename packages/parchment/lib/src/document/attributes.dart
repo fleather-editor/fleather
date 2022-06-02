@@ -6,7 +6,7 @@ import 'package:quiver/core.dart';
 
 /// Scope of a style attribute, defines context in which an attribute can be
 /// applied.
-enum NotusAttributeScope {
+enum ParchmentAttributeScope {
   /// Inline-scoped attributes are applicable to all characters within a line.
   ///
   /// Inline attributes cannot be applied to the line itself.
@@ -20,8 +20,8 @@ enum NotusAttributeScope {
 
 /// Interface for objects which provide access to an attribute key.
 ///
-/// Implemented by [NotusAttribute] and [NotusAttributeBuilder].
-abstract class NotusAttributeKey<T> {
+/// Implemented by [ParchmentAttribute] and [ParchmentAttributeBuilder].
+abstract class ParchmentAttributeKey<T> {
   /// Unique key of this attribute.
   String get key;
 }
@@ -35,58 +35,58 @@ abstract class NotusAttributeKey<T> {
 ///   * [LinkAttributeBuilder]
 ///   * [BlockAttributeBuilder]
 ///   * [HeadingAttributeBuilder]
-abstract class NotusAttributeBuilder<T> implements NotusAttributeKey<T> {
-  const NotusAttributeBuilder._(this.key, this.scope);
+abstract class ParchmentAttributeBuilder<T> implements ParchmentAttributeKey<T> {
+  const ParchmentAttributeBuilder._(this.key, this.scope);
 
   @override
   final String key;
-  final NotusAttributeScope scope;
-  NotusAttribute<T> get unset => NotusAttribute<T>._(key, scope, null);
-  NotusAttribute<T> withValue(T? value) =>
-      NotusAttribute<T>._(key, scope, value);
+  final ParchmentAttributeScope scope;
+  ParchmentAttribute<T> get unset => ParchmentAttribute<T>._(key, scope, null);
+  ParchmentAttribute<T> withValue(T? value) =>
+      ParchmentAttribute<T>._(key, scope, value);
 }
 
-/// Style attribute applicable to a segment of a Notus document.
+/// Style attribute applicable to a segment of a Parchment document.
 ///
 /// All supported attributes are available via static fields on this class.
 /// Here is an example of applying styles to a document:
 ///
-///     void makeItPretty(Notus document) {
+///     void makeItPretty(Parchment document) {
 ///       // Format 5 characters at position 0 as bold
-///       document.format(0, 5, NotusAttribute.bold);
+///       document.format(0, 5, ParchmentAttribute.bold);
 ///       // Similarly for italic
-///       document.format(0, 5, NotusAttribute.italic);
+///       document.format(0, 5, ParchmentAttribute.italic);
 ///       // Format first line as a heading (h1)
 ///       // Note that there is no need to specify character range of the whole
 ///       // line. Simply set index position to anywhere within the line and
 ///       // length to 0.
-///       document.format(0, 0, NotusAttribute.h1);
+///       document.format(0, 0, ParchmentAttribute.h1);
 ///     }
 ///
 /// List of supported attributes:
 ///
-///   * [NotusAttribute.bold]
-///   * [NotusAttribute.italic]
-///   * [NotusAttribute.underline]
-///   * [NotusAttribute.strikethrough]
-///   * [NotusAttribute.link]
-///   * [NotusAttribute.heading]
-///   * [NotusAttribute.block]
-///   * [NotusAttribute.direction]
-///   * [NotusAttribute.alignment]
-class NotusAttribute<T> implements NotusAttributeBuilder<T> {
-  static final Map<String, NotusAttributeBuilder> _registry = {
-    NotusAttribute.bold.key: NotusAttribute.bold,
-    NotusAttribute.italic.key: NotusAttribute.italic,
-    NotusAttribute.underline.key: NotusAttribute.underline,
-    NotusAttribute.strikethrough.key: NotusAttribute.strikethrough,
-    NotusAttribute.inlineCode.key: NotusAttribute.inlineCode,
-    NotusAttribute.link.key: NotusAttribute.link,
-    NotusAttribute.heading.key: NotusAttribute.heading,
-    NotusAttribute.checked.key: NotusAttribute.checked,
-    NotusAttribute.block.key: NotusAttribute.block,
-    NotusAttribute.direction.key: NotusAttribute.direction,
-    NotusAttribute.alignment.key: NotusAttribute.alignment,
+///   * [ParchmentAttribute.bold]
+///   * [ParchmentAttribute.italic]
+///   * [ParchmentAttribute.underline]
+///   * [ParchmentAttribute.strikethrough]
+///   * [ParchmentAttribute.link]
+///   * [ParchmentAttribute.heading]
+///   * [ParchmentAttribute.block]
+///   * [ParchmentAttribute.direction]
+///   * [ParchmentAttribute.alignment]
+class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
+  static final Map<String, ParchmentAttributeBuilder> _registry = {
+    ParchmentAttribute.bold.key: ParchmentAttribute.bold,
+    ParchmentAttribute.italic.key: ParchmentAttribute.italic,
+    ParchmentAttribute.underline.key: ParchmentAttribute.underline,
+    ParchmentAttribute.strikethrough.key: ParchmentAttribute.strikethrough,
+    ParchmentAttribute.inlineCode.key: ParchmentAttribute.inlineCode,
+    ParchmentAttribute.link.key: ParchmentAttribute.link,
+    ParchmentAttribute.heading.key: ParchmentAttribute.heading,
+    ParchmentAttribute.checked.key: ParchmentAttribute.checked,
+    ParchmentAttribute.block.key: ParchmentAttribute.block,
+    ParchmentAttribute.direction.key: ParchmentAttribute.direction,
+    ParchmentAttribute.alignment.key: ParchmentAttribute.alignment,
   };
 
   // Inline attributes
@@ -116,14 +116,14 @@ class NotusAttribute<T> implements NotusAttributeBuilder<T> {
   // ignore: const_eval_throws_exception
   static const heading = HeadingAttributeBuilder._();
 
-  /// Alias for [NotusAttribute.heading.level1].
-  static NotusAttribute<int> get h1 => heading.level1;
+  /// Alias for [ParchmentAttribute.heading.level1].
+  static ParchmentAttribute<int> get h1 => heading.level1;
 
-  /// Alias for [NotusAttribute.heading.level2].
-  static NotusAttribute<int> get h2 => heading.level2;
+  /// Alias for [ParchmentAttribute.heading.level2].
+  static ParchmentAttribute<int> get h2 => heading.level2;
 
-  /// Alias for [NotusAttribute.heading.level3].
-  static NotusAttribute<int> get h3 => heading.level3;
+  /// Alias for [ParchmentAttribute.heading.level3].
+  static ParchmentAttribute<int> get h3 => heading.level3;
 
   /// Applies checked style to a line of text in checklist block.
   static const checked = _CheckedAttribute();
@@ -132,42 +132,42 @@ class NotusAttribute<T> implements NotusAttributeBuilder<T> {
   // ignore: const_eval_throws_exception
   static const block = BlockAttributeBuilder._();
 
-  /// Alias for [NotusAttribute.block.bulletList].
-  static NotusAttribute<String> get ul => block.bulletList;
+  /// Alias for [ParchmentAttribute.block.bulletList].
+  static ParchmentAttribute<String> get ul => block.bulletList;
 
-  /// Alias for [NotusAttribute.block.numberList].
-  static NotusAttribute<String> get ol => block.numberList;
+  /// Alias for [ParchmentAttribute.block.numberList].
+  static ParchmentAttribute<String> get ol => block.numberList;
 
-  /// Alias for [NotusAttribute.block.checkList].
-  static NotusAttribute<String> get cl => block.checkList;
+  /// Alias for [ParchmentAttribute.block.checkList].
+  static ParchmentAttribute<String> get cl => block.checkList;
 
-  /// Alias for [NotusAttribute.block.quote].
-  static NotusAttribute<String> get bq => block.quote;
+  /// Alias for [ParchmentAttribute.block.quote].
+  static ParchmentAttribute<String> get bq => block.quote;
 
-  /// Alias for [NotusAttribute.block.code].
-  static NotusAttribute<String> get code => block.code;
+  /// Alias for [ParchmentAttribute.block.code].
+  static ParchmentAttribute<String> get code => block.code;
 
   /// Direction attribute
   static const direction = DirectionAttributeBuilder._();
 
-  /// Alias for [NotusAttribute.direction.rtl].
-  static NotusAttribute<String> get rtl => direction.rtl;
+  /// Alias for [ParchmentAttribute.direction.rtl].
+  static ParchmentAttribute<String> get rtl => direction.rtl;
   /// Alignment attribute
   static const alignment = AlignmentAttributeBuilder._();
 
-  /// Alias for [NotusAttribute.alignment.unset]
-  static NotusAttribute<String> get left => alignment.unset;
+  /// Alias for [ParchmentAttribute.alignment.unset]
+  static ParchmentAttribute<String> get left => alignment.unset;
 
-  /// Alias for [NotusAttribute.alignment.right]
-  static NotusAttribute<String> get right => alignment.right;
+  /// Alias for [ParchmentAttribute.alignment.right]
+  static ParchmentAttribute<String> get right => alignment.right;
 
-  /// Alias for [NotusAttribute.alignment.center]
-  static NotusAttribute<String> get center => alignment.center;
+  /// Alias for [ParchmentAttribute.alignment.center]
+  static ParchmentAttribute<String> get center => alignment.center;
 
-  /// Alias for [NotusAttribute.alignment.justify]
-  static NotusAttribute<String> get justify => alignment.justify;
+  /// Alias for [ParchmentAttribute.alignment.justify]
+  static ParchmentAttribute<String> get justify => alignment.justify;
 
-  static NotusAttribute _fromKeyValue(String key, dynamic value) {
+  static ParchmentAttribute _fromKeyValue(String key, dynamic value) {
     if (!_registry.containsKey(key)) {
       throw ArgumentError.value(
           key, 'No attribute with key "$key" registered.');
@@ -176,7 +176,7 @@ class NotusAttribute<T> implements NotusAttributeBuilder<T> {
     return builder.withValue(value);
   }
 
-  const NotusAttribute._(this.key, this.scope, this.value);
+  const ParchmentAttribute._(this.key, this.scope, this.value);
 
   /// Unique key of this attribute.
   @override
@@ -184,7 +184,7 @@ class NotusAttribute<T> implements NotusAttributeBuilder<T> {
 
   /// Scope of this attribute.
   @override
-  final NotusAttributeScope scope;
+  final ParchmentAttributeScope scope;
 
   /// Value of this attribute.
   ///
@@ -192,7 +192,7 @@ class NotusAttribute<T> implements NotusAttributeBuilder<T> {
   /// of removing associated style and is never persisted in a resulting
   /// document.
   ///
-  /// See also [unset], [NotusStyle.merge] and [NotusStyle.put]
+  /// See also [unset], [ParchmentStyle.merge] and [ParchmentStyle.put]
   /// for details.
   final T? value;
 
@@ -203,22 +203,22 @@ class NotusAttribute<T> implements NotusAttributeBuilder<T> {
   /// When composed into a rich text document, unset attributes remove
   /// associated style.
   @override
-  NotusAttribute<T> get unset => NotusAttribute<T>._(key, scope, null);
+  ParchmentAttribute<T> get unset => ParchmentAttribute<T>._(key, scope, null);
 
   /// Returns `true` if this attribute is an unset attribute.
   bool get isUnset => value == null;
 
   /// Returns `true` if this is an inline-scoped attribute.
-  bool get isInline => scope == NotusAttributeScope.inline;
+  bool get isInline => scope == ParchmentAttributeScope.inline;
 
   @override
-  NotusAttribute<T> withValue(T? value) =>
-      NotusAttribute<T>._(key, scope, value);
+  ParchmentAttribute<T> withValue(T? value) =>
+      ParchmentAttribute<T>._(key, scope, value);
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is! NotusAttribute<T>) return false;
+    if (other is! ParchmentAttribute<T>) return false;
     return key == other.key && scope == other.scope && value == other.value;
   }
 
@@ -232,22 +232,22 @@ class NotusAttribute<T> implements NotusAttributeBuilder<T> {
 }
 
 /// Collection of style attributes.
-class NotusStyle {
-  NotusStyle._(this._data);
+class ParchmentStyle {
+  ParchmentStyle._(this._data);
 
-  final Map<String, NotusAttribute> _data;
+  final Map<String, ParchmentAttribute> _data;
 
-  static NotusStyle fromJson(Map<String, dynamic>? data) {
-    if (data == null) return NotusStyle();
+  static ParchmentStyle fromJson(Map<String, dynamic>? data) {
+    if (data == null) return ParchmentStyle();
 
     final result = data.map((String key, dynamic value) {
-      var attr = NotusAttribute._fromKeyValue(key, value);
-      return MapEntry<String, NotusAttribute>(key, attr);
+      var attr = ParchmentAttribute._fromKeyValue(key, value);
+      return MapEntry<String, ParchmentAttribute>(key, attr);
     });
-    return NotusStyle._(result);
+    return ParchmentStyle._(result);
   }
 
-  NotusStyle() : _data = <String, NotusAttribute>{};
+  ParchmentStyle() : _data = <String, ParchmentAttribute>{};
 
   /// Returns `true` if this attribute set is empty.
   bool get isEmpty => _data.isEmpty;
@@ -260,7 +260,7 @@ class NotusStyle {
   bool get isInline => isNotEmpty && values.every((item) => item.isInline);
 
   /// Checks that this style has only one attribute, and returns that attribute.
-  NotusAttribute get single => _data.values.single;
+  ParchmentAttribute get single => _data.values.single;
 
   /// Returns `true` if attribute with [key] is present in this set.
   ///
@@ -269,32 +269,32 @@ class NotusStyle {
   ///
   /// To test if this set contains an attribute with specific value consider
   /// using [containsSame].
-  bool contains(NotusAttributeKey key) => _data.containsKey(key.key);
+  bool contains(ParchmentAttributeKey key) => _data.containsKey(key.key);
 
   /// Returns `true` if this set contains attribute with the same value as
   /// [attribute].
-  bool containsSame(NotusAttribute attribute) {
+  bool containsSame(ParchmentAttribute attribute) {
     return get<dynamic>(attribute) == attribute;
   }
 
   /// Returns value of specified attribute [key] in this set.
-  T? value<T>(NotusAttributeKey<T> key) => get(key)?.value;
+  T? value<T>(ParchmentAttributeKey<T> key) => get(key)?.value;
 
-  /// Returns [NotusAttribute] from this set by specified [key].
-  NotusAttribute<T>? get<T>(NotusAttributeKey<T> key) =>
-      _data[key.key] as NotusAttribute<T>?;
+  /// Returns [ParchmentAttribute] from this set by specified [key].
+  ParchmentAttribute<T>? get<T>(ParchmentAttributeKey<T> key) =>
+      _data[key.key] as ParchmentAttribute<T>?;
 
   /// Returns collection of all attribute keys in this set.
   Iterable<String> get keys => _data.keys;
 
   /// Returns collection of all attributes in this set.
-  Iterable<NotusAttribute> get values => _data.values;
+  Iterable<ParchmentAttribute> get values => _data.values;
 
   /// Puts [attribute] into this attribute set and returns result as a new set.
-  NotusStyle put(NotusAttribute attribute) {
-    final result = Map<String, NotusAttribute>.from(_data);
+  ParchmentStyle put(ParchmentAttribute attribute) {
+    final result = Map<String, ParchmentAttribute>.from(_data);
     result[attribute.key] = attribute;
-    return NotusStyle._(result);
+    return ParchmentStyle._(result);
   }
 
   /// Merges this attribute set with [attribute] and returns result as a new
@@ -305,20 +305,20 @@ class NotusStyle {
   ///
   /// See also [put] method which does not perform compaction and allows
   /// constructing styles with "unset" values.
-  NotusStyle merge(NotusAttribute attribute) {
-    final merged = Map<String, NotusAttribute>.from(_data);
+  ParchmentStyle merge(ParchmentAttribute attribute) {
+    final merged = Map<String, ParchmentAttribute>.from(_data);
     if (attribute.isUnset) {
       merged.remove(attribute.key);
     } else {
       merged[attribute.key] = attribute;
     }
-    return NotusStyle._(merged);
+    return ParchmentStyle._(merged);
   }
 
   /// Merges all attributes from [other] into this style and returns result
-  /// as a new instance of [NotusStyle].
-  NotusStyle mergeAll(NotusStyle other) {
-    var result = NotusStyle._(_data);
+  /// as a new instance of [ParchmentStyle].
+  ParchmentStyle mergeAll(ParchmentStyle other) {
+    var result = ParchmentStyle._(_data);
     for (var value in other.values) {
       result = result.merge(value);
     }
@@ -326,24 +326,24 @@ class NotusStyle {
   }
 
   /// Removes [attributes] from this style and returns new instance of
-  /// [NotusStyle] containing result.
-  NotusStyle removeAll(Iterable<NotusAttribute> attributes) {
-    final merged = Map<String, NotusAttribute>.from(_data);
+  /// [ParchmentStyle] containing result.
+  ParchmentStyle removeAll(Iterable<ParchmentAttribute> attributes) {
+    final merged = Map<String, ParchmentAttribute>.from(_data);
     attributes.map((item) => item.key).forEach(merged.remove);
-    return NotusStyle._(merged);
+    return ParchmentStyle._(merged);
   }
 
   /// Returns JSON-serializable representation of this style.
   Map<String, dynamic>? toJson() => _data.isEmpty
       ? null
-      : _data.map<String, dynamic>((String _, NotusAttribute value) =>
+      : _data.map<String, dynamic>((String _, ParchmentAttribute value) =>
           MapEntry<String, dynamic>(value.key, value.value));
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is! NotusStyle) return false;
-    final eq = const MapEquality<String, NotusAttribute>();
+    if (other is! ParchmentStyle) return false;
+    final eq = const MapEquality<String, ParchmentAttribute>();
     return eq.equals(_data, other._data);
   }
 
@@ -358,117 +358,117 @@ class NotusStyle {
 }
 
 /// Applies bold style to a text segment.
-class _BoldAttribute extends NotusAttribute<bool> {
-  const _BoldAttribute() : super._('b', NotusAttributeScope.inline, true);
+class _BoldAttribute extends ParchmentAttribute<bool> {
+  const _BoldAttribute() : super._('b', ParchmentAttributeScope.inline, true);
 }
 
 /// Applies italic style to a text segment.
-class _ItalicAttribute extends NotusAttribute<bool> {
-  const _ItalicAttribute() : super._('i', NotusAttributeScope.inline, true);
+class _ItalicAttribute extends ParchmentAttribute<bool> {
+  const _ItalicAttribute() : super._('i', ParchmentAttributeScope.inline, true);
 }
 
 /// Applies underline style to a text segment.
-class _UnderlineAttribute extends NotusAttribute<bool> {
-  const _UnderlineAttribute() : super._('u', NotusAttributeScope.inline, true);
+class _UnderlineAttribute extends ParchmentAttribute<bool> {
+  const _UnderlineAttribute() : super._('u', ParchmentAttributeScope.inline, true);
 }
 
 /// Applies strikethrough style to a text segment.
-class _StrikethroughAttribute extends NotusAttribute<bool> {
+class _StrikethroughAttribute extends ParchmentAttribute<bool> {
   const _StrikethroughAttribute()
-      : super._('s', NotusAttributeScope.inline, true);
+      : super._('s', ParchmentAttributeScope.inline, true);
 }
 
 /// Applies code style to a text segment.
-class _InlineCodeAttribute extends NotusAttribute<bool> {
-  const _InlineCodeAttribute() : super._('c', NotusAttributeScope.inline, true);
+class _InlineCodeAttribute extends ParchmentAttribute<bool> {
+  const _InlineCodeAttribute() : super._('c', ParchmentAttributeScope.inline, true);
 }
 
 /// Builder for link attribute values.
 ///
 /// There is no need to use this class directly, consider using
-/// [NotusAttribute.link] instead.
-class LinkAttributeBuilder extends NotusAttributeBuilder<String> {
+/// [ParchmentAttribute.link] instead.
+class LinkAttributeBuilder extends ParchmentAttributeBuilder<String> {
   static const _kLink = 'a';
-  const LinkAttributeBuilder._() : super._(_kLink, NotusAttributeScope.inline);
+  const LinkAttributeBuilder._() : super._(_kLink, ParchmentAttributeScope.inline);
 
   /// Creates a link attribute with specified link [value].
-  NotusAttribute<String> fromString(String value) =>
-      NotusAttribute<String>._(key, scope, value);
+  ParchmentAttribute<String> fromString(String value) =>
+      ParchmentAttribute<String>._(key, scope, value);
 }
 
 /// Builder for heading attribute styles.
 ///
 /// There is no need to use this class directly, consider using
-/// [NotusAttribute.heading] instead.
-class HeadingAttributeBuilder extends NotusAttributeBuilder<int> {
+/// [ParchmentAttribute.heading] instead.
+class HeadingAttributeBuilder extends ParchmentAttributeBuilder<int> {
   static const _kHeading = 'heading';
   const HeadingAttributeBuilder._()
-      : super._(_kHeading, NotusAttributeScope.line);
+      : super._(_kHeading, ParchmentAttributeScope.line);
 
   /// Level 1 heading, equivalent of `H1` in HTML.
-  NotusAttribute<int> get level1 => NotusAttribute<int>._(key, scope, 1);
+  ParchmentAttribute<int> get level1 => ParchmentAttribute<int>._(key, scope, 1);
 
   /// Level 2 heading, equivalent of `H2` in HTML.
-  NotusAttribute<int> get level2 => NotusAttribute<int>._(key, scope, 2);
+  ParchmentAttribute<int> get level2 => ParchmentAttribute<int>._(key, scope, 2);
 
   /// Level 3 heading, equivalent of `H3` in HTML.
-  NotusAttribute<int> get level3 => NotusAttribute<int>._(key, scope, 3);
+  ParchmentAttribute<int> get level3 => ParchmentAttribute<int>._(key, scope, 3);
 }
 
 /// Applies checked style to a line in a checklist block.
-class _CheckedAttribute extends NotusAttribute<bool> {
+class _CheckedAttribute extends ParchmentAttribute<bool> {
   const _CheckedAttribute()
-      : super._('checked', NotusAttributeScope.line, true);
+      : super._('checked', ParchmentAttributeScope.line, true);
 }
 
 /// Builder for block attribute styles (number/bullet lists, code and quote).
 ///
 /// There is no need to use this class directly, consider using
-/// [NotusAttribute.block] instead.
-class BlockAttributeBuilder extends NotusAttributeBuilder<String> {
+/// [ParchmentAttribute.block] instead.
+class BlockAttributeBuilder extends ParchmentAttributeBuilder<String> {
   static const _kBlock = 'block';
-  const BlockAttributeBuilder._() : super._(_kBlock, NotusAttributeScope.line);
+  const BlockAttributeBuilder._() : super._(_kBlock, ParchmentAttributeScope.line);
 
   /// Formats a block of lines as a bullet list.
-  NotusAttribute<String> get bulletList =>
-      NotusAttribute<String>._(key, scope, 'ul');
+  ParchmentAttribute<String> get bulletList =>
+      ParchmentAttribute<String>._(key, scope, 'ul');
 
   /// Formats a block of lines as a number list.
-  NotusAttribute<String> get numberList =>
-      NotusAttribute<String>._(key, scope, 'ol');
+  ParchmentAttribute<String> get numberList =>
+      ParchmentAttribute<String>._(key, scope, 'ol');
 
   /// Formats a block of lines as a check list.
-  NotusAttribute<String> get checkList =>
-      NotusAttribute<String>._(key, scope, 'cl');
+  ParchmentAttribute<String> get checkList =>
+      ParchmentAttribute<String>._(key, scope, 'cl');
 
   /// Formats a block of lines as a code snippet, using monospace font.
-  NotusAttribute<String> get code =>
-      NotusAttribute<String>._(key, scope, 'code');
+  ParchmentAttribute<String> get code =>
+      ParchmentAttribute<String>._(key, scope, 'code');
 
   /// Formats a block of lines as a quote.
-  NotusAttribute<String> get quote =>
-      NotusAttribute<String>._(key, scope, 'quote');
+  ParchmentAttribute<String> get quote =>
+      ParchmentAttribute<String>._(key, scope, 'quote');
 }
 
-class DirectionAttributeBuilder extends NotusAttributeBuilder<String> {
+class DirectionAttributeBuilder extends ParchmentAttributeBuilder<String> {
   static const _kDirection = 'direction';
   const DirectionAttributeBuilder._()
-      : super._(_kDirection, NotusAttributeScope.line);
+      : super._(_kDirection, ParchmentAttributeScope.line);
 
-  NotusAttribute<String> get rtl => NotusAttribute<String>._(key, scope, 'rtl');
+  ParchmentAttribute<String> get rtl => ParchmentAttribute<String>._(key, scope, 'rtl');
 }
 
-class AlignmentAttributeBuilder extends NotusAttributeBuilder<String> {
+class AlignmentAttributeBuilder extends ParchmentAttributeBuilder<String> {
   static const _kAlignment = 'alignment';
   const AlignmentAttributeBuilder._()
-      : super._(_kAlignment, NotusAttributeScope.line);
+      : super._(_kAlignment, ParchmentAttributeScope.line);
 
-  NotusAttribute<String> get right =>
-      NotusAttribute<String>._(key, scope, 'right');
+  ParchmentAttribute<String> get right =>
+      ParchmentAttribute<String>._(key, scope, 'right');
 
-  NotusAttribute<String> get center =>
-      NotusAttribute<String>._(key, scope, 'center');
+  ParchmentAttribute<String> get center =>
+      ParchmentAttribute<String>._(key, scope, 'center');
 
-  NotusAttribute<String> get justify =>
-      NotusAttribute<String>._(key, scope, 'justify');
+  ParchmentAttribute<String> get justify =>
+      ParchmentAttribute<String>._(key, scope, 'justify');
 }

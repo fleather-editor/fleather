@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 /// Rich text document model for Zefyr editor.
-library notus;
+library parchment;
 
 export 'src/document.dart';
 export 'src/document/attributes.dart';

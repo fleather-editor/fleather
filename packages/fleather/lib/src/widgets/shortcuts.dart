@@ -75,15 +75,15 @@ class ZefyrActions extends Actions {
 
   static final Map<Type, Action<Intent>> _shortcutsActions =
       <Type, Action<Intent>>{
-    ToggleBoldStyleIntent: _ToggleInlineStyleAction(NotusAttribute.bold),
-    ToggleItalicStyleIntent: _ToggleInlineStyleAction(NotusAttribute.italic),
+    ToggleBoldStyleIntent: _ToggleInlineStyleAction(ParchmentAttribute.bold),
+    ToggleItalicStyleIntent: _ToggleInlineStyleAction(ParchmentAttribute.italic),
     ToggleUnderlineStyleIntent:
-        _ToggleInlineStyleAction(NotusAttribute.underline),
+        _ToggleInlineStyleAction(ParchmentAttribute.underline),
   };
 }
 
 class _ToggleInlineStyleAction extends ContextAction<Intent> {
-  final NotusAttribute attribute;
+  final ParchmentAttribute attribute;
 
   _ToggleInlineStyleAction(this.attribute);
 

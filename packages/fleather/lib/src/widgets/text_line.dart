@@ -143,12 +143,12 @@ class _TextLineState extends State<TextLine> {
   }
 
   TextAlign getTextAlign(LineNode node) {
-    final alignment = node.style.get(NotusAttribute.alignment);
-    if (alignment == NotusAttribute.center) {
+    final alignment = node.style.get(ParchmentAttribute.alignment);
+    if (alignment == ParchmentAttribute.center) {
       return TextAlign.center;
-    } else if (alignment == NotusAttribute.right) {
+    } else if (alignment == ParchmentAttribute.right) {
       return TextAlign.right;
-    } else if (alignment == NotusAttribute.justify) {
+    } else if (alignment == ParchmentAttribute.justify) {
       return TextAlign.justify;
     }
     return TextAlign.left;
@@ -168,7 +168,7 @@ class _TextLineState extends State<TextLine> {
   TextSpan _segmentToTextSpan(Node segment, ZefyrThemeData theme) {
     final text = segment as TextNode;
     final attrs = text.style;
-    final isLink = attrs.contains(NotusAttribute.link);
+    final isLink = attrs.contains(ParchmentAttribute.link);
     return TextSpan(
       text: text.value,
       style: _getInlineTextStyle(attrs, widget.node.style, theme),
@@ -193,12 +193,12 @@ class _TextLineState extends State<TextLine> {
   }
 
   void _tapLink(Node segment) {
-    final link = (segment as StyledNode).style.get(NotusAttribute.link)!.value;
+    final link = (segment as StyledNode).style.get(ParchmentAttribute.link)!.value;
     widget.onLaunchUrl!(link);
   }
 
   void _longPressLink(Node segment) async {
-    final link = (segment as StyledNode).style.get(NotusAttribute.link)!.value!;
+    final link = (segment as StyledNode).style.get(ParchmentAttribute.link)!.value!;
     final action = await widget.linkActionPicker(segment);
     switch (action) {
       case LinkMenuAction.launch:
@@ -211,7 +211,7 @@ class _TextLineState extends State<TextLine> {
       case LinkMenuAction.remove:
         final range = _getLinkRange(segment);
         widget.controller.formatText(
-            range.start, range.end - range.start, NotusAttribute.link.unset);
+            range.start, range.end - range.start, ParchmentAttribute.link.unset);
         break;
       case LinkMenuAction.none:
         break;
@@ -222,7 +222,7 @@ class _TextLineState extends State<TextLine> {
     int start = segment.documentOffset;
     int length = segment.length;
     var prev = segment.previous as StyledNode?;
-    final linkAttr = (segment as StyledNode).style.get(NotusAttribute.link)!;
+    final linkAttr = (segment as StyledNode).style.get(ParchmentAttribute.link)!;
     while (prev != null) {
       if (prev.style.containsSame(linkAttr)) {
         start = prev.documentOffset;
@@ -245,23 +245,23 @@ class _TextLineState extends State<TextLine> {
     return TextRange(start: start, end: start + length);
   }
 
-  TextStyle _getParagraphTextStyle(NotusStyle style, ZefyrThemeData theme) {
+  TextStyle _getParagraphTextStyle(ParchmentStyle style, ZefyrThemeData theme) {
     var textStyle = const TextStyle();
-    final heading = widget.node.style.get(NotusAttribute.heading);
-    if (heading == NotusAttribute.heading.level1) {
+    final heading = widget.node.style.get(ParchmentAttribute.heading);
+    if (heading == ParchmentAttribute.heading.level1) {
       textStyle = textStyle.merge(theme.heading1.style);
-    } else if (heading == NotusAttribute.heading.level2) {
+    } else if (heading == ParchmentAttribute.heading.level2) {
       textStyle = textStyle.merge(theme.heading2.style);
-    } else if (heading == NotusAttribute.heading.level3) {
+    } else if (heading == ParchmentAttribute.heading.level3) {
       textStyle = textStyle.merge(theme.heading3.style);
     } else {
       textStyle = textStyle.merge(theme.paragraph.style);
     }
 
-    final block = style.get(NotusAttribute.block);
-    if (block == NotusAttribute.block.quote) {
+    final block = style.get(ParchmentAttribute.block);
+    if (block == ParchmentAttribute.block.quote) {
       textStyle = textStyle.merge(theme.quote.style);
-    } else if (block == NotusAttribute.block.code) {
+    } else if (block == ParchmentAttribute.block.code) {
       textStyle = textStyle.merge(theme.code.style);
     } else if (block != null) {
       // lists
@@ -272,24 +272,24 @@ class _TextLineState extends State<TextLine> {
   }
 
   TextStyle _getInlineTextStyle(
-      NotusStyle nodeStyle, NotusStyle lineStyle, ZefyrThemeData theme) {
+      ParchmentStyle nodeStyle, ParchmentStyle lineStyle, ZefyrThemeData theme) {
     var result = const TextStyle();
-    if (nodeStyle.containsSame(NotusAttribute.bold)) {
+    if (nodeStyle.containsSame(ParchmentAttribute.bold)) {
       result = _mergeTextStyleWithDecoration(result, theme.bold);
     }
-    if (nodeStyle.containsSame(NotusAttribute.italic)) {
+    if (nodeStyle.containsSame(ParchmentAttribute.italic)) {
       result = _mergeTextStyleWithDecoration(result, theme.italic);
     }
-    if (nodeStyle.contains(NotusAttribute.link)) {
+    if (nodeStyle.contains(ParchmentAttribute.link)) {
       result = _mergeTextStyleWithDecoration(result, theme.link);
     }
-    if (nodeStyle.contains(NotusAttribute.underline)) {
+    if (nodeStyle.contains(ParchmentAttribute.underline)) {
       result = _mergeTextStyleWithDecoration(result, theme.underline);
     }
-    if (nodeStyle.contains(NotusAttribute.strikethrough)) {
+    if (nodeStyle.contains(ParchmentAttribute.strikethrough)) {
       result = _mergeTextStyleWithDecoration(result, theme.strikethrough);
     }
-    if (nodeStyle.contains(NotusAttribute.inlineCode)) {
+    if (nodeStyle.contains(ParchmentAttribute.inlineCode)) {
       result = _mergeTextStyleWithDecoration(
           result, theme.inlineCode.styleFor(lineStyle));
     }

@@ -700,7 +700,7 @@ class RenderEditableTextLine extends RenderEditableBox {
       if (_inlineCodeTheme.backgroundColor != null) {
         for (var item in node.children) {
           if (item is! TextNode) continue;
-          if (!item.style.containsSame(NotusAttribute.inlineCode)) continue;
+          if (!item.style.containsSame(ParchmentAttribute.inlineCode)) continue;
           final textRange = TextSelection(
               baseOffset: item.offset, extentOffset: item.offset + item.length);
           final rects = body!.getBoxesForSelection(textRange);

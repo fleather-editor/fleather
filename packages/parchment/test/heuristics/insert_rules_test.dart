@@ -5,8 +5,8 @@ import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
-final ul = NotusAttribute.ul.toJson();
-final bold = NotusAttribute.bold.toJson();
+final ul = ParchmentAttribute.ul.toJson();
+final bold = ParchmentAttribute.bold.toJson();
 
 void main() {
   group('$CatchAllInsertRule', () {
@@ -52,13 +52,13 @@ void main() {
     test('applies when line-break is inserted at the end of line', () {
       final doc = Delta()
         ..insert('Hello world')
-        ..insert('\n', NotusAttribute.h1.toJson());
+        ..insert('\n', ParchmentAttribute.h1.toJson());
       final actual = rule.apply(doc, 11, '\n');
       expect(actual, isNotNull);
       final expected = Delta()
         ..retain(11)
-        ..insert('\n', NotusAttribute.h1.toJson())
-        ..retain(1, NotusAttribute.heading.unset.toJson());
+        ..insert('\n', ParchmentAttribute.h1.toJson())
+        ..retain(1, ParchmentAttribute.heading.unset.toJson());
       expect(actual, expected);
     });
 
@@ -73,38 +73,38 @@ void main() {
     });
 
     test('applies at the beginning of a document', () {
-      final doc = Delta()..insert('\n', NotusAttribute.h1.toJson());
+      final doc = Delta()..insert('\n', ParchmentAttribute.h1.toJson());
       final actual = rule.apply(doc, 0, '\n');
       expect(actual, isNotNull);
       final expected = Delta()
-        ..insert('\n', NotusAttribute.h1.toJson())
-        ..retain(1, NotusAttribute.heading.unset.toJson());
+        ..insert('\n', ParchmentAttribute.h1.toJson())
+        ..retain(1, ParchmentAttribute.heading.unset.toJson());
       expect(actual, expected);
     });
 
     test('applies and keeps block style', () {
-      final style = NotusAttribute.ul.toJson();
-      style.addAll(NotusAttribute.h1.toJson());
+      final style = ParchmentAttribute.ul.toJson();
+      style.addAll(ParchmentAttribute.h1.toJson());
       final doc = Delta()..insert('Hello world')..insert('\n', style);
       final actual = rule.apply(doc, 11, '\n');
       expect(actual, isNotNull);
       final expected = Delta()
         ..retain(11)
         ..insert('\n', style)
-        ..retain(1, NotusAttribute.heading.unset.toJson());
+        ..retain(1, ParchmentAttribute.heading.unset.toJson());
       expect(actual, expected);
     });
 
     test('applies to a line in the middle of a document', () {
       final doc = Delta()
         ..insert('Hello \nworld!\nMore lines here.')
-        ..insert('\n', NotusAttribute.h2.toJson());
+        ..insert('\n', ParchmentAttribute.h2.toJson());
       final actual = rule.apply(doc, 30, '\n');
       expect(actual, isNotNull);
       final expected = Delta()
         ..retain(30)
-        ..insert('\n', NotusAttribute.h2.toJson())
-        ..retain(1, NotusAttribute.heading.unset.toJson());
+        ..insert('\n', ParchmentAttribute.h2.toJson())
+        ..retain(1, ParchmentAttribute.heading.unset.toJson());
       expect(actual, expected);
     });
   });
@@ -114,7 +114,7 @@ void main() {
 
     test('applies when newline is inserted on the last empty line in a block',
         () {
-      final ul = NotusAttribute.ul.toJson();
+      final ul = ParchmentAttribute.ul.toJson();
       final doc = Delta()
         ..insert('Item 1')
         ..insert('\n', ul)
@@ -124,35 +124,35 @@ void main() {
       expect(actual, isNotNull);
       final expected = Delta()
         ..retain(14)
-        ..retain(1, NotusAttribute.block.unset.toJson());
+        ..retain(1, ParchmentAttribute.block.unset.toJson());
       expect(actual, expected);
     });
 
     test('applies only on empty line', () {
-      final ul = NotusAttribute.ul.toJson();
+      final ul = ParchmentAttribute.ul.toJson();
       final doc = Delta()..insert('Item 1')..insert('\n', ul);
       final actual = rule.apply(doc, 6, '\n');
       expect(actual, isNull);
     });
 
     test('applies at the beginning of a document', () {
-      final ul = NotusAttribute.ul.toJson();
+      final ul = ParchmentAttribute.ul.toJson();
       final doc = Delta()..insert('\n', ul);
       final actual = rule.apply(doc, 0, '\n');
       expect(actual, isNotNull);
-      final expected = Delta()..retain(1, NotusAttribute.block.unset.toJson());
+      final expected = Delta()..retain(1, ParchmentAttribute.block.unset.toJson());
       expect(actual, expected);
     });
 
     test('ignores non-empty line at the beginning of a document', () {
-      final ul = NotusAttribute.ul.toJson();
+      final ul = ParchmentAttribute.ul.toJson();
       final doc = Delta()..insert('Text')..insert('\n', ul);
       final actual = rule.apply(doc, 0, '\n');
       expect(actual, isNull);
     });
 
     test('ignores empty lines in the middle of a block', () {
-      final ul = NotusAttribute.ul.toJson();
+      final ul = ParchmentAttribute.ul.toJson();
       final doc = Delta()..insert('Line1')..insert('\n\n\n\n', ul);
       final actual = rule.apply(doc, 7, '\n');
       expect(actual, isNull);
@@ -182,7 +182,7 @@ void main() {
 
   group('$AutoFormatLinksRule', () {
     final rule = AutoFormatLinksRule();
-    final link = NotusAttribute.link.fromString('https://example.com').toJson();
+    final link = ParchmentAttribute.link.fromString('https://example.com').toJson();
 
     test('apply simple', () {
       final doc = Delta()..insert('Doc with link https://example.com');
@@ -268,10 +268,10 @@ void main() {
     });
 
     test('preserves heading style of the original line', () {
-      final quote = NotusAttribute.block.quote.toJson();
-      final h1Unset = NotusAttribute.heading.unset.toJson();
-      final quoteH1 = NotusAttribute.block.quote.toJson();
-      quoteH1.addAll(NotusAttribute.heading.level1.toJson());
+      final quote = ParchmentAttribute.block.quote.toJson();
+      final h1Unset = ParchmentAttribute.heading.unset.toJson();
+      final quoteH1 = ParchmentAttribute.block.quote.toJson();
+      quoteH1.addAll(ParchmentAttribute.heading.level1.toJson());
       final doc = Delta()
         ..insert('One and two')
         ..insert('\n', quoteH1)
@@ -288,10 +288,10 @@ void main() {
     });
 
     test('preserves checked style of the original line', () {
-      final cl = NotusAttribute.cl.toJson();
-      final checkedUnset = NotusAttribute.checked.unset.toJson();
-      final clChecked = NotusAttribute.cl.toJson();
-      clChecked.addAll(NotusAttribute.checked.toJson());
+      final cl = ParchmentAttribute.cl.toJson();
+      final checkedUnset = ParchmentAttribute.checked.unset.toJson();
+      final clChecked = ParchmentAttribute.cl.toJson();
+      clChecked.addAll(ParchmentAttribute.checked.toJson());
       final doc = Delta()
         ..insert('One and two')
         ..insert('\n', clChecked)
@@ -381,14 +381,14 @@ void main() {
       final actual = rule.apply(doc, 1, ' ');
       final expected = Delta()
         ..delete(1)
-        ..retain(1, NotusAttribute.h1.toJson());
+        ..retain(1, ParchmentAttribute.h1.toJson());
       expect(actual, expected);
     });
 
     test('ignores if already formatted with the same style', () {
       final doc = Delta()
         ..insert('#')
-        ..insert('\n', NotusAttribute.h1.toJson());
+        ..insert('\n', ParchmentAttribute.h1.toJson());
       final actual = rule.apply(doc, 1, ' ');
       expect(actual, isNull);
     });
@@ -396,11 +396,11 @@ void main() {
     test('changes existing style', () {
       final doc = Delta()
         ..insert('##')
-        ..insert('\n', NotusAttribute.h1.toJson());
+        ..insert('\n', ParchmentAttribute.h1.toJson());
       final actual = rule.apply(doc, 2, ' ');
       final expected = Delta()
         ..delete(2)
-        ..retain(1, NotusAttribute.h2.toJson());
+        ..retain(1, ParchmentAttribute.h2.toJson());
       expect(actual, expected);
     });
 
@@ -409,7 +409,7 @@ void main() {
       final actual = rule.apply(doc, 2, '`');
       final expected = Delta()
         ..delete(2)
-        ..retain(1, NotusAttribute.code.toJson());
+        ..retain(1, ParchmentAttribute.code.toJson());
       expect(actual, expected);
     });
 
@@ -425,7 +425,7 @@ void main() {
       final actual = doc.compose(changes!)..trim();
       final expected = Delta()
         ..insert('line\n')
-        ..insert('\n', NotusAttribute.h3.toJson())
+        ..insert('\n', ParchmentAttribute.h3.toJson())
         ..insert('zefy\n');
 
       expect(actual, expected);
@@ -438,7 +438,7 @@ void main() {
       final expected = Delta()
         ..insert('line\n')
         ..insert('zefy\n')
-        ..insert('\n', NotusAttribute.h3.toJson());
+        ..insert('\n', ParchmentAttribute.h3.toJson());
 
       expect(actual, expected);
     });
@@ -446,22 +446,22 @@ void main() {
     test('preserve line attributes', () {
       final doc = Delta()
         ..insert('-item')
-        ..insert('\n', NotusAttribute.h1.toJson());
+        ..insert('\n', ParchmentAttribute.h1.toJson());
       final changes = rule.apply(doc, 1, ' ');
       final actual = doc.compose(changes!)..trim();
       final expected = Delta()
         ..insert('item')
         ..insert(
             '\n',
-            NotusAttribute.h1.toJson()
-              ..addAll(NotusAttribute.block.bulletList.toJson()));
+            ParchmentAttribute.h1.toJson()
+              ..addAll(ParchmentAttribute.block.bulletList.toJson()));
       expect(actual, expected);
     });
 
     test('ignores if already formatted', () {
       final doc = Delta()
         ..insert('- item')
-        ..insert('\n', NotusAttribute.block.bulletList.toJson());
+        ..insert('\n', ParchmentAttribute.block.bulletList.toJson());
       final actual = rule.apply(doc, 1, ' ');
       expect(actual, isNull);
     });

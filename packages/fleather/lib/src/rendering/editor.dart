@@ -126,7 +126,7 @@ class RenderEditor extends RenderEditableContainerBox
   RenderEditor({
     ViewportOffset? offset,
     List<RenderEditableBox>? children,
-    required NotusDocument document,
+    required ParchmentDocument document,
     required TextDirection textDirection,
     required bool hasFocus,
     required TextSelection selection,
@@ -153,9 +153,9 @@ class RenderEditor extends RenderEditableContainerBox
           padding: padding,
         );
 
-  NotusDocument _document;
+  ParchmentDocument _document;
 
-  set document(NotusDocument value) {
+  set document(ParchmentDocument value) {
     if (_document == value) {
       return;
     }

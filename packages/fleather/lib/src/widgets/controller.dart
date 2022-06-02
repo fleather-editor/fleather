@@ -7,20 +7,20 @@ import 'package:fleather/util.dart';
 
 /// List of style keys which can be toggled for insertion
 List<String> _insertionToggleableStyleKeys = [
-  NotusAttribute.bold.key,
-  NotusAttribute.italic.key,
-  NotusAttribute.underline.key,
-  NotusAttribute.strikethrough.key,
-  NotusAttribute.inlineCode.key,
+  ParchmentAttribute.bold.key,
+  ParchmentAttribute.italic.key,
+  ParchmentAttribute.underline.key,
+  ParchmentAttribute.strikethrough.key,
+  ParchmentAttribute.inlineCode.key,
 ];
 
 class ZefyrController extends ChangeNotifier {
-  ZefyrController([NotusDocument? document])
-      : document = document ?? NotusDocument(),
+  ZefyrController([ParchmentDocument? document])
+      : document = document ?? ParchmentDocument(),
         _selection = const TextSelection.collapsed(offset: 0);
 
   /// Document managed by this controller.
-  final NotusDocument document;
+  final ParchmentDocument document;
 
   /// Currently selected text within the [document].
   TextSelection get selection => _selection;
@@ -29,14 +29,14 @@ class ZefyrController extends ChangeNotifier {
   /// Store any styles attribute that got toggled by the tap of a button
   /// and that has not been applied yet.
   /// It gets reset after each format action within the [document].
-  NotusStyle get toggledStyles => _toggledStyles;
-  NotusStyle _toggledStyles = NotusStyle();
+  ParchmentStyle get toggledStyles => _toggledStyles;
+  ParchmentStyle _toggledStyles = ParchmentStyle();
 
   /// Returns style of specified text range.
   ///
   /// If nothing is selected but we've toggled an attribute,
   /// we also merge those in our style before returning.
-  NotusStyle getSelectionStyle() {
+  ParchmentStyle getSelectionStyle() {
     final start = _selection.start;
     final length = _selection.end - start;
     var lineStyle = document.collectStyle(start, length);
@@ -79,7 +79,7 @@ class ZefyrController extends ChangeNotifier {
     }
 
     // Always reset it after any user action, even if it has not been applied.
-    _toggledStyles = NotusStyle();
+    _toggledStyles = ParchmentStyle();
 
     if (selection != null) {
       if (delta == null) {
@@ -105,7 +105,7 @@ class ZefyrController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void formatText(int index, int length, NotusAttribute attribute) {
+  void formatText(int index, int length, ParchmentAttribute attribute) {
     final change = document.format(index, length, attribute);
     // _lastChangeSource = ChangeSource.local;
     const source = ChangeSource.local;
@@ -129,7 +129,7 @@ class ZefyrController extends ChangeNotifier {
   }
 
   /// Formats current selection with [attribute].
-  void formatSelection(NotusAttribute attribute) {
+  void formatSelection(ParchmentAttribute attribute) {
     final index = _selection.start;
     final length = _selection.end - index;
     formatText(index, length, attribute);

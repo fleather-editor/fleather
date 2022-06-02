@@ -10,7 +10,7 @@ import 'line.dart';
 
 /// An abstract node in a document tree.
 ///
-/// Represents a segment of a Notus document with specified [offset]
+/// Represents a segment of a Parchment document with specified [offset]
 /// and [length].
 ///
 /// The [offset] property is relative to [parent]. See also [documentOffset]
@@ -75,11 +75,11 @@ abstract class Node extends LinkedListEntry<Node> {
   String toPlainText();
 
   /// Insert [data] at specified character [index] with style [style].
-  void insert(int index, Object data, NotusStyle? style);
+  void insert(int index, Object data, ParchmentStyle? style);
 
   /// Format [length] characters of this node starting from [index] with
   /// specified style [style].
-  void retain(int index, int length, NotusStyle? style);
+  void retain(int index, int length, ParchmentStyle? style);
 
   /// Delete [length] characters of this node starting from [index].
   void delete(int index, int length);
@@ -231,7 +231,7 @@ abstract class ContainerNode<T extends Node> extends Node {
   int get length => _children.fold(0, (current, node) => current + node.length);
 
   @override
-  void insert(int index, Object data, NotusStyle? style) {
+  void insert(int index, Object data, ParchmentStyle? style) {
     assert(index == 0 || (index > 0 && index < length));
 
     if (isEmpty) {
@@ -246,7 +246,7 @@ abstract class ContainerNode<T extends Node> extends Node {
   }
 
   @override
-  void retain(int index, int length, NotusStyle? style) {
+  void retain(int index, int length, ParchmentStyle? style) {
     assert(isNotEmpty);
     final res = lookup(index);
     res.node!.retain(res.offset, length, style);
@@ -266,29 +266,29 @@ abstract class ContainerNode<T extends Node> extends Node {
 /// An interface for document nodes with style.
 abstract class StyledNode implements Node {
   /// Style of this node.
-  NotusStyle get style;
+  ParchmentStyle get style;
 }
 
 /// Mixin used by nodes that wish to implement [StyledNode] interface.
 abstract class StyledNodeMixin implements StyledNode {
   @override
-  NotusStyle get style => _style;
-  NotusStyle _style = NotusStyle();
+  ParchmentStyle get style => _style;
+  ParchmentStyle _style = ParchmentStyle();
 
   /// Applies style [attribute] to this node.
-  void applyAttribute(NotusAttribute attribute) {
+  void applyAttribute(ParchmentAttribute attribute) {
     _style = _style.merge(attribute);
   }
 
   /// Applies new style [value] to this node. Provided [value] is merged
   /// into current style.
-  void applyStyle(NotusStyle value) {
+  void applyStyle(ParchmentStyle value) {
     _style = _style.mergeAll(value);
   }
 
   /// Clears style of this node.
   void clearStyle() {
-    _style = NotusStyle();
+    _style = ParchmentStyle();
   }
 }
 

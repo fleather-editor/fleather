@@ -5,7 +5,7 @@ import 'package:quiver/core.dart';
 
 const _dataEquality = DeepCollectionEquality();
 
-/// An object which can be embedded into a Notus document.
+/// An object which can be embedded into a Parchment document.
 ///
 /// See also:
 ///
@@ -80,7 +80,7 @@ class EmbeddableObject {
 
 /// An object which can be embedded on the same line (inline) with regular text.
 ///
-/// Span embeds are not currently supported by Notus document model and this
+/// Span embeds are not currently supported by Parchment document model and this
 /// class exists to establish the contract for future work.
 // TODO: document model currently only supports BlockEmbeds and need to be updated to support SpanEmbeds.
 class SpanEmbed extends EmbeddableObject {
@@ -95,7 +95,7 @@ class SpanEmbed extends EmbeddableObject {
 ///
 /// Examples of block embeds include horizontal rule, an image or a map view.
 ///
-/// There are two built-en embed types supported by Notus documents, however
+/// There are two built-en embed types supported by Parchment documents, however
 /// the document model itself does not make any assumptions about the types
 /// of embedded objects and allows users to define their own types.
 ///

@@ -114,7 +114,7 @@ class _LinkStyleButtonState extends State<LinkStyleButton> {
 
   void _linkSubmitted(String? value) {
     if (value == null || value.isEmpty) return;
-    widget.controller.formatSelection(NotusAttribute.link.fromString(value));
+    widget.controller.formatSelection(ParchmentAttribute.link.fromString(value));
   }
 }
 
@@ -162,7 +162,7 @@ class _LinkDialogState extends State<_LinkDialog> {
 /// See [defaultToggleStyleButtonBuilder] as a reference implementation.
 typedef ToggleStyleButtonBuilder = Widget Function(
   BuildContext context,
-  NotusAttribute attribute,
+  ParchmentAttribute attribute,
   IconData icon,
   bool isToggled,
   VoidCallback? onPressed,
@@ -171,7 +171,7 @@ typedef ToggleStyleButtonBuilder = Widget Function(
 /// Toolbar button which allows to toggle a style attribute on or off.
 class ToggleStyleButton extends StatefulWidget {
   /// The style attribute controlled by this button.
-  final NotusAttribute attribute;
+  final ParchmentAttribute attribute;
 
   /// The icon representing the style [attribute].
   final IconData icon;
@@ -197,7 +197,7 @@ class ToggleStyleButton extends StatefulWidget {
 class _ToggleStyleButtonState extends State<ToggleStyleButton> {
   late bool _isToggled;
 
-  NotusStyle get _selectionStyle => widget.controller.getSelectionStyle();
+  ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
 
   void _didChangeEditingValue() {
     setState(() => _checkIsToggled());
@@ -233,9 +233,9 @@ class _ToggleStyleButtonState extends State<ToggleStyleButton> {
     // is no point in applying styles to a unformatted block of text.
     // TODO: Add code block checks to heading and embed buttons as well.
     final isInCodeBlock =
-        _selectionStyle.containsSame(NotusAttribute.block.code);
+        _selectionStyle.containsSame(ParchmentAttribute.block.code);
     final isEnabled =
-        !isInCodeBlock || widget.attribute == NotusAttribute.block.code;
+        !isInCodeBlock || widget.attribute == ParchmentAttribute.block.code;
     return widget.childBuilder(context, widget.attribute, widget.icon,
         _isToggled, isEnabled ? _toggleAttribute : null);
   }
@@ -262,7 +262,7 @@ class _ToggleStyleButtonState extends State<ToggleStyleButton> {
 /// Default builder for toggle style buttons.
 Widget defaultToggleStyleButtonBuilder(
   BuildContext context,
-  NotusAttribute attribute,
+  ParchmentAttribute attribute,
   IconData icon,
   bool isToggled,
   VoidCallback? onPressed,
@@ -302,14 +302,14 @@ class SelectHeadingStyleButton extends StatefulWidget {
 }
 
 class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
-  NotusAttribute? _value;
+  ParchmentAttribute? _value;
 
-  NotusStyle get _selectionStyle => widget.controller.getSelectionStyle();
+  ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
 
   void _didChangeEditingValue() {
     setState(() {
-      _value = _selectionStyle.get(NotusAttribute.heading) ??
-          NotusAttribute.heading.unset;
+      _value = _selectionStyle.get(ParchmentAttribute.heading) ??
+          ParchmentAttribute.heading.unset;
     });
   }
 
@@ -320,8 +320,8 @@ class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
   @override
   void initState() {
     super.initState();
-    _value = _selectionStyle.get(NotusAttribute.heading) ??
-        NotusAttribute.heading.unset;
+    _value = _selectionStyle.get(ParchmentAttribute.heading) ??
+        ParchmentAttribute.heading.unset;
     widget.controller.addListener(_didChangeEditingValue);
   }
 
@@ -331,8 +331,8 @@ class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_didChangeEditingValue);
       widget.controller.addListener(_didChangeEditingValue);
-      _value = _selectionStyle.get(NotusAttribute.heading) ??
-          NotusAttribute.heading.unset;
+      _value = _selectionStyle.get(ParchmentAttribute.heading) ??
+          ParchmentAttribute.heading.unset;
     }
   }
 
@@ -349,46 +349,46 @@ class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
 }
 
 Widget _selectHeadingStyleButtonBuilder(BuildContext context,
-    NotusAttribute? value, ValueChanged<NotusAttribute?> onSelected) {
+    ParchmentAttribute? value, ValueChanged<ParchmentAttribute?> onSelected) {
   const style = TextStyle(fontSize: 12);
 
   final valueToText = {
-    NotusAttribute.heading.unset: 'Normal text',
-    NotusAttribute.heading.level1: 'Heading 1',
-    NotusAttribute.heading.level2: 'Heading 2',
-    NotusAttribute.heading.level3: 'Heading 3',
+    ParchmentAttribute.heading.unset: 'Normal text',
+    ParchmentAttribute.heading.level1: 'Heading 1',
+    ParchmentAttribute.heading.level2: 'Heading 2',
+    ParchmentAttribute.heading.level3: 'Heading 3',
   };
 
-  return ZDropdownButton<NotusAttribute?>(
+  return ZDropdownButton<ParchmentAttribute?>(
     highlightElevation: 0,
     hoverElevation: 0,
     height: 32,
     initialValue: value,
     items: [
       PopupMenuItem(
-        value: NotusAttribute.heading.unset,
+        value: ParchmentAttribute.heading.unset,
         height: 32,
-        child: Text(valueToText[NotusAttribute.heading.unset]!, style: style),
+        child: Text(valueToText[ParchmentAttribute.heading.unset]!, style: style),
       ),
       PopupMenuItem(
-        value: NotusAttribute.heading.level1,
+        value: ParchmentAttribute.heading.level1,
         height: 32,
-        child: Text(valueToText[NotusAttribute.heading.level1]!, style: style),
+        child: Text(valueToText[ParchmentAttribute.heading.level1]!, style: style),
       ),
       PopupMenuItem(
-        value: NotusAttribute.heading.level2,
+        value: ParchmentAttribute.heading.level2,
         height: 32,
-        child: Text(valueToText[NotusAttribute.heading.level2]!, style: style),
+        child: Text(valueToText[ParchmentAttribute.heading.level2]!, style: style),
       ),
       PopupMenuItem(
-        value: NotusAttribute.heading.level3,
+        value: ParchmentAttribute.heading.level3,
         height: 32,
-        child: Text(valueToText[NotusAttribute.heading.level3]!, style: style),
+        child: Text(valueToText[ParchmentAttribute.heading.level3]!, style: style),
       ),
     ],
     onSelected: onSelected,
     child: Text(
-      valueToText[value as NotusAttribute<int>]!,
+      valueToText[value as ParchmentAttribute<int>]!,
       style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
     ),
   );
@@ -425,7 +425,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideBoldButton,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.bold,
+          attribute: ParchmentAttribute.bold,
           icon: Icons.format_bold,
           controller: controller,
         ),
@@ -434,7 +434,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideItalicButton,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.italic,
+          attribute: ParchmentAttribute.italic,
           icon: Icons.format_italic,
           controller: controller,
         ),
@@ -443,7 +443,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideUnderLineButton,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.underline,
+          attribute: ParchmentAttribute.underline,
           icon: Icons.format_underline,
           controller: controller,
         ),
@@ -452,7 +452,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideStrikeThrough,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.strikethrough,
+          attribute: ParchmentAttribute.strikethrough,
           icon: Icons.format_strikethrough,
           controller: controller,
         ),
@@ -461,7 +461,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideInlineCode,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.inlineCode,
+          attribute: ParchmentAttribute.inlineCode,
           icon: Icons.code,
           controller: controller,
         ),
@@ -473,7 +473,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
           visible: !hideDirection,
           child: ToggleStyleButton(
-            attribute: NotusAttribute.rtl,
+            attribute: ParchmentAttribute.rtl,
             icon: Icons.format_textdirection_r_to_l,
             controller: controller,
           )),
@@ -481,7 +481,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideAlignment,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.left,
+          attribute: ParchmentAttribute.left,
           icon: Icons.format_align_left,
           controller: controller,
         ),
@@ -490,7 +490,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideAlignment,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.center,
+          attribute: ParchmentAttribute.center,
           icon: Icons.format_align_center,
           controller: controller,
         ),
@@ -499,7 +499,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideAlignment,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.right,
+          attribute: ParchmentAttribute.right,
           icon: Icons.format_align_right,
           controller: controller,
         ),
@@ -508,7 +508,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideAlignment,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.justify,
+          attribute: ParchmentAttribute.justify,
           icon: Icons.format_align_justify,
           controller: controller,
         ),
@@ -524,7 +524,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideListNumbers,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.block.numberList,
+          attribute: ParchmentAttribute.block.numberList,
           controller: controller,
           icon: Icons.format_list_numbered,
         ),
@@ -532,7 +532,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideListBullets,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.block.bulletList,
+          attribute: ParchmentAttribute.block.bulletList,
           controller: controller,
           icon: Icons.format_list_bulleted,
         ),
@@ -540,7 +540,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideListChecks,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.block.checkList,
+          attribute: ParchmentAttribute.block.checkList,
           controller: controller,
           icon: Icons.checklist,
         ),
@@ -548,7 +548,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideCodeBlock,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.block.code,
+          attribute: ParchmentAttribute.block.code,
           controller: controller,
           icon: Icons.code,
         ),
@@ -560,7 +560,7 @@ class ZefyrToolbar extends StatefulWidget implements PreferredSizeWidget {
       Visibility(
         visible: !hideQuote,
         child: ToggleStyleButton(
-          attribute: NotusAttribute.block.quote,
+          attribute: ParchmentAttribute.block.quote,
           controller: controller,
           icon: Icons.format_quote,
         ),

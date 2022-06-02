@@ -9,23 +9,23 @@ import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('$NotusMarkdownCodec.encode', () {
+  group('$ParchmentMarkdownCodec.encode', () {
     test('unimplemented', () {
       expect(() {
-        notusMarkdown.decode('test');
+        parchmentMarkdown.decode('test');
       }, throwsUnimplementedError);
     });
   });
 
-  group('$NotusMarkdownCodec.encode', () {
+  group('$ParchmentMarkdownCodec.encode', () {
     test('split adjacent paragraphs', () {
       final delta = Delta()..insert('First line\nSecond line\n');
-      final result = notusMarkdown.encode(delta);
+      final result = parchmentMarkdown.encode(delta);
       expect(result, 'First line\n\nSecond line\n\n');
     });
 
     test('bold italic', () {
-      void runFor(NotusAttribute<bool> attribute, String expected) {
+      void runFor(ParchmentAttribute<bool> attribute, String expected) {
         final delta = Delta()
           ..insert('This ')
           ..insert('house', attribute.toJson())
@@ -33,17 +33,17 @@ void main() {
           ..insert('circus', attribute.toJson())
           ..insert('\n');
 
-        final result = notusMarkdown.encode(delta);
+        final result = parchmentMarkdown.encode(delta);
         expect(result, expected);
       }
 
-      runFor(NotusAttribute.bold, 'This **house** is a **circus**\n\n');
-      runFor(NotusAttribute.italic, 'This _house_ is a _circus_\n\n');
+      runFor(ParchmentAttribute.bold, 'This **house** is a **circus**\n\n');
+      runFor(ParchmentAttribute.italic, 'This _house_ is a _circus_\n\n');
     });
 
     test('intersecting inline styles', () {
-      final b = NotusAttribute.bold.toJson();
-      final i = NotusAttribute.italic.toJson();
+      final b = ParchmentAttribute.bold.toJson();
+      final i = ParchmentAttribute.italic.toJson();
       final bi = Map<String, dynamic>.from(b);
       bi.addAll(i);
 
@@ -54,13 +54,13 @@ void main() {
         ..insert('circus', b)
         ..insert('\n');
 
-      final result = notusMarkdown.encode(delta);
+      final result = parchmentMarkdown.encode(delta);
       expect(result, 'This **house _is a_ circus**\n\n');
     });
 
     test('normalize inline styles', () {
-      final b = NotusAttribute.bold.toJson();
-      final i = NotusAttribute.italic.toJson();
+      final b = ParchmentAttribute.bold.toJson();
+      final i = ParchmentAttribute.italic.toJson();
       final delta = Delta()
         ..insert('This')
         ..insert(' house ', b)
@@ -68,13 +68,13 @@ void main() {
         ..insert(' circus ', i)
         ..insert('\n');
 
-      final result = notusMarkdown.encode(delta);
+      final result = parchmentMarkdown.encode(delta);
       expect(result, 'This **house** is a _circus_ \n\n');
     });
 
     test('links', () {
-      final b = NotusAttribute.bold.toJson();
-      final link = NotusAttribute.link.fromString('https://github.com');
+      final b = ParchmentAttribute.bold.toJson();
+      final link = ParchmentAttribute.link.fromString('https://github.com');
       final delta = Delta()
         ..insert('This')
         ..insert(' house ', b)
@@ -82,61 +82,61 @@ void main() {
         ..insert(' circus ', link.toJson())
         ..insert('\n');
 
-      final result = notusMarkdown.encode(delta);
+      final result = parchmentMarkdown.encode(delta);
       expect(result, 'This **house** is a [circus](https://github.com) \n\n');
     });
 
     test('heading styles', () {
       void runFor(
-          NotusAttribute<int> attribute, String source, String expected) {
+          ParchmentAttribute<int> attribute, String source, String expected) {
         final delta = Delta()
           ..insert(source)
           ..insert('\n', attribute.toJson());
-        final result = notusMarkdown.encode(delta);
+        final result = parchmentMarkdown.encode(delta);
         expect(result, expected);
       }
 
-      runFor(NotusAttribute.h1, 'Title', '# Title\n\n');
-      runFor(NotusAttribute.h2, 'Title', '## Title\n\n');
-      runFor(NotusAttribute.h3, 'Title', '### Title\n\n');
+      runFor(ParchmentAttribute.h1, 'Title', '# Title\n\n');
+      runFor(ParchmentAttribute.h2, 'Title', '## Title\n\n');
+      runFor(ParchmentAttribute.h3, 'Title', '### Title\n\n');
     });
 
     test('block styles', () {
       void runFor(
-          NotusAttribute<String> attribute, String source, String expected) {
+          ParchmentAttribute<String> attribute, String source, String expected) {
         final delta = Delta()
           ..insert(source)
           ..insert('\n', attribute.toJson());
-        final result = notusMarkdown.encode(delta);
+        final result = parchmentMarkdown.encode(delta);
         expect(result, expected);
       }
 
-      runFor(NotusAttribute.ul, 'List item', '* List item\n\n');
-      runFor(NotusAttribute.ol, 'List item', '1. List item\n\n');
-      runFor(NotusAttribute.bq, 'List item', '> List item\n\n');
-      runFor(NotusAttribute.code, 'List item', '```\nList item\n```\n\n');
+      runFor(ParchmentAttribute.ul, 'List item', '* List item\n\n');
+      runFor(ParchmentAttribute.ol, 'List item', '1. List item\n\n');
+      runFor(ParchmentAttribute.bq, 'List item', '> List item\n\n');
+      runFor(ParchmentAttribute.code, 'List item', '```\nList item\n```\n\n');
     });
 
     test('multiline blocks', () {
       void runFor(
-          NotusAttribute<String> attribute, String source, String expected) {
+          ParchmentAttribute<String> attribute, String source, String expected) {
         final delta = Delta()
           ..insert(source)
           ..insert('\n', attribute.toJson())
           ..insert(source)
           ..insert('\n', attribute.toJson());
-        final result = notusMarkdown.encode(delta);
+        final result = parchmentMarkdown.encode(delta);
         expect(result, expected);
       }
 
-      runFor(NotusAttribute.ul, 'text', '* text\n* text\n\n');
-      runFor(NotusAttribute.ol, 'text', '1. text\n1. text\n\n');
-      runFor(NotusAttribute.bq, 'text', '> text\n> text\n\n');
-      runFor(NotusAttribute.code, 'text', '```\ntext\ntext\n```\n\n');
+      runFor(ParchmentAttribute.ul, 'text', '* text\n* text\n\n');
+      runFor(ParchmentAttribute.ol, 'text', '1. text\n1. text\n\n');
+      runFor(ParchmentAttribute.bq, 'text', '> text\n> text\n\n');
+      runFor(ParchmentAttribute.code, 'text', '```\ntext\ntext\n```\n\n');
     });
 
     test('multiple styles', () {
-      final result = notusMarkdown.encode(delta);
+      final result = parchmentMarkdown.encode(delta);
       expect(result, expectedMarkdown);
     });
   });

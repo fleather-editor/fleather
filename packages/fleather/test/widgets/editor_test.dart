@@ -14,10 +14,10 @@ void main() {
       var delta = Delta()
         ..insert(
           'Website',
-          NotusAttribute.link.fromString('https://github.com').toJson(),
+          ParchmentAttribute.link.fromString('https://github.com').toJson(),
         )
         ..insert('\n');
-      var doc = NotusDocument.fromDelta(delta);
+      var doc = ParchmentDocument.fromDelta(delta);
       final BuildContext context = tester.element(find.byType(Container));
       var theme = ZefyrThemeData.fallback(context)
           .copyWith(link: const TextStyle(color: Colors.red));
