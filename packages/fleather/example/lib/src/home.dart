@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:fleather/fleather.dart';
 
 import 'forms_decorated_field.dart';
 import 'layout.dart';
@@ -43,12 +43,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadFromAssets() async {
     try {
       final result = await rootBundle.loadString('assets/welcome.note');
-      final doc = NotusDocument.fromJson(jsonDecode(result));
+      final doc = ParchmentDocument.fromJson(jsonDecode(result));
       setState(() {
         _controller = ZefyrController(doc);
       });
     } catch (error) {
-      final doc = NotusDocument()..insert(0, 'Empty asset');
+      final doc = ParchmentDocument()..insert(0, 'Empty asset');
       setState(() {
         _controller = ZefyrController(doc);
       });

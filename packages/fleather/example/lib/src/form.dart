@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:fleather/fleather.dart';
 
 import 'full_page.dart';
 
@@ -17,7 +17,7 @@ class FormEmbeddedScreen extends StatefulWidget {
 }
 
 class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
-  final ZefyrController _controller = ZefyrController(NotusDocument());
+  final ZefyrController _controller = ZefyrController(ParchmentDocument());
   final FocusNode _focusNode = FocusNode();
 
   bool _darkTheme = false;

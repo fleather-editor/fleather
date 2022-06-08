@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:quill_delta/quill_delta.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:fleather/fleather.dart';
 
 class EditorPage extends StatefulWidget {
   const EditorPage({Key key}) : super(key: key);
@@ -58,15 +58,15 @@ class EditorPageState extends State<EditorPage> {
 
   /// Loads the document asynchronously from a file if it exists, otherwise
   /// returns default document.
-  Future<NotusDocument> _loadDocument() async {
+  Future<ParchmentDocument> _loadDocument() async {
     final file = File(Directory.systemTemp.path + '/quick_start.json');
     if (await file.exists()) {
       final contents = await file.readAsString().then(
           (data) => Future.delayed(const Duration(seconds: 1), () => data));
-      return NotusDocument.fromJson(jsonDecode(contents));
+      return ParchmentDocument.fromJson(jsonDecode(contents));
     }
     final delta = Delta()..insert('Zefyr Quick Start\n');
-    return NotusDocument()..compose(delta, ChangeSource.local);
+    return ParchmentDocument()..compose(delta, ChangeSource.local);
   }
 
   void _saveDocument(BuildContext context) {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:fleather/fleather.dart';
 
 import 'scaffold.dart';
 
