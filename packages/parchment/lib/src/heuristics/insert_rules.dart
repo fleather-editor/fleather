@@ -203,7 +203,8 @@ class AutoExitBlockRule extends InsertRule {
     final nextNewline = _findNextNewline(iter);
     if (nextNewline.isNotEmpty &&
         nextNewline.op!.attributes != null &&
-        nextNewline.op!.attributes![ParchmentAttribute.block.key] == blockStyle) {
+        nextNewline.op!.attributes![ParchmentAttribute.block.key] ==
+            blockStyle) {
       // We are not at the end of this block, ignore.
       return null;
     }
@@ -212,7 +213,9 @@ class AutoExitBlockRule extends InsertRule {
     // therefore we can exit this block.
     final attributes = target.attributes ?? <String, dynamic>{};
     attributes.addAll(ParchmentAttribute.block.unset.toJson());
-    return Delta()..retain(index)..retain(1, attributes);
+    return Delta()
+      ..retain(index)
+      ..retain(1, attributes);
   }
 }
 
@@ -238,8 +241,8 @@ class PreserveInlineStylesRule extends InsertRule {
     if (previousText.contains('\n')) return null;
 
     final attributes = previous.attributes;
-    final hasLink =
-        (attributes != null && attributes.containsKey(ParchmentAttribute.link.key));
+    final hasLink = (attributes != null &&
+        attributes.containsKey(ParchmentAttribute.link.key));
     if (!hasLink) {
       return Delta()
         ..retain(index)
@@ -336,10 +339,14 @@ class ForceNewlineForInsertsAroundEmbedRule extends InsertRule {
     if (cursorBeforeEmbed || cursorAfterEmbed) {
       final delta = Delta()..retain(index);
       if (cursorBeforeEmbed && !data.endsWith('\n')) {
-        return delta..insert(data)..insert('\n');
+        return delta
+          ..insert(data)
+          ..insert('\n');
       }
       if (cursorAfterEmbed && !data.startsWith('\n')) {
-        return delta..insert('\n')..insert(data);
+        return delta
+          ..insert('\n')
+          ..insert(data);
       }
       return delta..insert(data);
     }
@@ -424,7 +431,9 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
       result.retain(nextNewline.skippedLength!);
       final opText = nextNewline.op!.data as String;
       final lf = opText.indexOf('\n');
-      result..retain(lf)..retain(1, resetStyle);
+      result
+        ..retain(lf)
+        ..retain(1, resetStyle);
     }
 
     return result;

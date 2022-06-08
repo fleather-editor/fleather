@@ -13,19 +13,19 @@ class EditorSandBox {
   final WidgetTester tester;
   final FocusNode focusNode;
   final ParchmentDocument document;
-  final ZefyrController controller;
+  final FleatherController controller;
   final Widget widget;
 
   factory EditorSandBox({
     required WidgetTester tester,
     FocusNode? focusNode,
     ParchmentDocument? document,
-    ZefyrThemeData? theme,
+    FleatherThemeData? theme,
     bool autofocus = false,
   }) {
     focusNode ??= FocusNode();
     document ??= ParchmentDocument.fromDelta(delta);
-    var controller = ZefyrController(document);
+    var controller = FleatherController(document);
 
     Widget widget = _ZefyrSandbox(
       controller: controller,
@@ -34,7 +34,7 @@ class EditorSandBox {
     );
 
     if (theme != null) {
-      widget = ZefyrTheme(data: theme, child: widget);
+      widget = FleatherTheme(data: theme, child: widget);
     }
     widget = MaterialApp(
       home: widget,
@@ -117,7 +117,7 @@ class _ZefyrSandbox extends StatefulWidget {
     required this.focusNode,
     this.autofocus = false,
   }) : super(key: key);
-  final ZefyrController controller;
+  final FleatherController controller;
   final FocusNode focusNode;
   final bool autofocus;
 

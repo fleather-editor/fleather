@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class ZefyrPressedKeys extends ChangeNotifier {
-  static ZefyrPressedKeys of(BuildContext context) {
-    final widget =
-        context.dependOnInheritedWidgetOfExactType<_ZefyrPressedKeysAccess>();
+class FleatherPressedKeys extends ChangeNotifier {
+  static FleatherPressedKeys of(BuildContext context) {
+    final widget = context
+        .dependOnInheritedWidgetOfExactType<_FleatherPressedKeysAccess>();
     return widget!.pressedKeys;
   }
 
@@ -30,17 +30,18 @@ class ZefyrPressedKeys extends ChangeNotifier {
   }
 }
 
-class ZefyrKeyboardListener extends StatefulWidget {
+class FleatherKeyboardListener extends StatefulWidget {
   final Widget child;
-  const ZefyrKeyboardListener({Key? key, required this.child})
+  const FleatherKeyboardListener({Key? key, required this.child})
       : super(key: key);
 
   @override
-  ZefyrKeyboardListenerState createState() => ZefyrKeyboardListenerState();
+  FleatherKeyboardListenerState createState() =>
+      FleatherKeyboardListenerState();
 }
 
-class ZefyrKeyboardListenerState extends State<ZefyrKeyboardListener> {
-  final ZefyrPressedKeys _pressedKeys = ZefyrPressedKeys();
+class FleatherKeyboardListenerState extends State<FleatherKeyboardListener> {
+  final FleatherPressedKeys _pressedKeys = FleatherPressedKeys();
 
   bool _keyEvent(KeyEvent event) {
     _pressedKeys
@@ -65,23 +66,23 @@ class ZefyrKeyboardListenerState extends State<ZefyrKeyboardListener> {
 
   @override
   Widget build(BuildContext context) {
-    return _ZefyrPressedKeysAccess(
+    return _FleatherPressedKeysAccess(
       pressedKeys: _pressedKeys,
       child: widget.child,
     );
   }
 }
 
-class _ZefyrPressedKeysAccess extends InheritedWidget {
-  final ZefyrPressedKeys pressedKeys;
-  const _ZefyrPressedKeysAccess({
+class _FleatherPressedKeysAccess extends InheritedWidget {
+  final FleatherPressedKeys pressedKeys;
+  const _FleatherPressedKeysAccess({
     Key? key,
     required this.pressedKeys,
     required Widget child,
   }) : super(key: key, child: child);
 
   @override
-  bool updateShouldNotify(covariant _ZefyrPressedKeysAccess oldWidget) {
+  bool updateShouldNotify(covariant _FleatherPressedKeysAccess oldWidget) {
     return oldWidget.pressedKeys != pressedKeys;
   }
 }

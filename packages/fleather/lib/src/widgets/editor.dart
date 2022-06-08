@@ -26,8 +26,8 @@ import 'text_line.dart';
 import 'text_selection.dart';
 import 'theme.dart';
 
-/// Builder function for embeddable objects in [ZefyrEditor].
-typedef ZefyrEmbedBuilder = Widget Function(
+/// Builder function for embeddable objects in [FleatherEditor].
+typedef FleatherEmbedBuilder = Widget Function(
     BuildContext context, EmbedNode node);
 
 /// Default implementation of a builder function for embeddable objects in
@@ -36,7 +36,7 @@ typedef ZefyrEmbedBuilder = Widget Function(
 /// Only supports "horizontal rule" embeds.
 Widget defaultZefyrEmbedBuilder(BuildContext context, EmbedNode node) {
   if (node.value.type == 'hr') {
-    final theme = ZefyrTheme.of(context)!;
+    final theme = FleatherTheme.of(context)!;
     return Divider(
       height: theme.paragraph.style.fontSize! * theme.paragraph.style.height!,
       thickness: 2,
@@ -50,12 +50,12 @@ Widget defaultZefyrEmbedBuilder(BuildContext context, EmbedNode node) {
 }
 
 /// Widget for editing rich text documents.
-class ZefyrEditor extends StatefulWidget {
+class FleatherEditor extends StatefulWidget {
   /// Controller object which establishes a link between a rich text document
   /// and this editor.
   ///
   /// Must not be null.
-  final ZefyrController controller;
+  final FleatherController controller;
 
   /// Controls whether this editor has keyboard focus.
   ///
@@ -185,7 +185,7 @@ class ZefyrEditor extends StatefulWidget {
   /// Builder function for embeddable objects.
   ///
   /// Defaults to [defaultZefyrEmbedBuilder].
-  final ZefyrEmbedBuilder embedBuilder;
+  final FleatherEmbedBuilder embedBuilder;
 
   /// Delegate function responsible for showing menu with link actions on
   /// mobile platforms (iOS, Android).
@@ -202,7 +202,7 @@ class ZefyrEditor extends StatefulWidget {
   /// Material [ListTile]s.
   final LinkActionPickerDelegate linkActionPickerDelegate;
 
-  const ZefyrEditor({
+  const FleatherEditor({
     Key? key,
     required this.controller,
     this.focusNode,
@@ -226,10 +226,10 @@ class ZefyrEditor extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ZefyrEditorState createState() => _ZefyrEditorState();
+  _FleatherEditorState createState() => _FleatherEditorState();
 }
 
-class _ZefyrEditorState extends State<ZefyrEditor>
+class _FleatherEditorState extends State<FleatherEditor>
     implements EditorTextSelectionGestureDetectorBuilderDelegate {
   final GlobalKey<EditorState> _editorKey = GlobalKey<EditorState>();
 
@@ -254,7 +254,7 @@ class _ZefyrEditorState extends State<ZefyrEditor>
   void initState() {
     super.initState();
     _selectionGestureDetectorBuilder =
-        _ZefyrEditorSelectionGestureDetectorBuilder(state: this);
+        _FleatherEditorSelectionGestureDetectorBuilder(state: this);
   }
 
   static const Set<TargetPlatform> _mobilePlatforms = {
@@ -341,7 +341,7 @@ class _ZefyrEditorState extends State<ZefyrEditor>
       selectionControls: textSelectionControls,
     );
 
-    child = ZefyrShortcuts(
+    child = FleatherShortcuts(
       child: ZefyrActions(child: child),
     );
 
@@ -352,14 +352,14 @@ class _ZefyrEditorState extends State<ZefyrEditor>
   }
 }
 
-class _ZefyrEditorSelectionGestureDetectorBuilder
+class _FleatherEditorSelectionGestureDetectorBuilder
     extends EditorTextSelectionGestureDetectorBuilder {
-  _ZefyrEditorSelectionGestureDetectorBuilder({
-    required _ZefyrEditorState state,
+  _FleatherEditorSelectionGestureDetectorBuilder({
+    required _FleatherEditorState state,
   })  : _state = state,
         super(delegate: state);
 
-  final _ZefyrEditorState _state;
+  final _FleatherEditorState _state;
 
   @override
   void onForcePressStart(ForcePressDetails details) {
@@ -517,7 +517,7 @@ class RawEditor extends StatefulWidget {
         super(key: key);
 
   /// Controls the document being edited.
-  final ZefyrController controller;
+  final FleatherController controller;
 
   /// Controls whether this editor has keyboard focus.
   final FocusNode? focusNode;
@@ -653,7 +653,7 @@ class RawEditor extends StatefulWidget {
   /// Builder function for embeddable objects.
   ///
   /// Defaults to [defaultZefyrEmbedBuilder].
-  final ZefyrEmbedBuilder embedBuilder;
+  final FleatherEmbedBuilder embedBuilder;
 
   final LinkActionPickerDelegate linkActionPickerDelegate;
 
@@ -668,7 +668,7 @@ class RawEditor extends StatefulWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
-        .add(DiagnosticsProperty<ZefyrController>('controller', controller));
+        .add(DiagnosticsProperty<FleatherController>('controller', controller));
     properties.add(DiagnosticsProperty<FocusNode>('focusNode', focusNode));
     properties.add(DoubleProperty('maxLines', maxHeight, defaultValue: null));
     properties.add(DoubleProperty('minLines', minHeight, defaultValue: null));
@@ -719,12 +719,12 @@ class RawEditorState extends EditorState
   final GlobalKey _editorKey = GlobalKey();
 
   // Theme
-  late ZefyrThemeData _themeData;
+  late FleatherThemeData _themeData;
 
   // Cursors
   late CursorController _cursorController;
 
-  ZefyrController get controller => widget.controller;
+  FleatherController get controller => widget.controller;
 
   // Selection overlay
   @override
@@ -906,8 +906,8 @@ class RawEditorState extends EditorState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final parentTheme = ZefyrTheme.of(context, nullOk: true);
-    final fallbackTheme = ZefyrThemeData.fallback(context);
+    final parentTheme = FleatherTheme.of(context, nullOk: true);
+    final fallbackTheme = FleatherThemeData.fallback(context);
     _themeData = (parentTheme != null)
         ? fallbackTheme.merge(parentTheme)
         : fallbackTheme;
@@ -1206,7 +1206,7 @@ class RawEditorState extends EditorState
       child = BaselineProxy(
         textStyle: _themeData.paragraph.style,
         padding: baselinePadding,
-        child: ZefyrSingleChildScrollView(
+        child: FleatherSingleChildScrollView(
           controller: _scrollController,
           physics: widget.scrollPhysics,
           viewportBuilder: (_, offset) => CompositedTransformTarget(
@@ -1237,7 +1237,7 @@ class RawEditorState extends EditorState
             minHeight: widget.minHeight ?? 0.0,
             maxHeight: widget.maxHeight ?? double.infinity);
 
-    return ZefyrTheme(
+    return FleatherTheme(
       data: _themeData,
       child: MouseRegion(
         cursor: SystemMouseCursors.text,
@@ -1245,7 +1245,7 @@ class RawEditorState extends EditorState
           actions: _actions,
           child: Focus(
             focusNode: effectiveFocusNode,
-            child: ZefyrKeyboardListener(
+            child: FleatherKeyboardListener(
               child: Container(
                 constraints: constraints,
                 child: child,
@@ -1312,7 +1312,7 @@ class RawEditorState extends EditorState
     return result;
   }
 
-  VerticalSpacing _getSpacingForLine(LineNode node, ZefyrThemeData theme) {
+  VerticalSpacing _getSpacingForLine(LineNode node, FleatherThemeData theme) {
     final style = node.style.get(ParchmentAttribute.heading);
     if (style == ParchmentAttribute.heading.level1) {
       return theme.heading1.spacing;
@@ -1325,7 +1325,7 @@ class RawEditorState extends EditorState
     return theme.paragraph.spacing;
   }
 
-  VerticalSpacing _getSpacingForBlock(BlockNode node, ZefyrThemeData theme) {
+  VerticalSpacing _getSpacingForBlock(BlockNode node, FleatherThemeData theme) {
     final style = node.style.get(ParchmentAttribute.block);
     if (style == ParchmentAttribute.block.code) {
       return theme.code.spacing;
@@ -2050,7 +2050,7 @@ class _UpdateTextSelectionToAdjacentLineAction<
 
   final RawEditorState state;
 
-  ZefyrVerticalCaretMovementRun? _verticalMovementRun;
+  FleatherVerticalCaretMovementRun? _verticalMovementRun;
   TextSelection? _runSelection;
 
   void stopCurrentVerticalRunIfSelectionChanges() {
@@ -2082,7 +2082,7 @@ class _UpdateTextSelectionToAdjacentLineAction<
       return;
     }
 
-    final ZefyrVerticalCaretMovementRun currentRun = _verticalMovementRun ??
+    final FleatherVerticalCaretMovementRun currentRun = _verticalMovementRun ??
         state.renderEditor
             .startVerticalCaretMovement(state.renderEditor.selection.extent);
 

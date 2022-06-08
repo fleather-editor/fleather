@@ -35,7 +35,9 @@ void main() {
       final actual = rule.apply(doc, 0, 0, ParchmentAttribute.ul);
       expect(actual, isNotNull);
       final ul = ParchmentAttribute.ul.toJson();
-      final expected = Delta()..retain(7)..retain(1, ul);
+      final expected = Delta()
+        ..retain(7)
+        ..retain(1, ul);
       expect(actual, expected);
     });
 
@@ -48,7 +50,9 @@ void main() {
         ..insert('\n', ul)
         ..insert('Three!\n');
       final actual = rule.apply(doc, 7, 0, ParchmentAttribute.ul);
-      final expected = Delta()..retain(9)..retain(1, ul);
+      final expected = Delta()
+        ..retain(9)
+        ..retain(1, ul);
       expect(actual, expected);
     });
 
@@ -65,7 +69,9 @@ void main() {
       final actual = rule.apply(doc, 7, 0, ParchmentAttribute.cl.unset);
       final noBlockNoChecked = ParchmentAttribute.block.unset.toJson()
         ..addAll(ParchmentAttribute.checked.unset.toJson());
-      final expected = Delta()..retain(9)..retain(1, noBlockNoChecked);
+      final expected = Delta()
+        ..retain(9)
+        ..retain(1, noBlockNoChecked);
       expect(actual, expected);
     });
   });
@@ -95,10 +101,10 @@ void main() {
     final rule = FormatLinkAtCaretPositionRule();
 
     test('apply', () {
-      final link =
-          ParchmentAttribute.link.fromString('https://github.com/memspace/bold');
-      final newLink =
-          ParchmentAttribute.link.fromString('https://github.com/memspace/zefyr');
+      final link = ParchmentAttribute.link
+          .fromString('https://github.com/memspace/bold');
+      final newLink = ParchmentAttribute.link
+          .fromString('https://github.com/memspace/zefyr');
       final doc = Delta()
         ..insert('Visit our ')
         ..insert('website', link.toJson())
@@ -106,7 +112,9 @@ void main() {
 
       final actual = rule.apply(doc, 13, 0, newLink);
       expect(actual, isNotNull);
-      final expected = Delta()..retain(10)..retain(7, newLink.toJson());
+      final expected = Delta()
+        ..retain(10)
+        ..retain(7, newLink.toJson());
       expect(actual, expected);
     });
   });

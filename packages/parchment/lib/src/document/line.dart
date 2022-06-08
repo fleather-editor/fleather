@@ -243,7 +243,8 @@ class LineNode extends ContainerNode<LeafNode>
 
     if (isLineFormat) {
       assert(
-          style.values.every((attr) => attr.scope == ParchmentAttributeScope.line),
+          style.values
+              .every((attr) => attr.scope == ParchmentAttributeScope.line),
           'It is not allowed to apply inline attributes to line itself.');
       _formatAndOptimize(style);
     } else {
@@ -315,7 +316,8 @@ class LineNode extends ContainerNode<LeafNode>
 
     final blockStyle = newStyle.get(ParchmentAttribute.block)!;
     if (parent is BlockNode) {
-      final parentStyle = (parent as BlockNode).style.get(ParchmentAttribute.block);
+      final parentStyle =
+          (parent as BlockNode).style.get(ParchmentAttribute.block);
       if (blockStyle == ParchmentAttribute.block.unset) {
         unwrap();
       } else if (blockStyle != parentStyle) {

@@ -5,8 +5,8 @@ import 'package:parchment/parchment.dart';
 
 import 'editor.dart';
 
-class ZefyrShortcuts extends Shortcuts {
-  ZefyrShortcuts({Key? key, required Widget child})
+class FleatherShortcuts extends Shortcuts {
+  FleatherShortcuts({Key? key, required Widget child})
       : super(
           key: key,
           shortcuts: _shortcuts,
@@ -76,7 +76,8 @@ class ZefyrActions extends Actions {
   static final Map<Type, Action<Intent>> _shortcutsActions =
       <Type, Action<Intent>>{
     ToggleBoldStyleIntent: _ToggleInlineStyleAction(ParchmentAttribute.bold),
-    ToggleItalicStyleIntent: _ToggleInlineStyleAction(ParchmentAttribute.italic),
+    ToggleItalicStyleIntent:
+        _ToggleInlineStyleAction(ParchmentAttribute.italic),
     ToggleUnderlineStyleIntent:
         _ToggleInlineStyleAction(ParchmentAttribute.underline),
   };

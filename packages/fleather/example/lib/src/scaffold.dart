@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:fleather/fleather.dart';
 
 import 'settings.dart';
 
 typedef DemoContentBuilder = Widget Function(
-    BuildContext context, ZefyrController controller);
+    BuildContext context, FleatherController controller);
 
 // Common scaffold for all examples.
 class DemoScaffold extends StatefulWidget {
@@ -34,7 +34,7 @@ class DemoScaffold extends StatefulWidget {
 
 class _DemoScaffoldState extends State<DemoScaffold> {
   final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-  ZefyrController _controller;
+  FleatherController _controller;
 
   bool _loading = false;
   bool _canSave = false;
@@ -63,15 +63,15 @@ class _DemoScaffoldState extends State<DemoScaffold> {
     try {
       final result =
           await rootBundle.loadString('assets/${widget.documentFilename}');
-      final doc = NotusDocument.fromJson(jsonDecode(result));
+      final doc = ParchmentDocument.fromJson(jsonDecode(result));
       setState(() {
-        _controller = ZefyrController(doc);
+        _controller = FleatherController(doc);
         _loading = false;
       });
     } catch (error) {
-      final doc = NotusDocument()..insert(0, 'Empty asset');
+      final doc = ParchmentDocument()..insert(0, 'Empty asset');
       setState(() {
-        _controller = ZefyrController(doc);
+        _controller = FleatherController(doc);
         _loading = false;
       });
     }
@@ -82,16 +82,16 @@ class _DemoScaffoldState extends State<DemoScaffold> {
     final file = fs.directory(assetsPath).childFile(widget.documentFilename);
     if (await file.exists()) {
       final data = await file.readAsString();
-      final doc = NotusDocument.fromJson(jsonDecode(data));
+      final doc = ParchmentDocument.fromJson(jsonDecode(data));
       setState(() {
-        _controller = ZefyrController(doc);
+        _controller = FleatherController(doc);
         _loading = false;
         _canSave = true;
       });
     } else {
-      final doc = NotusDocument()..insert(0, 'Empty asset');
+      final doc = ParchmentDocument()..insert(0, 'Empty asset');
       setState(() {
-        _controller = ZefyrController(doc);
+        _controller = FleatherController(doc);
         _loading = false;
         _canSave = true;
       });
@@ -140,7 +140,7 @@ class _DemoScaffoldState extends State<DemoScaffold> {
           ),
           title: _loading || widget.showToolbar == false
               ? null
-              : ZefyrToolbar.basic(controller: _controller),
+              : FleatherToolbar.basic(controller: _controller),
           actions: actions,
         ),
         floatingActionButton: widget.floatingActionButton,

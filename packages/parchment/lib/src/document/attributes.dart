@@ -35,7 +35,8 @@ abstract class ParchmentAttributeKey<T> {
 ///   * [LinkAttributeBuilder]
 ///   * [BlockAttributeBuilder]
 ///   * [HeadingAttributeBuilder]
-abstract class ParchmentAttributeBuilder<T> implements ParchmentAttributeKey<T> {
+abstract class ParchmentAttributeBuilder<T>
+    implements ParchmentAttributeKey<T> {
   const ParchmentAttributeBuilder._(this.key, this.scope);
 
   @override
@@ -152,6 +153,7 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
 
   /// Alias for [ParchmentAttribute.direction.rtl].
   static ParchmentAttribute<String> get rtl => direction.rtl;
+
   /// Alignment attribute
   static const alignment = AlignmentAttributeBuilder._();
 
@@ -369,7 +371,8 @@ class _ItalicAttribute extends ParchmentAttribute<bool> {
 
 /// Applies underline style to a text segment.
 class _UnderlineAttribute extends ParchmentAttribute<bool> {
-  const _UnderlineAttribute() : super._('u', ParchmentAttributeScope.inline, true);
+  const _UnderlineAttribute()
+      : super._('u', ParchmentAttributeScope.inline, true);
 }
 
 /// Applies strikethrough style to a text segment.
@@ -380,7 +383,8 @@ class _StrikethroughAttribute extends ParchmentAttribute<bool> {
 
 /// Applies code style to a text segment.
 class _InlineCodeAttribute extends ParchmentAttribute<bool> {
-  const _InlineCodeAttribute() : super._('c', ParchmentAttributeScope.inline, true);
+  const _InlineCodeAttribute()
+      : super._('c', ParchmentAttributeScope.inline, true);
 }
 
 /// Builder for link attribute values.
@@ -389,7 +393,8 @@ class _InlineCodeAttribute extends ParchmentAttribute<bool> {
 /// [ParchmentAttribute.link] instead.
 class LinkAttributeBuilder extends ParchmentAttributeBuilder<String> {
   static const _kLink = 'a';
-  const LinkAttributeBuilder._() : super._(_kLink, ParchmentAttributeScope.inline);
+  const LinkAttributeBuilder._()
+      : super._(_kLink, ParchmentAttributeScope.inline);
 
   /// Creates a link attribute with specified link [value].
   ParchmentAttribute<String> fromString(String value) =>
@@ -406,13 +411,16 @@ class HeadingAttributeBuilder extends ParchmentAttributeBuilder<int> {
       : super._(_kHeading, ParchmentAttributeScope.line);
 
   /// Level 1 heading, equivalent of `H1` in HTML.
-  ParchmentAttribute<int> get level1 => ParchmentAttribute<int>._(key, scope, 1);
+  ParchmentAttribute<int> get level1 =>
+      ParchmentAttribute<int>._(key, scope, 1);
 
   /// Level 2 heading, equivalent of `H2` in HTML.
-  ParchmentAttribute<int> get level2 => ParchmentAttribute<int>._(key, scope, 2);
+  ParchmentAttribute<int> get level2 =>
+      ParchmentAttribute<int>._(key, scope, 2);
 
   /// Level 3 heading, equivalent of `H3` in HTML.
-  ParchmentAttribute<int> get level3 => ParchmentAttribute<int>._(key, scope, 3);
+  ParchmentAttribute<int> get level3 =>
+      ParchmentAttribute<int>._(key, scope, 3);
 }
 
 /// Applies checked style to a line in a checklist block.
@@ -427,7 +435,8 @@ class _CheckedAttribute extends ParchmentAttribute<bool> {
 /// [ParchmentAttribute.block] instead.
 class BlockAttributeBuilder extends ParchmentAttributeBuilder<String> {
   static const _kBlock = 'block';
-  const BlockAttributeBuilder._() : super._(_kBlock, ParchmentAttributeScope.line);
+  const BlockAttributeBuilder._()
+      : super._(_kBlock, ParchmentAttributeScope.line);
 
   /// Formats a block of lines as a bullet list.
   ParchmentAttribute<String> get bulletList =>
@@ -455,7 +464,8 @@ class DirectionAttributeBuilder extends ParchmentAttributeBuilder<String> {
   const DirectionAttributeBuilder._()
       : super._(_kDirection, ParchmentAttributeScope.line);
 
-  ParchmentAttribute<String> get rtl => ParchmentAttribute<String>._(key, scope, 'rtl');
+  ParchmentAttribute<String> get rtl =>
+      ParchmentAttribute<String>._(key, scope, 'rtl');
 }
 
 class AlignmentAttributeBuilder extends ParchmentAttributeBuilder<String> {

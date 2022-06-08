@@ -7,7 +7,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:fleather/fleather.dart';
 
 class ZefyrLogo extends StatelessWidget {
   const ZefyrLogo({Key key}) : super(key: key);
@@ -42,11 +42,11 @@ const doc =
 enum _Options { darkTheme }
 
 class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
-  final ZefyrController _controller =
-      ZefyrController(NotusDocument.fromJson(json.decode(doc)));
+  final FleatherController _controller =
+      FleatherController(ParchmentDocument.fromJson(json.decode(doc)));
   final FocusNode _focusNode = FocusNode();
   bool _editing = false;
-  StreamSubscription<NotusChange> _sub;
+  StreamSubscription<ParchmentChange> _sub;
   bool _darkTheme = false;
 
   @override

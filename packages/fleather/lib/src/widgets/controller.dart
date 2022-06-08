@@ -14,8 +14,8 @@ List<String> _insertionToggleableStyleKeys = [
   ParchmentAttribute.inlineCode.key,
 ];
 
-class ZefyrController extends ChangeNotifier {
-  ZefyrController([ParchmentDocument? document])
+class FleatherController extends ChangeNotifier {
+  FleatherController([ParchmentDocument? document])
       : document = document ?? ParchmentDocument(),
         _selection = const TextSelection.collapsed(offset: 0);
 

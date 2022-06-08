@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:fleather/fleather.dart';
 
 import 'scaffold.dart';
 
@@ -22,7 +22,7 @@ class _DecoratedFieldDemoState extends State<DecoratedFieldDemo> {
     );
   }
 
-  Widget _buildContent(BuildContext context, ZefyrController controller) {
+  Widget _buildContent(BuildContext context, FleatherController controller) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ListView(
@@ -38,7 +38,7 @@ class _DecoratedFieldDemoState extends State<DecoratedFieldDemo> {
               labelText: 'Description',
               hintText: 'Detailed description, but not too detailed',
             ),
-            toolbar: ZefyrToolbar.basic(controller: controller),
+            toolbar: FleatherToolbar.basic(controller: controller),
             // minHeight: 80.0,
             // maxHeight: 160.0,
           ),

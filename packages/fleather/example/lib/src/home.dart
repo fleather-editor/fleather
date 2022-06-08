@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:fleather/fleather.dart';
 
 import 'forms_decorated_field.dart';
 import 'layout.dart';
@@ -22,7 +22,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  ZefyrController _controller;
+  FleatherController _controller;
   final FocusNode _focusNode = FocusNode();
 
   Settings _settings;
@@ -43,14 +43,14 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadFromAssets() async {
     try {
       final result = await rootBundle.loadString('assets/welcome.note');
-      final doc = NotusDocument.fromJson(jsonDecode(result));
+      final doc = ParchmentDocument.fromJson(jsonDecode(result));
       setState(() {
-        _controller = ZefyrController(doc);
+        _controller = FleatherController(doc);
       });
     } catch (error) {
-      final doc = NotusDocument()..insert(0, 'Empty asset');
+      final doc = ParchmentDocument()..insert(0, 'Empty asset');
       setState(() {
-        _controller = ZefyrController(doc);
+        _controller = FleatherController(doc);
       });
     }
   }
@@ -161,13 +161,13 @@ class _HomePageState extends State<HomePage> {
   Widget _buildWelcomeEditor(BuildContext context) {
     return Column(
       children: [
-        ZefyrToolbar.basic(controller: _controller),
+        FleatherToolbar.basic(controller: _controller),
         Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
         Expanded(
           child: Container(
             color: Colors.white,
             padding: const EdgeInsets.only(left: 16.0, right: 0.0),
-            child: ZefyrEditor(
+            child: FleatherEditor(
               controller: _controller,
               focusNode: _focusNode,
               autofocus: true,

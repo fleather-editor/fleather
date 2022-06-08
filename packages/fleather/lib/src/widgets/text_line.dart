@@ -22,8 +22,8 @@ class TextLine extends StatefulWidget {
   /// Line of text represented by this widget.
   final LineNode node;
   final bool readOnly;
-  final ZefyrController controller;
-  final ZefyrEmbedBuilder embedBuilder;
+  final FleatherController controller;
+  final FleatherEmbedBuilder embedBuilder;
   final ValueChanged<String?>? onLaunchUrl;
   final LinkActionPicker linkActionPicker;
 
@@ -48,7 +48,7 @@ class _TextLineState extends State<TextLine> {
 
   final _linkRecognizers = <Node, GestureRecognizer>{};
 
-  ZefyrPressedKeys? _pressedKeys;
+  FleatherPressedKeys? _pressedKeys;
 
   void _pressedKeysChanged() {
     final newValue = _pressedKeys!.metaPressed || _pressedKeys!.controlPressed;
@@ -87,11 +87,11 @@ class _TextLineState extends State<TextLine> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_pressedKeys == null) {
-      _pressedKeys = ZefyrPressedKeys.of(context);
+      _pressedKeys = FleatherPressedKeys.of(context);
       _pressedKeys!.addListener(_pressedKeysChanged);
     } else {
       _pressedKeys!.removeListener(_pressedKeysChanged);
-      _pressedKeys = ZefyrPressedKeys.of(context);
+      _pressedKeys = FleatherPressedKeys.of(context);
       _pressedKeys!.addListener(_pressedKeysChanged);
     }
   }
@@ -155,7 +155,7 @@ class _TextLineState extends State<TextLine> {
   }
 
   TextSpan buildText(BuildContext context, LineNode node) {
-    final theme = ZefyrTheme.of(context)!;
+    final theme = FleatherTheme.of(context)!;
     final children = node.children
         .map((node) => _segmentToTextSpan(node, theme))
         .toList(growable: false);
@@ -165,7 +165,7 @@ class _TextLineState extends State<TextLine> {
     );
   }
 
-  TextSpan _segmentToTextSpan(Node segment, ZefyrThemeData theme) {
+  TextSpan _segmentToTextSpan(Node segment, FleatherThemeData theme) {
     final text = segment as TextNode;
     final attrs = text.style;
     final isLink = attrs.contains(ParchmentAttribute.link);
@@ -193,12 +193,14 @@ class _TextLineState extends State<TextLine> {
   }
 
   void _tapLink(Node segment) {
-    final link = (segment as StyledNode).style.get(ParchmentAttribute.link)!.value;
+    final link =
+        (segment as StyledNode).style.get(ParchmentAttribute.link)!.value;
     widget.onLaunchUrl!(link);
   }
 
   void _longPressLink(Node segment) async {
-    final link = (segment as StyledNode).style.get(ParchmentAttribute.link)!.value!;
+    final link =
+        (segment as StyledNode).style.get(ParchmentAttribute.link)!.value!;
     final action = await widget.linkActionPicker(segment);
     switch (action) {
       case LinkMenuAction.launch:
@@ -210,8 +212,8 @@ class _TextLineState extends State<TextLine> {
         break;
       case LinkMenuAction.remove:
         final range = _getLinkRange(segment);
-        widget.controller.formatText(
-            range.start, range.end - range.start, ParchmentAttribute.link.unset);
+        widget.controller.formatText(range.start, range.end - range.start,
+            ParchmentAttribute.link.unset);
         break;
       case LinkMenuAction.none:
         break;
@@ -222,7 +224,8 @@ class _TextLineState extends State<TextLine> {
     int start = segment.documentOffset;
     int length = segment.length;
     var prev = segment.previous as StyledNode?;
-    final linkAttr = (segment as StyledNode).style.get(ParchmentAttribute.link)!;
+    final linkAttr =
+        (segment as StyledNode).style.get(ParchmentAttribute.link)!;
     while (prev != null) {
       if (prev.style.containsSame(linkAttr)) {
         start = prev.documentOffset;
@@ -245,7 +248,8 @@ class _TextLineState extends State<TextLine> {
     return TextRange(start: start, end: start + length);
   }
 
-  TextStyle _getParagraphTextStyle(ParchmentStyle style, ZefyrThemeData theme) {
+  TextStyle _getParagraphTextStyle(
+      ParchmentStyle style, FleatherThemeData theme) {
     var textStyle = const TextStyle();
     final heading = widget.node.style.get(ParchmentAttribute.heading);
     if (heading == ParchmentAttribute.heading.level1) {
@@ -271,8 +275,8 @@ class _TextLineState extends State<TextLine> {
     return textStyle;
   }
 
-  TextStyle _getInlineTextStyle(
-      ParchmentStyle nodeStyle, ParchmentStyle lineStyle, ZefyrThemeData theme) {
+  TextStyle _getInlineTextStyle(ParchmentStyle nodeStyle,
+      ParchmentStyle lineStyle, FleatherThemeData theme) {
     var result = const TextStyle();
     if (nodeStyle.containsSame(ParchmentAttribute.bold)) {
       result = _mergeTextStyleWithDecoration(result, theme.bold);
