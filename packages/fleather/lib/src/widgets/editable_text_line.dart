@@ -60,7 +60,7 @@ class EditableTextLine extends RenderObjectWidget {
 
   @override
   RenderEditableTextLine createRenderObject(BuildContext context) {
-    final theme = ZefyrTheme.of(context)!;
+    final theme = FleatherTheme.of(context)!;
     return RenderEditableTextLine(
       node: node,
       padding: _padding,
@@ -78,7 +78,7 @@ class EditableTextLine extends RenderObjectWidget {
   @override
   void updateRenderObject(
       BuildContext context, covariant RenderEditableTextLine renderObject) {
-    final theme = ZefyrTheme.of(context)!;
+    final theme = FleatherTheme.of(context)!;
     renderObject.node = node;
     renderObject.padding = _padding;
     renderObject.textDirection = Directionality.of(context);

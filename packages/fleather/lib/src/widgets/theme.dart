@@ -9,40 +9,40 @@ import 'package:parchment/parchment.dart';
 ///
 /// Describes colors and typographic styles for an editor.
 ///
-/// Descendant widgets obtain the current theme's [ZefyrThemeData] object using
-/// [ZefyrTheme.of].
+/// Descendant widgets obtain the current theme's [FleatherThemeData] object using
+/// [FleatherTheme.of].
 ///
 /// See also:
 ///
-///   * [ZefyrThemeData], which describes actual configuration of a theme.
-class ZefyrTheme extends InheritedWidget {
-  final ZefyrThemeData data;
+///   * [FleatherThemeData], which describes actual configuration of a theme.
+class FleatherTheme extends InheritedWidget {
+  final FleatherThemeData data;
 
   /// Applies the given theme [data] to [child].
   ///
   /// The [data] and [child] arguments must not be null.
-  const ZefyrTheme({
+  const FleatherTheme({
     Key? key,
     required this.data,
     required Widget child,
   }) : super(key: key, child: child);
 
   @override
-  bool updateShouldNotify(ZefyrTheme oldWidget) {
+  bool updateShouldNotify(FleatherTheme oldWidget) {
     return data != oldWidget.data;
   }
 
-  /// The data from the closest [ZefyrTheme] instance that encloses the given
+  /// The data from the closest [FleatherTheme] instance that encloses the given
   /// context.
   ///
-  /// Returns `null` if there is no [ZefyrTheme] in the given build context
+  /// Returns `null` if there is no [FleatherTheme] in the given build context
   /// and [nullOk] is set to `true`. If [nullOk] is set to `false` (default)
   /// then this method asserts.
-  static ZefyrThemeData? of(BuildContext context, {bool nullOk = false}) {
-    final widget = context.dependOnInheritedWidgetOfExactType<ZefyrTheme>();
+  static FleatherThemeData? of(BuildContext context, {bool nullOk = false}) {
+    final widget = context.dependOnInheritedWidgetOfExactType<FleatherTheme>();
     if (widget == null && nullOk) return null;
     assert(widget != null,
-        '$ZefyrTheme.of() called with a context that does not contain a ZefyrEditor.');
+        '$FleatherTheme.of() called with a context that does not contain a ZefyrEditor.');
     return widget!.data;
   }
 }
@@ -59,7 +59,7 @@ class VerticalSpacing {
         bottom = 0.0;
 }
 
-class ZefyrThemeData {
+class FleatherThemeData {
   /// Style of bold text.
   final TextStyle bold;
 
@@ -98,7 +98,7 @@ class ZefyrThemeData {
   /// Style theme for code blocks.
   final TextBlockTheme code;
 
-  ZefyrThemeData({
+  FleatherThemeData({
     required this.bold,
     required this.italic,
     required this.underline,
@@ -114,7 +114,7 @@ class ZefyrThemeData {
     required this.code,
   });
 
-  factory ZefyrThemeData.fallback(BuildContext context) {
+  factory FleatherThemeData.fallback(BuildContext context) {
     final themeData = Theme.of(context);
     final defaultStyle = DefaultTextStyle.of(context);
     final baseStyle = defaultStyle.style.copyWith(
@@ -143,7 +143,7 @@ class ZefyrThemeData {
       fontFamily: fontFamily,
     );
 
-    return ZefyrThemeData(
+    return FleatherThemeData(
       bold: const TextStyle(fontWeight: FontWeight.bold),
       italic: const TextStyle(fontStyle: FontStyle.italic),
       underline: const TextStyle(decoration: TextDecoration.underline),
@@ -229,7 +229,7 @@ class ZefyrThemeData {
     );
   }
 
-  ZefyrThemeData copyWith({
+  FleatherThemeData copyWith({
     TextStyle? bold,
     TextStyle? italic,
     TextStyle? underline,
@@ -244,7 +244,7 @@ class ZefyrThemeData {
     TextBlockTheme? quote,
     TextBlockTheme? code,
   }) {
-    return ZefyrThemeData(
+    return FleatherThemeData(
       bold: bold ?? this.bold,
       italic: italic ?? this.italic,
       underline: underline ?? this.underline,
@@ -261,7 +261,7 @@ class ZefyrThemeData {
     );
   }
 
-  ZefyrThemeData merge(ZefyrThemeData other) {
+  FleatherThemeData merge(FleatherThemeData other) {
     return copyWith(
       bold: other.bold,
       italic: other.italic,

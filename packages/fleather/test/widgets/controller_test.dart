@@ -7,12 +7,12 @@ import 'package:quill_delta/quill_delta.dart';
 import 'package:fleather/fleather.dart';
 
 void main() {
-  group('$ZefyrController', () {
-    late ZefyrController controller;
+  group('$FleatherController', () {
+    late FleatherController controller;
 
     setUp(() {
       var doc = ParchmentDocument();
-      controller = ZefyrController(doc);
+      controller = FleatherController(doc);
     });
 
     test('dispose', () {

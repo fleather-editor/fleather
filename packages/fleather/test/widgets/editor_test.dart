@@ -19,7 +19,7 @@ void main() {
         ..insert('\n');
       var doc = ParchmentDocument.fromDelta(delta);
       final BuildContext context = tester.element(find.byType(Container));
-      var theme = ZefyrThemeData.fallback(context)
+      var theme = FleatherThemeData.fallback(context)
           .copyWith(link: const TextStyle(color: Colors.red));
       var editor = EditorSandBox(tester: tester, document: doc, theme: theme);
       await editor.pumpAndTap();

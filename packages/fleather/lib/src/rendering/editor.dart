@@ -982,9 +982,9 @@ class RenderEditor extends RenderEditableContainerBox
 
   // End TextLayoutMetrics implementation
 
-  ZefyrVerticalCaretMovementRun startVerticalCaretMovement(
+  FleatherVerticalCaretMovementRun startVerticalCaretMovement(
       TextPosition startPosition) {
-    return ZefyrVerticalCaretMovementRun._(
+    return FleatherVerticalCaretMovementRun._(
       this,
       startPosition,
     );
@@ -997,9 +997,9 @@ class RenderEditor extends RenderEditableContainerBox
   }
 }
 
-class ZefyrVerticalCaretMovementRun
+class FleatherVerticalCaretMovementRun
     extends BidirectionalIterator<TextPosition> {
-  ZefyrVerticalCaretMovementRun._(
+  FleatherVerticalCaretMovementRun._(
     this._editor,
     this._currentTextPosition,
   );

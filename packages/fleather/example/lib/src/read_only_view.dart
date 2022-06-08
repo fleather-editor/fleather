@@ -29,7 +29,7 @@ class _ReadOnlyViewState extends State<ReadOnlyView> {
     );
   }
 
-  Widget _buildContent(BuildContext context, ZefyrController controller) {
+  Widget _buildContent(BuildContext context, FleatherController controller) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -37,7 +37,7 @@ class _ReadOnlyViewState extends State<ReadOnlyView> {
           color: Colors.white,
           border: Border.all(color: Colors.grey.shade200),
         ),
-        child: ZefyrEditor(
+        child: FleatherEditor(
           controller: controller,
           focusNode: _focusNode,
           autofocus: true,

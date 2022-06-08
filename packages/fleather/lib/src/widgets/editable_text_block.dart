@@ -13,7 +13,7 @@ import 'theme.dart';
 
 class EditableTextBlock extends StatelessWidget {
   final BlockNode node;
-  final ZefyrController controller;
+  final FleatherController controller;
   final bool readOnly;
   final VerticalSpacing spacing;
   final CursorController cursorController;
@@ -21,7 +21,7 @@ class EditableTextBlock extends StatelessWidget {
   final Color selectionColor;
   final bool enableInteractiveSelection;
   final bool hasFocus;
-  final ZefyrEmbedBuilder embedBuilder;
+  final FleatherEmbedBuilder embedBuilder;
   final LinkActionPicker linkActionPicker;
   final ValueChanged<String?>? onLaunchUrl;
   final EdgeInsets? contentPadding;
@@ -47,7 +47,7 @@ class EditableTextBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
 
-    final theme = ZefyrTheme.of(context)!;
+    final theme = FleatherTheme.of(context)!;
     return _EditableBlock(
       node: node,
       padding: spacing,
@@ -58,7 +58,7 @@ class EditableTextBlock extends StatelessWidget {
   }
 
   List<Widget> _buildChildren(BuildContext context) {
-    final theme = ZefyrTheme.of(context)!;
+    final theme = FleatherTheme.of(context)!;
     final count = node.children.length;
     final children = <Widget>[];
     var index = 0;
@@ -94,7 +94,7 @@ class EditableTextBlock extends StatelessWidget {
 
   Widget? _buildLeading(
       BuildContext context, LineNode node, int index, int count) {
-    final theme = ZefyrTheme.of(context)!;
+    final theme = FleatherTheme.of(context)!;
     final block = node.style.get(ParchmentAttribute.block);
     if (block == ParchmentAttribute.block.numberList) {
       return _NumberPoint(
@@ -143,7 +143,7 @@ class EditableTextBlock extends StatelessWidget {
   }
 
   VerticalSpacing _getSpacingForLine(
-      LineNode node, int index, int count, ZefyrThemeData theme) {
+      LineNode node, int index, int count, FleatherThemeData theme) {
     final heading = node.style.get(ParchmentAttribute.heading);
 
     double? top;
@@ -188,7 +188,8 @@ class EditableTextBlock extends StatelessWidget {
     return VerticalSpacing(top: top ?? 0, bottom: bottom ?? 0);
   }
 
-  BoxDecoration? _getDecorationForBlock(BlockNode node, ZefyrThemeData theme) {
+  BoxDecoration? _getDecorationForBlock(
+      BlockNode node, FleatherThemeData theme) {
     final style = node.style.get(ParchmentAttribute.block);
     if (style == ParchmentAttribute.block.quote) {
       return theme.quote.decoration;

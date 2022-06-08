@@ -23,7 +23,7 @@ class _ScrollableLayoutState extends State<ScrollableLayout> {
     );
   }
 
-  Widget _buildContent(BuildContext context, ZefyrController controller) {
+  Widget _buildContent(BuildContext context, FleatherController controller) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -44,7 +44,7 @@ class _ScrollableLayoutState extends State<ScrollableLayout> {
                   'Below you can see Zefyr editor which is embedded into this ListView'),
             ),
             const Divider(),
-            ZefyrEditor(
+            FleatherEditor(
               controller: controller,
               focusNode: _focusNode,
               scrollController: _scrollController,

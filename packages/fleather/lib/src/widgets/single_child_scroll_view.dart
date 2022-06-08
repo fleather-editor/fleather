@@ -14,9 +14,9 @@ import 'package:flutter/widgets.dart';
 ///
 /// Useful when child needs [ViewportOffset] (e.g. [RenderEditor])
 /// see: [SingleChildScrollView]
-class ZefyrSingleChildScrollView extends StatelessWidget {
+class FleatherSingleChildScrollView extends StatelessWidget {
   /// Creates a box in which a single widget can be scrolled.
-  const ZefyrSingleChildScrollView({
+  const FleatherSingleChildScrollView({
     Key? key,
     this.physics,
     required this.controller,

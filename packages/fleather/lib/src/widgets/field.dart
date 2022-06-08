@@ -9,7 +9,7 @@ class ZefyrField extends StatefulWidget {
   /// and this editor.
   ///
   /// Must not be null.
-  final ZefyrController controller;
+  final FleatherController controller;
 
   /// Controls whether this editor has keyboard focus.
   ///
@@ -136,7 +136,7 @@ class ZefyrField extends StatefulWidget {
   /// Builder function for embeddable objects.
   ///
   /// Defaults to [defaultZefyrEmbedBuilder].
-  final ZefyrEmbedBuilder embedBuilder;
+  final FleatherEmbedBuilder embedBuilder;
 
   const ZefyrField({
     Key? key,
@@ -162,10 +162,10 @@ class ZefyrField extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ZefyrFieldState createState() => _ZefyrFieldState();
+  _FleatherFieldState createState() => _FleatherFieldState();
 }
 
-class _ZefyrFieldState extends State<ZefyrField> {
+class _FleatherFieldState extends State<ZefyrField> {
   late bool _focused;
 
   void _editorFocusChanged() {
@@ -193,7 +193,7 @@ class _ZefyrFieldState extends State<ZefyrField> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = ZefyrEditor(
+    Widget child = FleatherEditor(
       controller: widget.controller,
       focusNode: widget.focusNode,
       scrollController: widget.scrollController,

@@ -42,8 +42,8 @@ const doc =
 enum _Options { darkTheme }
 
 class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
-  final ZefyrController _controller =
-      ZefyrController(ParchmentDocument.fromJson(json.decode(doc)));
+  final FleatherController _controller =
+      FleatherController(ParchmentDocument.fromJson(json.decode(doc)));
   final FocusNode _focusNode = FocusNode();
   bool _editing = false;
   StreamSubscription<ParchmentChange> _sub;

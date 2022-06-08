@@ -14,7 +14,7 @@ class EditorPage extends StatefulWidget {
 
 class EditorPageState extends State<EditorPage> {
   /// Allows to control the editor and the document.
-  ZefyrController _controller;
+  FleatherController _controller;
 
   /// Zefyr editor like any other input field requires a focus node.
   FocusNode _focusNode;
@@ -25,7 +25,7 @@ class EditorPageState extends State<EditorPage> {
     _focusNode = FocusNode();
     _loadDocument().then((document) {
       setState(() {
-        _controller = ZefyrController(document);
+        _controller = FleatherController(document);
       });
     });
   }
