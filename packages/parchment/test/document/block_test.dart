@@ -88,7 +88,8 @@ void main() {
       expect(block.childCount, 1);
       expect(block.first, const TypeMatcher<LineNode>());
       final line = block.first as LineNode;
-      expect(line.style.get(ParchmentAttribute.alignment), ParchmentAttribute.right);
+      expect(line.style.get(ParchmentAttribute.alignment),
+          ParchmentAttribute.right);
     });
 
     test('format two sibling lines as list', () {

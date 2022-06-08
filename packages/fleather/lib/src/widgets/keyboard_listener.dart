@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 
 class FleatherPressedKeys extends ChangeNotifier {
   static FleatherPressedKeys of(BuildContext context) {
-    final widget =
-        context.dependOnInheritedWidgetOfExactType<_FleatherPressedKeysAccess>();
+    final widget = context
+        .dependOnInheritedWidgetOfExactType<_FleatherPressedKeysAccess>();
     return widget!.pressedKeys;
   }
 

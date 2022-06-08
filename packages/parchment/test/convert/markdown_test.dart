@@ -102,8 +102,8 @@ void main() {
     });
 
     test('block styles', () {
-      void runFor(
-          ParchmentAttribute<String> attribute, String source, String expected) {
+      void runFor(ParchmentAttribute<String> attribute, String source,
+          String expected) {
         final delta = Delta()
           ..insert(source)
           ..insert('\n', attribute.toJson());
@@ -118,8 +118,8 @@ void main() {
     });
 
     test('multiline blocks', () {
-      void runFor(
-          ParchmentAttribute<String> attribute, String source, String expected) {
+      void runFor(ParchmentAttribute<String> attribute, String source,
+          String expected) {
         final delta = Delta()
           ..insert(source)
           ..insert('\n', attribute.toJson())

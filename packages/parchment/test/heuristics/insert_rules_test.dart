@@ -85,7 +85,9 @@ void main() {
     test('applies and keeps block style', () {
       final style = ParchmentAttribute.ul.toJson();
       style.addAll(ParchmentAttribute.h1.toJson());
-      final doc = Delta()..insert('Hello world')..insert('\n', style);
+      final doc = Delta()
+        ..insert('Hello world')
+        ..insert('\n', style);
       final actual = rule.apply(doc, 11, '\n');
       expect(actual, isNotNull);
       final expected = Delta()
@@ -130,7 +132,9 @@ void main() {
 
     test('applies only on empty line', () {
       final ul = ParchmentAttribute.ul.toJson();
-      final doc = Delta()..insert('Item 1')..insert('\n', ul);
+      final doc = Delta()
+        ..insert('Item 1')
+        ..insert('\n', ul);
       final actual = rule.apply(doc, 6, '\n');
       expect(actual, isNull);
     });
@@ -140,20 +144,25 @@ void main() {
       final doc = Delta()..insert('\n', ul);
       final actual = rule.apply(doc, 0, '\n');
       expect(actual, isNotNull);
-      final expected = Delta()..retain(1, ParchmentAttribute.block.unset.toJson());
+      final expected = Delta()
+        ..retain(1, ParchmentAttribute.block.unset.toJson());
       expect(actual, expected);
     });
 
     test('ignores non-empty line at the beginning of a document', () {
       final ul = ParchmentAttribute.ul.toJson();
-      final doc = Delta()..insert('Text')..insert('\n', ul);
+      final doc = Delta()
+        ..insert('Text')
+        ..insert('\n', ul);
       final actual = rule.apply(doc, 0, '\n');
       expect(actual, isNull);
     });
 
     test('ignores empty lines in the middle of a block', () {
       final ul = ParchmentAttribute.ul.toJson();
-      final doc = Delta()..insert('Line1')..insert('\n\n\n\n', ul);
+      final doc = Delta()
+        ..insert('Line1')
+        ..insert('\n\n\n\n', ul);
       final actual = rule.apply(doc, 7, '\n');
       expect(actual, isNull);
     });
@@ -182,7 +191,8 @@ void main() {
 
   group('$AutoFormatLinksRule', () {
     final rule = AutoFormatLinksRule();
-    final link = ParchmentAttribute.link.fromString('https://example.com').toJson();
+    final link =
+        ParchmentAttribute.link.fromString('https://example.com').toJson();
 
     test('apply simple', () {
       final doc = Delta()..insert('Doc with link https://example.com');
@@ -432,7 +442,9 @@ void main() {
     });
 
     test('detect previous line correctly', () {
-      final doc = Delta()..insert('line\nzefy\n')..insert('###\n');
+      final doc = Delta()
+        ..insert('line\nzefy\n')
+        ..insert('###\n');
       final changes = rule.apply(doc, 13, ' ');
       final actual = doc.compose(changes!)..trim();
       final expected = Delta()

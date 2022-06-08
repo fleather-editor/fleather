@@ -133,8 +133,8 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
     return ' ' * (text.length - result.length);
   }
 
-  ParchmentStyle _writeInline(StringBuffer buffer, String text, ParchmentStyle style,
-      ParchmentStyle currentStyle) {
+  ParchmentStyle _writeInline(StringBuffer buffer, String text,
+      ParchmentStyle style, ParchmentStyle currentStyle) {
     // First close any current styles if needed
     for (var value in currentStyle.values) {
       if (value.scope == ParchmentAttributeScope.line) continue;
@@ -165,11 +165,13 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
     } else if (attribute == ParchmentAttribute.italic) {
       _writeItalicTag(buffer);
     } else if (attribute?.key == ParchmentAttribute.link.key) {
-      _writeLinkTag(buffer, attribute as ParchmentAttribute<String>, close: close);
+      _writeLinkTag(buffer, attribute as ParchmentAttribute<String>,
+          close: close);
     } else if (attribute?.key == ParchmentAttribute.heading.key) {
       _writeHeadingTag(buffer, attribute as ParchmentAttribute<int>);
     } else if (attribute?.key == ParchmentAttribute.block.key) {
-      _writeBlockTag(buffer, attribute as ParchmentAttribute<String>, close: close);
+      _writeBlockTag(buffer, attribute as ParchmentAttribute<String>,
+          close: close);
     } else {
       throw ArgumentError('Cannot handle $attribute');
     }
