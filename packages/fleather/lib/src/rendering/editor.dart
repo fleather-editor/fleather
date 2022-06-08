@@ -1,13 +1,13 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:parchment/parchment.dart';
 
-import '../../zefyr.dart';
+import '../../fleather.dart';
 import '../widgets/selection_utils.dart';
 import 'cursor_painter.dart';
 import 'editable_box.dart';
@@ -126,7 +126,7 @@ class RenderEditor extends RenderEditableContainerBox
   RenderEditor({
     ViewportOffset? offset,
     List<RenderEditableBox>? children,
-    required NotusDocument document,
+    required ParchmentDocument document,
     required TextDirection textDirection,
     required bool hasFocus,
     required TextSelection selection,
@@ -153,9 +153,9 @@ class RenderEditor extends RenderEditableContainerBox
           padding: padding,
         );
 
-  NotusDocument _document;
+  ParchmentDocument _document;
 
-  set document(NotusDocument value) {
+  set document(ParchmentDocument value) {
     if (_document == value) {
       return;
     }

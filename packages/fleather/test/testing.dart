@@ -5,26 +5,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:fleather/fleather.dart';
 
 var delta = Delta()..insert('This House Is A Circus\n');
 
 class EditorSandBox {
   final WidgetTester tester;
   final FocusNode focusNode;
-  final NotusDocument document;
+  final ParchmentDocument document;
   final ZefyrController controller;
   final Widget widget;
 
   factory EditorSandBox({
     required WidgetTester tester,
     FocusNode? focusNode,
-    NotusDocument? document,
+    ParchmentDocument? document,
     ZefyrThemeData? theme,
     bool autofocus = false,
   }) {
     focusNode ??= FocusNode();
-    document ??= NotusDocument.fromDelta(delta);
+    document ??= ParchmentDocument.fromDelta(delta);
     var controller = ZefyrController(document);
 
     Widget widget = _ZefyrSandbox(

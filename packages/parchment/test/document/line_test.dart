@@ -1,17 +1,16 @@
 // Copyright (c) 2018, the Zefyr project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
-import 'package:notus/notus.dart';
-import 'package:notus/src/document/embeds.dart';
+import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
-final boldStyle = NotusStyle().merge(NotusAttribute.bold);
-final h1Style = NotusStyle().merge(NotusAttribute.h1);
-final h2Style = NotusStyle().merge(NotusAttribute.h2);
-final ulStyle = NotusStyle().merge(NotusAttribute.ul);
-final bqStyle = NotusStyle().merge(NotusAttribute.bq);
-final rightStyle = NotusStyle().merge(NotusAttribute.right);
+final boldStyle = ParchmentStyle().merge(ParchmentAttribute.bold);
+final h1Style = ParchmentStyle().merge(ParchmentAttribute.h1);
+final h2Style = ParchmentStyle().merge(ParchmentAttribute.h2);
+final ulStyle = ParchmentStyle().merge(ParchmentAttribute.ul);
+final bqStyle = ParchmentStyle().merge(ParchmentAttribute.bq);
+final rightStyle = ParchmentStyle().merge(ParchmentAttribute.right);
 
 void main() {
   group('$LineNode', () {
@@ -24,7 +23,7 @@ void main() {
       final node = LineNode();
       expect(node, isEmpty);
       expect(node.length, 1);
-      expect(node.style, NotusStyle());
+      expect(node.style, ParchmentStyle());
       expect(node.toDelta().toList(), [Operation.insert('\n')]);
     });
 
@@ -55,7 +54,7 @@ void main() {
       final node = LineNode();
       node.insert(0, 'London "Grammar" - Hey Now', null);
       node.retain(0, 16, boldStyle);
-      node.applyAttribute(NotusAttribute.h1);
+      node.applyAttribute(ParchmentAttribute.h1);
       expect('$node', '¶ ⟨London "Grammar"⟩b → ⟨ - Hey Now⟩ ⏎ {heading: 1}');
     });
 
@@ -80,14 +79,14 @@ void main() {
       final node = LineNode();
       node.insert(0, 'London "Grammar" - Hey Now', null);
       node.retain(0, 16, boldStyle);
-      node.applyAttribute(NotusAttribute.h1);
+      node.applyAttribute(ParchmentAttribute.h1);
       expect(node, hasLength(27));
       expect(node.childCount, 2);
 
       final delta = Delta()
         ..insert('London "Grammar"', boldStyle.toJson())
         ..insert(' - Hey Now')
-        ..insert('\n', NotusAttribute.h1.toJson());
+        ..insert('\n', ParchmentAttribute.h1.toJson());
       expect(node.toDelta(), delta);
     });
 
@@ -139,8 +138,8 @@ void main() {
       final delta = Delta()
         ..insert('Hello world')
         ..insert('\n', {
-          NotusAttribute.h1.key: NotusAttribute.h1.value,
-          NotusAttribute.alignment.key: NotusAttribute.right.value,
+          ParchmentAttribute.h1.key: ParchmentAttribute.h1.value,
+          ParchmentAttribute.alignment.key: ParchmentAttribute.right.value,
         });
       expect(line.toDelta(), delta);
     });
@@ -160,13 +159,13 @@ void main() {
     });
 
     test('format root line to unset block style', () {
-      final unsetBlock = NotusStyle().put(NotusAttribute.block.unset);
+      final unsetBlock = ParchmentStyle().put(ParchmentAttribute.block.unset);
       root.insert(0, 'Hello world', null);
       root.retain(11, 1, unsetBlock);
       expect(root.childCount, 1);
       expect(root.first, const TypeMatcher<LineNode>());
       final line = root.first as LineNode;
-      expect(line.style.contains(NotusAttribute.block), isFalse);
+      expect(line.style.contains(ParchmentAttribute.block), isFalse);
     });
 
     test('format multiple empty lines', () {
@@ -240,7 +239,7 @@ void main() {
       root.delete(38, 1);
       expect(root.childCount, 3);
       final line = root.children.elementAt(1) as LineNode;
-      expect(line.style.get(NotusAttribute.heading), NotusAttribute.h2);
+      expect(line.style.get(ParchmentAttribute.heading), ParchmentAttribute.h2);
     });
 
     test('insert at the beginning of a line', () {

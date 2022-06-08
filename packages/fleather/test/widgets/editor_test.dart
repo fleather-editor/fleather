@@ -4,7 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:fleather/fleather.dart';
 
 import '../testing.dart';
 
@@ -14,10 +14,10 @@ void main() {
       var delta = Delta()
         ..insert(
           'Website',
-          NotusAttribute.link.fromString('https://github.com').toJson(),
+          ParchmentAttribute.link.fromString('https://github.com').toJson(),
         )
         ..insert('\n');
-      var doc = NotusDocument.fromDelta(delta);
+      var doc = ParchmentDocument.fromDelta(delta);
       final BuildContext context = tester.element(find.byType(Container));
       var theme = ZefyrThemeData.fallback(context)
           .copyWith(link: const TextStyle(color: Colors.red));

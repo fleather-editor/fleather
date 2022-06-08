@@ -3,50 +3,49 @@
 // BSD-style license that can be found in the LICENSE file.
 import 'dart:convert';
 
-import 'package:notus/notus.dart';
-import 'package:notus/src/document/embeds.dart';
+import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
 import 'matchers.dart';
 
-NotusDocument dartconfDoc() {
-  return NotusDocument()..insert(0, 'DartConf\nLos Angeles');
+ParchmentDocument dartconfDoc() {
+  return ParchmentDocument()..insert(0, 'DartConf\nLos Angeles');
 }
 
-NotusDocument dartconfEmbedDoc() {
+ParchmentDocument dartconfEmbedDoc() {
   final delta = Delta()
     ..insert('DartConf\n')
     ..insert(BlockEmbed.horizontalRule.toJson())
     ..insert('\n')
     ..insert('Los Angeles');
-  return NotusDocument()..compose(delta, ChangeSource.local);
+  return ParchmentDocument()..compose(delta, ChangeSource.local);
 }
 
-final ul = NotusAttribute.ul.toJson();
-final h1 = NotusAttribute.h1.toJson();
+final ul = ParchmentAttribute.ul.toJson();
+final h1 = ParchmentAttribute.h1.toJson();
 
 void main() {
-  group('$NotusDocument', () {
+  group('$ParchmentDocument', () {
     test('validates for doc delta', () {
       var badDelta = Delta()
         ..insert('Text')
         ..retain(5)
         ..insert('\n');
       expect(() {
-        NotusDocument.fromJson(jsonDecode(jsonEncode(badDelta)));
+        ParchmentDocument.fromJson(jsonDecode(jsonEncode(badDelta)));
       }, throwsArgumentError);
     });
 
     test('empty document contains single empty line', () {
-      final doc = NotusDocument();
+      final doc = ParchmentDocument();
       expect(doc.toPlainText(), '\n');
     });
 
     test('json serialization', () {
       final original = dartconfDoc();
       final jsonData = json.encode(original);
-      final doc = NotusDocument.fromJson(json.decode(jsonData) as List);
+      final doc = ParchmentDocument.fromJson(json.decode(jsonData) as List);
       expect(doc.toDelta(), original.toDelta());
       expect(json.encode(doc), jsonData);
     });
@@ -75,7 +74,7 @@ void main() {
         })
         ..insert('\n')
         ..insert('Los Angeles\n');
-      final doc = NotusDocument.fromJson(jsonDecode(jsonEncode(delta)));
+      final doc = ParchmentDocument.fromJson(jsonDecode(jsonEncode(delta)));
 
       expect(doc.toPlainText(),
           'DartConf\n${EmbedNode.kObjectReplacementCharacter}\nLos Angeles\n');
@@ -90,13 +89,13 @@ void main() {
     test('document delta must end with line-break character', () {
       final delta = Delta()..insert('DartConf\nLos Angeles');
       expect(() {
-        NotusDocument.fromJson(jsonDecode(jsonEncode(delta)));
+        ParchmentDocument.fromJson(jsonDecode(jsonEncode(delta)));
       }, throwsA(const TypeMatcher<AssertionError>()));
     });
 
     test('lookupLine', () {
       final doc = dartconfDoc();
-      doc.format(20, 1, NotusAttribute.bq);
+      doc.format(20, 1, ParchmentAttribute.bq);
       var line1 = doc.lookupLine(3);
       var line2 = doc.lookupLine(13);
 
@@ -108,7 +107,7 @@ void main() {
 
     test('format applies heuristics', () {
       final doc = dartconfDoc();
-      doc.format(0, 15, NotusAttribute.ul);
+      doc.format(0, 15, ParchmentAttribute.ul);
       expect(doc.root.children, hasLength(1));
       expect(doc.root.children.first, const TypeMatcher<BlockNode>());
     });
@@ -116,7 +115,7 @@ void main() {
     test('format ignores empty changes', () async {
       final doc = dartconfDoc();
       var changeList = doc.changes.toList();
-      var change = doc.format(1, 0, NotusAttribute.bold);
+      var change = doc.format(1, 0, ParchmentAttribute.bold);
       doc.close();
       var changes = await changeList;
       expect(change, isEmpty);
@@ -125,7 +124,7 @@ void main() {
 
     test('format returns actual change delta', () {
       final doc = dartconfDoc();
-      final change = doc.format(0, 15, NotusAttribute.ul);
+      final change = doc.format(0, 15, ParchmentAttribute.ul);
       final expectedChange = Delta()
         ..retain(8)
         ..retain(1, ul)
@@ -136,7 +135,7 @@ void main() {
 
     test('format updates document delta', () {
       final doc = dartconfDoc();
-      doc.format(0, 15, NotusAttribute.ul);
+      doc.format(0, 15, ParchmentAttribute.ul);
       final expectedDoc = Delta()
         ..insert('DartConf')
         ..insert('\n', ul)
@@ -147,7 +146,7 @@ void main() {
 
     test('format allows zero-length updates', () {
       final doc = dartconfDoc();
-      doc.format(0, 0, NotusAttribute.ul);
+      doc.format(0, 0, ParchmentAttribute.ul);
       final expectedDoc = Delta()
         ..insert('DartConf')
         ..insert('\n', ul)
@@ -158,7 +157,7 @@ void main() {
 
     test('insert applies heuristics', () {
       final doc = dartconfDoc();
-      doc.format(0, 15, NotusAttribute.ul);
+      doc.format(0, 15, ParchmentAttribute.ul);
       doc.insert(8, '\n');
       expect(doc.root.children, hasLength(1));
       expect(doc.root.children.first, const TypeMatcher<BlockNode>());
@@ -166,7 +165,7 @@ void main() {
 
     test('insert returns actual change delta', () {
       final doc = dartconfDoc();
-      doc.format(0, 15, NotusAttribute.ul);
+      doc.format(0, 15, ParchmentAttribute.ul);
       final change = doc.insert(8, '\n');
       final expectedChange = Delta()
         ..retain(8)
@@ -176,7 +175,7 @@ void main() {
 
     test('insert updates document delta', () {
       final doc = dartconfDoc();
-      doc.format(0, 15, NotusAttribute.ul);
+      doc.format(0, 15, ParchmentAttribute.ul);
       doc.insert(8, '\n');
       final expectedDoc = Delta()
         ..insert('DartConf')
@@ -222,21 +221,21 @@ void main() {
 
     test('replace applies heuristic rules', () {
       final doc = dartconfDoc();
-      doc.format(0, 0, NotusAttribute.h1);
+      doc.format(0, 0, ParchmentAttribute.h1);
       doc.replace(8, 1, ' ');
       expect(doc.root.children, hasLength(1));
       final line = doc.root.children.first as LineNode;
-      expect(line.style.get(NotusAttribute.heading), NotusAttribute.h1);
+      expect(line.style.get(ParchmentAttribute.heading), ParchmentAttribute.h1);
       expect(line.toPlainText(), 'DartConf Los Angeles\n');
     });
 
     test('delete applies heuristic rules', () {
       final doc = dartconfDoc();
-      doc.format(0, 0, NotusAttribute.h1);
+      doc.format(0, 0, ParchmentAttribute.h1);
       doc.delete(8, 1);
       expect(doc.root.children, hasLength(1));
       final line = doc.root.children.first as LineNode;
-      expect(line.style.get(NotusAttribute.heading), NotusAttribute.h1);
+      expect(line.style.get(ParchmentAttribute.heading), ParchmentAttribute.h1);
     });
 
     test('delete which results in an empty change', () {
@@ -266,7 +265,7 @@ void main() {
         doc.insert(0, 'a');
       }, throwsAssertionError);
       expect(() {
-        doc.format(0, 1, NotusAttribute.bold);
+        doc.format(0, 1, ParchmentAttribute.bold);
       }, throwsAssertionError);
       expect(() {
         doc.delete(0, 1);

@@ -2,7 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zefyr/src/fast_diff.dart';
+import 'package:fleather/src/fast_diff.dart';
 
 void main() {
   group('fastDiff', () {

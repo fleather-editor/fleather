@@ -2,18 +2,18 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:notus/notus.dart';
+import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
-final ul = NotusAttribute.ul.toJson();
-final bold = NotusAttribute.bold.toJson();
+final ul = ParchmentAttribute.ul.toJson();
+final bold = ParchmentAttribute.bold.toJson();
 
 void main() {
   group('$PreserveLineStyleOnMergeRule', () {
     final rule = PreserveLineStyleOnMergeRule();
     test('preserves block style', () {
-      final ul = NotusAttribute.ul.toJson();
+      final ul = ParchmentAttribute.ul.toJson();
       final doc = Delta()
         ..insert('Title\nOne')
         ..insert('\n', ul)
@@ -28,10 +28,10 @@ void main() {
     });
 
     test('resets block style', () {
-      final unsetUl = NotusAttribute.block.unset.toJson();
+      final unsetUl = ParchmentAttribute.block.unset.toJson();
       final doc = Delta()
         ..insert('Title\nOne')
-        ..insert('\n', NotusAttribute.ul.toJson())
+        ..insert('\n', ParchmentAttribute.ul.toJson())
         ..insert('Two\n');
       final actual = rule.apply(doc, 5, 1);
       final expected = Delta()
@@ -130,7 +130,7 @@ void main() {
         ..insert('Document\n')
         ..insert(BlockEmbed.horizontalRule)
         ..insert('\n')
-        ..insert('\n', NotusAttribute.block.bulletList.toJson())
+        ..insert('\n', ParchmentAttribute.block.bulletList.toJson())
         ..insert('Text')
         ..insert('\n');
       final actual = rule.apply(doc, 10, 1);

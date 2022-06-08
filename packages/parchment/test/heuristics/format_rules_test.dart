@@ -1,12 +1,12 @@
 // Copyright (c) 2018, the Zefyr project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
-import 'package:notus/notus.dart';
+import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
-final ul = NotusAttribute.ul.toJson();
-final bold = NotusAttribute.bold.toJson();
+final ul = ParchmentAttribute.ul.toJson();
+final bold = ParchmentAttribute.bold.toJson();
 
 void main() {
   group('$ResolveLineFormatRule', () {
@@ -15,9 +15,9 @@ void main() {
     test('apply', () {
       final doc = Delta()..insert('Correct\nLine\nStyle\nRule\n');
 
-      final actual = rule.apply(doc, 0, 20, NotusAttribute.ul);
+      final actual = rule.apply(doc, 0, 20, ParchmentAttribute.ul);
       expect(actual, isNotNull);
-      final ul = NotusAttribute.ul.toJson();
+      final ul = ParchmentAttribute.ul.toJson();
       final expected = Delta()
         ..retain(7)
         ..retain(1, ul)
@@ -32,39 +32,39 @@ void main() {
 
     test('apply with zero length (collapsed selection)', () {
       final doc = Delta()..insert('Correct\nLine\nStyle\nRule\n');
-      final actual = rule.apply(doc, 0, 0, NotusAttribute.ul);
+      final actual = rule.apply(doc, 0, 0, ParchmentAttribute.ul);
       expect(actual, isNotNull);
-      final ul = NotusAttribute.ul.toJson();
+      final ul = ParchmentAttribute.ul.toJson();
       final expected = Delta()..retain(7)..retain(1, ul);
       expect(actual, expected);
     });
 
     test('apply with zero length in the middle of a line', () {
-      final ul = NotusAttribute.ul.toJson();
+      final ul = ParchmentAttribute.ul.toJson();
       final doc = Delta()
         ..insert('Title\nOne')
         ..insert('\n', ul)
         ..insert('Two')
         ..insert('\n', ul)
         ..insert('Three!\n');
-      final actual = rule.apply(doc, 7, 0, NotusAttribute.ul);
+      final actual = rule.apply(doc, 7, 0, ParchmentAttribute.ul);
       final expected = Delta()..retain(9)..retain(1, ul);
       expect(actual, expected);
     });
 
     test('removing checklist style from a line also removes checked style', () {
-      final cl = NotusAttribute.cl.toJson();
+      final cl = ParchmentAttribute.cl.toJson();
       final checkedCl = Map<String, dynamic>.from(cl)
-        ..addAll(NotusAttribute.checked.toJson());
+        ..addAll(ParchmentAttribute.checked.toJson());
       final doc = Delta()
         ..insert('Title\nOne')
         ..insert('\n', checkedCl)
         ..insert('Two')
         ..insert('\n', cl)
         ..insert('End!\n');
-      final actual = rule.apply(doc, 7, 0, NotusAttribute.cl.unset);
-      final noBlockNoChecked = NotusAttribute.block.unset.toJson()
-        ..addAll(NotusAttribute.checked.unset.toJson());
+      final actual = rule.apply(doc, 7, 0, ParchmentAttribute.cl.unset);
+      final noBlockNoChecked = ParchmentAttribute.block.unset.toJson()
+        ..addAll(ParchmentAttribute.checked.unset.toJson());
       final expected = Delta()..retain(9)..retain(1, noBlockNoChecked);
       expect(actual, expected);
     });
@@ -76,9 +76,9 @@ void main() {
     test('apply', () {
       final doc = Delta()..insert('Correct\nLine\nStyle\nRule\n');
 
-      final actual = rule.apply(doc, 0, 20, NotusAttribute.bold);
+      final actual = rule.apply(doc, 0, 20, ParchmentAttribute.bold);
       expect(actual, isNotNull);
-      final b = NotusAttribute.bold.toJson();
+      final b = ParchmentAttribute.bold.toJson();
       final expected = Delta()
         ..retain(7, b)
         ..retain(1)
@@ -96,9 +96,9 @@ void main() {
 
     test('apply', () {
       final link =
-          NotusAttribute.link.fromString('https://github.com/memspace/bold');
+          ParchmentAttribute.link.fromString('https://github.com/memspace/bold');
       final newLink =
-          NotusAttribute.link.fromString('https://github.com/memspace/zefyr');
+          ParchmentAttribute.link.fromString('https://github.com/memspace/zefyr');
       final doc = Delta()
         ..insert('Visit our ')
         ..insert('website', link.toJson())

@@ -4,27 +4,28 @@
 
 import 'dart:convert';
 
-import 'package:notus/notus.dart';
 import 'package:quill_delta/quill_delta.dart';
 
-class NotusMarkdownCodec extends Codec<Delta, String> {
-  const NotusMarkdownCodec();
+import '../document/attributes.dart';
+
+class ParchmentMarkdownCodec extends Codec<Delta, String> {
+  const ParchmentMarkdownCodec();
 
   @override
   Converter<String, Delta> get decoder =>
       throw UnimplementedError('Decoding is not implemented yet.');
 
   @override
-  Converter<Delta, String> get encoder => _NotusMarkdownEncoder();
+  Converter<Delta, String> get encoder => _ParchmentMarkdownEncoder();
 }
 
-class _NotusMarkdownEncoder extends Converter<Delta, String> {
+class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
   static const kBold = '**';
   static const kItalic = '_';
-  static final kSimpleBlocks = <NotusAttribute, String>{
-    NotusAttribute.bq: '> ',
-    NotusAttribute.ul: '* ',
-    NotusAttribute.ol: '1. ',
+  static final kSimpleBlocks = <ParchmentAttribute, String>{
+    ParchmentAttribute.bq: '> ',
+    ParchmentAttribute.ul: '* ',
+    ParchmentAttribute.ol: '1. ',
   };
 
   @override
@@ -32,11 +33,11 @@ class _NotusMarkdownEncoder extends Converter<Delta, String> {
     final iterator = DeltaIterator(input);
     final buffer = StringBuffer();
     final lineBuffer = StringBuffer();
-    NotusAttribute<String>? currentBlockStyle;
-    var currentInlineStyle = NotusStyle();
+    ParchmentAttribute<String>? currentBlockStyle;
+    var currentInlineStyle = ParchmentStyle();
     var currentBlockLines = [];
 
-    void _handleBlock(NotusAttribute<String>? blockStyle) {
+    void _handleBlock(ParchmentAttribute<String>? blockStyle) {
       if (currentBlockLines.isEmpty) {
         return; // Empty block
       }
@@ -44,7 +45,7 @@ class _NotusMarkdownEncoder extends Converter<Delta, String> {
       if (blockStyle == null) {
         buffer.write(currentBlockLines.join('\n\n'));
         buffer.writeln();
-      } else if (blockStyle == NotusAttribute.code) {
+      } else if (blockStyle == ParchmentAttribute.code) {
         _writeAttribute(buffer, blockStyle);
         buffer.write(currentBlockLines.join('\n'));
         _writeAttribute(buffer, blockStyle, close: true);
@@ -60,14 +61,14 @@ class _NotusMarkdownEncoder extends Converter<Delta, String> {
     }
 
     void _handleSpan(String text, Map<String, dynamic>? attributes) {
-      final style = NotusStyle.fromJson(attributes);
+      final style = ParchmentStyle.fromJson(attributes);
       currentInlineStyle =
           _writeInline(lineBuffer, text, style, currentInlineStyle);
     }
 
     void _handleLine(Map<String, dynamic>? attributes) {
-      final style = NotusStyle.fromJson(attributes);
-      final lineBlock = style.get(NotusAttribute.block);
+      final style = ParchmentStyle.fromJson(attributes);
+      final lineBlock = style.get(ParchmentAttribute.block);
       if (lineBlock == currentBlockStyle) {
         currentBlockLines.add(_writeLine(lineBuffer.toString(), style));
       } else {
@@ -112,10 +113,10 @@ class _NotusMarkdownEncoder extends Converter<Delta, String> {
     return buffer.toString();
   }
 
-  String _writeLine(String text, NotusStyle style) {
+  String _writeLine(String text, ParchmentStyle style) {
     var buffer = StringBuffer();
-    if (style.contains(NotusAttribute.heading)) {
-      _writeAttribute(buffer, style.get<int>(NotusAttribute.heading));
+    if (style.contains(ParchmentAttribute.heading)) {
+      _writeAttribute(buffer, style.get<int>(ParchmentAttribute.heading));
     }
 
     // Write the text itself
@@ -132,11 +133,11 @@ class _NotusMarkdownEncoder extends Converter<Delta, String> {
     return ' ' * (text.length - result.length);
   }
 
-  NotusStyle _writeInline(StringBuffer buffer, String text, NotusStyle style,
-      NotusStyle currentStyle) {
+  ParchmentStyle _writeInline(StringBuffer buffer, String text, ParchmentStyle style,
+      ParchmentStyle currentStyle) {
     // First close any current styles if needed
     for (var value in currentStyle.values) {
-      if (value.scope == NotusAttributeScope.line) continue;
+      if (value.scope == ParchmentAttributeScope.line) continue;
       if (style.containsSame(value)) continue;
       final padding = _trimRight(buffer);
       _writeAttribute(buffer, value, close: true);
@@ -144,7 +145,7 @@ class _NotusMarkdownEncoder extends Converter<Delta, String> {
     }
     // Now open any new styles.
     for (var value in style.values) {
-      if (value.scope == NotusAttributeScope.line) continue;
+      if (value.scope == ParchmentAttributeScope.line) continue;
       if (currentStyle.containsSame(value)) continue;
       final originalText = text;
       text = text.trimLeft();
@@ -157,18 +158,18 @@ class _NotusMarkdownEncoder extends Converter<Delta, String> {
     return style;
   }
 
-  void _writeAttribute(StringBuffer buffer, NotusAttribute? attribute,
+  void _writeAttribute(StringBuffer buffer, ParchmentAttribute? attribute,
       {bool close = false}) {
-    if (attribute == NotusAttribute.bold) {
+    if (attribute == ParchmentAttribute.bold) {
       _writeBoldTag(buffer);
-    } else if (attribute == NotusAttribute.italic) {
+    } else if (attribute == ParchmentAttribute.italic) {
       _writeItalicTag(buffer);
-    } else if (attribute?.key == NotusAttribute.link.key) {
-      _writeLinkTag(buffer, attribute as NotusAttribute<String>, close: close);
-    } else if (attribute?.key == NotusAttribute.heading.key) {
-      _writeHeadingTag(buffer, attribute as NotusAttribute<int>);
-    } else if (attribute?.key == NotusAttribute.block.key) {
-      _writeBlockTag(buffer, attribute as NotusAttribute<String>, close: close);
+    } else if (attribute?.key == ParchmentAttribute.link.key) {
+      _writeLinkTag(buffer, attribute as ParchmentAttribute<String>, close: close);
+    } else if (attribute?.key == ParchmentAttribute.heading.key) {
+      _writeHeadingTag(buffer, attribute as ParchmentAttribute<int>);
+    } else if (attribute?.key == ParchmentAttribute.block.key) {
+      _writeBlockTag(buffer, attribute as ParchmentAttribute<String>, close: close);
     } else {
       throw ArgumentError('Cannot handle $attribute');
     }
@@ -182,7 +183,7 @@ class _NotusMarkdownEncoder extends Converter<Delta, String> {
     buffer.write(kItalic);
   }
 
-  void _writeLinkTag(StringBuffer buffer, NotusAttribute<String> link,
+  void _writeLinkTag(StringBuffer buffer, ParchmentAttribute<String> link,
       {bool close = false}) {
     if (close) {
       buffer.write('](${link.value})');
@@ -191,14 +192,14 @@ class _NotusMarkdownEncoder extends Converter<Delta, String> {
     }
   }
 
-  void _writeHeadingTag(StringBuffer buffer, NotusAttribute<int> heading) {
+  void _writeHeadingTag(StringBuffer buffer, ParchmentAttribute<int> heading) {
     var level = heading.value!;
     buffer.write('#' * level + ' ');
   }
 
-  void _writeBlockTag(StringBuffer buffer, NotusAttribute<String> block,
+  void _writeBlockTag(StringBuffer buffer, ParchmentAttribute<String> block,
       {bool close = false}) {
-    if (block == NotusAttribute.code) {
+    if (block == ParchmentAttribute.code) {
       if (close) {
         buffer.write('\n```');
       } else {

@@ -10,7 +10,7 @@ import 'embeds.dart';
 import 'line.dart';
 import 'node.dart';
 
-/// A leaf node in Notus document tree.
+/// A leaf node in Parchment document tree.
 abstract class LeafNode extends Node
     with StyledNodeMixin
     implements StyledNode {
@@ -103,7 +103,7 @@ abstract class LeafNode extends Node
   }
 
   /// Formats this node and optimizes it with adjacent leaf nodes if needed.
-  void formatAndOptimize(NotusStyle? style) {
+  void formatAndOptimize(ParchmentStyle? style) {
     if (style != null && style.isNotEmpty) {
       applyStyle(style);
     }
@@ -111,7 +111,7 @@ abstract class LeafNode extends Node
   }
 
   @override
-  void applyStyle(NotusStyle value) {
+  void applyStyle(ParchmentStyle value) {
     assert(value.isInline || value.isEmpty,
         'Style cannot be applied to this leaf node: $value');
     super.applyStyle(value);
@@ -137,7 +137,7 @@ abstract class LeafNode extends Node
   }
 
   @override
-  void insert(int index, Object data, NotusStyle? style) {
+  void insert(int index, Object data, ParchmentStyle? style) {
     assert(index >= 0 && (index <= length),
         'Index out of bounds. Must be between 0 and $length, but got $index.');
     final node = LeafNode(data);
@@ -150,7 +150,7 @@ abstract class LeafNode extends Node
   }
 
   @override
-  void retain(int index, int length, NotusStyle? style) {
+  void retain(int index, int length, ParchmentStyle? style) {
     if (style == null) return;
 
     final local = math.min(this.length - index, length);
@@ -226,7 +226,7 @@ abstract class LeafNode extends Node
   }
 }
 
-/// A span of formatted text within a line in a Notus document.
+/// A span of formatted text within a line in a Parchment document.
 ///
 /// TextNode is a leaf node of a document tree.
 ///
@@ -250,7 +250,7 @@ class TextNode extends LeafNode {
   String toPlainText() => value;
 }
 
-/// An embed node inside of a line in a Notus document.
+/// An embed node inside of a line in a Parchment document.
 ///
 /// Embed node is a leaf node similar to [TextNode]. It represents an
 /// arbitrary piece of non-textual content embedded into a document, such as,

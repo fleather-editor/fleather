@@ -2,20 +2,20 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 import 'package:test/test.dart';
-import 'package:notus/notus.dart';
+import 'package:parchment/parchment.dart';
 
 void main() {
-  group('$NotusStyle', () {
+  group('$ParchmentStyle', () {
     test('get', () {
-      var attrs = NotusStyle.fromJson(<String, dynamic>{'block': 'ul'});
-      var attr = attrs.get(NotusAttribute.block);
-      expect(attr, NotusAttribute.ul);
+      var attrs = ParchmentStyle.fromJson(<String, dynamic>{'block': 'ul'});
+      var attr = attrs.get(ParchmentAttribute.block);
+      expect(attr, ParchmentAttribute.ul);
     });
 
     test('get unset', () {
-      var attrs = NotusStyle.fromJson(<String, dynamic>{'b': null});
-      var attr = attrs.get(NotusAttribute.bold);
-      expect(attr, NotusAttribute.bold.unset);
+      var attrs = ParchmentStyle.fromJson(<String, dynamic>{'b': null});
+      var attr = attrs.get(ParchmentAttribute.bold);
+      expect(attr, ParchmentAttribute.bold.unset);
     });
   });
 }

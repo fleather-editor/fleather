@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:zefyr/zefyr.dart';
+import 'package:parchment/parchment.dart';
 
 /// Applies a Zefyr editor theme to descendant widgets.
 ///
@@ -338,12 +338,12 @@ class InlineCodeThemeData {
 
   /// Returns effective style to use for inline code for the specified
   /// [lineStyle].
-  TextStyle styleFor(NotusStyle lineStyle) {
-    if (lineStyle.containsSame(NotusAttribute.h1)) {
+  TextStyle styleFor(ParchmentStyle lineStyle) {
+    if (lineStyle.containsSame(ParchmentAttribute.h1)) {
       return heading1 ?? style;
-    } else if (lineStyle.containsSame(NotusAttribute.h2)) {
+    } else if (lineStyle.containsSame(ParchmentAttribute.h2)) {
       return heading2 ?? style;
-    } else if (lineStyle.containsSame(NotusAttribute.h3)) {
+    } else if (lineStyle.containsSame(ParchmentAttribute.h3)) {
       return heading3 ?? style;
     }
     return style;

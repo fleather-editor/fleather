@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:notus/notus.dart';
+import 'package:parchment/parchment.dart';
 
 import '../../util.dart';
 import '../rendering/editor.dart';
@@ -1162,7 +1162,7 @@ class RawEditorState extends EditorState
 
   Future<LinkMenuAction> _linkActionPicker(Node linkNode) async {
     final link =
-        (linkNode as StyledNode).style.get(NotusAttribute.link)!.value!;
+        (linkNode as StyledNode).style.get(ParchmentAttribute.link)!.value!;
     return widget.linkActionPickerDelegate(context, link);
   }
 
@@ -1284,7 +1284,7 @@ class RawEditorState extends EditorState
           ),
         ));
       } else if (node is BlockNode) {
-        final block = node.style.get(NotusAttribute.block);
+        final block = node.style.get(ParchmentAttribute.block);
         result.add(Directionality(
           textDirection: getDirectionOfNode(node),
           child: EditableTextBlock(
@@ -1297,7 +1297,7 @@ class RawEditorState extends EditorState
             selectionColor: widget.selectionColor,
             enableInteractiveSelection: widget.enableInteractiveSelection,
             hasFocus: _hasFocus,
-            contentPadding: (block == NotusAttribute.block.code)
+            contentPadding: (block == ParchmentAttribute.block.code)
                 ? const EdgeInsets.all(16.0)
                 : null,
             embedBuilder: widget.embedBuilder,
@@ -1313,12 +1313,12 @@ class RawEditorState extends EditorState
   }
 
   VerticalSpacing _getSpacingForLine(LineNode node, ZefyrThemeData theme) {
-    final style = node.style.get(NotusAttribute.heading);
-    if (style == NotusAttribute.heading.level1) {
+    final style = node.style.get(ParchmentAttribute.heading);
+    if (style == ParchmentAttribute.heading.level1) {
       return theme.heading1.spacing;
-    } else if (style == NotusAttribute.heading.level2) {
+    } else if (style == ParchmentAttribute.heading.level2) {
       return theme.heading2.spacing;
-    } else if (style == NotusAttribute.heading.level3) {
+    } else if (style == ParchmentAttribute.heading.level3) {
       return theme.heading3.spacing;
     }
 
@@ -1326,10 +1326,10 @@ class RawEditorState extends EditorState
   }
 
   VerticalSpacing _getSpacingForBlock(BlockNode node, ZefyrThemeData theme) {
-    final style = node.style.get(NotusAttribute.block);
-    if (style == NotusAttribute.block.code) {
+    final style = node.style.get(ParchmentAttribute.block);
+    if (style == ParchmentAttribute.block.code) {
       return theme.code.spacing;
-    } else if (style == NotusAttribute.block.quote) {
+    } else if (style == ParchmentAttribute.block.quote) {
       return theme.quote.spacing;
     } else {
       return theme.lists.spacing;
@@ -1480,7 +1480,7 @@ class _Editor extends MultiChildRenderObjectWidget {
   }) : super(key: key, children: children);
 
   final ViewportOffset? offset;
-  final NotusDocument document;
+  final ParchmentDocument document;
   final TextDirection textDirection;
   final bool hasFocus;
   final TextSelection selection;

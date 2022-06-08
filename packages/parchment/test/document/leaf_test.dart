@@ -3,13 +3,13 @@
 // BSD-style license that can be found in the LICENSE file.
 import 'dart:convert';
 
-import 'package:notus/notus.dart';
+import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
-final boldStyle = NotusStyle().merge(NotusAttribute.bold);
-final boldUnsetStyle = NotusStyle().put(NotusAttribute.bold.unset);
-final italicStyle = NotusStyle().merge(NotusAttribute.italic);
+final boldStyle = ParchmentStyle().merge(ParchmentAttribute.bold);
+final boldUnsetStyle = ParchmentStyle().put(ParchmentAttribute.bold.unset);
+final italicStyle = ParchmentStyle().merge(ParchmentAttribute.italic);
 
 void main() {
   group('TextNode', () {
@@ -26,7 +26,7 @@ void main() {
       final node = TextNode();
       expect(node.value, isEmpty);
       expect(node.length, 0);
-      expect(node.style, NotusStyle());
+      expect(node.style, ParchmentStyle());
       expect(node.toDelta(), isEmpty);
     });
 
@@ -36,8 +36,8 @@ void main() {
     });
 
     test('toString', () {
-      node.applyAttribute(NotusAttribute.bold);
-      node.applyAttribute(NotusAttribute.link.fromString('link'));
+      node.applyAttribute(ParchmentAttribute.bold);
+      node.applyAttribute(ParchmentAttribute.link.fromString('link'));
       expect('$node', '⟨London "Grammar"⟩ab');
     });
 
@@ -69,7 +69,7 @@ void main() {
       node.retain(0, 16, boldStyle);
       expect(line.childCount, 1);
       expect(node.value, 'London "Grammar"');
-      expect(node.style.values, [NotusAttribute.bold]);
+      expect(node.style.values, [ParchmentAttribute.bold]);
     });
 
     test('format with multiple styles', () {
@@ -197,7 +197,7 @@ void main() {
 
     test('applyStyle allows inline styles only', () {
       final text = LeafNode('Text');
-      final style = NotusStyle().put(NotusAttribute.block.numberList);
+      final style = ParchmentStyle().put(ParchmentAttribute.block.numberList);
 
       expect(() => text.applyStyle(style),
           throwsA(const TypeMatcher<AssertionError>()));

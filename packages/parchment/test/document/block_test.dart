@@ -1,14 +1,14 @@
 // Copyright (c) 2018, the Zefyr project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
-import 'package:notus/notus.dart';
+import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
-final rightAttrs = NotusStyle().merge(NotusAttribute.right);
-final ulAttrs = NotusStyle().merge(NotusAttribute.ul);
-final olAttrs = NotusStyle().merge(NotusAttribute.ol);
-final h1Attrs = NotusStyle().merge(NotusAttribute.h1);
+final rightAttrs = ParchmentStyle().merge(ParchmentAttribute.right);
+final ulAttrs = ParchmentStyle().merge(ParchmentAttribute.ul);
+final olAttrs = ParchmentStyle().merge(ParchmentAttribute.ol);
+final h1Attrs = ParchmentStyle().merge(ParchmentAttribute.h1);
 
 void main() {
   group('$BlockNode', () {
@@ -21,14 +21,14 @@ void main() {
       final node = BlockNode();
       expect(node, isEmpty);
       expect(node.length, 0);
-      expect(node.style, NotusStyle());
+      expect(node.style, ParchmentStyle());
     });
 
     test('toString', () {
       final line = LineNode();
       line.add(TextNode('London "Grammar"'));
       final block = BlockNode();
-      block.applyAttribute(NotusAttribute.ul);
+      block.applyAttribute(ParchmentAttribute.ul);
       block.add(line);
       final expected = '§ {ul}\n  └ ¶ ⟨London "Grammar"⟩ ⏎';
       expect('$block', expected);
@@ -55,7 +55,7 @@ void main() {
 
       expect(root.childCount, 1);
       final block = root.first as BlockNode;
-      expect(block.style.get(NotusAttribute.block), NotusAttribute.ul);
+      expect(block.style.get(ParchmentAttribute.block), ParchmentAttribute.ul);
       expect(block.childCount, 1);
       expect(block.first, const TypeMatcher<LineNode>());
 
@@ -72,7 +72,7 @@ void main() {
 
       expect(root.childCount, 2);
       final block = root.last as BlockNode;
-      expect(block.style.get(NotusAttribute.block), NotusAttribute.ul);
+      expect(block.style.get(ParchmentAttribute.block), ParchmentAttribute.ul);
       expect(block.childCount, 1);
       expect(block.first, const TypeMatcher<LineNode>());
     });
@@ -84,11 +84,11 @@ void main() {
 
       expect(root.childCount, 2);
       final block = root.first as BlockNode;
-      expect(block.style.get(NotusAttribute.block), NotusAttribute.ul);
+      expect(block.style.get(ParchmentAttribute.block), ParchmentAttribute.ul);
       expect(block.childCount, 1);
       expect(block.first, const TypeMatcher<LineNode>());
       final line = block.first as LineNode;
-      expect(line.style.get(NotusAttribute.alignment), NotusAttribute.right);
+      expect(line.style.get(ParchmentAttribute.alignment), ParchmentAttribute.right);
     });
 
     test('format two sibling lines as list', () {
@@ -98,7 +98,7 @@ void main() {
 
       expect(root.childCount, 1);
       final block = root.first as BlockNode;
-      expect(block.style.get(NotusAttribute.block), NotusAttribute.ul);
+      expect(block.style.get(ParchmentAttribute.block), ParchmentAttribute.ul);
       expect(block.childCount, 2);
       expect(block.first, const TypeMatcher<LineNode>());
       expect(block.last, const TypeMatcher<LineNode>());
@@ -116,9 +116,9 @@ void main() {
       expect(root.childCount, 3);
       final expected = Delta()
         ..insert('London Grammar Songs')
-        ..insert('\n', NotusAttribute.h1.toJson())
+        ..insert('\n', ParchmentAttribute.h1.toJson())
         ..insert('Hey now')
-        ..insert('\n', NotusAttribute.ol.toJson())
+        ..insert('\n', ParchmentAttribute.ol.toJson())
         ..insert('Strong')
         ..insert('\n', ulAttrs.toJson())
         ..insert('If You Wait')
@@ -138,13 +138,13 @@ void main() {
       expect(root.childCount, 3);
       final expected = Delta()
         ..insert('London Grammar Songs')
-        ..insert('\n', NotusAttribute.h1.toJson())
+        ..insert('\n', ParchmentAttribute.h1.toJson())
         ..insert('Hey now')
         ..insert('\n', ulAttrs.toJson())
         ..insert('Strong')
         ..insert('\n', ulAttrs.toJson())
         ..insert('If You Wait')
-        ..insert('\n', NotusAttribute.ol.toJson());
+        ..insert('\n', ParchmentAttribute.ol.toJson());
       expect(root.toDelta(), expected);
     });
 
@@ -160,11 +160,11 @@ void main() {
       expect(root.childCount, 4);
       final expected = Delta()
         ..insert('London Grammar Songs')
-        ..insert('\n', NotusAttribute.h1.toJson())
+        ..insert('\n', ParchmentAttribute.h1.toJson())
         ..insert('Hey now')
         ..insert('\n', ulAttrs.toJson())
         ..insert('Strong')
-        ..insert('\n', NotusAttribute.ol.toJson())
+        ..insert('\n', ParchmentAttribute.ol.toJson())
         ..insert('If You Wait')
         ..insert('\n', ulAttrs.toJson());
       expect(root.toDelta(), expected);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:notus/notus.dart';
-import 'package:zefyr/util.dart';
+import 'package:parchment/parchment.dart';
+import 'package:fleather/util.dart';
 
 import '../rendering/editable_text_block.dart';
 import 'controller.dart';
@@ -95,8 +95,8 @@ class EditableTextBlock extends StatelessWidget {
   Widget? _buildLeading(
       BuildContext context, LineNode node, int index, int count) {
     final theme = ZefyrTheme.of(context)!;
-    final block = node.style.get(NotusAttribute.block);
-    if (block == NotusAttribute.block.numberList) {
+    final block = node.style.get(ParchmentAttribute.block);
+    if (block == ParchmentAttribute.block.numberList) {
       return _NumberPoint(
         index: index,
         count: count,
@@ -104,12 +104,12 @@ class EditableTextBlock extends StatelessWidget {
         width: 32.0,
         padding: 8.0,
       );
-    } else if (block == NotusAttribute.block.bulletList) {
+    } else if (block == ParchmentAttribute.block.bulletList) {
       return _BulletPoint(
         style: theme.paragraph.style.copyWith(fontWeight: FontWeight.bold),
         width: 32,
       );
-    } else if (block == NotusAttribute.block.code) {
+    } else if (block == ParchmentAttribute.block.code) {
       return _NumberPoint(
         index: index,
         count: count,
@@ -119,10 +119,10 @@ class EditableTextBlock extends StatelessWidget {
         padding: 16.0,
         withDot: false,
       );
-    } else if (block == NotusAttribute.block.checkList) {
+    } else if (block == ParchmentAttribute.block.checkList) {
       return _CheckboxPoint(
         size: 14,
-        value: node.style.containsSame(NotusAttribute.checked),
+        value: node.style.containsSame(ParchmentAttribute.checked),
         enabled: !readOnly,
         onChanged: (checked) => _toggle(node, checked),
       );
@@ -132,10 +132,10 @@ class EditableTextBlock extends StatelessWidget {
   }
 
   double _getIndentWidth() {
-    final block = node.style.get(NotusAttribute.block);
-    if (block == NotusAttribute.block.quote) {
+    final block = node.style.get(ParchmentAttribute.block);
+    if (block == ParchmentAttribute.block.quote) {
       return 16.0;
-    } else if (block == NotusAttribute.block.code) {
+    } else if (block == ParchmentAttribute.block.code) {
       return 32.0;
     } else {
       return 32.0;
@@ -144,30 +144,30 @@ class EditableTextBlock extends StatelessWidget {
 
   VerticalSpacing _getSpacingForLine(
       LineNode node, int index, int count, ZefyrThemeData theme) {
-    final heading = node.style.get(NotusAttribute.heading);
+    final heading = node.style.get(ParchmentAttribute.heading);
 
     double? top;
     double? bottom;
 
-    if (heading == NotusAttribute.heading.level1) {
+    if (heading == ParchmentAttribute.heading.level1) {
       top = theme.heading1.spacing.top;
       bottom = theme.heading1.spacing.bottom;
-    } else if (heading == NotusAttribute.heading.level2) {
+    } else if (heading == ParchmentAttribute.heading.level2) {
       top = theme.heading2.spacing.top;
       bottom = theme.heading2.spacing.bottom;
-    } else if (heading == NotusAttribute.heading.level3) {
+    } else if (heading == ParchmentAttribute.heading.level3) {
       top = theme.heading3.spacing.top;
       bottom = theme.heading3.spacing.bottom;
     } else {
-      final block = this.node.style.get(NotusAttribute.block);
+      final block = this.node.style.get(ParchmentAttribute.block);
       VerticalSpacing? lineSpacing;
-      if (block == NotusAttribute.block.quote) {
+      if (block == ParchmentAttribute.block.quote) {
         lineSpacing = theme.quote.lineSpacing;
-      } else if (block == NotusAttribute.block.numberList ||
-          block == NotusAttribute.block.bulletList) {
+      } else if (block == ParchmentAttribute.block.numberList ||
+          block == ParchmentAttribute.block.bulletList) {
         lineSpacing = theme.lists.lineSpacing;
-      } else if (block == NotusAttribute.block.code ||
-          block == NotusAttribute.block.code) {
+      } else if (block == ParchmentAttribute.block.code ||
+          block == ParchmentAttribute.block.code) {
         lineSpacing = theme.lists.lineSpacing;
       }
       top = lineSpacing?.top;
@@ -189,10 +189,10 @@ class EditableTextBlock extends StatelessWidget {
   }
 
   BoxDecoration? _getDecorationForBlock(BlockNode node, ZefyrThemeData theme) {
-    final style = node.style.get(NotusAttribute.block);
-    if (style == NotusAttribute.block.quote) {
+    final style = node.style.get(ParchmentAttribute.block);
+    if (style == ParchmentAttribute.block.quote) {
       return theme.quote.decoration;
-    } else if (style == NotusAttribute.block.code) {
+    } else if (style == ParchmentAttribute.block.code) {
       return theme.code.decoration;
     }
     return null;
@@ -200,7 +200,7 @@ class EditableTextBlock extends StatelessWidget {
 
   void _toggle(LineNode node, bool checked) {
     final attr =
-        checked ? NotusAttribute.checked : NotusAttribute.checked.unset;
+        checked ? ParchmentAttribute.checked : ParchmentAttribute.checked.unset;
     controller.formatText(node.documentOffset, 0, attr);
   }
 }

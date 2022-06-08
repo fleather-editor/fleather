@@ -3,15 +3,15 @@
 // BSD-style license that can be found in the LICENSE file.
 import 'dart:math' as math;
 
-import 'package:notus/src/document/embeds.dart';
 import 'package:quill_delta/quill_delta.dart';
 
+import 'embeds.dart';
 import 'attributes.dart';
 import 'block.dart';
 import 'leaf.dart';
 import 'node.dart';
 
-/// A line of rich text in a Notus document.
+/// A line of rich text in a Parchment document.
 ///
 /// LineNode serves as a container for [LeafNode]s, like [TextNode] and
 /// [EmbedNode].
@@ -108,13 +108,13 @@ class LineNode extends ContainerNode<LeafNode>
   ///   every line within this range (partially included lines are counted).
   /// - inline attribute X is included in the result only if it exists
   ///   for every character within this range (line-break characters excluded).
-  NotusStyle collectStyle(int offset, int length) {
+  ParchmentStyle collectStyle(int offset, int length) {
     final local = math.min(this.length - offset, length);
 
-    var result = NotusStyle();
-    final excluded = <NotusAttribute>{};
+    var result = ParchmentStyle();
+    final excluded = <ParchmentAttribute>{};
 
-    void _handle(NotusStyle style) {
+    void _handle(ParchmentStyle style) {
       if (result.isEmpty) {
         excluded.addAll(style.values);
       } else {
@@ -193,7 +193,7 @@ class LineNode extends ContainerNode<LeafNode>
   }
 
   @override
-  void insert(int index, Object data, NotusStyle? style) {
+  void insert(int index, Object data, ParchmentStyle? style) {
     if (data is EmbeddableObject) {
       // We do not check whether this line already has any children here as
       // inserting an embed into a line with other text is acceptable from the
@@ -233,7 +233,7 @@ class LineNode extends ContainerNode<LeafNode>
   }
 
   @override
-  void retain(int index, int length, NotusStyle? style) {
+  void retain(int index, int length, ParchmentStyle? style) {
     if (style == null) return;
     final thisLength = this.length;
 
@@ -243,7 +243,7 @@ class LineNode extends ContainerNode<LeafNode>
 
     if (isLineFormat) {
       assert(
-          style.values.every((attr) => attr.scope == NotusAttributeScope.line),
+          style.values.every((attr) => attr.scope == ParchmentAttributeScope.line),
           'It is not allowed to apply inline attributes to line itself.');
       _formatAndOptimize(style);
     } else {
@@ -251,7 +251,7 @@ class LineNode extends ContainerNode<LeafNode>
       assert(index + local != thisLength,
           'It is not allowed to apply inline attributes to line itself.');
       assert(style.values
-          .every((attr) => attr.scope == NotusAttributeScope.inline));
+          .every((attr) => attr.scope == ParchmentAttributeScope.inline));
       super.retain(index, local, style);
     }
 
@@ -305,18 +305,18 @@ class LineNode extends ContainerNode<LeafNode>
   }
 
   /// Formats this line and optimizes layout afterwards.
-  void _formatAndOptimize(NotusStyle? newStyle) {
+  void _formatAndOptimize(ParchmentStyle? newStyle) {
     if (newStyle == null || newStyle.isEmpty) return;
 
     applyStyle(newStyle);
-    if (!newStyle.contains(NotusAttribute.block)) {
+    if (!newStyle.contains(ParchmentAttribute.block)) {
       return;
     } // no block-level changes
 
-    final blockStyle = newStyle.get(NotusAttribute.block)!;
+    final blockStyle = newStyle.get(ParchmentAttribute.block)!;
     if (parent is BlockNode) {
-      final parentStyle = (parent as BlockNode).style.get(NotusAttribute.block);
-      if (blockStyle == NotusAttribute.block.unset) {
+      final parentStyle = (parent as BlockNode).style.get(ParchmentAttribute.block);
+      if (blockStyle == ParchmentAttribute.block.unset) {
         unwrap();
       } else if (blockStyle != parentStyle) {
         unwrap();
@@ -325,7 +325,7 @@ class LineNode extends ContainerNode<LeafNode>
         wrap(block);
         block.optimize();
       } // else the same style, no-op.
-    } else if (blockStyle != NotusAttribute.block.unset) {
+    } else if (blockStyle != ParchmentAttribute.block.unset) {
       // Only wrap with a new block if this is not an unset
       final block = BlockNode();
       block.applyAttribute(blockStyle);
@@ -334,7 +334,7 @@ class LineNode extends ContainerNode<LeafNode>
     }
   }
 
-  void _insertSafe(int index, Object data, NotusStyle? style) {
+  void _insertSafe(int index, Object data, ParchmentStyle? style) {
     assert(index == 0 || (index > 0 && index < length));
 
     if (data is String) {

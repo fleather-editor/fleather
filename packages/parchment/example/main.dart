@@ -2,15 +2,15 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:notus/notus.dart';
+import 'package:parchment/parchment.dart';
 
 void main() {
-  final doc = NotusDocument();
+  final doc = ParchmentDocument();
   // Modify this document with insert, delete and format operations
   doc.insert(
-      0, 'Notus package provides rich text document model for Zefyr editor');
-  doc.format(0, 5, NotusAttribute.bold); // Makes first word bold.
-  doc.format(0, 0, NotusAttribute.h1); // Makes first line a heading.
+      0, 'Parchment package provides rich text document model for Zefyr editor');
+  doc.format(0, 5, ParchmentAttribute.bold); // Makes first word bold.
+  doc.format(0, 0, ParchmentAttribute.h1); // Makes first line a heading.
   doc.delete(23, 10); // Deletes "rich text " segment.
 
   // Collects style attributes at 1 character in this document.

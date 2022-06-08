@@ -137,8 +137,8 @@ class ResetLineFormatOnNewLineRule extends InsertRule {
     if (targetText.startsWith('\n')) {
       Map<String, dynamic>? resetStyle;
       if (target.attributes != null &&
-          target.attributes!.containsKey(NotusAttribute.heading.key)) {
-        resetStyle = NotusAttribute.heading.unset.toJson();
+          target.attributes!.containsKey(ParchmentAttribute.heading.key)) {
+        resetStyle = ParchmentAttribute.heading.unset.toJson();
       }
       return Delta()
         ..retain(index)
@@ -176,14 +176,14 @@ class AutoExitBlockRule extends InsertRule {
     final previous = iter.skip(index);
     final target = iter.next();
     final isInBlock = target.isNotPlain &&
-        target.attributes!.containsKey(NotusAttribute.block.key);
+        target.attributes!.containsKey(ParchmentAttribute.block.key);
 
     // We are not in a block, ignore.
     if (!isInBlock) return null;
     // We are not on an empty line, ignore.
     if (!isEmptyLine(previous, target)) return null;
 
-    final blockStyle = target.attributes![NotusAttribute.block.key];
+    final blockStyle = target.attributes![ParchmentAttribute.block.key];
 
     // We are on an empty line. Now we need to determine if we are on the
     // last line of a block.
@@ -203,7 +203,7 @@ class AutoExitBlockRule extends InsertRule {
     final nextNewline = _findNextNewline(iter);
     if (nextNewline.isNotEmpty &&
         nextNewline.op!.attributes != null &&
-        nextNewline.op!.attributes![NotusAttribute.block.key] == blockStyle) {
+        nextNewline.op!.attributes![ParchmentAttribute.block.key] == blockStyle) {
       // We are not at the end of this block, ignore.
       return null;
     }
@@ -211,7 +211,7 @@ class AutoExitBlockRule extends InsertRule {
     // Here we now know that the line after `target` is not in the same block
     // therefore we can exit this block.
     final attributes = target.attributes ?? <String, dynamic>{};
-    attributes.addAll(NotusAttribute.block.unset.toJson());
+    attributes.addAll(ParchmentAttribute.block.unset.toJson());
     return Delta()..retain(index)..retain(1, attributes);
   }
 }
@@ -239,7 +239,7 @@ class PreserveInlineStylesRule extends InsertRule {
 
     final attributes = previous.attributes;
     final hasLink =
-        (attributes != null && attributes.containsKey(NotusAttribute.link.key));
+        (attributes != null && attributes.containsKey(ParchmentAttribute.link.key));
     if (!hasLink) {
       return Delta()
         ..retain(index)
@@ -249,19 +249,19 @@ class PreserveInlineStylesRule extends InsertRule {
     // Link style should only be preserved if insert occurs inside the fragment.
     // Link style should NOT be preserved on the boundaries.
     var noLinkAttributes = previous.attributes!;
-    noLinkAttributes.remove(NotusAttribute.link.key);
+    noLinkAttributes.remove(ParchmentAttribute.link.key);
     final noLinkResult = Delta()
       ..retain(index)
       ..insert(data, noLinkAttributes.isEmpty ? null : noLinkAttributes);
     final next = iter.next();
     final nextAttributes = next.attributes ?? const <String, dynamic>{};
-    if (!nextAttributes.containsKey(NotusAttribute.link.key)) {
+    if (!nextAttributes.containsKey(ParchmentAttribute.link.key)) {
       // Next fragment is not styled as link.
       return noLinkResult;
     }
     // We must make sure links are identical in previous and next operations.
-    if (attributes![NotusAttribute.link.key] ==
-        nextAttributes[NotusAttribute.link.key]) {
+    if (attributes![ParchmentAttribute.link.key] ==
+        nextAttributes[ParchmentAttribute.link.key]) {
       return Delta()
         ..retain(index)
         ..insert(data, attributes);
@@ -302,10 +302,10 @@ class AutoFormatLinksRule extends InsertRule {
       final attributes = previous.attributes ?? <String, dynamic>{};
 
       // Do nothing if already formatted as link.
-      if (attributes.containsKey(NotusAttribute.link.key)) return null;
+      if (attributes.containsKey(ParchmentAttribute.link.key)) return null;
 
       attributes
-          .addAll(NotusAttribute.link.fromString(link.toString()).toJson());
+          .addAll(ParchmentAttribute.link.fromString(link.toString()).toJson());
       return Delta()
         ..retain(index - candidate.length)
         ..retain(candidate.length, attributes)
@@ -383,23 +383,23 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
     final lineStyle = nextNewline.op?.attributes ?? <String, dynamic>{};
 
     // Are we currently in a block? If not then ignore.
-    if (!lineStyle.containsKey(NotusAttribute.block.key)) return null;
+    if (!lineStyle.containsKey(ParchmentAttribute.block.key)) return null;
 
     final blockStyle = <String, dynamic>{
-      NotusAttribute.block.key: lineStyle[NotusAttribute.block.key]
+      ParchmentAttribute.block.key: lineStyle[ParchmentAttribute.block.key]
     };
 
     Map<String, dynamic> resetStyle = {};
     // If current line had heading style applied to it we'll need to move this
     // style to the newly inserted line before it and reset style of the
     // original line.
-    if (lineStyle.containsKey(NotusAttribute.heading.key)) {
-      resetStyle.addAll(NotusAttribute.heading.unset.toJson());
+    if (lineStyle.containsKey(ParchmentAttribute.heading.key)) {
+      resetStyle.addAll(ParchmentAttribute.heading.unset.toJson());
     }
 
     // Similarly for the checked style
-    if (lineStyle.containsKey(NotusAttribute.checked.key)) {
-      resetStyle.addAll(NotusAttribute.checked.unset.toJson());
+    if (lineStyle.containsKey(ParchmentAttribute.checked.key)) {
+      resetStyle.addAll(ParchmentAttribute.checked.unset.toJson());
     }
 
     // Go over each inserted line and ensure block style is applied.
@@ -493,17 +493,17 @@ class InsertEmbedsRule extends InsertRule {
 
 /// Replaces certain Markdown shortcuts with actual line or block styles.
 class MarkdownBlockShortcutsInsertRule extends InsertRule {
-  static final rules = <String, NotusAttribute>{
-    '-': NotusAttribute.block.bulletList,
-    '*': NotusAttribute.block.bulletList,
-    '1.': NotusAttribute.block.numberList,
-    '[]': NotusAttribute.block.checkList,
-    "'''": NotusAttribute.block.code,
-    '```': NotusAttribute.block.code,
-    '>': NotusAttribute.block.quote,
-    '#': NotusAttribute.h1,
-    '##': NotusAttribute.h2,
-    '###': NotusAttribute.h3,
+  static final rules = <String, ParchmentAttribute>{
+    '-': ParchmentAttribute.block.bulletList,
+    '*': ParchmentAttribute.block.bulletList,
+    '1.': ParchmentAttribute.block.numberList,
+    '[]': ParchmentAttribute.block.checkList,
+    "'''": ParchmentAttribute.block.code,
+    '```': ParchmentAttribute.block.code,
+    '>': ParchmentAttribute.block.quote,
+    '#': ParchmentAttribute.h1,
+    '##': ParchmentAttribute.h2,
+    '###': ParchmentAttribute.h3,
   };
   const MarkdownBlockShortcutsInsertRule();
 
@@ -515,7 +515,7 @@ class MarkdownBlockShortcutsInsertRule extends InsertRule {
   }
 
   Delta? _formatLine(
-      DeltaIterator iter, int index, String prefix, NotusAttribute attr) {
+      DeltaIterator iter, int index, String prefix, ParchmentAttribute attr) {
     /// First, delete the shortcut prefix itself.
     final result = Delta()
       ..retain(index - prefix.length)
@@ -568,7 +568,7 @@ class MarkdownBlockShortcutsInsertRule extends InsertRule {
       if (prefix == null || prefix.isEmpty) return null;
       final shortcut = '$prefix$data';
       if (shortcut == '```' || shortcut == "'''") {
-        return _formatLine(iter, index, prefix, NotusAttribute.code);
+        return _formatLine(iter, index, prefix, ParchmentAttribute.code);
       }
     }
 

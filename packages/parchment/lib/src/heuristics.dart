@@ -2,20 +2,21 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:notus/notus.dart';
 import 'package:quill_delta/quill_delta.dart';
 
+import 'document.dart';
+import 'document/attributes.dart';
 import 'heuristics/delete_rules.dart';
 import 'heuristics/format_rules.dart';
 import 'heuristics/insert_rules.dart';
 
 /// Registry for insert, format and delete heuristic rules used by
-/// [NotusDocument] documents.
-class NotusHeuristics {
+/// [ParchmentDocument] documents.
+class ParchmentHeuristics {
   /// Default set of heuristic rules.
   ///
   /// Rule order matters.
-  static const NotusHeuristics fallback = NotusHeuristics(
+  static const ParchmentHeuristics fallback = ParchmentHeuristics(
     formatRules: [
       FormatLinkAtCaretPositionRule(),
       ResolveLineFormatRule(),
@@ -47,7 +48,7 @@ class NotusHeuristics {
     ],
   );
 
-  const NotusHeuristics({
+  const ParchmentHeuristics({
     required this.formatRules,
     required this.insertRules,
     required this.deleteRules,
@@ -63,8 +64,8 @@ class NotusHeuristics {
   final List<DeleteRule> deleteRules;
 
   /// Applies heuristic rules to specified insert operation based on current
-  /// state of Notus [document].
-  Delta applyInsertRules(NotusDocument document, int index, Object data) {
+  /// state of Parchment [document].
+  Delta applyInsertRules(ParchmentDocument document, int index, Object data) {
     final delta = document.toDelta();
     for (var rule in insertRules) {
       final result = rule.apply(delta, index, data);
@@ -74,9 +75,9 @@ class NotusHeuristics {
   }
 
   /// Applies heuristic rules to specified format operation based on current
-  /// state of Notus [document].
+  /// state of Parchment [document].
   Delta applyFormatRules(
-      NotusDocument document, int index, int length, NotusAttribute value) {
+      ParchmentDocument document, int index, int length, ParchmentAttribute value) {
     final delta = document.toDelta();
     for (var rule in formatRules) {
       final result = rule.apply(delta, index, length, value);
@@ -86,8 +87,8 @@ class NotusHeuristics {
   }
 
   /// Applies heuristic rules to specified delete operation based on current
-  /// state of Notus [document].
-  Delta applyDeleteRules(NotusDocument document, int index, int length) {
+  /// state of Parchment [document].
+  Delta applyDeleteRules(ParchmentDocument document, int index, int length) {
     final delta = document.toDelta();
     for (var rule in deleteRules) {
       final result = rule.apply(delta, index, length);

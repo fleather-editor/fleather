@@ -12,7 +12,7 @@ import 'document/line.dart';
 import 'document/node.dart';
 import 'heuristics.dart';
 
-/// Source of a [NotusChange].
+/// Source of a [ParchmentChange].
 enum ChangeSource {
   /// Change originated from a local action. Typically triggered by user.
   local,
@@ -21,9 +21,9 @@ enum ChangeSource {
   remote,
 }
 
-/// Represents a change in a [NotusDocument].
-class NotusChange {
-  NotusChange(this.before, this.change, this.source);
+/// Represents a change in a [ParchmentDocument].
+class ParchmentChange {
+  ParchmentChange(this.before, this.change, this.source);
 
   /// Document state before [change].
   final Delta before;
@@ -36,29 +36,29 @@ class NotusChange {
 }
 
 /// A rich text document.
-class NotusDocument {
-  /// Creates new empty Notus document.
-  NotusDocument()
-      : _heuristics = NotusHeuristics.fallback,
+class ParchmentDocument {
+  /// Creates new empty Parchment document.
+  ParchmentDocument()
+      : _heuristics = ParchmentHeuristics.fallback,
         _delta = Delta()..insert('\n') {
     _loadDocument(_delta);
   }
 
-  /// Creates new NotusDocument from provided JSON `data`.
-  NotusDocument.fromJson(List data)
-      : _heuristics = NotusHeuristics.fallback,
+  /// Creates new ParchmentDocument from provided JSON `data`.
+  ParchmentDocument.fromJson(List data)
+      : _heuristics = ParchmentHeuristics.fallback,
         _delta = _migrateDelta(Delta.fromJson(data)) {
     _loadDocument(_delta);
   }
 
-  /// Creates new NotusDocument from provided `delta`.
-  NotusDocument.fromDelta(Delta delta)
-      : _heuristics = NotusHeuristics.fallback,
+  /// Creates new ParchmentDocument from provided `delta`.
+  ParchmentDocument.fromDelta(Delta delta)
+      : _heuristics = ParchmentHeuristics.fallback,
         _delta = _migrateDelta(delta) {
     _loadDocument(_delta);
   }
 
-  final NotusHeuristics _heuristics;
+  final ParchmentHeuristics _heuristics;
 
   /// The root node of this document tree.
   RootNode get root => _root;
@@ -67,10 +67,10 @@ class NotusDocument {
   /// Length of this document.
   int get length => _root.length;
 
-  /// Stream of [NotusChange]s applied to this document.
-  Stream<NotusChange> get changes => _controller.stream;
+  /// Stream of [ParchmentChange]s applied to this document.
+  Stream<ParchmentChange> get changes => _controller.stream;
 
-  final StreamController<NotusChange> _controller =
+  final StreamController<ParchmentChange> _controller =
       StreamController.broadcast();
 
   /// Returns contents of this document as [Delta].
@@ -121,7 +121,7 @@ class NotusDocument {
   /// Deletes [length] of characters from this document starting at [index].
   ///
   /// This method applies heuristic rules before modifying this document and
-  /// produces a [NotusChange] with source set to [ChangeSource.local].
+  /// produces a [ParchmentChange] with source set to [ChangeSource.local].
   ///
   /// Returns an instance of [Delta] actually composed into this document.
   Delta delete(int index, int length) {
@@ -172,7 +172,7 @@ class NotusDocument {
   /// Returns an instance of [Delta] actually composed into this document.
   /// The returned [Delta] may be empty in which case this document remains
   /// unchanged and no change event is published to the [changes] stream.
-  Delta format(int index, int length, NotusAttribute attribute) {
+  Delta format(int index, int length, ParchmentAttribute attribute) {
     assert(index >= 0 && length >= 0);
 
     var change = Delta();
@@ -197,7 +197,7 @@ class NotusDocument {
   ///   every line within this range (partially included lines are counted).
   /// - inline attribute X is included in the result only if it exists
   ///   for every character within this range (line-break characters excluded).
-  NotusStyle collectStyle(int index, int length) {
+  ParchmentStyle collectStyle(int index, int length) {
     var result = lookupLine(index);
     var line = result.node as LineNode;
     return line.collectStyle(result.offset, length);
@@ -232,7 +232,7 @@ class NotusDocument {
     change = _migrateDelta(change);
     for (final op in change.toList()) {
       final attributes =
-          op.attributes != null ? NotusStyle.fromJson(op.attributes) : null;
+          op.attributes != null ? ParchmentStyle.fromJson(op.attributes) : null;
       if (op.isInsert) {
         // Must normalize data before inserting into the document, makes sure
         // that any embedded objects are converted into EmbeddableObject type.
@@ -251,7 +251,7 @@ class NotusDocument {
       throw StateError('Compose produced inconsistent results. '
           'This is likely due to a bug in the library. Tried to compose change $change from $source.');
     }
-    _controller.add(NotusChange(before, change, source));
+    _controller.add(ParchmentChange(before, change, source));
   }
 
   //
@@ -266,15 +266,15 @@ class NotusDocument {
 
   void _checkMutable() {
     assert(!_controller.isClosed,
-        'Cannot modify Notus document after it was closed.');
+        'Cannot modify Parchment document after it was closed.');
   }
 
-  /// Key of the embed attribute used in Notus 0.x (prior to 1.0).
+  /// Key of the embed attribute used in Parchment 0.x (prior to 1.0).
   static const String _kEmbedAttributeKey = 'embed';
 
-  /// Migrates `delta` to the latest format supported by Notus documents.
+  /// Migrates `delta` to the latest format supported by Parchment documents.
   ///
-  /// Allows backward compatibility with 0.x versions of notus package.
+  /// Allows backward compatibility with 0.x versions of Parchment package.
   static Delta _migrateDelta(Delta delta) {
     final result = Delta();
     for (final op in delta.toList()) {
@@ -310,7 +310,7 @@ class NotusDocument {
     var offset = 0;
     for (final op in doc.toList()) {
       final style =
-          op.attributes != null ? NotusStyle.fromJson(op.attributes) : null;
+          op.attributes != null ? ParchmentStyle.fromJson(op.attributes) : null;
       if (op.isInsert) {
         final data = _normalizeData(op.data);
         _root.insert(offset, data, style);
