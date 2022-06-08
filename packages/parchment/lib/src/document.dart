@@ -266,7 +266,7 @@ class ParchmentDocument {
 
   void _checkMutable() {
     assert(!_controller.isClosed,
-        'Cannot modify ParchmentDocument after it was closed.');
+        'Cannot modify Parchment document after it was closed.');
   }
 
   /// Key of the embed attribute used in Parchment 0.x (prior to 1.0).
