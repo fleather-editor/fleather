@@ -1,12 +1,12 @@
 ## Data Format and Document Model
 
-Zefyr document model exists as a separate platform-agnostic library
-called Notus. Notus implements all building blocks of a rich text
-document and can be used separately from Zefyr on any platform
+Fleather document model exists as a separate platform-agnostic library
+called Parchment. Parchment implements all building blocks of a rich text
+document and can be used separately from Fleather on any platform
 supported by Dart SDK, e.g. web, desktop or server (macos, windows,
 linux) and, of course, mobile (ios, android).
 
-Notus documents are based on Quill.js [Delta][] format. Deltas are
+Parchment documents are based on Quill.js [Delta][] format. Deltas are
 simple and expressive format of describing rich text data, and is also
 suitable for [Operational transformations][ot]. The format is
 essentially JSON, and is human readable.
@@ -88,14 +88,14 @@ for more details.
 
 ### Document model
 
-Notus documents are represented as a tree of nodes. There are 3 main
+Parchment documents are represented as a tree of nodes. There are 3 main
 types of nodes:
 
 * `LeafNode` - a leaf node which represents a segment of styled text within a document. There are two kinds of leaf nodes - text and embeds.
 * `LineNode` - represents an individual line of text within a document. Line nodes are containers for leaf nodes.
 * `Block` - represents a group of adjacent lines which share the same style. Examples of blocks include lists, quotes or code blocks.
 
-Given above description, here is ASCII-style visualization of a Notus
+Given above description, here is ASCII-style visualization of a Parchment
 document tree:
 
 ```
@@ -117,11 +117,11 @@ root
 It is currently not allowed to nest blocks inside other blocks but this
 may change in the future.
 
-All manipulations of Notus documents are designed strictly to match
+All manipulations of Parchment documents are designed strictly to match
 semantics of underlying Delta format. As a result the model itself is
 fairly simple and predictable.
 
-Learn more about other building blocks of Notus documents in
+Learn more about other building blocks of Parchment documents in
 documentation for [attributes][] and [heuristics][].
 
 [heuristics]: heuristics.md
