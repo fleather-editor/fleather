@@ -1460,6 +1460,16 @@ class RawEditorState extends EditorState
     PasteTextIntent: _makeOverridable(CallbackAction<PasteTextIntent>(
         onInvoke: (PasteTextIntent intent) => pasteText(intent.cause))),
   };
+
+  @override
+  void insertTextPlaceholder(Size size) {
+    // TODO: implement insertTextPlaceholder
+  }
+
+  @override
+  void removeTextPlaceholder() {
+    // TODO: implement removeTextPlaceholder
+  }
 }
 
 class _Editor extends MultiChildRenderObjectWidget {
@@ -1580,6 +1590,7 @@ class _CodeUnitBoundary extends _TextBoundary {
   @override
   TextPosition getLeadingTextBoundaryAt(TextPosition position) =>
       TextPosition(offset: position.offset);
+
   @override
   TextPosition getTrailingTextBoundaryAt(TextPosition position) => TextPosition(
       offset: math.min(position.offset + 1, textEditingValue.text.length));
@@ -1731,6 +1742,7 @@ class _DocumentBoundary extends _TextBoundary {
   @override
   TextPosition getLeadingTextBoundaryAt(TextPosition position) =>
       const TextPosition(offset: 0);
+
   @override
   TextPosition getTrailingTextBoundaryAt(TextPosition position) {
     return TextPosition(
