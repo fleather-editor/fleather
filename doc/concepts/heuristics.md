@@ -8,7 +8,7 @@ actions.
 Some very common examples include autoformatting of links or inserting
 a new list item when user presses `Enter` key.
 
-In Notus (document model used by Zefyr editor), such rules are called
+In Parchment (document model used by Fleather editor), such rules are called
 *heuristic rules*. There are two main purposes for heuristic rules:
 
 1. User experience: rules like above-mentioned autoformatting of links are here to make editing a user friendly process.
@@ -33,17 +33,17 @@ var doc = getDocument();
 var cursorPosition = 8; // after the word "Document"
 var selectionLength = 0; // selection is collapsed.
 var change = doc.format(
-  cursorPosition, selectionLength, NotusAttribute.heading.level2);
+  cursorPosition, selectionLength, ParchmentAttribute.heading.level2);
 ```
 
 If we try to apply this change as-is it would have no effect or, more
 likely, result in an `AssertionError` because we are trying to apply line style
 to a character in the middle of a line. This is why all methods in
-`NotusDocument` have an extra step which applies heuristic rules to
+`ParchmentDocument` have an extra step which applies heuristic rules to
 the change (there is one method which skips this step, `compose`,
 read more on it later) before actually composing it.
 
-The `NotusDocument.format` method returns an instance of `Delta` which
+The `ParchmentDocument.format` method returns an instance of `Delta` which
 was actually applied to the document. For the above scenario it would
 look like this:
 
@@ -61,7 +61,7 @@ what user intended to do.
 There are more similar scenarios which are covered by heuristic rules
 to ensure consistency with the document model and provide better UX.
 
-### `NotusDocument.compose()` and skipping heuristic rules
+### `ParchmentDocument.compose()` and skipping heuristic rules
 
 The `compose()` method is the only method which skips the step of
 applying heuristic rules and therefore **should be used with great
@@ -78,4 +78,4 @@ This method exists mostly to enable following use cases:
 When composing a change which came from a different site or server make
 sure to use `ChangeSource.remote` when calling `compose()`. This allows
 you to distinguish such changes from local changes made by the user
-when listening on `NotusDocument.changes` stream.
+when listening on `ParchmentDocument.changes` stream.

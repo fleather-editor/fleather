@@ -63,8 +63,8 @@ class ToggleUnderlineStyleIntent extends Intent {
   const ToggleUnderlineStyleIntent();
 }
 
-class ZefyrActions extends Actions {
-  ZefyrActions({
+class FleatherActions extends Actions {
+  FleatherActions({
     Key? key,
     required Widget child,
   }) : super(

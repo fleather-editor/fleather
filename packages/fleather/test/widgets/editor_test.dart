@@ -44,7 +44,7 @@ void main() {
       await editor.pumpAndTap();
       await editor.updateSelection(base: 0, extent: 3);
       await editor.disable();
-      final widget = tester.widget(find.byType(ZefyrField)) as ZefyrField;
+      final widget = tester.widget(find.byType(FleatherField)) as FleatherField;
       expect(widget.readOnly, true);
     });
   });

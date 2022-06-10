@@ -4,7 +4,7 @@ import 'package:parchment/parchment.dart';
 import 'controller.dart';
 import 'editor.dart';
 
-class ZefyrField extends StatefulWidget {
+class FleatherField extends StatefulWidget {
   /// Controller object which establishes a link between a rich text document
   /// and this editor.
   ///
@@ -135,10 +135,10 @@ class ZefyrField extends StatefulWidget {
 
   /// Builder function for embeddable objects.
   ///
-  /// Defaults to [defaultZefyrEmbedBuilder].
+  /// Defaults to [defaultFleatherEmbedBuilder].
   final FleatherEmbedBuilder embedBuilder;
 
-  const ZefyrField({
+  const FleatherField({
     Key? key,
     required this.controller,
     this.focusNode,
@@ -158,14 +158,14 @@ class ZefyrField extends StatefulWidget {
     this.onLaunchUrl,
     this.decoration,
     this.toolbar,
-    this.embedBuilder = defaultZefyrEmbedBuilder,
+    this.embedBuilder = defaultFleatherEmbedBuilder,
   }) : super(key: key);
 
   @override
   _FleatherFieldState createState() => _FleatherFieldState();
 }
 
-class _FleatherFieldState extends State<ZefyrField> {
+class _FleatherFieldState extends State<FleatherField> {
   late bool _focused;
 
   void _editorFocusChanged() {
@@ -182,7 +182,7 @@ class _FleatherFieldState extends State<ZefyrField> {
   }
 
   @override
-  void didUpdateWidget(covariant ZefyrField oldWidget) {
+  void didUpdateWidget(covariant FleatherField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode!.removeListener(_editorFocusChanged);

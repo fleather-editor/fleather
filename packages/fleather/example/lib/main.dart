@@ -6,17 +6,17 @@ import 'package:flutter/material.dart';
 import 'src/home.dart';
 
 void main() {
-  runApp(const ZefyrApp());
+  runApp(const FleatherApp());
 }
 
-class ZefyrApp extends StatelessWidget {
-  const ZefyrApp({Key key}) : super(key: key);
+class FleatherApp extends StatelessWidget {
+  const FleatherApp({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Zefyr - rich-text editor for Flutter',
+      title: 'Fleather - rich-text editor for Flutter',
       home: HomePage(),
     );
   }

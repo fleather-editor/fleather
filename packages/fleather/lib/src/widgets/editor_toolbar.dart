@@ -177,7 +177,7 @@ class ToggleStyleButton extends StatefulWidget {
   /// The icon representing the style [attribute].
   final IconData icon;
 
-  /// Controller attached to a Zefyr editor.
+  /// Controller attached to a Fleather editor.
   final FleatherController controller;
 
   /// Builder function to customize visual representation of this button.
@@ -287,7 +287,7 @@ Widget defaultToggleStyleButtonBuilder(
 }
 
 /// Toolbar button which allows to apply heading style to a line of text in
-/// Zefyr editor.
+/// Fleather editor.
 ///
 /// Works as a dropdown menu button.
 // TODO: Add "dense" parameter which if set to true changes the button to use an icon instead of text (useful for mobile layouts)
@@ -610,7 +610,7 @@ class _FleatherToolbarState extends State<FleatherToolbar> {
   }
 }
 
-/// Default icon button used in Zefyr editor toolbar.
+/// Default icon button used in Fleather editor toolbar.
 ///
 /// Named with a "Z" prefix to distinguish from the Flutter's built-in version.
 class FLIconButton extends StatelessWidget {

@@ -102,9 +102,9 @@ void main() {
 
     test('apply', () {
       final link = ParchmentAttribute.link
-          .fromString('https://github.com/memspace/bold');
+          .fromString('https://github.com/fleather-editor/bold');
       final newLink = ParchmentAttribute.link
-          .fromString('https://github.com/memspace/zefyr');
+          .fromString('https://github.com/fleather-editor/fleather');
       final doc = Delta()
         ..insert('Visit our ')
         ..insert('website', link.toJson())

@@ -2,10 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-/// Zefyr widgets and document model.
+/// Fleather widgets and document model.
 ///
-/// To use, `import 'package:zefyr/zefyr.dart';`.
-library zefyr;
+/// To use, `import 'package:fleather/fleather.dart';`.
+library fleather;
 
 export 'package:parchment/parchment.dart';
 

@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
           elevation: 0,
           centerTitle: false,
           title: Text(
-            'Zefyr',
+            'Fleather',
             style: GoogleFonts.fondamento(color: Colors.white),
           ),
           actions: [

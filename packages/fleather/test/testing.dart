@@ -27,7 +27,7 @@ class EditorSandBox {
     document ??= ParchmentDocument.fromDelta(delta);
     var controller = FleatherController(document);
 
-    Widget widget = _ZefyrSandbox(
+    Widget widget = _FleatherSandbox(
       controller: controller,
       focusNode: focusNode,
       autofocus: autofocus,
@@ -62,7 +62,7 @@ class EditorSandBox {
 
   Future<void> disable() {
     final state =
-        tester.state(find.byType(_ZefyrSandbox)) as _ZefyrSandboxState;
+        tester.state(find.byType(_FleatherSandbox)) as _FleatherSandboxState;
     state.disable();
     return tester.pumpAndSettle();
   }
@@ -110,8 +110,8 @@ class EditorSandBox {
   }
 }
 
-class _ZefyrSandbox extends StatefulWidget {
-  const _ZefyrSandbox({
+class _FleatherSandbox extends StatefulWidget {
+  const _FleatherSandbox({
     Key? key,
     required this.controller,
     required this.focusNode,
@@ -122,15 +122,15 @@ class _ZefyrSandbox extends StatefulWidget {
   final bool autofocus;
 
   @override
-  _ZefyrSandboxState createState() => _ZefyrSandboxState();
+  _FleatherSandboxState createState() => _FleatherSandboxState();
 }
 
-class _ZefyrSandboxState extends State<_ZefyrSandbox> {
+class _FleatherSandboxState extends State<_FleatherSandbox> {
   bool _enabled = true;
 
   @override
   Widget build(BuildContext context) {
-    return ZefyrField(
+    return FleatherField(
       controller: widget.controller,
       focusNode: widget.focusNode,
       readOnly: !_enabled,

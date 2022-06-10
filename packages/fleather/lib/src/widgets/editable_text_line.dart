@@ -7,7 +7,7 @@ import 'cursor.dart';
 import 'text_line.dart';
 import 'theme.dart';
 
-/// Line of editable text in Zefyr editor.
+/// Line of editable text in Fleather editor.
 ///
 /// This widget adds editing features to the otherwise static [TextLine] widget.
 class EditableTextLine extends RenderObjectWidget {

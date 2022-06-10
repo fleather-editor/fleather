@@ -41,7 +41,7 @@ class _ScrollableLayoutState extends State<ScrollableLayout> {
               ),
               title: Text('Please review your document'),
               subtitle: Text(
-                  'Below you can see Zefyr editor which is embedded into this ListView'),
+                  'Below you can see Fleather editor which is embedded into this ListView'),
             ),
             const Divider(),
             FleatherEditor(

@@ -16,7 +16,7 @@ class EditorPageState extends State<EditorPage> {
   /// Allows to control the editor and the document.
   FleatherController _controller;
 
-  /// Zefyr editor like any other input field requires a focus node.
+  /// Fleather editor like any other input field requires a focus node.
   FocusNode _focusNode;
 
   @override
@@ -34,7 +34,7 @@ class EditorPageState extends State<EditorPage> {
   Widget build(BuildContext context) {
     final body = (_controller == null)
         ? const Center(child: CircularProgressIndicator())
-        : ZefyrField(
+        : FleatherField(
             padding: const EdgeInsets.all(16),
             controller: _controller,
             focusNode: _focusNode,
@@ -65,12 +65,12 @@ class EditorPageState extends State<EditorPage> {
           (data) => Future.delayed(const Duration(seconds: 1), () => data));
       return ParchmentDocument.fromJson(jsonDecode(contents));
     }
-    final delta = Delta()..insert('Zefyr Quick Start\n');
+    final delta = Delta()..insert('Fleather Quick Start\n');
     return ParchmentDocument()..compose(delta, ChangeSource.local);
   }
 
   void _saveDocument(BuildContext context) {
-    // Notus documents can be easily serialized to JSON by passing to
+    // Fleather documents can be easily serialized to JSON by passing to
     // `jsonEncode` directly:
     final contents = jsonEncode(_controller.document);
     // For this example we save our document to a temporary file.

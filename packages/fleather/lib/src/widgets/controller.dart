@@ -189,7 +189,7 @@ class FleatherController extends ChangeNotifier {
 
   // Ensures that selection does not include last line break which
   // prevents deletion of the last line in the document.
-  // This is required by Notus document model.
+  // This is required by Fleather document model.
   void _ensureSelectionBeforeLastBreak() {
     final end = document.length - 1;
     final base = math.min(_selection.baseOffset, end);

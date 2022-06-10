@@ -18,7 +18,7 @@ enum LinkMenuAction {
   none,
 }
 
-/// Used internally by Zefyr widget layer.
+/// Used internally by Fleather widget layer.
 typedef LinkActionPicker = Future<LinkMenuAction> Function(Node linkNode);
 
 typedef LinkActionPickerDelegate = Future<LinkMenuAction> Function(

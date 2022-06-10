@@ -4,12 +4,12 @@
 > changed in backward incompatible ways. If this happens all changes will be
 > described in detail in the changelog to simplify upgrading.
 
-Zefyr supports embedding images. In order to handle images in
-your application you need to implement `ZefyrImageDelegate` interface which
+Fleather supports embedding images. In order to handle images in
+your application you need to implement `FleatherImageDelegate` interface which
 looks like this:
 
 ```dart
-abstract class ZefyrImageDelegate<S> {
+abstract class FleatherImageDelegate<S> {
   /// Unique key to identify camera source.
   S get cameraSource;
 
@@ -37,11 +37,11 @@ abstract class ZefyrImageDelegate<S> {
 There is no default implementation of this interface since resolving image
 sources is always application-specific.
 
-> Note that prior to 0.7.0 Zefyr did provide simple default implementation of
-> `ZefyrImageDelegate` however it was removed as it introduced unnecessary
+> Note that prior to 0.7.0 Fleather did provide simple default implementation of
+> `FleatherImageDelegate` however it was removed as it introduced unnecessary
 > dependency on `image_picker` plugin.
 
-### Implementing ZefyrImageDelegate
+### Implementing FleatherImageDelegate
 
 For this example we will use [image_picker](https://pub.dev/packages/image_picker)
 plugin which allows us to select images from device's camera or photo gallery.
@@ -51,7 +51,7 @@ Let's start from the `pickImage` method:
 ```dart
 import 'package:image_picker/image_picker.dart';
 
-class MyAppZefyrImageDelegate implements ZefyrImageDelegate<ImageSource> {
+class MyAppFleatherImageDelegate implements FleatherImageDelegate<ImageSource> {
   @override
   Future<String> pickImage(ImageSource source) async {
     final file = await ImagePicker.pickImage(source: source);
@@ -80,9 +80,9 @@ For instance, if you upload files to your server you can initiate this task
 in `pickImage` as follows:
 
 ```dart
-class MyAppZefyrImageDelegate implements ZefyrImageDelegate<ImageSource> {
+class MyAppFleatherImageDelegate implements FleatherImageDelegate<ImageSource> {
   final MyFileStorage storage;
-  MyAppZefyrImageDelegate(this.storage);
+  MyAppFleatherImageDelegate(this.storage);
 
   @override
   Future<String> pickImage(ImageSource source) async {
@@ -107,7 +107,7 @@ Assuming our first example where we returned full path to the image file on
 user's device, our `buildImage` method can be as simple as following:
 
 ```dart
-class MyAppZefyrImageDelegate implements ZefyrImageDelegate<ImageSource> {
+class MyAppFleatherImageDelegate implements FleatherImageDelegate<ImageSource> {
   // ...
 
   @override
@@ -122,10 +122,10 @@ class MyAppZefyrImageDelegate implements ZefyrImageDelegate<ImageSource> {
 ```
 
 There is two more overrides we need to implement which configure source types
-used by Zefyr toolbar:
+used by Fleather toolbar:
 
 ```dart
-class MyAppZefyrImageDelegate implements ZefyrImageDelegate<ImageSource> {
+class MyAppFleatherImageDelegate implements FleatherImageDelegate<ImageSource> {
   // ...
   @override
   ImageSource get cameraSource => ImageSource.camera;
@@ -135,29 +135,29 @@ class MyAppZefyrImageDelegate implements ZefyrImageDelegate<ImageSource> {
 }
 ```
 
-Now our image delegate is ready to be used by Zefyr so the last step is to
-pass it to Zefyr editor:
+Now our image delegate is ready to be used by Fleather so the last step is to
+pass it to Fleather editor:
 
 ```dart
-import 'package:zefyr/zefyr.dart'
+import 'package:fleather/fleather.dart';
 
 class MyAppPageState extends State<MyAppPage> {
   FocueNode _focusNode = FocusNode();
-  ZefyrController _controller;
+  FleatherController _controller;
 
   // ...
 
   @override
   Widget build(BuildContext context) {
-    final editor = new ZefyrEditor(
+    final editor = new FleatherEditor(
       focusNode: _focusNode,
       controller: _controller,
-      imageDelegate: MyAppZefyrImageDelegate(),
+      imageDelegate: MyAppFleatherImageDelegate(),
     );
 
     // ... do more with this page's layout
 
-    return ZefyrScaffold(
+    return FleatherScaffold(
       child: Container(
         // ... customize
         child: editor,
@@ -168,4 +168,4 @@ class MyAppPageState extends State<MyAppPage> {
 ```
 
 When `imageDelegate` field is set to non-null value it automatically enables
-image selection button in Zefyr's style toolbar.
+image selection button in Fleather's style toolbar.

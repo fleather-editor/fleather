@@ -116,7 +116,7 @@ abstract class RenderAbstractEditor implements TextLayoutMetrics {
   void selectPosition({required SelectionChangedCause cause});
 }
 
-/// Displays a Notus document as a vertical list of document segments (lines
+/// Displays a Fleather document as a vertical list of document segments (lines
 /// and blocks).
 ///
 /// Children of [RenderEditor] must be instances of [RenderEditableBox].

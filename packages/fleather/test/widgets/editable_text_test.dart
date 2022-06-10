@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../testing.dart';
 
 void main() {
-  group('ZefyrEditableText', () {
+  group('FleatherEditableText', () {
     testWidgets('user input', (tester) async {
       final editor = EditorSandBox(tester: tester);
       await editor.pumpAndTap();
