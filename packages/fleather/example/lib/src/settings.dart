@@ -83,7 +83,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
           decoration: const InputDecoration(
             labelText: 'Path to assets folder',
             helperText:
-                'When set, allows to edit and save documents used in examples from within the app. Only useful if you are a developer of Zefyr package.',
+                'When set, allows to edit and save documents used in examples from within the app. Only useful if you are a developer of Fleather package.',
             helperMaxLines: 3,
           ),
           onChanged: _assetsPathChanged,

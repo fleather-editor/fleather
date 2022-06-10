@@ -5,7 +5,7 @@ import '../rendering/baseline_proxy.dart';
 /// Provides baseline metrics for the editor.
 ///
 /// This widget exists to address the issue of [SingleChildScrollView] not
-/// computing distance to actual baseline which causes issues when Zefyr
+/// computing distance to actual baseline which causes issues when Fleather
 /// editor is wrapped with [InputDecorator]. Specifically the decorator's
 /// hintText is rendered in a wrong place.
 ///

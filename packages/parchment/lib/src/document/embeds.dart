@@ -100,9 +100,9 @@ class SpanEmbed extends EmbeddableObject {
 /// of embedded objects and allows users to define their own types.
 ///
 /// It is also allowed to re-define the built-in embed types (horizontal rule
-/// and image) entirely. However if used with Zefyr editor this change may
-/// require extending Zefyr to recognize the new data attached to those embed
-/// types. See documentation on working with embeds in Zefyr for more details.
+/// and image) entirely. However if used with Fleather editor this change may
+/// require extending Fleather to recognize the new data attached to those embed
+/// types. See documentation on working with embeds in Fleather for more details.
 class BlockEmbed extends EmbeddableObject {
   /// Creates a new block embed of specified [type] and containing [data].
   BlockEmbed(

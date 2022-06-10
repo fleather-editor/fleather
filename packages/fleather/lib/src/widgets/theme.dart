@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 
-/// Applies a Zefyr editor theme to descendant widgets.
+/// Applies a Fleather editor theme to descendant widgets.
 ///
 /// Describes colors and typographic styles for an editor.
 ///
@@ -42,7 +42,7 @@ class FleatherTheme extends InheritedWidget {
     final widget = context.dependOnInheritedWidgetOfExactType<FleatherTheme>();
     if (widget == null && nullOk) return null;
     assert(widget != null,
-        '$FleatherTheme.of() called with a context that does not contain a ZefyrEditor.');
+        '$FleatherTheme.of() called with a context that does not contain a FleatherTheme.');
     return widget!.data;
   }
 }

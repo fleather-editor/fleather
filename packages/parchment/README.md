@@ -1,14 +1,14 @@
-**Notus** is a rich text document model for [Zefyr][] project.
+**Parchment** is a rich text document model for [Fleather][] project.
 
 If you found a bug or have a feature request, please file it at 
 the [issue tracker][].
 
-For documentation, please see the main [Zefyr][] repository.
+For documentation, please see the main [Fleather][] repository.
 
-Notus is a **generic Dart package** and does not depend
+Parchment is a **generic Dart package** and does not depend
 on Flutter in any way. It can be used on any platform supported
 by the Dart language: web, server (mac, linux, windows) and,
 of course, mobile (android and ios).
 
-[Zefyr]: https://github.com/memspace/zefyr
-[issue tracker]: https://github.com/memspace/zefyr/issues
+[Fleather]: https://github.com/fleather-editor/fleather
+[issue tracker]: https://github.com/fleather-editor/fleather/issues

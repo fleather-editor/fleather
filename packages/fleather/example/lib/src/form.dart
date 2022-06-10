@@ -42,7 +42,7 @@ class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
     final result = Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: const ZefyrLogo(),
+        title: const FleatherLogo(),
         actions: [
           PopupMenuButton<_Options>(
             itemBuilder: buildPopupMenu,
@@ -63,7 +63,7 @@ class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
   }
 
   Widget buildEditor() {
-    return ZefyrField(
+    return FleatherField(
       // height: 200.0,
       // decoration: InputDecoration(labelText: 'Description'),
       controller: _controller,

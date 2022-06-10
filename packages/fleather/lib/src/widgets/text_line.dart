@@ -14,7 +14,7 @@ import 'link.dart';
 import 'rich_text_proxy.dart';
 import 'theme.dart';
 
-/// Line of text in Zefyr editor.
+/// Line of text in Fleather editor.
 ///
 /// This widget allows to render non-editable line of rich text, but can be
 /// wrapped with [EditableTextLine] which adds editing features.

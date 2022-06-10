@@ -30,7 +30,7 @@ class _DecoratedFieldDemoState extends State<DecoratedFieldDemo> {
           const TextField(
             decoration: InputDecoration(labelText: 'Title'),
           ),
-          ZefyrField(
+          FleatherField(
             controller: controller,
             focusNode: _focusNode,
             decoration: const InputDecoration(

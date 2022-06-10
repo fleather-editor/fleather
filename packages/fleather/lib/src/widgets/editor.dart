@@ -31,10 +31,10 @@ typedef FleatherEmbedBuilder = Widget Function(
     BuildContext context, EmbedNode node);
 
 /// Default implementation of a builder function for embeddable objects in
-/// Zefyr.
+/// Fleather.
 ///
 /// Only supports "horizontal rule" embeds.
-Widget defaultZefyrEmbedBuilder(BuildContext context, EmbedNode node) {
+Widget defaultFleatherEmbedBuilder(BuildContext context, EmbedNode node) {
   if (node.value.type == 'hr') {
     final theme = FleatherTheme.of(context)!;
     return Divider(
@@ -45,8 +45,8 @@ Widget defaultZefyrEmbedBuilder(BuildContext context, EmbedNode node) {
   }
   throw UnimplementedError(
       'Embeddable type "${node.value.type}" is not supported by default embed '
-      'builder of ZefyrEditor. You must pass your own builder function to '
-      'embedBuilder property of ZefyrEditor or ZefyrField widgets.');
+      'builder of FleatherEditor. You must pass your own builder function to '
+      'embedBuilder property of FleatherEditor or FleatherField widgets.');
 }
 
 /// Widget for editing rich text documents.
@@ -184,7 +184,7 @@ class FleatherEditor extends StatefulWidget {
 
   /// Builder function for embeddable objects.
   ///
-  /// Defaults to [defaultZefyrEmbedBuilder].
+  /// Defaults to [defaultFleatherEmbedBuilder].
   final FleatherEmbedBuilder embedBuilder;
 
   /// Delegate function responsible for showing menu with link actions on
@@ -193,7 +193,7 @@ class FleatherEditor extends StatefulWidget {
   /// The menu is triggered in editing mode ([readOnly] is set to `false`)
   /// when the user long-presses a link-styled text segment.
   ///
-  /// Zefyr provides default implementation which can be overridden by this
+  /// Fleather provides default implementation which can be overridden by this
   /// field to customize the user experience.
   ///
   /// By default on iOS the menu is displayed with [showCupertinoModalPopup]
@@ -221,7 +221,7 @@ class FleatherEditor extends StatefulWidget {
     this.keyboardAppearance = Brightness.light,
     this.scrollPhysics,
     this.onLaunchUrl,
-    this.embedBuilder = defaultZefyrEmbedBuilder,
+    this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
   }) : super(key: key);
 
@@ -342,7 +342,7 @@ class _FleatherEditorState extends State<FleatherEditor>
     );
 
     child = FleatherShortcuts(
-      child: ZefyrActions(child: child),
+      child: FleatherActions(child: child),
     );
 
     return _selectionGestureDetectorBuilder.buildGestureDetector(
@@ -501,7 +501,7 @@ class RawEditor extends StatefulWidget {
     this.cursorStyle,
     this.showSelectionHandles = false,
     this.selectionControls,
-    this.embedBuilder = defaultZefyrEmbedBuilder,
+    this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
   })  : assert(scrollable || scrollController != null),
         assert(maxHeight == null || maxHeight > 0),
@@ -652,7 +652,7 @@ class RawEditor extends StatefulWidget {
 
   /// Builder function for embeddable objects.
   ///
-  /// Defaults to [defaultZefyrEmbedBuilder].
+  /// Defaults to [defaultFleatherEmbedBuilder].
   final FleatherEmbedBuilder embedBuilder;
 
   final LinkActionPickerDelegate linkActionPickerDelegate;

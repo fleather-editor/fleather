@@ -96,7 +96,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     final value = textEditingValue;
 
     // Since we don't keep track of composing range in value provided by
-    // ZefyrController we need to add it here manually before comparing
+    // FleatherController we need to add it here manually before comparing
     // with the last known remote value.
     // It is important to prevent excessive remote updates as it can cause
     // race conditions.
@@ -160,7 +160,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       FlutterError.reportError(FlutterErrorDetails(
         exception: e,
         stack: trace,
-        library: 'Zefyr',
+        library: 'Fleather',
         context: ErrorSummary('while updating editing value'),
       ));
       rethrow;

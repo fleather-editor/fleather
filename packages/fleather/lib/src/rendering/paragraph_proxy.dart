@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 
 import 'editable_box.dart';
 
-/// Proxy to built-in [RenderParagraph] so that it can be used inside Zefyr
+/// Proxy to built-in [RenderParagraph] so that it can be used inside Fleather
 /// editor.
 class RenderParagraphProxy extends RenderProxyBox
     implements RenderContentProxyBox {
