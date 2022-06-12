@@ -1,25 +1,16 @@
-# About Zefyr
+# About Fleather
 
-[![Build Status](https://travis-ci.com/memspace/zefyr.svg?branch=master)](https://travis-ci.com/memspace/zefyr) [![codecov](https://codecov.io/gh/memspace/zefyr/branch/master/graph/badge.svg)](https://codecov.io/gh/memspace/zefyr)
+<!-- [![Build Status](https://travis-ci.com/memspace/zefyr.svg?branch=master)](https://travis-ci.com/memspace/zefyr) [![codecov](https://codecov.io/gh/memspace/zefyr/branch/master/graph/badge.svg)](https://codecov.io/gh/memspace/zefyr) -->
 
-*Soft and gentle rich text editing for Flutter applications.*
-
-**You are viewing early dev preview version of this package which is no longer actively maintained.
-To follow latest updates see dev releases for `1.0.0-dev.x` versions. You can learn more about
-upcoming 1.0.0 release here: [https://github.com/memspace/zefyr/issues/409](https://github.com/memspace/zefyr/issues/409)**
-
-For questions and general discussions check out our
-[Spectrum community](https://spectrum.chat/zefyr).
-
-[issue tracker]: https://github.com/memspace/zefyr/issues
+*Soft and gentle rich text editing for Flutter applications based on [Zefyr](https://github.com/memspace/zefyr).*
 
 ## Clean and modern look
 
-Zefyr's rich text editor is built with simplicity and flexibility in
+Fleather's rich text editor is built with simplicity and flexibility in
 mind. It provides clean interface for distraction-free editing. Think
 Medium.com-like experience.
 
-<img src="https://github.com/memspace/zefyr/raw/master/assets/zefyr-1.png" width="375"> <img src="https://github.com/memspace/zefyr/raw/master/assets/zefyr-2.png" width="375">
+<img src="https://github.com/fleather-editor/fleather/raw/master/assets/zefyr-1.png" width="375"> <img src="https://github.com/fleather-editor/fleather/raw/master/assets/zefyr-2.png" width="375">
 
 ## Markdown-inspired semantics
 
@@ -29,20 +20,20 @@ this Markdown block:
 > ### I'm a Markdown heading
 > And I'm a regular paragraph
 
-Zefyr can deliver exactly that:
+Fleather can deliver exactly that:
 
-<img src="https://github.com/memspace/zefyr/raw/master/assets/markdown-semantics.png" width="375">
+<img src="https://github.com/fleather-editor/fleather/raw/master/assets/markdown-semantics.png" width="375">
 
 
 ## Ready for collaborative editing
 
-Zefyr's document model uses data format compatible with
+Fleather's document model uses data format compatible with
 [Operational Transformation][ot] which makes it possible to use for
 collaborative editing use cases or whenever there is a need for
 conflict-free resolution of changes.
 
-> Zefyr editor uses Quill.js **Delta** as underlying data format. Read
-> more about Zefyr and Deltas in our [documentation](doc/concepts/data-and-document.md).
+> Fleather editor uses Quill.js **Delta** as underlying data format. Read
+> more about Fleather and Deltas in our [documentation](doc/concepts/data-and-document.md).
 > Make sure to checkout [official documentation][delta] for Delta format
 > as well.
 

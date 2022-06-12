@@ -1,4 +1,4 @@
-**Parchment** is a rich text document model for [Fleather][] project.
+**Parchment** is a rich text document model for [Fleather][] project based on [Notus](https://github.com/memspace/zefyr/tree/master/packages/notus).
 
 If you found a bug or have a feature request, please file it at 
 the [issue tracker][].
