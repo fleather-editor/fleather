@@ -10,7 +10,7 @@ Fleather's rich text editor is built with simplicity and flexibility in
 mind. It provides clean interface for distraction-free editing. Think
 Medium.com-like experience.
 
-<img src="https://github.com/fleather-editor/fleather/raw/master/assets/zefyr-1.png" width="375"> <img src="https://github.com/fleather-editor/fleather/raw/master/assets/zefyr-2.png" width="375">
+[comment]: <> (<img src="https://github.com/fleather-editor/fleather/raw/master/assets/zefyr-1.png" width="375"> <img src="https://github.com/fleather-editor/fleather/raw/master/assets/zefyr-2.png" width="375">)
 
 ## Markdown-inspired semantics
 
@@ -20,9 +20,9 @@ this Markdown block:
 > ### I'm a Markdown heading
 > And I'm a regular paragraph
 
-Fleather can deliver exactly that:
+Fleather can deliver exactly that.
 
-<img src="https://github.com/fleather-editor/fleather/raw/master/assets/markdown-semantics.png" width="375">
+[comment]: <> (<img src="https://github.com/fleather-editor/fleather/raw/master/assets/markdown-semantics.png" width="375">)
 
 
 ## Ready for collaborative editing
