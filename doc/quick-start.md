@@ -145,9 +145,9 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-Here is how it might look when we run the app and navigate to editor page:
+[comment]: <> (Here is how it might look when we run the app and navigate to editor page:)
 
-<img src="https://github.com/fleather-editor/fleather/raw/master/assets/quick-start-rec-01.gif" width="600">
+[comment]: <> (<img src="https://github.com/fleather-editor/fleather/raw/master/assets/quick-start-rec-01.gif" width="600">)
 
 ### 04. Save document to JSON file
 
@@ -236,7 +236,7 @@ which has access to `Scaffold` widget's state.
 
 Now we can reload our app, hit "Save" button and see the snack bar.
 
-<img src="https://github.com/fleather-editor/fleather/raw/master/assets/quick-start-rec-02.gif" width="600">
+[comment]: <> (<img src="https://github.com/fleather-editor/fleather/raw/master/assets/quick-start-rec-02.gif" width="600">)
 
 ### 05. Load document from JSON file
 
@@ -333,9 +333,9 @@ class EditorPageState extends State<EditorPage> {
 }
 ```
 
-If we save changes now and reload the app we should see something like this:
+If we save changes now and reload the app we should see something like this.
 
-<img src="https://github.com/fleather-editor/fleather/raw/master/assets/quick-start-rec-03.gif" width="600">
+[comment]: <> (<img src="https://github.com/fleather-editor/fleather/raw/master/assets/quick-start-rec-03.gif" width="600">)
 
 Note that in your tests you'll likely not notice any loading animation at all. This is because
 reading a tiny file from disk is too fast. For the above recording we added an artificial delay of 1
