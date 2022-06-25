@@ -178,7 +178,7 @@ class LineNode extends ContainerNode<LeafNode>
   }
 
   @override
-  String toPlainText() => super.toPlainText() + '\n';
+  String toPlainText() => '${super.toPlainText()}\n';
 
   @override
   String toString() {
