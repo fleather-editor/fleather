@@ -1,4 +1,4 @@
-<!-- Thank you for using Zefyr! -->
+<!-- Thank you for using Fleather! -->
 
 ## Steps to Reproduce
 
