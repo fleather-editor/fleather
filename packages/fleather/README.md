@@ -3,5 +3,5 @@
 
 *Soft and gentle rich text editing for Flutter applications based on [Zefyr](https://github.com/memspace/zefyr).*
 
-![zefyr screenshot](https://github.com/memspace/zefyr/raw/master/packages/zefyr/zefyr.png)
+[comment]: <> (![zefyr screenshot]&#40;https://github.com/memspace/zefyr/raw/master/packages/zefyr/zefyr.png&#41;)
 

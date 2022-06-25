@@ -1,6 +1,6 @@
 name: fleather
 description: Clean, minimalistic and collaboration-ready rich text editor for Flutter.
-version: 1.0.0-rc.5
+version: 1.0.0
 homepage: https://github.com/fleather-editor/fleather
 
 environment:
@@ -9,15 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  collection: ^1.14.6
-  url_launcher: ^6.0.9
-  quill_delta: ^3.0.0-nullsafety.1
-  # Temporarily use local
-  parchment: 
-    path: ../parchment
-  characters: ^1.0.0
+  collection: ^1.16.0
+  quill_delta: ^3.0.0-nullsafety.2
+  parchment: ^1.0.0
+  characters: ^1.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^1.0.4
+  flutter_lints: ^2.0.1
