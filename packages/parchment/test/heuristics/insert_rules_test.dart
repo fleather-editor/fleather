@@ -478,4 +478,40 @@ void main() {
       expect(actual, isNull);
     });
   });
+
+  group('$AutoTextDirectionRule', () {
+    final rule = AutoTextDirectionRule();
+
+    test('ignores if insert is not in an empty line', () {
+      var doc = Delta()..insert('abc\n');
+      expect(rule.apply(doc, 3, 'd'), null);
+      expect(rule.apply(doc, 0, 'd'), null);
+    });
+
+    test('inserted text is rtl', () {
+      var doc = Delta()..insert('abc\n\n');
+      final actual = rule.apply(doc, 4, 'ب');
+      final expected = Delta()
+        ..retain(4)
+        ..insert('ب')
+        ..retain(1, {
+          ...ParchmentAttribute.alignment.right.toJson(),
+          ...ParchmentAttribute.direction.rtl.toJson(),
+        });
+      expect(actual, expected);
+    });
+
+    test('inserted text is ltr', () {
+      var doc = Delta()..insert('abc\n\n');
+      final actual = rule.apply(doc, 4, 'd');
+      final expected = Delta()
+        ..retain(4)
+        ..insert('d')
+        ..retain(1, {
+          ...ParchmentAttribute.alignment.unset.toJson(),
+          ...ParchmentAttribute.direction.unset.toJson(),
+        });
+      expect(actual, expected);
+    });
+  });
 }

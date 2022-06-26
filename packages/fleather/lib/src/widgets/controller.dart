@@ -46,6 +46,15 @@ class FleatherController extends ChangeNotifier {
     return lineStyle;
   }
 
+  bool _shouldApplyToggledStyles(Delta delta) =>
+      toggledStyles.isNotEmpty &&
+      delta.isNotEmpty &&
+      ((delta.length <= 2 && // covers single insert and a retain+insert
+              delta.last.isInsert) ||
+          (delta.length <= 3 &&
+              delta.last.isRetain // special case for AutoTextDirectionRule
+          ));
+
   /// Replaces [length] characters in the document starting at [index] with
   /// provided [text].
   ///
@@ -66,10 +75,7 @@ class FleatherController extends ChangeNotifier {
       delta = document.replace(index, length, data);
       // If the delta is an insert operation and we have toggled
       // some styles, then apply those styles to the inserted text.
-      if (toggledStyles.isNotEmpty &&
-          delta.isNotEmpty &&
-          delta.length <= 2 && // covers single insert and a retain+insert
-          delta.last.isInsert) {
+      if (_shouldApplyToggledStyles(delta)) {
         final dataLength = data is String ? data.length : 1;
         final retainDelta = Delta()
           ..retain(index)
