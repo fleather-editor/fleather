@@ -1309,7 +1309,7 @@ class RawEditorState extends EditorState
           textDirection: getDirectionOfNode(node),
           child: EditableTextLine(
             node: node,
-            indentWidth: 0,
+            indentWidth: _getIndentForLine(node),
             spacing: _getSpacingForLine(node, _themeData),
             cursorController: _cursorController,
             selection: widget.controller.selection,
@@ -1354,6 +1354,12 @@ class RawEditorState extends EditorState
       }
     }
     return result;
+  }
+
+  double _getIndentForLine(LineNode node) {
+    final indentationLevel =
+        node.style.get(ParchmentAttribute.indent)?.value ?? 0;
+    return indentationLevel * 16;
   }
 
   VerticalSpacing _getSpacingForLine(LineNode node, FleatherThemeData theme) {
