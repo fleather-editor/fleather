@@ -1,10 +1,10 @@
 import 'dart:ui' as ui;
 
+import 'package:fleather/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:fleather/util.dart';
 
 import '../rendering/editor.dart';
 import 'editor.dart';
@@ -307,7 +307,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     if (hasConnection) {
       // Asking for renderEditor.size here can cause errors if layout hasn't
       // occurred yet. So we schedule a post frame callback instead.
-      SchedulerBinding.instance!.addPostFrameCallback((Duration _) {
+      SchedulerBinding.instance.addPostFrameCallback((Duration _) {
         if (!mounted) {
           return;
         }
