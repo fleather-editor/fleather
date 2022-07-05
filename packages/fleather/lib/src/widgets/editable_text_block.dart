@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 import 'package:fleather/util.dart';
@@ -60,11 +61,11 @@ class EditableTextBlock extends StatelessWidget {
   List<Widget> _buildChildren(BuildContext context) {
     final theme = FleatherTheme.of(context)!;
     final count = node.children.length;
-    final List<LineNode> lines = node.children.toList().cast<LineNode>();
-    final leadingWidgets = _buildLeading(theme, lines);
+    final lineNodes = node.children.toList().cast<LineNode>();
+    final leadingWidgets = _buildLeading(theme, lineNodes);
     final children = <Widget>[];
     var index = 0;
-    for (final line in lines) {
+    for (final line in lineNodes) {
       final nodeTextDirection = getDirectionOfNode(line);
       children.add(Directionality(
         textDirection: nodeTextDirection,
@@ -132,20 +133,17 @@ class EditableTextBlock extends StatelessWidget {
           .toList();
 
   List<Widget> _buildNumberPointsForCodeBlock(
-      FleatherThemeData theme, List<LineNode> children) {
-    final leadingWidgets = <Widget>[];
-    for (final _ in children) {
-      leadingWidgets.add(_NumberPoint(
-        index: leadingWidgets.length,
-        style: theme.code.style
-            .copyWith(color: theme.code.style.color?.withOpacity(0.4)),
-        width: 32.0,
-        padding: 16.0,
-        withDot: false,
-      ));
-    }
-    return leadingWidgets;
-  }
+          FleatherThemeData theme, List<LineNode> children) =>
+      children
+          .mapIndexed((i, _) => _NumberPoint(
+                number: i + 1,
+                style: theme.code.style
+                    .copyWith(color: theme.code.style.color?.withOpacity(0.4)),
+                width: 32.0,
+                padding: 16.0,
+                withDot: false,
+              ))
+          .toList();
 
   List<Widget> _buildNumberPointsForNumberList(
       FleatherThemeData theme, List<LineNode> children) {
@@ -170,7 +168,7 @@ class EditableTextBlock extends StatelessWidget {
       }
 
       leadingWidgets.add(_NumberPoint(
-        index: currentIndex,
+        number: currentIndex + 1,
         style: theme.paragraph.style,
         width: 32.0,
         padding: 8.0,
@@ -302,7 +300,7 @@ class _EditableBlock extends MultiChildRenderObjectWidget {
 }
 
 class _NumberPoint extends StatelessWidget {
-  final int index;
+  final int number;
   final double width;
   final bool withDot;
   final double padding;
@@ -310,7 +308,7 @@ class _NumberPoint extends StatelessWidget {
 
   const _NumberPoint({
     Key? key,
-    required this.index,
+    required this.number,
     required this.width,
     required this.style,
     this.withDot = true,
@@ -319,7 +317,6 @@ class _NumberPoint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final number = index + 1;
     return Container(
       alignment: AlignmentDirectional.topEnd,
       width: width,
