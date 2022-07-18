@@ -148,22 +148,18 @@ class EditableTextBlock extends StatelessWidget {
   List<Widget> _buildNumberPointsForNumberList(
       FleatherThemeData theme, List<LineNode> children) {
     final leadingWidgets = <Widget>[];
-    final levels = <int>[];
-    final indexes = <int>[];
+    final levelsIndexes = <int, int>{};
+    int? lastLevel;
     for (final element in children) {
       final currentLevel =
           element.style.get(ParchmentAttribute.indent)?.value ?? 0;
       var currentIndex = 0;
 
-      if (leadingWidgets.isNotEmpty) {
-        if (levels.last == currentLevel) {
-          currentIndex = indexes.last + 1;
-        } else if (levels.last > currentLevel) {
-          final lastIndex =
-              levels.lastIndexWhere((element) => element == currentLevel);
-          if (lastIndex != -1) {
-            currentIndex = indexes[lastIndex] + 1;
-          }
+      if (lastLevel != null) {
+        if (lastLevel == currentLevel) {
+          currentIndex = levelsIndexes[lastLevel]! + 1;
+        } else if (lastLevel > currentLevel) {
+          currentIndex = levelsIndexes[currentLevel]! + 1;
         }
       }
 
@@ -173,8 +169,8 @@ class EditableTextBlock extends StatelessWidget {
         width: 32.0,
         padding: 8.0,
       ));
-      levels.add(currentLevel);
-      indexes.add(currentIndex);
+      levelsIndexes[currentLevel] = currentIndex;
+      lastLevel = currentLevel;
     }
     return leadingWidgets;
   }
