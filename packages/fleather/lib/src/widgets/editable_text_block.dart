@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 import 'package:fleather/util.dart';
@@ -60,18 +61,19 @@ class EditableTextBlock extends StatelessWidget {
   List<Widget> _buildChildren(BuildContext context) {
     final theme = FleatherTheme.of(context)!;
     final count = node.children.length;
+    final lineNodes = node.children.toList().cast<LineNode>();
+    final leadingWidgets = _buildLeading(theme, lineNodes);
     final children = <Widget>[];
     var index = 0;
-    for (final line in node.children) {
-      index++;
-      final nodeTextDirection = getDirectionOfNode(line as LineNode);
+    for (final line in lineNodes) {
+      final nodeTextDirection = getDirectionOfNode(line);
       children.add(Directionality(
         textDirection: nodeTextDirection,
         child: EditableTextLine(
           node: line,
           spacing: _getSpacingForLine(line, index, count, theme),
-          leading: _buildLeading(context, line, index, count),
-          indentWidth: _getIndentWidth(),
+          leading: leadingWidgets?[index],
+          indentWidth: _getIndentWidth(line),
           devicePixelRatio: MediaQuery.of(context).devicePixelRatio,
           body: TextLine(
             node: line,
@@ -88,57 +90,102 @@ class EditableTextBlock extends StatelessWidget {
           hasFocus: hasFocus,
         ),
       ));
+      index++;
     }
     return children.toList(growable: false);
   }
 
-  Widget? _buildLeading(
-      BuildContext context, LineNode node, int index, int count) {
-    final theme = FleatherTheme.of(context)!;
+  List<Widget>? _buildLeading(
+      FleatherThemeData theme, List<LineNode> children) {
     final block = node.style.get(ParchmentAttribute.block);
     if (block == ParchmentAttribute.block.numberList) {
-      return _NumberPoint(
-        index: index,
-        count: count,
-        style: theme.paragraph.style,
-        width: 32.0,
-        padding: 8.0,
-      );
+      return _buildNumberPointsForNumberList(theme, children);
     } else if (block == ParchmentAttribute.block.bulletList) {
-      return _BulletPoint(
-        style: theme.paragraph.style.copyWith(fontWeight: FontWeight.bold),
-        width: 32,
-      );
+      return _buildBulletPointForBulletList(theme, children);
     } else if (block == ParchmentAttribute.block.code) {
-      return _NumberPoint(
-        index: index,
-        count: count,
-        style: theme.code.style
-            .copyWith(color: theme.code.style.color?.withOpacity(0.4)),
-        width: 32.0,
-        padding: 16.0,
-        withDot: false,
-      );
+      return _buildNumberPointsForCodeBlock(theme, children);
     } else if (block == ParchmentAttribute.block.checkList) {
-      return _CheckboxPoint(
-        size: 14,
-        value: node.style.containsSame(ParchmentAttribute.checked),
-        enabled: !readOnly,
-        onChanged: (checked) => _toggle(node, checked),
-      );
+      return _buildCheckboxForCheckList(theme, children);
     } else {
       return null;
     }
   }
 
-  double _getIndentWidth() {
+  List<Widget> _buildCheckboxForCheckList(
+          FleatherThemeData theme, List<LineNode> children) =>
+      children
+          .map((node) => _CheckboxPoint(
+                width: 32,
+                value: node.style.containsSame(ParchmentAttribute.checked),
+                enabled: !readOnly,
+                onChanged: (checked) => _toggle(node, checked),
+              ))
+          .toList();
+
+  List<Widget> _buildBulletPointForBulletList(
+          FleatherThemeData theme, List<Node> children) =>
+      children
+          .map((_) => _BulletPoint(
+                style:
+                    theme.paragraph.style.copyWith(fontWeight: FontWeight.bold),
+                width: 32,
+              ))
+          .toList();
+
+  List<Widget> _buildNumberPointsForCodeBlock(
+          FleatherThemeData theme, List<LineNode> children) =>
+      children
+          .mapIndexed((i, _) => _NumberPoint(
+                number: i + 1,
+                style: theme.code.style
+                    .copyWith(color: theme.code.style.color?.withOpacity(0.4)),
+                width: 32.0,
+                padding: 16.0,
+                withDot: false,
+              ))
+          .toList();
+
+  List<Widget> _buildNumberPointsForNumberList(
+      FleatherThemeData theme, List<LineNode> children) {
+    final leadingWidgets = <Widget>[];
+    final levelsIndexes = <int, int>{};
+    int? lastLevel;
+    for (final element in children) {
+      final currentLevel =
+          element.style.get(ParchmentAttribute.indent)?.value ?? 0;
+      var currentIndex = 0;
+
+      if (lastLevel != null) {
+        if (lastLevel == currentLevel) {
+          currentIndex = levelsIndexes[lastLevel]! + 1;
+        } else if (lastLevel > currentLevel) {
+          currentIndex = levelsIndexes[currentLevel]! + 1;
+        }
+      }
+
+      leadingWidgets.add(_NumberPoint(
+        number: currentIndex + 1,
+        style: theme.paragraph.style,
+        width: 32.0,
+        padding: 8.0,
+      ));
+      levelsIndexes[currentLevel] = currentIndex;
+      lastLevel = currentLevel;
+    }
+    return leadingWidgets;
+  }
+
+  double _getIndentWidth(LineNode line) {
     final block = node.style.get(ParchmentAttribute.block);
+
+    final indentationLevel =
+        line.style.get(ParchmentAttribute.indent)?.value ?? 0;
+    var extraIndent = indentationLevel * 16;
+
     if (block == ParchmentAttribute.block.quote) {
-      return 16.0;
-    } else if (block == ParchmentAttribute.block.code) {
-      return 32.0;
+      return extraIndent + 16.0;
     } else {
-      return 32.0;
+      return extraIndent + 32.0;
     }
   }
 
@@ -177,11 +224,11 @@ class EditableTextBlock extends StatelessWidget {
     // If this line is the top one in this block we ignore its top spacing
     // because the block itself already has it. Similarly with the last line
     // and its bottom spacing.
-    if (index == 1) {
+    if (index == 0) {
       top = 0.0;
     }
 
-    if (index == count) {
+    if (index == count - 1) {
       bottom = 0.0;
     }
 
@@ -249,8 +296,7 @@ class _EditableBlock extends MultiChildRenderObjectWidget {
 }
 
 class _NumberPoint extends StatelessWidget {
-  final int index;
-  final int count;
+  final int number;
   final double width;
   final bool withDot;
   final double padding;
@@ -258,8 +304,7 @@ class _NumberPoint extends StatelessWidget {
 
   const _NumberPoint({
     Key? key,
-    required this.index,
-    required this.count,
+    required this.number,
     required this.width,
     required this.style,
     this.withDot = true,
@@ -272,7 +317,7 @@ class _NumberPoint extends StatelessWidget {
       alignment: AlignmentDirectional.topEnd,
       width: width,
       padding: EdgeInsetsDirectional.only(end: padding),
-      child: Text(withDot ? '$index.' : '$index', style: style),
+      child: Text(withDot ? '$number.' : '$number', style: style),
     );
   }
 }
@@ -298,14 +343,17 @@ class _BulletPoint extends StatelessWidget {
   }
 }
 
+const _checkboxSize = 14.0;
+
 class _CheckboxPoint extends StatefulWidget {
-  final double size;
+  final double width;
   final bool value;
   final bool enabled;
   final ValueChanged<bool> onChanged;
+
   const _CheckboxPoint({
     Key? key,
-    required this.size,
+    required this.width,
     required this.value,
     required this.enabled,
     required this.onChanged,
@@ -331,27 +379,31 @@ class _CheckboxPointState extends State<_CheckboxPoint> {
         : (widget.enabled
             ? theme.colorScheme.onSurface.withOpacity(0.5)
             : theme.colorScheme.onSurface.withOpacity(0.3));
-    return Center(
-      child: SizedBox(
-        width: widget.size,
-        height: widget.size,
-        child: Material(
-          elevation: 0,
-          color: fillColor,
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              width: 1,
-              color: borderColor,
+    return Align(
+      alignment: AlignmentDirectional.centerEnd,
+      child: Container(
+        width: widget.width,
+        alignment: AlignmentDirectional.center,
+        child: SizedBox.square(
+          dimension: _checkboxSize,
+          child: Material(
+            elevation: 0,
+            color: fillColor,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                width: 1,
+                color: borderColor,
+              ),
+              borderRadius: BorderRadius.circular(2),
             ),
-            borderRadius: BorderRadius.circular(2),
-          ),
-          child: InkWell(
-            onTap:
-                widget.enabled ? () => widget.onChanged(!widget.value) : null,
-            child: widget.value
-                ? Icon(Icons.check,
-                    size: widget.size, color: theme.colorScheme.onPrimary)
-                : null,
+            child: InkWell(
+              onTap:
+                  widget.enabled ? () => widget.onChanged(!widget.value) : null,
+              child: widget.value
+                  ? Icon(Icons.check,
+                      size: _checkboxSize, color: theme.colorScheme.onPrimary)
+                  : null,
+            ),
           ),
         ),
       ),

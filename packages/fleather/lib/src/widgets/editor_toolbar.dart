@@ -399,6 +399,82 @@ Widget _selectHeadingStyleButtonBuilder(BuildContext context,
   );
 }
 
+class IndentationButton extends StatefulWidget {
+  final bool increase;
+  final FleatherController controller;
+
+  const IndentationButton(
+      {Key? key, this.increase = true, required this.controller})
+      : super(key: key);
+
+  @override
+  _IndentationButtonState createState() => _IndentationButtonState();
+}
+
+class _IndentationButtonState extends State<IndentationButton> {
+  ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
+
+  void _didChangeEditingValue() {
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_didChangeEditingValue);
+  }
+
+  @override
+  void didUpdateWidget(covariant IndentationButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_didChangeEditingValue);
+      widget.controller.addListener(_didChangeEditingValue);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_didChangeEditingValue);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnabled = !_selectionStyle.containsSame(ParchmentAttribute.block.code);
+    final theme = Theme.of(context);
+    final iconColor = isEnabled ? theme.iconTheme.color : theme.disabledColor;
+    return FLIconButton(
+      highlightElevation: 0,
+      hoverElevation: 0,
+      size: 32,
+      icon: Icon(
+          widget.increase
+              ? Icons.format_indent_increase
+              : Icons.format_indent_decrease,
+          size: 18,
+          color: iconColor),
+      fillColor: theme.canvasColor,
+      onPressed: isEnabled
+          ? () {
+              final indentLevel =
+                  _selectionStyle.get(ParchmentAttribute.indent)?.value ?? 0;
+              if (indentLevel == 0 && !widget.increase) {
+                return;
+              }
+              if (indentLevel == 1 && !widget.increase) {
+                widget.controller
+                    .formatSelection(ParchmentAttribute.indent.unset);
+              } else {
+                widget.controller.formatSelection(ParchmentAttribute.indent
+                    .withLevel(indentLevel + (widget.increase ? 1 : -1)));
+              }
+            }
+          : null,
+    );
+  }
+}
+
 class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget> children;
 
@@ -413,6 +489,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
     bool hideStrikeThrough = false,
     bool hideInlineCode = false,
     bool hideHeadingStyle = false,
+    bool hideIndentation = false,
     bool hideListNumbers = false,
     bool hideListBullets = false,
     bool hideListChecks = false,
@@ -515,6 +592,23 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
         child: ToggleStyleButton(
           attribute: ParchmentAttribute.justify,
           icon: Icons.format_align_justify,
+          controller: controller,
+        ),
+      ),
+      Visibility(
+          visible: !hideIndentation,
+          child: VerticalDivider(
+              indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+      Visibility(
+        visible: !hideIndentation,
+        child: IndentationButton(
+          increase: false,
+          controller: controller,
+        ),
+      ),
+      Visibility(
+        visible: !hideIndentation,
+        child: IndentationButton(
           controller: controller,
         ),
       ),

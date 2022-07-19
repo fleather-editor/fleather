@@ -1,6 +1,7 @@
 // Copyright (c) 2018, the Zefyr project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
+import 'dart:math' as math;
 import 'package:collection/collection.dart';
 import 'package:quiver/core.dart';
 
@@ -42,7 +43,9 @@ abstract class ParchmentAttributeBuilder<T>
   @override
   final String key;
   final ParchmentAttributeScope scope;
+
   ParchmentAttribute<T> get unset => ParchmentAttribute<T>._(key, scope, null);
+
   ParchmentAttribute<T> withValue(T? value) =>
       ParchmentAttribute<T>._(key, scope, value);
 }
@@ -88,6 +91,7 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
     ParchmentAttribute.block.key: ParchmentAttribute.block,
     ParchmentAttribute.direction.key: ParchmentAttribute.direction,
     ParchmentAttribute.alignment.key: ParchmentAttribute.alignment,
+    ParchmentAttribute.indent.key: ParchmentAttribute.indent,
   };
 
   // Inline attributes
@@ -125,6 +129,9 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
 
   /// Alias for [ParchmentAttribute.heading.level3].
   static ParchmentAttribute<int> get h3 => heading.level3;
+
+  /// Indent attribute
+  static const indent = IndentAttributeBuilder._();
 
   /// Applies checked style to a line of text in checklist block.
   static const checked = _CheckedAttribute();
@@ -393,6 +400,7 @@ class _InlineCodeAttribute extends ParchmentAttribute<bool> {
 /// [ParchmentAttribute.link] instead.
 class LinkAttributeBuilder extends ParchmentAttributeBuilder<String> {
   static const _kLink = 'a';
+
   const LinkAttributeBuilder._()
       : super._(_kLink, ParchmentAttributeScope.inline);
 
@@ -407,6 +415,7 @@ class LinkAttributeBuilder extends ParchmentAttributeBuilder<String> {
 /// [ParchmentAttribute.heading] instead.
 class HeadingAttributeBuilder extends ParchmentAttributeBuilder<int> {
   static const _kHeading = 'heading';
+
   const HeadingAttributeBuilder._()
       : super._(_kHeading, ParchmentAttributeScope.line);
 
@@ -435,6 +444,7 @@ class _CheckedAttribute extends ParchmentAttribute<bool> {
 /// [ParchmentAttribute.block] instead.
 class BlockAttributeBuilder extends ParchmentAttributeBuilder<String> {
   static const _kBlock = 'block';
+
   const BlockAttributeBuilder._()
       : super._(_kBlock, ParchmentAttributeScope.line);
 
@@ -461,6 +471,7 @@ class BlockAttributeBuilder extends ParchmentAttributeBuilder<String> {
 
 class DirectionAttributeBuilder extends ParchmentAttributeBuilder<String> {
   static const _kDirection = 'direction';
+
   const DirectionAttributeBuilder._()
       : super._(_kDirection, ParchmentAttributeScope.line);
 
@@ -470,6 +481,7 @@ class DirectionAttributeBuilder extends ParchmentAttributeBuilder<String> {
 
 class AlignmentAttributeBuilder extends ParchmentAttributeBuilder<String> {
   static const _kAlignment = 'alignment';
+
   const AlignmentAttributeBuilder._()
       : super._(_kAlignment, ParchmentAttributeScope.line);
 
@@ -481,4 +493,21 @@ class AlignmentAttributeBuilder extends ParchmentAttributeBuilder<String> {
 
   ParchmentAttribute<String> get justify =>
       ParchmentAttribute<String>._(key, scope, 'justify');
+}
+
+const _maxIndentationLevel = 8;
+
+class IndentAttributeBuilder extends ParchmentAttributeBuilder<int> {
+  static const _kIndent = 'indent';
+
+  const IndentAttributeBuilder._()
+      : super._(_kIndent, ParchmentAttributeScope.line);
+
+  ParchmentAttribute<int> withLevel(int level) {
+    if (level == 0) {
+      return unset;
+    }
+    return ParchmentAttribute._(
+        key, scope, math.min(_maxIndentationLevel, level));
+  }
 }
