@@ -35,6 +35,7 @@ class ParchmentHeuristics {
       // Lines
       PreserveLineStyleOnSplitRule(),
       ResetLineFormatOnNewLineRule(),
+      AutoTextDirectionRule(),
       // Inlines
       AutoFormatLinksRule(),
       PreserveInlineStylesRule(),
