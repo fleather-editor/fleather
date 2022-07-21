@@ -10,15 +10,15 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v2
         with:
-          distribution: 'zulu'
-          java-version: '11'
+          distribution: "zulu"
+          java-version: "11"
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.1'
+          flutter-version: "3.0.1"
           cache: true
           # Manually Update this `key`
-          cache-key: '20220721' 
-      
+          cache-key: "20220721"
+
       #
       # Parchment
       #
@@ -59,4 +59,4 @@ jobs:
 
       - name: Fleather - Run tests
         working-directory: ./packages/fleather
-        run: dart test
+        run: flutter test
