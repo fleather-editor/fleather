@@ -598,6 +598,8 @@ class MarkdownBlockShortcutsInsertRule extends InsertRule {
   }
 }
 
+/// Infers text direction from the input when happens in the beginning of a line.
+/// This rule also removes alignment and sets it based on inferred direction.
 class AutoTextDirectionRule extends InsertRule {
   final _isRTL = intl.Bidi.startsWithRtl;
 
