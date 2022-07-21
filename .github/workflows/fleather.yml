@@ -1,0 +1,58 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.0.1"
+          cache: true
+          # Manually Update this `key`
+          cache-key: "20220721"
+
+      #
+      # Parchment
+      #
+
+      - name: Parchment - Install dependencies
+        working-directory: ./packages/parchment
+        run: flutter pub get
+
+      - name: Parchment - Verify formatting
+        working-directory: ./packages/parchment
+        run: dart format --output=none --set-exit-if-changed .
+
+      # Consider passing '--fatal-infos' for slightly stricter analysis.
+      # - name: Parchment - Analyze project source
+      #   working-directory: ./packages/parchment
+      #   run: dart analyze
+
+      - name: Parchment - Run tests
+        working-directory: ./packages/parchment
+        run: dart test
+
+      #
+      # Fleather
+      #
+
+      - name: Fleather - Install dependencies
+        working-directory: ./packages/fleather
+        run: flutter pub get
+
+      - name: Fleather - Verify formatting
+        working-directory: ./packages/fleather
+        run: dart format --output=none --set-exit-if-changed .
+
+      # Consider passing '--fatal-infos' for slightly stricter analysis.
+      # - name: Fleather - Analyze project source
+      #   working-directory: ./packages/fleather
+      #   run: dart analyze
+
+      - name: Fleather - Run tests
+        working-directory: ./packages/fleather
+        run: flutter test
