@@ -1,3 +1,5 @@
+[![Fleather & Parchment](https://github.com/fleather-editor/fleather/actions/workflows/fleather.yml/badge.svg)](https://github.com/fleather-editor/fleather/actions/workflows/fleather.yml)
+
 # About Fleather
 
 <!-- [![Build Status](https://travis-ci.com/memspace/zefyr.svg?branch=master)](https://travis-ci.com/memspace/zefyr) [![codecov](https://codecov.io/gh/memspace/zefyr/branch/master/graph/badge.svg)](https://codecov.io/gh/memspace/zefyr) -->
