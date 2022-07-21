@@ -441,7 +441,8 @@ class _IndentationButtonState extends State<IndentationButton> {
 
   @override
   Widget build(BuildContext context) {
-    final isEnabled = !_selectionStyle.containsSame(ParchmentAttribute.block.code);
+    final isEnabled =
+        !_selectionStyle.containsSame(ParchmentAttribute.block.code);
     final theme = Theme.of(context);
     final iconColor = isEnabled ? theme.iconTheme.color : theme.disabledColor;
     return FLIconButton(
