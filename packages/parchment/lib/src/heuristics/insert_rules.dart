@@ -320,12 +320,19 @@ class AutoFormatLinksRule extends InsertRule {
   }
 }
 
-/// Forces text inserted on the same line with an embed (before or after it)
+/// Forces text inserted on the same line with a block embed (before or after it)
 /// to be moved to a new line adjacent to the original line.
 ///
-/// This rule assumes that a line is only allowed to have single embed child.
+/// This rule assumes that a line is only allowed to have single block embed child.
 class ForceNewlineForInsertsAroundEmbedRule extends InsertRule {
   const ForceNewlineForInsertsAroundEmbedRule();
+
+  bool isBlockEmbed(Object data) {
+    if (data is Map<String, dynamic>) {
+      return !data['_inline'];
+    }
+    return false;
+  }
 
   @override
   Delta? apply(Delta document, int index, Object data) {
@@ -334,8 +341,8 @@ class ForceNewlineForInsertsAroundEmbedRule extends InsertRule {
     final iter = DeltaIterator(document);
     final previous = iter.skip(index);
     final target = iter.next();
-    final cursorBeforeEmbed = target.data is! String;
-    final cursorAfterEmbed = previous != null && previous.data is! String;
+    final cursorBeforeEmbed = isBlockEmbed(target.data);
+    final cursorAfterEmbed = previous != null && isBlockEmbed(previous.data);
 
     if (cursorBeforeEmbed || cursorAfterEmbed) {
       final delta = Delta()..retain(index);
@@ -605,12 +612,18 @@ class AutoTextDirectionRule extends InsertRule {
 
   const AutoTextDirectionRule();
 
-  bool _isInEmptyLine(Operation? previous, Operation next) {
-    final previousText = previous?.data as String?;
-    final nextText = next.data as String?;
-    return (previousText?.endsWith('\n') ?? true) &&
-        (nextText?.startsWith('\n') ?? false);
+  bool _isAfterEmptyLine(Operation? previous) {
+    final data = previous?.data;
+    return data == null || (data is String ? data.endsWith('\n') : false);
   }
+
+  bool _isBeforeEmptyLine(Operation next) {
+    final data = next.data;
+    return data is String ? data.startsWith('\n') : false;
+  }
+
+  bool _isInEmptyLine(Operation? previous, Operation next) =>
+      _isAfterEmptyLine(previous) && _isBeforeEmptyLine(next);
 
   @override
   Delta? apply(Delta document, int index, Object data) {

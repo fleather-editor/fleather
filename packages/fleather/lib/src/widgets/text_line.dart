@@ -119,7 +119,7 @@ class _TextLineState extends State<TextLine> {
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
-    if (widget.node.hasEmbed) {
+    if (widget.node.hasBlockEmbed) {
       final embed = widget.node.children.single as EmbedNode;
       return EmbedProxy(child: widget.embedBuilder(context, embed));
     }
@@ -165,7 +165,11 @@ class _TextLineState extends State<TextLine> {
     );
   }
 
-  TextSpan _segmentToTextSpan(Node segment, FleatherThemeData theme) {
+  InlineSpan _segmentToTextSpan(Node segment, FleatherThemeData theme) {
+    if (segment is EmbedNode) {
+      return WidgetSpan(
+          child: EmbedProxy(child: widget.embedBuilder(context, segment)));
+    }
     final text = segment as TextNode;
     final attrs = text.style;
     final isLink = attrs.contains(ParchmentAttribute.link);

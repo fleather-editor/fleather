@@ -21,12 +21,13 @@ import 'node.dart';
 class LineNode extends ContainerNode<LeafNode>
     with StyledNodeMixin
     implements StyledNode {
-  /// Returns `true` if this line contains an embedded object.
-  bool get hasEmbed {
-    if (childCount == 1) {
-      return children.single is EmbedNode;
+  /// Returns `true` if this line contains a block embedded object.
+  bool get hasBlockEmbed {
+    if (childCount == 1 && children.single is EmbedNode) {
+      return !(children.single as EmbedNode).value.inline;
     }
-    assert(children.every((child) => child is TextNode));
+    assert(children.every((child) =>
+        child is TextNode || (child is EmbedNode && child.value.inline)));
     return false;
   }
 

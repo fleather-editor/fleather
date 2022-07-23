@@ -175,6 +175,23 @@ class _HomePageState extends State<HomePage> {
               // padding: EdgeInsets.only(left: 16, right: 16),
               onLaunchUrl: _launchUrl,
               maxContentWidth: 800,
+              embedBuilder: (context, node) {
+                if (node.value.type == 'hr') {
+                  final theme = FleatherTheme.of(context);
+                  return Divider(
+                    height: theme.paragraph.style.fontSize *
+                        theme.paragraph.style.height,
+                    thickness: 2,
+                    color: Colors.grey.shade200,
+                  );
+                }
+                if (node.value.type == 'icon') {
+                  final data = node.value.data;
+                  return Icon(IconData(int.parse(data['codePoint']),
+                      fontFamily: data['fontFamily']),color: Colors.red,);
+                }
+                throw UnimplementedError();
+              },
             ),
           ),
         ),

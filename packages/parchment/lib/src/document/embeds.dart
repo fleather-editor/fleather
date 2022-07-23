@@ -77,10 +77,6 @@ class EmbeddableObject {
 }
 
 /// An object which can be embedded on the same line (inline) with regular text.
-///
-/// Span embeds are not currently supported by Parchment document model and this
-/// class exists to establish the contract for future work.
-// TODO: document model currently only supports BlockEmbeds and need to be updated to support SpanEmbeds.
 class SpanEmbed extends EmbeddableObject {
   SpanEmbed(
     String type, {
@@ -93,14 +89,9 @@ class SpanEmbed extends EmbeddableObject {
 ///
 /// Examples of block embeds include horizontal rule, an image or a map view.
 ///
-/// There are two built-en embed types supported by Parchment documents, however
+/// There are two built-in embed types supported by Parchment documents, however
 /// the document model itself does not make any assumptions about the types
 /// of embedded objects and allows users to define their own types.
-///
-/// It is also allowed to re-define the built-in embed types (horizontal rule
-/// and image) entirely. However if used with Fleather editor this change may
-/// require extending Fleather to recognize the new data attached to those embed
-/// types. See documentation on working with embeds in Fleather for more details.
 class BlockEmbed extends EmbeddableObject {
   /// Creates a new block embed of specified [type] and containing [data].
   BlockEmbed(
