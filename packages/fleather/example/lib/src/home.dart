@@ -187,8 +187,11 @@ class _HomePageState extends State<HomePage> {
                 }
                 if (node.value.type == 'icon') {
                   final data = node.value.data;
-                  return Icon(IconData(int.parse(data['codePoint']),
-                      fontFamily: data['fontFamily']),color: Colors.red,);
+                  return Icon(
+                    IconData(int.parse(data['codePoint']),
+                        fontFamily: data['fontFamily']),
+                    color: Colors.red,
+                  );
                 }
                 throw UnimplementedError();
               },
