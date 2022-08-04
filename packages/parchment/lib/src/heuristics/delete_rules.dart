@@ -2,7 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:parchment/src/document/embeds.dart';
+import 'package:parchment/src/heuristics/utils.dart';
 import 'package:quill_delta/quill_delta.dart';
 
 /// A heuristic rule for delete operations.
@@ -105,13 +105,6 @@ class PreserveLineStyleOnMergeRule extends DeleteRule {
 class EnsureEmbedLineRule extends DeleteRule {
   const EnsureEmbedLineRule();
 
-  bool isBlockEmbed(Object data) {
-    if (data is EmbeddableObject) {
-      return !data.inline;
-    }
-    return false;
-  }
-
   @override
   Delta? apply(Delta document, int index, int length) {
     final iter = DeltaIterator(document);
@@ -153,9 +146,7 @@ class EnsureEmbedLineRule extends DeleteRule {
       // If there is a newline before deleted range we allow the operation
       // since it results in a correctly formatted line with a single embed in
       // it.
-      if (candidate.data is! String &&
-          !hasLineBreakBefore &&
-          isBlockEmbed(candidate.data)) {
+      if (!hasLineBreakBefore && isBlockEmbed(candidate.data)) {
         foundBlockEmbed = true;
         lengthDelta -= 1;
       }

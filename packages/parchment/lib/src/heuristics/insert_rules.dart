@@ -327,13 +327,6 @@ class AutoFormatLinksRule extends InsertRule {
 class ForceNewlineForInsertsAroundEmbedRule extends InsertRule {
   const ForceNewlineForInsertsAroundEmbedRule();
 
-  bool isBlockEmbed(Object data) {
-    if (data is Map<String, dynamic>) {
-      return !data['_inline'];
-    }
-    return false;
-  }
-
   @override
   Delta? apply(Delta document, int index, Object data) {
     if (data is! String) return null;
