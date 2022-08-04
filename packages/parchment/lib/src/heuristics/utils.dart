@@ -43,4 +43,3 @@ bool isBlockEmbed(Object data) {
   }
   return false;
 }
-
