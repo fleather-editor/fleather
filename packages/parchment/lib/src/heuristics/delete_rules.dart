@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:parchment/src/heuristics/utils.dart';
 import 'package:quill_delta/quill_delta.dart';
 
 /// A heuristic rule for delete operations.
@@ -100,7 +101,7 @@ class PreserveLineStyleOnMergeRule extends DeleteRule {
   }
 }
 
-/// Prevents user from merging a line containing an embed with other lines.
+/// Prevents user from merging a line containing a block embed with other lines.
 class EnsureEmbedLineRule extends DeleteRule {
   const EnsureEmbedLineRule();
 
@@ -113,10 +114,10 @@ class EnsureEmbedLineRule extends DeleteRule {
     var indexDelta = 0;
     var lengthDelta = 0;
     var remaining = length;
-    var foundEmbed = false;
+    var foundBlockEmbed = false;
     var hasLineBreakBefore = false;
-    if (op != null && op.data is! String) {
-      foundEmbed = true;
+    if (op != null && isBlockEmbed(op.data)) {
+      foundBlockEmbed = true;
       var candidate = iter.next(1);
       remaining--;
       if (candidate.data == '\n') {
@@ -133,8 +134,8 @@ class EnsureEmbedLineRule extends DeleteRule {
       }
     } else {
       // If op is `null` it's beginning of the doc, e.g. implicit line break.
-      final opText = op?.data as String?;
-      hasLineBreakBefore = op == null || opText!.endsWith('\n');
+      final opText = op?.data is String ? op?.data as String : '';
+      hasLineBreakBefore = op == null || opText.endsWith('\n');
     }
 
     // Second, check if newline deleted before an embed.
@@ -145,13 +146,13 @@ class EnsureEmbedLineRule extends DeleteRule {
       // If there is a newline before deleted range we allow the operation
       // since it results in a correctly formatted line with a single embed in
       // it.
-      if (candidate.data is! String && !hasLineBreakBefore) {
-        foundEmbed = true;
+      if (!hasLineBreakBefore && isBlockEmbed(candidate.data)) {
+        foundBlockEmbed = true;
         lengthDelta -= 1;
       }
     }
 
-    if (foundEmbed) {
+    if (foundBlockEmbed) {
       return Delta()
         ..retain(index + indexDelta)
         ..delete(length + lengthDelta);

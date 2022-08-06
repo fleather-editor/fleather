@@ -27,11 +27,11 @@ void main() {
       expect(node.toDelta().toList(), [Operation.insert('\n')]);
     });
 
-    test('hasEmbed', () {
+    test('hasBlockEmbed', () {
       final node = LineNode();
-      expect(node.hasEmbed, isFalse);
+      expect(node.hasBlockEmbed, isFalse);
       node.add(EmbedNode(BlockEmbed.horizontalRule));
-      expect(node.hasEmbed, isTrue);
+      expect(node.hasBlockEmbed, isTrue);
     });
 
     test('nextLine', () {

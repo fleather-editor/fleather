@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:parchment/src/document/embeds.dart';
 import 'package:quill_delta/quill_delta.dart';
 
 /// Skips to the beginning of line containing position at specified [length]
@@ -31,4 +32,14 @@ List<Operation> skipToLineAt(DeltaIterator iter, int length) {
     skipped += op.length;
   }
   return prefix;
+}
+
+bool isBlockEmbed(Object data) {
+  if (data is EmbeddableObject) {
+    return !data.inline;
+  }
+  if (data is Map) {
+    return !data[EmbeddableObject.kInlineKey];
+  }
+  return false;
 }
