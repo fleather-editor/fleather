@@ -202,9 +202,12 @@ class FleatherEditor extends StatefulWidget {
   /// Material [ListTile]s.
   final LinkActionPickerDelegate linkActionPickerDelegate;
 
+  final GlobalKey<EditorState>? editorKey;
+
   const FleatherEditor({
     Key? key,
     required this.controller,
+    this.editorKey,
     this.focusNode,
     this.scrollController,
     this.scrollable = true,
@@ -231,10 +234,13 @@ class FleatherEditor extends StatefulWidget {
 
 class _FleatherEditorState extends State<FleatherEditor>
     implements EditorTextSelectionGestureDetectorBuilderDelegate {
-  final GlobalKey<EditorState> _editorKey = GlobalKey<EditorState>();
+  GlobalKey<EditorState>? _editorKey;
+
+  GlobalKey<EditorState> get _effectiveEditorKey =>
+      widget.editorKey ?? _editorKey!;
 
   @override
-  GlobalKey<EditorState> get editableTextKey => _editorKey;
+  GlobalKey<EditorState> get editableTextKey => _effectiveEditorKey;
 
   // TODO: Add support for forcePress on iOS.
   @override
@@ -247,12 +253,25 @@ class _FleatherEditorState extends State<FleatherEditor>
       _selectionGestureDetectorBuilder;
 
   void _requestKeyboard() {
-    _editorKey.currentState?.requestKeyboard();
+    _effectiveEditorKey.currentState?.requestKeyboard();
+  }
+
+  @override
+  void didUpdateWidget(covariant FleatherEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.editorKey != null && widget.editorKey == null) {
+      _editorKey = GlobalKey<EditorState>();
+    } else if (widget.editorKey != null) {
+      _editorKey = null;
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    if (widget.editorKey == null) {
+      _editorKey = GlobalKey<EditorState>();
+    }
     _selectionGestureDetectorBuilder =
         _FleatherEditorSelectionGestureDetectorBuilder(state: this);
   }
@@ -306,7 +325,7 @@ class _FleatherEditorState extends State<FleatherEditor>
     }
 
     Widget child = RawEditor(
-      key: _editorKey,
+      key: _effectiveEditorKey,
       controller: widget.controller,
       focusNode: widget.focusNode,
       scrollController: widget.scrollController,
