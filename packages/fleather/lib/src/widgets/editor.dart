@@ -236,11 +236,8 @@ class _FleatherEditorState extends State<FleatherEditor>
     implements EditorTextSelectionGestureDetectorBuilderDelegate {
   GlobalKey<EditorState>? _editorKey;
 
-  GlobalKey<EditorState> get _effectiveEditorKey =>
-      widget.editorKey ?? _editorKey!;
-
   @override
-  GlobalKey<EditorState> get editableTextKey => _effectiveEditorKey;
+  GlobalKey<EditorState> get editableTextKey => widget.editorKey ?? _editorKey!;
 
   // TODO: Add support for forcePress on iOS.
   @override
@@ -252,9 +249,7 @@ class _FleatherEditorState extends State<FleatherEditor>
   late EditorTextSelectionGestureDetectorBuilder
       _selectionGestureDetectorBuilder;
 
-  void _requestKeyboard() {
-    _effectiveEditorKey.currentState?.requestKeyboard();
-  }
+  void _requestKeyboard() => editableTextKey.currentState?.requestKeyboard();
 
   @override
   void didUpdateWidget(covariant FleatherEditor oldWidget) {
@@ -325,7 +320,7 @@ class _FleatherEditorState extends State<FleatherEditor>
     }
 
     Widget child = RawEditor(
-      key: _effectiveEditorKey,
+      key: editableTextKey,
       controller: widget.controller,
       focusNode: widget.focusNode,
       scrollController: widget.scrollController,
