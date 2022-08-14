@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 import 'dart:math' as math;
+
 import 'package:collection/collection.dart';
 import 'package:quiver/core.dart';
 
@@ -87,6 +88,7 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
     ParchmentAttribute.inlineCode.key: ParchmentAttribute.inlineCode,
     ParchmentAttribute.link.key: ParchmentAttribute.link,
     ParchmentAttribute.heading.key: ParchmentAttribute.heading,
+    ParchmentAttribute.backgroundColor.key: ParchmentAttribute.backgroundColor,
     ParchmentAttribute.checked.key: ParchmentAttribute.checked,
     ParchmentAttribute.block.key: ParchmentAttribute.block,
     ParchmentAttribute.direction.key: ParchmentAttribute.direction,
@@ -110,6 +112,9 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
 
   /// Inline code style attribute.
   static const inlineCode = _InlineCodeAttribute();
+
+  /// Background color attribute.
+  static const backgroundColor = BackgroundColorAttributeBuilder._();
 
   /// Link style attribute.
   // ignore: const_eval_throws_exception
@@ -392,6 +397,29 @@ class _StrikethroughAttribute extends ParchmentAttribute<bool> {
 class _InlineCodeAttribute extends ParchmentAttribute<bool> {
   const _InlineCodeAttribute()
       : super._('c', ParchmentAttributeScope.inline, true);
+}
+
+/// Builder for background color value.
+/// Color is interpreted from the lower 32 bits of an [int].
+///
+/// The bits are interpreted as follows:
+///
+/// * Bits 24-31 are the alpha value.
+/// * Bits 16-23 are the red value.
+/// * Bits 8-15 are the green value.
+/// * Bits 0-7 are the blue value.
+/// (see [Color] documentation for more details
+///
+/// There is no need to use this class directly, consider using
+/// [ParchmentAttribute.backgroundColor] instead.
+class BackgroundColorAttributeBuilder extends ParchmentAttributeBuilder<int> {
+  static const _kBgColor = 'bg';
+
+  const BackgroundColorAttributeBuilder._()
+      : super._(_kBgColor, ParchmentAttributeScope.inline);
+
+  ParchmentAttribute<int> fromString(String value) =>
+      ParchmentAttribute<int>._(key, scope, int.tryParse(value) ?? 0);
 }
 
 /// Builder for link attribute values.
