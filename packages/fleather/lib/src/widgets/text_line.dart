@@ -301,6 +301,13 @@ class _TextLineState extends State<TextLine> {
       result = _mergeTextStyleWithDecoration(
           result, theme.inlineCode.styleFor(lineStyle));
     }
+    if (nodeStyle.contains(ParchmentAttribute.backgroundColor)) {
+      final value = nodeStyle.value(ParchmentAttribute.backgroundColor);
+      if (value != null) {
+        result = _mergeTextStyleWithDecoration(
+            result, TextStyle(backgroundColor: Color(value)));
+      }
+    }
     return result;
   }
 
