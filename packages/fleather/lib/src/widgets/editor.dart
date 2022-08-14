@@ -229,7 +229,7 @@ class FleatherEditor extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _FleatherEditorState createState() => _FleatherEditorState();
+  State<FleatherEditor> createState() => _FleatherEditorState();
 }
 
 class _FleatherEditorState extends State<FleatherEditor>
