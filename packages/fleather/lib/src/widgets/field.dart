@@ -138,9 +138,12 @@ class FleatherField extends StatefulWidget {
   /// Defaults to [defaultFleatherEmbedBuilder].
   final FleatherEmbedBuilder embedBuilder;
 
+  final GlobalKey<EditorState>? editorKey;
+
   const FleatherField({
     Key? key,
     required this.controller,
+    this.editorKey,
     this.focusNode,
     this.scrollController,
     this.scrollable = true,
@@ -162,7 +165,7 @@ class FleatherField extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _FleatherFieldState createState() => _FleatherFieldState();
+  State<FleatherField> createState() => _FleatherFieldState();
 }
 
 class _FleatherFieldState extends State<FleatherField> {
@@ -195,6 +198,7 @@ class _FleatherFieldState extends State<FleatherField> {
   Widget build(BuildContext context) {
     Widget child = FleatherEditor(
       controller: widget.controller,
+      editorKey: widget.editorKey,
       focusNode: widget.focusNode,
       scrollController: widget.scrollController,
       scrollable: widget.scrollable,
