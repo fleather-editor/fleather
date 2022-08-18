@@ -34,7 +34,7 @@ jobs:
 
       - name: Parchment - Run tests
         working-directory: ./packages/parchment
-        run: dart test --coverage
+        run: dart test --coverage coverage
 
       #
       # Fleather
@@ -57,7 +57,9 @@ jobs:
         working-directory: ./packages/fleather
         run: flutter test --coverage
         
-      - name: Upload coverage to codecov
-        run: curl -s https://codecov.io/bash
-        shell: bash
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.0
+        with:
+          directory: ./packages/fleather/coverage
+
 
