@@ -1070,16 +1070,7 @@ class RawEditorState extends EditorState
       _cursorController.stopCursorTimer(resetCharTicks: false);
       _cursorController.startCursorTimer();
     }
-
-    // Refresh selection overlay after the build step had a chance to
-    // update and register all children of RenderEditor. Otherwise this will
-    // fail in situations where a new line of text is entered, which adds
-    // a new RenderEditableBox child. If we try to update selection overlay
-    // immediately it'll not be able to find the new child since it hasn't been
-    // built yet.
-    SchedulerBinding.instance.addPostFrameCallback(
-        (Duration _) => _updateOrDisposeSelectionOverlayIfNeeded());
-//    _textChangedSinceLastCaretUpdate = true;
+    _updateOrDisposeSelectionOverlayIfNeeded();
 
     setState(() {
       /* We use widget.controller.value in build(). */
@@ -1092,7 +1083,30 @@ class RawEditorState extends EditorState
     final oldSelection = widget.controller.selection;
     widget.controller.updateSelection(selection, source: ChangeSource.local);
 
-    _selectionOverlay?.handlesVisible = _shouldShowSelectionHandles();
+    if (widget.selectionControls == null) {
+      _selectionOverlay?.dispose();
+      _selectionOverlay = null;
+    } else {
+      if (_selectionOverlay == null) {
+        _selectionOverlay = EditorTextSelectionOverlay(
+          clipboardStatus: _clipboardStatus,
+          context: context,
+          value: textEditingValue,
+          debugRequiredFor: widget,
+          toolbarLayerLink: _toolbarLayerLink,
+          startHandleLayerLink: _startHandleLayerLink,
+          endHandleLayerLink: _endHandleLayerLink,
+          renderObject: renderEditor,
+          selectionControls: widget.selectionControls,
+          selectionDelegate: this,
+          dragStartBehavior: DragStartBehavior.start,
+        );
+      } else {
+        _selectionOverlay!.update(textEditingValue);
+      }
+      _selectionOverlay?.handlesVisible = _shouldShowSelectionHandles();
+      _selectionOverlay!.showHandles();
+    }
 
     // This will show the keyboard for all selection changes on the
     // editor, not just changes triggered by user gestures.
@@ -1139,35 +1153,11 @@ class RawEditorState extends EditorState
 
   void _updateOrDisposeSelectionOverlayIfNeeded() {
     if (_selectionOverlay != null) {
-      if (_hasFocus && !textEditingValue.selection.isCollapsed) {
+      if (_hasFocus) {
         _selectionOverlay!.update(textEditingValue);
       } else {
         _selectionOverlay!.dispose();
         _selectionOverlay = null;
-      }
-    } else if (_hasFocus) {
-      _selectionOverlay?.hide();
-      _selectionOverlay = null;
-
-      if (widget.selectionControls != null) {
-        _selectionOverlay = EditorTextSelectionOverlay(
-          clipboardStatus: _clipboardStatus,
-          context: context,
-          value: textEditingValue,
-          debugRequiredFor: widget,
-          toolbarLayerLink: _toolbarLayerLink,
-          startHandleLayerLink: _startHandleLayerLink,
-          endHandleLayerLink: _endHandleLayerLink,
-          renderObject: renderEditor,
-          selectionControls: widget.selectionControls,
-          selectionDelegate: this,
-          dragStartBehavior: DragStartBehavior.start,
-          // onSelectionHandleTapped: widget.onSelectionHandleTapped,
-        );
-        _selectionOverlay!.handlesVisible = _shouldShowSelectionHandles();
-        _selectionOverlay!.showHandles();
-        // if (widget.onSelectionChanged != null)
-        //   widget.onSelectionChanged(selection, cause);
       }
     }
   }

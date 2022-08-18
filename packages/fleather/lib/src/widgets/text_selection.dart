@@ -179,7 +179,7 @@ class EditorTextSelectionOverlay {
 
   /// Builds the handles by inserting them into the [context]'s overlay.
   void showHandles() {
-    assert(_handles == null);
+    if (_handles != null) return;
     _handles = <OverlayEntry>[
       OverlayEntry(
           builder: (BuildContext context) =>
