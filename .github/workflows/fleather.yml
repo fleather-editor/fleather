@@ -14,10 +14,6 @@ jobs:
           cache: true
           # Manually Update this `key`
           cache-key: "20220721"
-      - uses: codecov/codecov-action@v3
-        with:
-          fail_ci_if_error: true
-          verbose: true
 
       #
       # Parchment
@@ -60,3 +56,8 @@ jobs:
       - name: Fleather - Run tests
         working-directory: ./packages/fleather
         run: flutter test --coverage
+        
+      - name: Upload coverage to codecov
+        run: curl -s https://codecov.io/bash
+        shell: bash
+
