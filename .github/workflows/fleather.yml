@@ -14,6 +14,10 @@ jobs:
           cache: true
           # Manually Update this `key`
           cache-key: "20220721"
+      - uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: true
+          verbose: true
 
       #
       # Parchment
@@ -34,7 +38,7 @@ jobs:
 
       - name: Parchment - Run tests
         working-directory: ./packages/parchment
-        run: dart test
+        run: dart test --coverage
 
       #
       # Fleather
@@ -55,4 +59,4 @@ jobs:
 
       - name: Fleather - Run tests
         working-directory: ./packages/fleather
-        run: flutter test
+        run: flutter test --coverage
