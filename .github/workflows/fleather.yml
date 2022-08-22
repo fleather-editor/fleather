@@ -65,6 +65,6 @@ jobs:
       - name: Codecov
         uses: codecov/codecov-action@v3.1.0
         with:
-          directory: ./packages/fleather/coverage
+          file: ./packages/fleather/coverage/lcov.info,./packages/parchment/coverage/lcov.info
 
 
