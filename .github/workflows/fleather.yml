@@ -38,6 +38,8 @@ jobs:
         run: | 
           dart test --coverage coverage
           dart pub global run coverage:format_coverage --in ./coverage --out ./coverage/lcov.info
+          ls -l coverage
+          ls -l
 
       #
       # Fleather
