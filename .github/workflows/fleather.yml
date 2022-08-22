@@ -14,6 +14,7 @@ jobs:
           cache: true
           # Manually Update this `key`
           cache-key: "20220721"
+      - run: dart pub global activate coverage
 
       #
       # Parchment
@@ -34,7 +35,9 @@ jobs:
 
       - name: Parchment - Run tests
         working-directory: ./packages/parchment
-        run: dart test
+        run: | 
+          dart test --coverage coverage
+          dart pub global run coverage:format_coverage --in ./coverage --out ./coverage/lcov.info
 
       #
       # Fleather
@@ -55,4 +58,12 @@ jobs:
 
       - name: Fleather - Run tests
         working-directory: ./packages/fleather
-        run: flutter test
+        run: flutter test --coverage
+        
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.0
+        with:
+          files: ./packages/fleather/coverage/lcov.info,./packages/parchment/coverage/lcov.info
+          fail_ci_if_error: true
+
+
