@@ -47,25 +47,32 @@ void main() {
       expect(widget.readOnly, true);
     });
 
-    testWidgets('show toolbar on long press with empty document',
+    testWidgets('Ability to paste upon long press on an empty document',
         (tester) async {
       // if Clipboard not initialize (status 'unknown'), an shrunken toolbar appears
       TestDefaultBinaryMessengerBinding.instance?.defaultBinaryMessenger
           .setMockMethodCallHandler(SystemChannels.platform, (message) {
         if (message.method == 'Clipboard.getData') {
-          return Future.value(<String, dynamic>{});
+          return Future.value(<String, dynamic>{'text': 'copied text'});
+        }
+        if (message.method == 'Clipboard.hasStrings') {
+          return Future.value(<String, dynamic>{'value': true});
         }
       });
 
-      final editor =
-          EditorSandBox(tester: tester, document: ParchmentDocument());
-      await editor.pumpAndTap();
-      expect(find.text('Select all'), findsNothing);
+      final editor = EditorSandBox(
+          tester: tester, document: ParchmentDocument(), autofocus: true);
+      await editor.pump();
+      expect(find.text('Paste'), findsNothing);
       await tester.longPress(find.byType(FleatherEditor));
-      await tester.pumpAndSettle();
+      await tester.pump();
       // Given current toolbar implementation in Flutter no other choice
       // than search for "Select all"
-      expect(find.text('Select all'), findsOneWidget);
+      final finder = find.text('Paste');
+      expect(finder, findsOneWidget);
+      await tester.tap(finder);
+      await tester.pumpAndSettle();
+      expect(editor.document.toPlainText(), 'copied text\n');
     });
   });
 }
