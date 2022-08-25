@@ -7,6 +7,6 @@
 packages
 pubspec.lock
 coverage/
+build/
 doc/api/
 test/.test_coverage.dart
-coverage/
