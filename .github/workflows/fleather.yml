@@ -37,7 +37,7 @@ jobs:
         working-directory: ./packages/parchment
         run: | 
           dart test --coverage coverage
-          dart pub global run coverage:format_coverage --in ./coverage --out ./coverage/lcov.info
+          dart pub global run coverage:format_coverage --lcov --in ./coverage --out ./coverage/lcov.info --report-on:lib
 
       #
       # Fleather
