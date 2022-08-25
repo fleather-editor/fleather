@@ -26,9 +26,6 @@ import 'text_line.dart';
 import 'text_selection.dart';
 import 'theme.dart';
 
-// TODO: add test - paste on empty document (should not crash on assert)
-// TODO: add test - Show toolbar of empty document upon longPress just after gaining focus
-
 /// Builder function for embeddable objects in [FleatherEditor].
 typedef FleatherEmbedBuilder = Widget Function(
     BuildContext context, EmbedNode node);
