@@ -1,14 +1,13 @@
-// Copyright (c) 2018, the Zefyr project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
+import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
-import 'package:fleather/fleather.dart';
 
 import '../testing.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('$RawEditor', () {
     testWidgets('allows merging attribute theme data', (tester) async {
       var delta = Delta()
@@ -46,6 +45,27 @@ void main() {
       await editor.disable();
       final widget = tester.widget(find.byType(FleatherField)) as FleatherField;
       expect(widget.readOnly, true);
+    });
+
+    testWidgets('show toolbar on long press with empty document',
+        (tester) async {
+      // if Clipboard not initialize (status 'unknown'), an shrunken toolbar appears
+      TestDefaultBinaryMessengerBinding.instance?.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, (message) {
+        if (message.method == 'Clipboard.getData') {
+          return Future.value(<String, dynamic>{});
+        }
+      });
+
+      final editor =
+          EditorSandBox(tester: tester, document: ParchmentDocument());
+      await editor.pumpAndTap();
+      expect(find.text('Select all'), findsNothing);
+      await tester.longPress(find.byType(FleatherEditor));
+      await tester.pumpAndSettle();
+      // Given current toolbar implementation in Flutter no other choice
+      // than search for "Select all"
+      expect(find.text('Select all'), findsOneWidget);
     });
   });
 }
