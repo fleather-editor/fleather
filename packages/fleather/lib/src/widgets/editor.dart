@@ -1062,7 +1062,7 @@ class RawEditorState extends EditorState
   }
 
   void _didChangeTextEditingValue() {
-    requestKeyboard();
+    // requestKeyboard();
 
     _showCaretOnScreen();
     updateRemoteValueIfNeeded();
