@@ -850,7 +850,7 @@ class EditorTextSelectionGestureDetectorBuilder {
   @protected
   void onDoubleTapDown(TapDownDetails details) {
     if (delegate.selectionEnabled) {
-      renderEditor!.selectWord(cause: SelectionChangedCause.tap);
+      renderEditor!.selectWord(cause: SelectionChangedCause.doubleTap);
       if (shouldShowSelectionToolbar) editor!.showToolbar();
     }
   }

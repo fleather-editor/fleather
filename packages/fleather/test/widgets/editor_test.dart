@@ -1,14 +1,13 @@
-// Copyright (c) 2018, the Zefyr project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
+import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
-import 'package:fleather/fleather.dart';
 
 import '../testing.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('$RawEditor', () {
     testWidgets('allows merging attribute theme data', (tester) async {
       var delta = Delta()
@@ -47,5 +46,58 @@ void main() {
       final widget = tester.widget(find.byType(FleatherField)) as FleatherField;
       expect(widget.readOnly, true);
     });
+
+    testWidgets('ability to paste upon long press on an empty document',
+        (tester) async {
+      // if Clipboard not initialize (status 'unknown'), an shrunken toolbar appears
+      prepareClipboard();
+
+      final editor = EditorSandBox(
+          tester: tester, document: ParchmentDocument(), autofocus: true);
+      await editor.pump();
+
+      expect(find.text('Paste'), findsNothing);
+      await tester.longPress(find.byType(FleatherEditor));
+      await tester.pump();
+      // Given current toolbar implementation in Flutter no other choice
+      // than to search for "Paste" text
+      final finder = find.text('Paste');
+      expect(finder, findsOneWidget);
+      await tester.tap(finder);
+      await tester.pumpAndSettle();
+      expect(editor.document.toPlainText(), '$clipboardText\n');
+    });
+
+    testWidgets('ability to paste upon double-tap on an empty document',
+        (tester) async {
+      // if Clipboard not initialize (status 'unknown'), an shrunken toolbar appears
+      prepareClipboard();
+      final editor = EditorSandBox(
+          tester: tester, document: ParchmentDocument(), autofocus: true);
+      await editor.pump();
+      expect(find.text('Paste'), findsNothing);
+      await tester.tap(find.byType(FleatherEditor));
+      await tester.tap(find.byType(FleatherEditor));
+      await tester.pump();
+      final finder = find.text('Paste');
+      expect(finder, findsOneWidget);
+      await tester.tap(finder);
+      await tester.pumpAndSettle();
+      expect(editor.document.toPlainText(), '$clipboardText\n');
+    });
+  });
+}
+
+const clipboardText = 'copied text';
+
+void prepareClipboard() {
+  TestDefaultBinaryMessengerBinding.instance?.defaultBinaryMessenger
+      .setMockMethodCallHandler(SystemChannels.platform, (message) {
+    if (message.method == 'Clipboard.getData') {
+      return Future.value(<String, dynamic>{'text': clipboardText});
+    }
+    if (message.method == 'Clipboard.hasStrings') {
+      return Future.value(<String, dynamic>{'value': true});
+    }
   });
 }

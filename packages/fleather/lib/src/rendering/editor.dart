@@ -240,6 +240,7 @@ class RenderEditor extends RenderEditableContainerBox
   }
 
   double? _maxContentWidth;
+
   set maxContentWidth(double? value) {
     if (_maxContentWidth == value) return;
     _maxContentWidth = value;
@@ -601,20 +602,13 @@ class RenderEditor extends RenderEditableContainerBox
     TextSelection nextSelection,
     SelectionChangedCause cause,
   ) {
+    final bool selectionChanged = selection != nextSelection;
     // Changes made by the keyboard can sometimes be "out of band" for listening
     // components, so always send those events, even if we didn't think it
-    // changed. Also, focusing an empty field is sent as a selection change even
-    // if the selection offset didn't change.
-    final focusingEmpty = nextSelection.baseOffset == 0 &&
-        nextSelection.extentOffset == 0 &&
-        !hasFocus;
-    if (nextSelection == selection &&
-        cause != SelectionChangedCause.keyboard &&
-        !focusingEmpty) {
-      return;
-    }
-    if (onSelectionChanged != null) {
-      onSelectionChanged!(nextSelection, cause);
+    // changed. Also, the user long pressing should always send a selection change
+    // as well.
+    if (selectionChanged || cause.forcesSelectionChanged) {
+      onSelectionChanged?.call(nextSelection, cause);
     }
   }
 
@@ -1024,4 +1018,11 @@ class FleatherVerticalCaretMovementRun
     _currentTextPosition = _editor.getTextPositionAbove(_currentTextPosition);
     return true;
   }
+}
+
+extension on SelectionChangedCause {
+  bool get forcesSelectionChanged =>
+      this == SelectionChangedCause.longPress ||
+      this == SelectionChangedCause.keyboard ||
+      this == SelectionChangedCause.doubleTap;
 }
