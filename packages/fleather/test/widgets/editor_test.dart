@@ -47,32 +47,57 @@ void main() {
       expect(widget.readOnly, true);
     });
 
-    testWidgets('Ability to paste upon long press on an empty document',
+    testWidgets('ability to paste upon long press on an empty document',
         (tester) async {
       // if Clipboard not initialize (status 'unknown'), an shrunken toolbar appears
-      TestDefaultBinaryMessengerBinding.instance?.defaultBinaryMessenger
-          .setMockMethodCallHandler(SystemChannels.platform, (message) {
-        if (message.method == 'Clipboard.getData') {
-          return Future.value(<String, dynamic>{'text': 'copied text'});
-        }
-        if (message.method == 'Clipboard.hasStrings') {
-          return Future.value(<String, dynamic>{'value': true});
-        }
-      });
+      prepareClipboard();
 
       final editor = EditorSandBox(
           tester: tester, document: ParchmentDocument(), autofocus: true);
       await editor.pump();
+
       expect(find.text('Paste'), findsNothing);
       await tester.longPress(find.byType(FleatherEditor));
       await tester.pump();
       // Given current toolbar implementation in Flutter no other choice
-      // than search for "Select all"
+      // than to search for "Paste" text
       final finder = find.text('Paste');
       expect(finder, findsOneWidget);
       await tester.tap(finder);
       await tester.pumpAndSettle();
-      expect(editor.document.toPlainText(), 'copied text\n');
+      expect(editor.document.toPlainText(), '$clipboardText\n');
     });
+
+    testWidgets('ability to paste upon double-tap on an empty document',
+        (tester) async {
+      // if Clipboard not initialize (status 'unknown'), an shrunken toolbar appears
+      prepareClipboard();
+      final editor = EditorSandBox(
+          tester: tester, document: ParchmentDocument(), autofocus: true);
+      await editor.pump();
+      expect(find.text('Paste'), findsNothing);
+      await tester.tap(find.byType(FleatherEditor));
+      await tester.tap(find.byType(FleatherEditor));
+      await tester.pump();
+      final finder = find.text('Paste');
+      expect(finder, findsOneWidget);
+      await tester.tap(finder);
+      await tester.pumpAndSettle();
+      expect(editor.document.toPlainText(), '$clipboardText\n');
+    });
+  });
+}
+
+const clipboardText = 'copied text';
+
+void prepareClipboard() {
+  TestDefaultBinaryMessengerBinding.instance?.defaultBinaryMessenger
+      .setMockMethodCallHandler(SystemChannels.platform, (message) {
+    if (message.method == 'Clipboard.getData') {
+      return Future.value(<String, dynamic>{'text': clipboardText});
+    }
+    if (message.method == 'Clipboard.hasStrings') {
+      return Future.value(<String, dynamic>{'value': true});
+    }
   });
 }

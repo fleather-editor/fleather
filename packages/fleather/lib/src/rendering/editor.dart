@@ -608,7 +608,8 @@ class RenderEditor extends RenderEditableContainerBox
     // as well.
     if (selectionChanged ||
         (cause == SelectionChangedCause.longPress ||
-            cause == SelectionChangedCause.keyboard)) {
+            cause == SelectionChangedCause.keyboard ||
+            cause == SelectionChangedCause.doubleTap)) {
       onSelectionChanged?.call(nextSelection, cause);
     }
   }
