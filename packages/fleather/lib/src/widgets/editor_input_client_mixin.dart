@@ -120,8 +120,6 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       return;
     }
 
-    var editingValue = _lastKnownRemoteTextEditingValue!;
-
     for (final textEditingDelta in textEditingDeltas) {
       final delta = Delta();
       if (textEditingDelta is TextEditingDeltaInsertion) {
@@ -135,11 +133,9 @@ mixin RawEditorStateTextInputClientMixin on EditorState
         delta.insert(textEditingDelta.replacementText);
         delta.delete(textEditingDelta.replacedRange.length);
       }
+      _lastKnownRemoteTextEditingValue = textEditingDelta.apply(_lastKnownRemoteTextEditingValue!);
       widget.controller.compose(delta, selection: textEditingDelta.selection);
-      editingValue = textEditingDelta.apply(editingValue);
     }
-
-    _lastKnownRemoteTextEditingValue = editingValue;
   }
 
   @override
