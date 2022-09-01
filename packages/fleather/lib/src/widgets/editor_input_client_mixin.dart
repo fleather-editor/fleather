@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:quill_delta/quill_delta.dart';
 
 import '../rendering/editor.dart';
 import 'editor.dart';
@@ -121,20 +120,26 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     }
 
     for (final textEditingDelta in textEditingDeltas) {
-      final delta = Delta();
-      if (textEditingDelta is TextEditingDeltaInsertion) {
-        delta.retain(textEditingDelta.insertionOffset);
-        delta.insert(textEditingDelta.textInserted);
-      } else if (textEditingDelta is TextEditingDeltaDeletion) {
-        delta.retain(textEditingDelta.deletedRange.start);
-        delta.delete(textEditingDelta.deletedRange.length);
-      } else if (textEditingDelta is TextEditingDeltaReplacement) {
-        delta.retain(textEditingDelta.replacedRange.start);
-        delta.insert(textEditingDelta.replacementText);
-        delta.delete(textEditingDelta.replacedRange.length);
+      _lastKnownRemoteTextEditingValue =
+          textEditingDelta.apply(_lastKnownRemoteTextEditingValue!);
+      if (textEditingDelta is TextEditingDeltaNonTextUpdate) {
+        widget.controller.updateSelection(textEditingDelta.selection);
+      } else {
+        int start = 0, length = 0;
+        String data = '';
+        if (textEditingDelta is TextEditingDeltaInsertion) {
+          start = textEditingDelta.insertionOffset;
+          data = textEditingDelta.textInserted;
+        } else if (textEditingDelta is TextEditingDeltaDeletion) {
+          start = textEditingDelta.deletedRange.start;
+          length = textEditingDelta.deletedRange.length;
+        } else if (textEditingDelta is TextEditingDeltaReplacement) {
+          start = textEditingDelta.replacedRange.start;
+          length = textEditingDelta.replacedRange.length;
+          data = textEditingDelta.replacementText;
+        }
+        widget.controller.replaceText(start, length, data);
       }
-      _lastKnownRemoteTextEditingValue = textEditingDelta.apply(_lastKnownRemoteTextEditingValue!);
-      widget.controller.compose(delta, selection: textEditingDelta.selection);
     }
   }
 
