@@ -120,6 +120,8 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       return;
     }
 
+    var editingValue = _lastKnownRemoteTextEditingValue!;
+
     for (final textEditingDelta in textEditingDeltas) {
       final delta = Delta();
       if (textEditingDelta is TextEditingDeltaInsertion) {
@@ -127,16 +129,17 @@ mixin RawEditorStateTextInputClientMixin on EditorState
         delta.insert(textEditingDelta.textInserted);
       } else if (textEditingDelta is TextEditingDeltaDeletion) {
         delta.retain(textEditingDelta.deletedRange.start);
-        delta.delete(textEditingDelta.deletedRange.end -
-            textEditingDelta.deletedRange.start);
+        delta.delete(textEditingDelta.deletedRange.length);
       } else if (textEditingDelta is TextEditingDeltaReplacement) {
         delta.retain(textEditingDelta.replacedRange.start);
         delta.insert(textEditingDelta.replacementText);
-        delta.delete(textEditingDelta.replacedRange.end -
-            textEditingDelta.replacedRange.start);
+        delta.delete(textEditingDelta.replacedRange.length);
       }
       widget.controller.compose(delta, selection: textEditingDelta.selection);
+      editingValue = textEditingDelta.apply(editingValue);
     }
+
+    _lastKnownRemoteTextEditingValue = editingValue;
   }
 
   @override
@@ -294,4 +297,8 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       });
     }
   }
+}
+
+extension on TextRange {
+  int get length => end - start;
 }
