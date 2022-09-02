@@ -120,26 +120,23 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     }
 
     for (final textEditingDelta in textEditingDeltas) {
+      int start = 0, length = 0;
+      String data = '';
+      if (textEditingDelta is TextEditingDeltaInsertion) {
+        start = textEditingDelta.insertionOffset;
+        data = textEditingDelta.textInserted;
+      } else if (textEditingDelta is TextEditingDeltaDeletion) {
+        start = textEditingDelta.deletedRange.start;
+        length = textEditingDelta.deletedRange.length;
+      } else if (textEditingDelta is TextEditingDeltaReplacement) {
+        start = textEditingDelta.replacedRange.start;
+        length = textEditingDelta.replacedRange.length;
+        data = textEditingDelta.replacementText;
+      }
       _lastKnownRemoteTextEditingValue =
           textEditingDelta.apply(_lastKnownRemoteTextEditingValue!);
-      if (textEditingDelta is TextEditingDeltaNonTextUpdate) {
-        widget.controller.updateSelection(textEditingDelta.selection);
-      } else {
-        int start = 0, length = 0;
-        String data = '';
-        if (textEditingDelta is TextEditingDeltaInsertion) {
-          start = textEditingDelta.insertionOffset;
-          data = textEditingDelta.textInserted;
-        } else if (textEditingDelta is TextEditingDeltaDeletion) {
-          start = textEditingDelta.deletedRange.start;
-          length = textEditingDelta.deletedRange.length;
-        } else if (textEditingDelta is TextEditingDeltaReplacement) {
-          start = textEditingDelta.replacedRange.start;
-          length = textEditingDelta.replacedRange.length;
-          data = textEditingDelta.replacementText;
-        }
-        widget.controller.replaceText(start, length, data);
-      }
+      widget.controller.replaceText(start, length, data,
+          selection: textEditingDelta.selection);
     }
   }
 
