@@ -55,25 +55,25 @@ class _HomePageState extends State<HomePage> {
       body: _controller == null
           ? Center(child: const CircularProgressIndicator())
           : Column(
-        children: [
-          FleatherToolbar.basic(controller: _controller!),
-          Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
-          Expanded(
-            child: FleatherEditor(
-              controller: _controller!,
-              focusNode: _focusNode,
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                bottom: MediaQuery.of(context).padding.bottom,
-              ),
-              onLaunchUrl: _launchUrl,
-              maxContentWidth: 800,
-              embedBuilder: _embedBuilder,
+              children: [
+                FleatherToolbar.basic(controller: _controller!),
+                Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+                Expanded(
+                  child: FleatherEditor(
+                    controller: _controller!,
+                    focusNode: _focusNode,
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: MediaQuery.of(context).padding.bottom,
+                    ),
+                    onLaunchUrl: _launchUrl,
+                    maxContentWidth: 800,
+                    embedBuilder: _embedBuilder,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -111,4 +111,3 @@ class _HomePageState extends State<HomePage> {
     }
   }
 }
-
