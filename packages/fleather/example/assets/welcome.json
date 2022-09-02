@@ -1,0 +1,149 @@
+[
+  {
+    "insert": "Fleather"
+  },
+  {
+    "insert": "\n",
+    "attributes": {
+      "heading": 1
+    }
+  },
+  {
+    "insert": {
+      "_type": "hr",
+      "_inline": false
+    }
+  },
+  {
+    "insert": "\n"
+  },
+  {
+    "insert": {
+      "_type": "image",
+      "_inline": false,
+      "source": "images/breeze.jpg",
+      "source_type": "assets"
+    }
+  },
+  {
+    "insert": "\n"
+  },
+  {
+    "insert": "Fleather is a free and open-source rich text editor for Flutter and uses Quill.js delta as underlying data format via Parchment."
+  },
+  {
+    "insert": "\n"
+  },
+  {
+    "insert": "It not only features inline attributes like "
+  },
+  {
+    "insert": "bold",
+    "attributes": {
+      "b": true
+    }
+  },
+  {
+    "insert": ", "
+  },
+  {
+    "insert": "italic",
+    "attributes": {
+      "i": true
+    }
+  },
+  {
+    "insert": ", "
+  },
+  {
+    "insert": "code",
+    "attributes": {
+      "c": true
+    }
+  },
+  {
+    "insert": " but also features line and block attributes too. The image at the beginning of this document is a block embed easily integrated into Fleather.\n"
+  },
+  {
+    "insert": "In Fleather you can have quotes with inline embeds "
+  },
+  {
+    "insert": {
+      "_type": "icon",
+      "_inline": true,
+      "codePoint": "0xf0653",
+      "fontFamily": "MaterialIcons",
+      "color": "0xFF2196F3"
+    }
+  },
+  {
+    "insert": " inside of it!"
+  },
+  {
+    "insert": "\n",
+    "attributes": {
+      "block": "quote"
+    }
+  },
+  {
+    "insert": "Fleather also supports unordered"
+  },
+  {
+    "insert": "\n",
+    "attributes": {
+      "block": "ul"
+    }
+  },
+  {
+    "insert": "and ordered lists"
+  },
+  {
+    "insert": "\n",
+    "attributes": {
+      "block": "ol"
+    }
+  },
+  {
+    "insert": "with"
+  },
+  {
+    "insert": "\n",
+    "attributes": {
+      "block": "ol",
+      "indent": 1
+    }
+  },
+  {
+    "insert": "multi-level"
+  },
+  {
+    "insert": "\n",
+    "attributes": {
+      "block": "ol",
+      "indent": 2
+    }
+  },
+  {
+    "insert": "indentation"
+  },
+  {
+    "insert": "\n",
+    "attributes": {
+      "block": "ol",
+      "indent": 3
+    }
+  },
+  {
+    "insert": "support"
+  },
+  {
+    "insert": "\n",
+    "attributes": {
+      "block": "ol",
+      "indent": 3
+    }
+  },
+  {
+    "insert": "The best part of Fleather is that you can use it in almost every platform Flutter supports!\n"
+  }
+]
