@@ -324,8 +324,8 @@ class AutoFormatLinksRule extends InsertRule {
 /// to be moved to a new line adjacent to the original line.
 ///
 /// This rule assumes that a line is only allowed to have single block embed child.
-class ForceNewlineForInsertsAroundEmbedRule extends InsertRule {
-  const ForceNewlineForInsertsAroundEmbedRule();
+class ForceNewlineForInsertsAroundBlockEmbedRule extends InsertRule {
+  const ForceNewlineForInsertsAroundBlockEmbedRule();
 
   @override
   Delta? apply(Delta document, int index, Object data) {
@@ -334,17 +334,18 @@ class ForceNewlineForInsertsAroundEmbedRule extends InsertRule {
     final iter = DeltaIterator(document);
     final previous = iter.skip(index);
     final target = iter.next();
-    final cursorBeforeEmbed = isBlockEmbed(target.data);
-    final cursorAfterEmbed = previous != null && isBlockEmbed(previous.data);
+    final cursorBeforeBlockEmbed = isBlockEmbed(target.data);
+    final cursorAfterBlockEmbed =
+        previous != null && isBlockEmbed(previous.data);
 
-    if (cursorBeforeEmbed || cursorAfterEmbed) {
+    if (cursorBeforeBlockEmbed || cursorAfterBlockEmbed) {
       final delta = Delta()..retain(index);
-      if (cursorBeforeEmbed && !data.endsWith('\n')) {
+      if (cursorBeforeBlockEmbed && !data.endsWith('\n')) {
         return delta
           ..insert(data)
           ..insert('\n');
       }
-      if (cursorAfterEmbed && !data.startsWith('\n')) {
+      if (cursorAfterBlockEmbed && !data.startsWith('\n')) {
         return delta
           ..insert('\n')
           ..insert(data);
@@ -441,13 +442,13 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
   }
 }
 
-/// Handles all format operations which manipulate embeds.
-class InsertEmbedsRule extends InsertRule {
-  const InsertEmbedsRule();
+/// Handles all format operations which manipulate block embeds.
+class InsertBlockEmbedsRule extends InsertRule {
+  const InsertBlockEmbedsRule();
 
   @override
   Delta? apply(Delta document, int index, Object data) {
-    // We are only interested in embeddable objects.
+    // We are only interested in block embeddable objects.
     if (data is String || !isBlockEmbed(data)) return null;
 
     final result = Delta()..retain(index);

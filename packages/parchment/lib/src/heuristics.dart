@@ -26,8 +26,8 @@ class ParchmentHeuristics {
     ],
     insertRules: [
       // Embeds
-      InsertEmbedsRule(),
-      ForceNewlineForInsertsAroundEmbedRule(),
+      InsertBlockEmbedsRule(),
+      ForceNewlineForInsertsAroundBlockEmbedRule(),
       // Blocks
       AutoExitBlockRule(), // must go first
       PreserveBlockStyleOnInsertRule(),
