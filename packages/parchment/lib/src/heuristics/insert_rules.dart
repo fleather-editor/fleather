@@ -448,7 +448,7 @@ class InsertEmbedsRule extends InsertRule {
   @override
   Delta? apply(Delta document, int index, Object data) {
     // We are only interested in embeddable objects.
-    if (data is String) return null;
+    if (data is String || !isBlockEmbed(data)) return null;
 
     final result = Delta()..retain(index);
     final iter = DeltaIterator(document);
