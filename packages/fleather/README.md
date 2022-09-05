@@ -1,20 +1,50 @@
 [![Fleather & Parchment](https://github.com/fleather-editor/fleather/actions/workflows/fleather.yml/badge.svg)](https://github.com/fleather-editor/fleather/actions/workflows/fleather.yml)
 [![codecov](https://codecov.io/gh/fleather-editor/fleather/branch/master/graph/badge.svg?token=JRNFZ218FY)](https://codecov.io/gh/fleather-editor/fleather)
+[![pub package](https://img.shields.io/pub/v/fleather.svg)](https://pub.dartlang.org/packages/fleather)
 
 # Fleather
-*Soft and gentle rich text editing for Flutter applications based on [Zefyr](https://github.com/memspace/zefyr).*
+![banner](/images/banner.png)
+Soft and gentle rich text editing for Flutter applications based on [Zefyr](https://github.com/memspace/zefyr). It uses a document model named [Patchment](https://github.com/fleather-editor/fleather/tree/master/packages/parchment) based on [Notus](https://github.com/memspace/zefyr/tree/master/packages/notus).
 
 ## Features
+* Works on Android, iOS, Web, macOS, Linux and Windows
 * Inline attributes like **bold**, *italic*, ~~strikethrough~~ and etc.
 * Line attributes like direction, alignment, heading, number and bullet list and etc.
 * Block attributes like code, quote and etc.
+* Supports inline and block embeds
 * Markdown-inspired semantics
-* Support for inline and block embeds
-* Support for markdown shortcuts
-* Using [Quill.js Delta](https://quilljs.com/docs/delta) as underlying data format by [Parchment](packages/parchment/README.md), Fleather is ready for collaborative editing using [OT](https://en.wikipedia.org/wiki/Operational_transformation) or [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type) (Not provided as built-in functionality yet)
+* Supports markdown shortcuts
+* Using [Quill.js Delta](https://quilljs.com/docs/delta) as underlying data format by [Parchment](packages/parchment/README.md), Fleather is ready for collaborative editing using [OT](https://en.wikipedia.org/wiki/Operational_transformation) (Not provided as a built-in functionality)
 
 ## Get started
-1. Add 
+Add Fleather to your dependencies.
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  fleather: ^1.2.1
+```
+
+## Usage
+**For a complete working project using Fleather, check our [example](./example/lib/main.dart).**
+1. Create a `FleatherController`
+```dart
+document = ParchmentDocument.fromJson(json);
+controller = FleatherController(document);
+```
+2. Add `FleatherEditor` or `FleatherField` with a `FleatherToolbar` to your widgets.
+```dart
+Column(
+  children: [
+    FleatherToolbar.basic(controller: _controller!),
+    Expanded(
+      child: FleatherEditor(controller: controller),
+    ),
+    //or
+    FleatherField(controller: controller)
+  ],
+),
+```
 
 ## Credits
 
