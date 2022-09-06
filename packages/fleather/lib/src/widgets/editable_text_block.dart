@@ -343,7 +343,7 @@ class _BulletPoint extends StatelessWidget {
   }
 }
 
-const _checkboxSize = 14.0;
+const _checkboxSize = 16.0;
 
 class _CheckboxPoint extends StatefulWidget {
   final double width;
