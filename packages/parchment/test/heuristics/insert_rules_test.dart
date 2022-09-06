@@ -318,8 +318,8 @@ void main() {
     });
   });
 
-  group('$InsertEmbedsRule', () {
-    final rule = InsertEmbedsRule();
+  group('$InsertBlockEmbedsRule', () {
+    final rule = InsertBlockEmbedsRule();
 
     test('insert on an empty line', () {
       final doc = Delta()
@@ -380,6 +380,16 @@ void main() {
         ..insert('\n');
       expect(actual, isNotNull);
       expect(actual, expected);
+    });
+
+    test('inserted object is not block embed', () {
+      final doc = Delta()
+        ..insert('One and two\n')
+        ..insert('embed here\n')
+        ..insert('Three')
+        ..insert('\n');
+      expect(rule.apply(doc, 17, 'Some text'), isNull);
+      expect(rule.apply(doc, 17, SpanEmbed('span')), isNull);
     });
   });
 
