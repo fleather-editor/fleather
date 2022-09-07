@@ -343,8 +343,6 @@ class _BulletPoint extends StatelessWidget {
   }
 }
 
-const _checkboxSize = 16.0;
-
 class _CheckboxPoint extends StatefulWidget {
   final double width;
   final bool value;
@@ -366,47 +364,11 @@ class _CheckboxPoint extends StatefulWidget {
 class _CheckboxPointState extends State<_CheckboxPoint> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    var fillColor = widget.value
-        ? (widget.enabled
-            ? theme.colorScheme.primary
-            : theme.colorScheme.onSurface.withOpacity(0.5))
-        : theme.colorScheme.surface;
-    var borderColor = widget.value
-        ? (widget.enabled
-            ? theme.colorScheme.primary
-            : theme.colorScheme.onSurface.withOpacity(0))
-        : (widget.enabled
-            ? theme.colorScheme.onSurface.withOpacity(0.5)
-            : theme.colorScheme.onSurface.withOpacity(0.3));
-    return Align(
-      alignment: AlignmentDirectional.centerEnd,
-      child: Container(
-        width: widget.width,
-        alignment: AlignmentDirectional.center,
-        child: SizedBox.square(
-          dimension: _checkboxSize,
-          child: Material(
-            elevation: 0,
-            color: fillColor,
-            shape: RoundedRectangleBorder(
-              side: BorderSide(
-                width: 1,
-                color: borderColor,
-              ),
-              borderRadius: BorderRadius.circular(2),
-            ),
-            child: InkWell(
-              onTap:
-                  widget.enabled ? () => widget.onChanged(!widget.value) : null,
-              child: widget.value
-                  ? Icon(Icons.check,
-                      size: _checkboxSize, color: theme.colorScheme.onPrimary)
-                  : null,
-            ),
-          ),
-        ),
-      ),
+    return Checkbox(
+      value: widget.value,
+      onChanged:
+          widget.enabled ? (value) => widget.onChanged(!widget.value) : null,
+      splashRadius: 0,
     );
   }
 }
