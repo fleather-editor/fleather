@@ -171,26 +171,37 @@ class FleatherField extends StatefulWidget {
 class _FleatherFieldState extends State<FleatherField> {
   late bool _focused;
 
+  FocusNode? _focusNode;
+
+  FocusNode get effectiveFocusNode =>
+      widget.focusNode ?? (_focusNode ??= FocusNode());
+
   void _editorFocusChanged() {
     setState(() {
-      _focused = widget.focusNode!.hasFocus;
+      _focused = effectiveFocusNode.hasFocus;
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _focused = widget.focusNode!.hasFocus;
-    widget.focusNode!.addListener(_editorFocusChanged);
+    _focused = effectiveFocusNode.hasFocus;
+    effectiveFocusNode.addListener(_editorFocusChanged);
   }
 
   @override
   void didUpdateWidget(covariant FleatherField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.focusNode != oldWidget.focusNode) {
-      oldWidget.focusNode!.removeListener(_editorFocusChanged);
-      widget.focusNode!.addListener(_editorFocusChanged);
-      _focused = widget.focusNode!.hasFocus;
+      oldWidget.focusNode?.removeListener(_editorFocusChanged);
+      if (widget.focusNode != null) {
+        _focusNode
+          ?..removeListener(_editorFocusChanged)
+          ..dispose();
+        _focusNode = null;
+      }
+      effectiveFocusNode.addListener(_editorFocusChanged);
+      _focused = effectiveFocusNode.hasFocus;
     }
   }
 
@@ -199,7 +210,7 @@ class _FleatherFieldState extends State<FleatherField> {
     Widget child = FleatherEditor(
       controller: widget.controller,
       editorKey: widget.editorKey,
-      focusNode: widget.focusNode,
+      focusNode: effectiveFocusNode,
       scrollController: widget.scrollController,
       scrollable: widget.scrollable,
       padding: widget.padding,
@@ -233,12 +244,12 @@ class _FleatherFieldState extends State<FleatherField> {
     }
 
     return AnimatedBuilder(
-      animation:
-          Listenable.merge(<Listenable?>[widget.focusNode, widget.controller]),
+      animation: Listenable.merge(
+          <Listenable?>[effectiveFocusNode, widget.controller]),
       builder: (BuildContext context, Widget? child) {
         return InputDecorator(
           decoration: _getEffectiveDecoration(),
-          isFocused: widget.focusNode!.hasFocus,
+          isFocused: effectiveFocusNode.hasFocus,
           isEmpty: _isEmpty,
           child: child,
         );

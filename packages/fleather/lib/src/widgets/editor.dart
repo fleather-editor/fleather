@@ -765,12 +765,13 @@ class RawEditorState extends EditorState
   FocusNode? _focusNode;
 
   @override
-  FocusNode get effectiveFocusNode => widget.focusNode ?? _focusNode!;
+  FocusNode get effectiveFocusNode =>
+      widget.focusNode ?? (_focusNode ??= FocusNode());
 
   bool get _hasFocus => effectiveFocusNode.hasFocus;
 
   @override
-  bool get wantKeepAlive => effectiveFocusNode.hasFocus;
+  bool get wantKeepAlive => _hasFocus;
 
   TextDirection get _textDirection {
     final result = Directionality.maybeOf(context);
@@ -942,8 +943,6 @@ class RawEditorState extends EditorState
     _scrollController = widget.scrollController ?? ScrollController();
     _scrollController.addListener(_updateSelectionOverlayForScroll);
 
-    _createInternalFocusNodeIfNeeded();
-
     // Cursor
     _cursorController = CursorController(
       showCursor: ValueNotifier<bool>(widget.showCursor),
@@ -985,12 +984,6 @@ class RawEditorState extends EditorState
         !widget.controller.selection.isCollapsed;
   }
 
-  void _createInternalFocusNodeIfNeeded() {
-    if (widget.focusNode != null) {
-      _focusNode ??= FocusNode();
-    }
-  }
-
   @override
   void didUpdateWidget(RawEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -1013,10 +1006,12 @@ class RawEditorState extends EditorState
 
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode?.removeListener(_handleFocusChanged);
-      _focusNode?.removeListener(_handleFocusChanged);
-      _focusNode?.dispose();
-      _focusNode = null;
-      _createInternalFocusNodeIfNeeded();
+      if (widget.focusNode != null) {
+        _focusNode
+          ?..removeListener(_handleFocusChanged)
+          ..dispose();
+        _focusNode = null;
+      }
       effectiveFocusNode.addListener(_handleFocusChanged);
       updateKeepAlive();
     }
