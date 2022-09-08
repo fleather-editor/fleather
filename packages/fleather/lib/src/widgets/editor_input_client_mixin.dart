@@ -115,9 +115,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
 
   @override
   void updateEditingValueWithDeltas(List<TextEditingDelta> textEditingDeltas) {
-    if (!shouldCreateInputConnection) {
-      return;
-    }
+    if (!shouldCreateInputConnection || textEditingDeltas.isEmpty) return;
 
     for (final textEditingDelta in textEditingDeltas) {
       int start = 0, length = 0;
