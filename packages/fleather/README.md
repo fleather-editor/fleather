@@ -49,4 +49,4 @@ Column(
 ## Credits
 
 * [Zefyr](https://github.com/memspace/zefyr) contributors
-* [Mohammadreza Ziadzadeh](https://github.com/moharnadreza) for logo and banner
+* [Mohammadreza Ziadzadeh](https://github.com/moharnadreza) for banner
