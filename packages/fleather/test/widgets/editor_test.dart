@@ -85,6 +85,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(editor.document.toPlainText(), '$clipboardText\n');
     });
+
+    testWidgets('editor creates its own focusNode if not provided',
+        (tester) async {
+      final editor = MaterialApp(
+          home: RawEditor(
+              controller: FleatherController(), selectionColor: Colors.blue));
+      await tester.pumpWidget(editor);
+      final state = tester.state<RawEditorState>(find.byType(RawEditor));
+      expect(state.effectiveFocusNode, isA<FocusNode>());
+    });
   });
 }
 
