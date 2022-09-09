@@ -762,11 +762,11 @@ class RawEditorState extends EditorState
 
   bool _didAutoFocus = false;
 
-  FocusNode? _focusNode;
+  FocusNode? _internalFocusNode;
 
   @override
   FocusNode get effectiveFocusNode =>
-      widget.focusNode ?? (_focusNode ??= FocusNode());
+      widget.focusNode ?? (_internalFocusNode ??= FocusNode());
 
   bool get _hasFocus => effectiveFocusNode.hasFocus;
 
@@ -1007,10 +1007,10 @@ class RawEditorState extends EditorState
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode?.removeListener(_handleFocusChanged);
       if (widget.focusNode != null) {
-        _focusNode
+        _internalFocusNode
           ?..removeListener(_handleFocusChanged)
           ..dispose();
-        _focusNode = null;
+        _internalFocusNode = null;
       }
       effectiveFocusNode.addListener(_handleFocusChanged);
       updateKeepAlive();
@@ -1049,7 +1049,7 @@ class RawEditorState extends EditorState
     _selectionOverlay = null;
     widget.controller.removeListener(_didChangeTextEditingValue);
     effectiveFocusNode.removeListener(_handleFocusChanged);
-    _focusNode?.dispose();
+    _internalFocusNode?.dispose();
     _cursorController.dispose();
     _clipboardStatus?.removeListener(_onChangedClipboardStatus);
     _clipboardStatus?.dispose();

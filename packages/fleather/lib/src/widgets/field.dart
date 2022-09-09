@@ -171,10 +171,10 @@ class FleatherField extends StatefulWidget {
 class _FleatherFieldState extends State<FleatherField> {
   late bool _focused;
 
-  FocusNode? _focusNode;
+  FocusNode? _internalFocusNode;
 
   FocusNode get effectiveFocusNode =>
-      widget.focusNode ?? (_focusNode ??= FocusNode());
+      widget.focusNode ?? (_internalFocusNode ??= FocusNode());
 
   void _editorFocusChanged() {
     setState(() {
@@ -195,10 +195,10 @@ class _FleatherFieldState extends State<FleatherField> {
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode?.removeListener(_editorFocusChanged);
       if (widget.focusNode != null) {
-        _focusNode
+        _internalFocusNode
           ?..removeListener(_editorFocusChanged)
           ..dispose();
-        _focusNode = null;
+        _internalFocusNode = null;
       }
       effectiveFocusNode.addListener(_editorFocusChanged);
       _focused = effectiveFocusNode.hasFocus;
