@@ -86,14 +86,21 @@ void main() {
       expect(editor.document.toPlainText(), '$clipboardText\n');
     });
 
-    testWidgets('editor creates its own focusNode if not provided',
+    testWidgets('creating editor without focusNode does not throw _CastError',
         (tester) async {
-      final editor = MaterialApp(
+      final widget = MaterialApp(
           home: RawEditor(
               controller: FleatherController(), selectionColor: Colors.blue));
-      await tester.pumpWidget(editor);
-      final state = tester.state<RawEditorState>(find.byType(RawEditor));
-      expect(state.effectiveFocusNode, isA<FocusNode>());
+      await tester.pumpWidget(widget);
+      expect(true, true);
+    });
+
+    testWidgets('creating field without focusNode does not throw _CastError',
+        (tester) async {
+      final widget =
+          MaterialApp(home: FleatherField(controller: FleatherController()));
+      await tester.pumpWidget(widget);
+      expect(true, true);
     });
   });
 }
