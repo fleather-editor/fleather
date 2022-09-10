@@ -512,7 +512,7 @@ class RawEditor extends StatefulWidget {
       paste: true,
       selectAll: true,
     ),
-    this.cursorStyle,
+    required this.cursorStyle,
     this.showSelectionHandles = false,
     this.selectionControls,
     this.embedBuilder = defaultFleatherEmbedBuilder,
@@ -584,7 +584,7 @@ class RawEditor extends StatefulWidget {
   final bool showCursor;
 
   /// The style to be used for the editing cursor.
-  final CursorStyle? cursorStyle;
+  final CursorStyle cursorStyle;
 
   /// Configures how the platform keyboard will select an uppercase or
   /// lowercase keyboard.
@@ -946,13 +946,7 @@ class RawEditorState extends EditorState
     // Cursor
     _cursorController = CursorController(
       showCursor: ValueNotifier<bool>(widget.showCursor),
-      style: widget.cursorStyle ??
-          const CursorStyle(
-            // TODO: fallback to current theme's accent color
-            color: Colors.blueAccent,
-            backgroundColor: Colors.grey,
-            width: 2.0,
-          ),
+      style: widget.cursorStyle,
       tickerProvider: this,
     );
 
@@ -989,7 +983,7 @@ class RawEditorState extends EditorState
     super.didUpdateWidget(oldWidget);
 
     _cursorController.showCursor.value = widget.showCursor;
-    _cursorController.style = widget.cursorStyle!;
+    _cursorController.style = widget.cursorStyle;
 
     if (widget.controller != oldWidget.controller) {
       oldWidget.controller.removeListener(_didChangeTextEditingValue);
