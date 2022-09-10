@@ -102,7 +102,7 @@ void main() {
         ),
       );
       await tester.pumpWidget(widget);
-          // Fails if thrown
+      // Fails if thrown
     });
 
     group('didUpdateWidget', () {
