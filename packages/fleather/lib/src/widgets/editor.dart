@@ -1001,9 +1001,7 @@ class RawEditorState extends EditorState
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode?.removeListener(_handleFocusChanged);
       if (widget.focusNode != null) {
-        _internalFocusNode
-          ?..removeListener(_handleFocusChanged)
-          ..dispose();
+        _internalFocusNode?.dispose();
         _internalFocusNode = null;
       }
       effectiveFocusNode.addListener(_handleFocusChanged);

@@ -195,9 +195,7 @@ class _FleatherFieldState extends State<FleatherField> {
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode?.removeListener(_editorFocusChanged);
       if (widget.focusNode != null) {
-        _internalFocusNode
-          ?..removeListener(_editorFocusChanged)
-          ..dispose();
+        _internalFocusNode?.dispose();
         _internalFocusNode = null;
       }
       effectiveFocusNode.addListener(_editorFocusChanged);
