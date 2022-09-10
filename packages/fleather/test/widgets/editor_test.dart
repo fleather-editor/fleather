@@ -88,21 +88,73 @@ void main() {
 
     testWidgets('creating editor without focusNode does not throw _CastError',
         (tester) async {
-      final widget = MaterialApp(
-          home: RawEditor(
-              controller: FleatherController(), selectionColor: Colors.blue));
+      final widget =
+          MaterialApp(home: FleatherEditor(controller: FleatherController()));
       await tester.pumpWidget(widget);
-      expect(true, true);
+      // Fails if thrown
     });
 
     testWidgets('creating field without focusNode does not throw _CastError',
         (tester) async {
-      final widget =
-          MaterialApp(home: FleatherField(controller: FleatherController()));
+      final widget = MaterialApp(
+        home: FleatherField(
+          controller: FleatherController(),
+        ),
+      );
       await tester.pumpWidget(widget);
-      expect(true, true);
+          // Fails if thrown
+    });
+
+    group('didUpdateWidget', () {
+      testWidgets(
+          'changes focus node when updating widget with internal focus node',
+          (tester) async {
+        final expFocus = FocusNode();
+        final widget =
+            MaterialApp(home: TestUpdateWidget(focusNodeAfterChange: expFocus));
+        await tester.pumpWidget(widget);
+        final initialState =
+            tester.state<RawEditorState>(find.byType(RawEditor));
+        final defaultFocusNode = initialState.effectiveFocusNode;
+        expect(defaultFocusNode, isNot(expFocus));
+        await tester.tap(find.byType(TextButton));
+        await tester.pumpAndSettle();
+        final endState = tester.state<RawEditorState>(find.byType(RawEditor));
+        final actFocusNode = endState.effectiveFocusNode;
+        expect(actFocusNode, expFocus);
+      });
     });
   });
+}
+
+class TestUpdateWidget extends StatefulWidget {
+  const TestUpdateWidget({Key? key, required this.focusNodeAfterChange})
+      : super(key: key);
+
+  final FocusNode focusNodeAfterChange;
+
+  @override
+  State<StatefulWidget> createState() => TestUpdateWidgetState();
+}
+
+class TestUpdateWidgetState extends State<TestUpdateWidget> {
+  FocusNode? focusNode;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextButton(
+            onPressed: () =>
+                setState(() => focusNode = widget.focusNodeAfterChange),
+            child: const Text('Change state'),
+          ),
+          FleatherEditor(
+            controller: FleatherController(),
+            focusNode: focusNode,
+          ),
+        ],
+      );
 }
 
 const clipboardText = 'copied text';
