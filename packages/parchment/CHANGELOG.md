@@ -1,3 +1,7 @@
+## 1.2.1
+
+* [Fix] new line after inline embed insertion
+
 ## 1.2.0
 
 * Support for background color
