@@ -1,3 +1,10 @@
+## 1.2.2
+
+* New example for Fleather
+* Improve checkbox design
+* [Fix] new line after inline embed insertion
+* [Fix] null focusNode causing _CastError
+
 ## 1.2.1
 
 * [Fix] toolbar not showing up on empty documents
