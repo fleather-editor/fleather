@@ -14,20 +14,19 @@ class CursorPainter {
   final RenderContentProxyBox editable;
   final CursorStyle style;
   final Rect cursorPrototype;
-  final Color effectiveColor;
   final double devicePixelRatio;
 
   CursorPainter({
     required this.editable,
     required this.style,
     required this.cursorPrototype,
-    required this.effectiveColor,
     required this.devicePixelRatio,
   });
 
   /// Paints cursor on [canvas] at specified [textPosition].
-  void paint(Canvas canvas, Offset effectiveOffset, TextPosition textPosition) {
-    final paint = Paint()..color = effectiveColor;
+  void paint(Canvas canvas, Offset effectiveOffset, TextPosition textPosition,
+      Color color) {
+    final paint = Paint()..color = color;
     final Offset caretOffset =
         editable.getOffsetForCaret(textPosition, cursorPrototype) +
             effectiveOffset;
