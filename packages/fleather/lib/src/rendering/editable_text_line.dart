@@ -723,7 +723,9 @@ class RenderEditableTextLine extends RenderEditableBox {
         _selectionRects ??= body!.getBoxesForSelection(
           local, /*, boxHeightStyle: _selectionHeightStyle, boxWidthStyle: _selectionWidthStyle*/
         );
-        _paintSelection(context, effectiveOffset);
+        assert(_selectionRects != null);
+        _paintSelection(
+            context, effectiveOffset, _selectionRects!, _selectionColor);
       }
 
       if (hasFocus &&
@@ -744,13 +746,13 @@ class RenderEditableTextLine extends RenderEditableBox {
     }
   }
 
-  void _paintSelection(PaintingContext context, Offset effectiveOffset) {
+  void _paintSelection(PaintingContext context, Offset effectiveOffset,
+      List<TextBox> rects, Color color) {
     // assert(_textLayoutLastMaxWidth == constraints.maxWidth &&
     //     _textLayoutLastMinWidth == constraints.minWidth,
     // 'Last width ($_textLayoutLastMinWidth, $_textLayoutLastMaxWidth) not the same as max width constraint (${constraints.minWidth}, ${constraints.maxWidth}).');
-    assert(_selectionRects != null);
-    final paint = Paint()..color = _selectionColor;
-    for (final box in _selectionRects!) {
+    final paint = Paint()..color = color;
+    for (final box in rects) {
       context.canvas.drawRect(box.toRect().shift(effectiveOffset), paint);
     }
   }
