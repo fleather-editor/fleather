@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.0.1"
+          flutter-version: "3.3.2"
           cache: true
           # Manually Update this `key`
           cache-key: "20220721"
@@ -35,7 +35,7 @@ jobs:
 
       - name: Parchment - Run tests
         working-directory: ./packages/parchment
-        run: | 
+        run: |
           dart test --coverage coverage
           dart pub global run coverage:format_coverage --lcov --in ./coverage --out ./coverage/lcov.info --report-on:lib
 
@@ -59,11 +59,9 @@ jobs:
       - name: Fleather - Run tests
         working-directory: ./packages/fleather
         run: flutter test --coverage
-        
+
       - name: Codecov
         uses: codecov/codecov-action@v3.1.0
         with:
           files: ./packages/fleather/coverage/lcov.info,./packages/parchment/coverage/lcov.info
           fail_ci_if_error: true
-
-
