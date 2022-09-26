@@ -18,6 +18,7 @@ import 'editable_text_block.dart';
 import 'editable_text_line.dart';
 import 'editor_input_client_mixin.dart';
 import 'editor_selection_delegate_mixin.dart';
+import 'history.dart';
 import 'keyboard_listener.dart';
 import 'link.dart';
 import 'shortcuts.dart';
@@ -356,7 +357,12 @@ class _FleatherEditorState extends State<FleatherEditor>
     );
 
     child = FleatherShortcuts(
-      child: FleatherActions(child: child),
+      child: FleatherActions(
+        child: FleatherHistory(
+          controller: widget.controller,
+          child: child,
+        ),
+      ),
     );
 
     return _selectionGestureDetectorBuilder.buildGestureDetector(
