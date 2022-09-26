@@ -33,8 +33,8 @@ class FleatherHistory extends StatefulWidget {
 }
 
 class _FleatherHistoryState extends State<FleatherHistory> {
-  late final HistoryStack _stack;
   late final _Throttled<Delta> _throttledPush;
+  late HistoryStack _stack;
   Timer? _throttleTimer;
 
   // This duration was chosen as a best fit for the behavior of Mac, Linux,
