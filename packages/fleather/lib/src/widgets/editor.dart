@@ -1317,6 +1317,7 @@ class RawEditorState extends EditorState
             cursorController: _cursorController,
             selection: widget.controller.selection,
             selectionColor: widget.selectionColor,
+            remoteSelections: widget.controller.remoteSelections,
             enableInteractiveSelection: widget.enableInteractiveSelection,
             body: TextLine(
               node: node,
@@ -1342,6 +1343,7 @@ class RawEditorState extends EditorState
             cursorController: _cursorController,
             selection: widget.controller.selection,
             selectionColor: widget.selectionColor,
+            remoteSelections: widget.controller.remoteSelections,
             enableInteractiveSelection: widget.enableInteractiveSelection,
             hasFocus: _hasFocus,
             contentPadding: (block == ParchmentAttribute.block.code)

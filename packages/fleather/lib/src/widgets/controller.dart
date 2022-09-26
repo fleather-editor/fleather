@@ -14,6 +14,13 @@ List<String> _insertionToggleableStyleKeys = [
   ParchmentAttribute.inlineCode.key,
 ];
 
+class RemoteSelection {
+  final String name;
+  final TextSelection selection;
+  final Color color;
+  RemoteSelection(this.name, this.color, this.selection);
+}
+
 class FleatherController extends ChangeNotifier {
   FleatherController([ParchmentDocument? document])
       : document = document ?? ParchmentDocument(),
@@ -25,6 +32,14 @@ class FleatherController extends ChangeNotifier {
   /// Currently selected text within the [document].
   TextSelection get selection => _selection;
   TextSelection _selection;
+
+  List<RemoteSelection> get remoteSelections => _remoteSelections;
+  var _remoteSelections = <RemoteSelection>[];
+
+  void setRemoteSelections(List<RemoteSelection> remoteSelections) {
+    _remoteSelections = remoteSelections;
+    notifyListeners();
+  }
 
   /// Store any styles attribute that got toggled by the tap of a button
   /// and that has not been applied yet.

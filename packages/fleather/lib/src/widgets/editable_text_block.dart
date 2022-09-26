@@ -26,6 +26,7 @@ class EditableTextBlock extends StatelessWidget {
   final LinkActionPicker linkActionPicker;
   final ValueChanged<String?>? onLaunchUrl;
   final EdgeInsets? contentPadding;
+  final List<RemoteSelection> remoteSelections;
 
   const EditableTextBlock({
     Key? key,
@@ -40,6 +41,7 @@ class EditableTextBlock extends StatelessWidget {
     required this.hasFocus,
     required this.embedBuilder,
     required this.linkActionPicker,
+    required this.remoteSelections,
     this.onLaunchUrl,
     this.contentPadding,
   }) : super(key: key);
@@ -86,6 +88,7 @@ class EditableTextBlock extends StatelessWidget {
           cursorController: cursorController,
           selection: selection,
           selectionColor: selectionColor,
+          remoteSelections: remoteSelections,
           enableInteractiveSelection: enableInteractiveSelection,
           hasFocus: hasFocus,
         ),

@@ -9,6 +9,7 @@ import 'package:parchment/parchment.dart';
 import '../widgets/cursor.dart';
 import '../widgets/selection_utils.dart';
 import '../widgets/theme.dart';
+import '../widgets/controller.dart';
 import 'cursor_painter.dart';
 import 'editable_box.dart';
 
@@ -29,6 +30,7 @@ class RenderEditableTextLine extends RenderEditableBox {
     required bool enableInteractiveSelection,
     required bool hasFocus,
     required InlineCodeThemeData inlineCodeTheme,
+    required List<RemoteSelection> remoteSelections,
     double devicePixelRatio = 1.0,
     // Not implemented fields are below:
     ui.BoxHeightStyle selectionHeightStyle = ui.BoxHeightStyle.tight,
@@ -47,7 +49,8 @@ class RenderEditableTextLine extends RenderEditableBox {
         _enableInteractiveSelection = enableInteractiveSelection,
         _devicePixelRatio = devicePixelRatio,
         _inlineCodeTheme = inlineCodeTheme,
-        _hasFocus = hasFocus;
+        _hasFocus = hasFocus,
+        _remoteSelections = remoteSelections;
 
   //
 
@@ -61,6 +64,14 @@ class RenderEditableTextLine extends RenderEditableBox {
   // Start selection implementation
 
   List<TextBox>? _selectionRects;
+
+  List<RemoteSelection> _remoteSelections;
+  set remoteSelections(List<RemoteSelection> remoteSelections) {
+    if (_remoteSelections == remoteSelections) return;
+    _remoteSelections = remoteSelections;
+    //TODO only mark when needed
+    markNeedsPaint();
+  }
 
   /// The region of text that is selected, if any.
   ///
@@ -726,6 +737,29 @@ class RenderEditableTextLine extends RenderEditableBox {
         assert(_selectionRects != null);
         _paintSelection(
             context, effectiveOffset, _selectionRects!, _selectionColor);
+      }
+
+      for (final remoteSel in _remoteSelections) {
+        if (!intersectsWithSelection(node, remoteSel.selection)) continue;
+        final local = localSelection(node, remoteSel.selection);
+        final selectionRects = body!.getBoxesForSelection(
+          local,
+        );
+        _paintSelection(
+            context, effectiveOffset, selectionRects, remoteSel.color);
+
+        if (!remoteSel.selection.isCollapsed ||
+            !intersectsWithSelection(
+                node,
+                TextSelection.collapsed(
+                    offset: remoteSel.selection.baseOffset))) {
+          continue;
+        }
+        var textPosition = TextPosition(
+            offset: remoteSel.selection.extentOffset - node.documentOffset,
+            affinity: remoteSel.selection.base.affinity);
+        _cursorPainter.paint(
+            context.canvas, effectiveOffset, textPosition, remoteSel.color);
       }
 
       if (hasFocus &&
