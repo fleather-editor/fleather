@@ -680,9 +680,6 @@ class RenderEditableTextLine extends RenderEditableBox {
       editable: body!,
       style: _cursorController.style,
       cursorPrototype: _caretPrototype,
-      effectiveColor: _cursorController.isFloatingCursorActive
-          ? _cursorController.style.backgroundColor
-          : _cursorController.cursorColor.value,
       devicePixelRatio: devicePixelRatio);
 
   @override
@@ -772,7 +769,10 @@ class RenderEditableTextLine extends RenderEditableBox {
         : TextPosition(
             offset: selection.extentOffset - node.documentOffset,
             affinity: selection.base.affinity);
-    _cursorPainter.paint(context.canvas, effectiveOffset, textPosition);
+    final color = _cursorController.isFloatingCursorActive
+        ? _cursorController.style.backgroundColor
+        : _cursorController.cursorColor.value;
+    _cursorPainter.paint(context.canvas, effectiveOffset, textPosition, color);
   }
 
   @override
