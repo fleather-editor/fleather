@@ -133,10 +133,7 @@ class _FleatherHistoryState extends State<FleatherHistory> {
 /// instantiation
 class HistoryStack {
   /// Creates an instance of [HistoryStack].
-  HistoryStack(this._initialState) : _currentState = _initialState;
-
-  // State of the document upon loading
-  final Delta _initialState;
+  HistoryStack(this._currentState);
 
   // List of historical changes made to document
   final List<_Change> _list = [];
@@ -216,18 +213,6 @@ class HistoryStack {
     }
     return null;
   }
-
-  /// Remove everything from the stack.
-  void clear() {
-    _list.clear();
-    _currentIndex = -1;
-    _currentState = _initialState;
-  }
-
-  @override
-  String toString() {
-    return '_UndoStack $_list';
-  }
 }
 
 /// Stores undo & redo [Delta] from current document [Delta] state
@@ -238,28 +223,6 @@ class _Change {
 
   final Delta undoDelta;
   final Delta redoDelta;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is _Change &&
-          runtimeType == other.runtimeType &&
-          undoDelta == other.undoDelta &&
-          redoDelta == other.redoDelta;
-
-  @override
-  int get hashCode => undoDelta.hashCode ^ redoDelta.hashCode;
-
-  @override
-  String toString() {
-    return '''
-Change{
-  undoDelta: 
-$undoDelta, 
-  redoDelta: 
-$redoDelta
-}''';
-  }
 }
 
 /// A function that can be throttled with the throttle function.
