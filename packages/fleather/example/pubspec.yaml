@@ -15,10 +15,6 @@ dependencies:
   fleather:
     path: ../
 
-dependency_overrides:
-  parchment:
-    path: ../../parchment
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -512,7 +512,7 @@ class RawEditor extends StatefulWidget {
       paste: true,
       selectAll: true,
     ),
-    this.cursorStyle,
+    required this.cursorStyle,
     this.showSelectionHandles = false,
     this.selectionControls,
     this.embedBuilder = defaultFleatherEmbedBuilder,
@@ -584,7 +584,7 @@ class RawEditor extends StatefulWidget {
   final bool showCursor;
 
   /// The style to be used for the editing cursor.
-  final CursorStyle? cursorStyle;
+  final CursorStyle cursorStyle;
 
   /// Configures how the platform keyboard will select an uppercase or
   /// lowercase keyboard.
@@ -762,15 +762,16 @@ class RawEditorState extends EditorState
 
   bool _didAutoFocus = false;
 
-  FocusNode? _focusNode;
+  FocusNode? _internalFocusNode;
 
   @override
-  FocusNode get effectiveFocusNode => widget.focusNode ?? _focusNode!;
+  FocusNode get effectiveFocusNode =>
+      widget.focusNode ?? (_internalFocusNode ??= FocusNode());
 
   bool get _hasFocus => effectiveFocusNode.hasFocus;
 
   @override
-  bool get wantKeepAlive => effectiveFocusNode.hasFocus;
+  bool get wantKeepAlive => _hasFocus;
 
   TextDirection get _textDirection {
     final result = Directionality.maybeOf(context);
@@ -942,18 +943,10 @@ class RawEditorState extends EditorState
     _scrollController = widget.scrollController ?? ScrollController();
     _scrollController.addListener(_updateSelectionOverlayForScroll);
 
-    _createInternalFocusNodeIfNeeded();
-
     // Cursor
     _cursorController = CursorController(
       showCursor: ValueNotifier<bool>(widget.showCursor),
-      style: widget.cursorStyle ??
-          const CursorStyle(
-            // TODO: fallback to current theme's accent color
-            color: Colors.blueAccent,
-            backgroundColor: Colors.grey,
-            width: 2.0,
-          ),
+      style: widget.cursorStyle,
       tickerProvider: this,
     );
 
@@ -985,18 +978,12 @@ class RawEditorState extends EditorState
         !widget.controller.selection.isCollapsed;
   }
 
-  void _createInternalFocusNodeIfNeeded() {
-    if (widget.focusNode != null) {
-      _focusNode ??= FocusNode();
-    }
-  }
-
   @override
   void didUpdateWidget(RawEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     _cursorController.showCursor.value = widget.showCursor;
-    _cursorController.style = widget.cursorStyle!;
+    _cursorController.style = widget.cursorStyle;
 
     if (widget.controller != oldWidget.controller) {
       oldWidget.controller.removeListener(_didChangeTextEditingValue);
@@ -1013,10 +1000,10 @@ class RawEditorState extends EditorState
 
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode?.removeListener(_handleFocusChanged);
-      _focusNode?.removeListener(_handleFocusChanged);
-      _focusNode?.dispose();
-      _focusNode = null;
-      _createInternalFocusNodeIfNeeded();
+      if (widget.focusNode != null) {
+        _internalFocusNode?.dispose();
+        _internalFocusNode = null;
+      }
       effectiveFocusNode.addListener(_handleFocusChanged);
       updateKeepAlive();
     }
@@ -1054,7 +1041,7 @@ class RawEditorState extends EditorState
     _selectionOverlay = null;
     widget.controller.removeListener(_didChangeTextEditingValue);
     effectiveFocusNode.removeListener(_handleFocusChanged);
-    _focusNode?.dispose();
+    _internalFocusNode?.dispose();
     _cursorController.dispose();
     _clipboardStatus?.removeListener(_onChangedClipboardStatus);
     _clipboardStatus?.dispose();
