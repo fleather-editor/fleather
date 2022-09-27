@@ -63,14 +63,18 @@ class _FleatherHistoryState extends State<FleatherHistory> {
     assert(changeDelta.isNotEmpty);
     final firstOp = changeDelta.first;
     int baseOffset = 0;
+    // change starts at index following first plain retain
     if (firstOp.isRetain && firstOp.attributes == null) {
       baseOffset = firstOp.length;
     }
     int extentOffset = baseOffset;
     final lastOp = changeDelta.last;
+    // if change is a change in format, selection must cover the rest of the
+    // change
     if (lastOp.isRetain && lastOp.attributes != null) {
       extentOffset = changeDelta.textLength;
     }
+    // if change is an insertion, cursor is set at the end of the insertion
     if (lastOp.isInsert) {
       baseOffset = changeDelta.textLength;
       extentOffset = baseOffset;
@@ -78,7 +82,7 @@ class _FleatherHistoryState extends State<FleatherHistory> {
     return TextSelection(baseOffset: baseOffset, extentOffset: extentOffset);
   }
 
-  void _push() {
+  void _onLocalChanges() {
     if (widget.controller.plainTextEditingValue == TextEditingValue.empty) {
       return;
     }
@@ -91,7 +95,7 @@ class _FleatherHistoryState extends State<FleatherHistory> {
     _stack = HistoryStack(widget.controller.document.toDelta());
     _throttledPush =
         _throttle(duration: _kThrottleDuration, function: _stack.push);
-    widget.controller.addListener(_push);
+    widget.controller.addListener(_onLocalChanges);
   }
 
   @override
@@ -99,14 +103,14 @@ class _FleatherHistoryState extends State<FleatherHistory> {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       _stack = HistoryStack(widget.controller.document.toDelta());
-      oldWidget.controller.removeListener(_push);
-      widget.controller.addListener(_push);
+      oldWidget.controller.removeListener(_onLocalChanges);
+      widget.controller.addListener(_onLocalChanges);
     }
   }
 
   @override
   void dispose() {
-    widget.controller.removeListener(_push);
+    widget.controller.removeListener(_onLocalChanges);
     _throttleTimer?.cancel();
     super.dispose();
   }
