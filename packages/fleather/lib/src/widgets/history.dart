@@ -4,10 +4,6 @@ import 'package:fleather/fleather.dart';
 import 'package:flutter/widgets.dart';
 import 'package:quill_delta/quill_delta.dart';
 
-/// A void function that takes a [TextEditingValue].
-@visibleForTesting
-typedef TextEditingValueCallback = void Function(TextEditingValue value);
-
 /// Provides undo/redo capabilities for text editing.
 ///
 /// Listens to [controller] as a [ValueNotifier] and saves relevant values for
