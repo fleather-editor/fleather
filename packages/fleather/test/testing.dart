@@ -2,10 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
-import 'package:fleather/fleather.dart';
 
 var delta = Delta()..insert('This House Is A Circus\n');
 
@@ -107,6 +107,22 @@ class EditorSandBox {
     final button = tester.widget(find.widgetWithText(RawMaterialButton, text))
         as RawMaterialButton;
     return button;
+  }
+
+  Future<void> enterText(TextEditingValue text) async {
+    return TestAsyncUtils.guard<void>(() async {
+      await showKeyboard();
+      tester.binding.testTextInput.updateEditingValue(text);
+      await tester.idle();
+    });
+  }
+
+  Future<void> showKeyboard() async {
+    return TestAsyncUtils.guard<void>(() async {
+      final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+      editor.requestKeyboard();
+      await pump();
+    });
   }
 }
 

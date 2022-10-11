@@ -40,14 +40,14 @@ class FleatherShortcuts extends Shortcuts {
         ToggleUnderlineStyleIntent(),
   };
 
-  static final Map<ShortcutActivator, Intent> _macShortcuts =
+  static const Map<ShortcutActivator, Intent> _macShortcuts =
       <ShortcutActivator, Intent>{
-    const SingleActivator(LogicalKeyboardKey.keyB, meta: true):
-        const ToggleBoldStyleIntent(),
-    const SingleActivator(LogicalKeyboardKey.keyI, meta: true):
-        const ToggleItalicStyleIntent(),
-    const SingleActivator(LogicalKeyboardKey.keyU, meta: true):
-        const ToggleUnderlineStyleIntent(),
+    SingleActivator(LogicalKeyboardKey.keyB, meta: true):
+        ToggleBoldStyleIntent(),
+    SingleActivator(LogicalKeyboardKey.keyI, meta: true):
+        ToggleItalicStyleIntent(),
+    SingleActivator(LogicalKeyboardKey.keyU, meta: true):
+        ToggleUnderlineStyleIntent(),
   };
 }
 

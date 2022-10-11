@@ -1,8 +1,8 @@
 import 'dart:math';
 
+import 'package:fleather/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
-import 'package:fleather/util.dart';
 
 import 'editor.dart';
 
@@ -14,7 +14,8 @@ mixin RawEditorStateSelectionDelegateMixin on EditorState
   }
 
   @override
-  set textEditingValue(TextEditingValue value) {
+  void userUpdateTextEditingValue(
+      TextEditingValue value, SelectionChangedCause cause) {
     final cursorPosition = value.selection.extentOffset;
     final oldText = widget.controller.document.toPlainText();
     final newText = value.text;
@@ -22,12 +23,6 @@ mixin RawEditorStateSelectionDelegateMixin on EditorState
     widget.controller.replaceText(
         diff.start, diff.deleted.length, diff.inserted,
         selection: value.selection);
-  }
-
-  @override
-  void userUpdateTextEditingValue(
-      TextEditingValue value, SelectionChangedCause cause) {
-    textEditingValue = value;
   }
 
   @override
