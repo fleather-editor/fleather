@@ -1134,6 +1134,9 @@ class RawEditorState extends EditorState
       // Place cursor at the end if the selection is invalid when we receive focus.
 //        _handleSelectionChanged(TextSelection.collapsed(offset: _value.text.length), renderEditable, null);
 //      }
+      setState(() {
+        // Inform the widget that the value of focus has changed. (so that cursor can repaint appropriately)
+      });
     } else {
       WidgetsBinding.instance.removeObserver(this);
       // TODO: teach editor about state of the toolbar and whether the user is in the middle of applying styles.
