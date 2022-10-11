@@ -13,7 +13,7 @@ jobs:
           flutter-version: "3.3.2"
           cache: true
           # Manually Update this `key`
-          cache-key: "20220721"
+          cache-key: "20221011"
       - run: dart pub global activate coverage
 
       #
@@ -61,7 +61,7 @@ jobs:
         run: flutter test --coverage
 
       - name: Codecov
-        uses: codecov/codecov-action@v3.1.0
+        uses: codecov/codecov-action@v3
         with:
           files: ./packages/fleather/coverage/lcov.info,./packages/parchment/coverage/lcov.info
           fail_ci_if_error: true
