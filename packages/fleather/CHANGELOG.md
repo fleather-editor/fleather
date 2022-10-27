@@ -1,3 +1,9 @@
+## 1.3.0
+
+* Support document history (undo/redo)
+* Updated README
+* [Fix] Cursor not appearing when setting focus on empty document
+
 ## 1.2.2
 
 * New example for Fleather
