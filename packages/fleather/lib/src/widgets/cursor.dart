@@ -94,8 +94,15 @@ class CursorStyle {
   }
 
   @override
-  int get hashCode => hashValues(color, backgroundColor, width, height, radius,
-      offset, opacityAnimates, paintAboveText);
+  int get hashCode =>
+      color.hashCode ^
+      backgroundColor.hashCode ^
+      width.hashCode ^
+      height.hashCode ^
+      radius.hashCode ^
+      offset.hashCode ^
+      opacityAnimates.hashCode ^
+      paintAboveText.hashCode;
 }
 
 /// Controls cursor of an editable widget.

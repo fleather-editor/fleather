@@ -328,12 +328,6 @@ class RenderEditableContainerBox extends RenderBox
     assert(size.isFinite);
   }
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-//    properties.add(EnumProperty<AxisDirection>('axisDirection', axisDirection));
-  }
-
   double _getIntrinsicCrossAxis(_ChildSizingFunction childSize) {
     var extent = 0.0;
     var child = firstChild;

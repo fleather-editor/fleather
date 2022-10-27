@@ -37,7 +37,7 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
     var currentInlineStyle = ParchmentStyle();
     var currentBlockLines = [];
 
-    void _handleBlock(ParchmentAttribute<String>? blockStyle) {
+    void handleBlock(ParchmentAttribute<String>? blockStyle) {
       if (currentBlockLines.isEmpty) {
         return; // Empty block
       }
@@ -60,19 +60,19 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
       buffer.writeln();
     }
 
-    void _handleSpan(String text, Map<String, dynamic>? attributes) {
+    void handleSpan(String text, Map<String, dynamic>? attributes) {
       final style = ParchmentStyle.fromJson(attributes);
       currentInlineStyle =
           _writeInline(lineBuffer, text, style, currentInlineStyle);
     }
 
-    void _handleLine(Map<String, dynamic>? attributes) {
+    void handleLine(Map<String, dynamic>? attributes) {
       final style = ParchmentStyle.fromJson(attributes);
       final lineBlock = style.get(ParchmentAttribute.block);
       if (lineBlock == currentBlockStyle) {
         currentBlockLines.add(_writeLine(lineBuffer.toString(), style));
       } else {
-        _handleBlock(currentBlockStyle);
+        handleBlock(currentBlockStyle);
         currentBlockLines.clear();
         currentBlockLines.add(_writeLine(lineBuffer.toString(), style));
 
@@ -86,18 +86,18 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
       final opText = op.data is String ? op.data as String : '';
       final lf = opText.indexOf('\n');
       if (lf == -1) {
-        _handleSpan(op.data as String, op.attributes);
+        handleSpan(op.data as String, op.attributes);
       } else {
         var span = StringBuffer();
         for (var i = 0; i < opText.length; i++) {
           if (opText.codeUnitAt(i) == 0x0A) {
             if (span.isNotEmpty) {
               // Write the span if it's not empty.
-              _handleSpan(span.toString(), op.attributes);
+              handleSpan(span.toString(), op.attributes);
             }
             // Close any open inline styles.
-            _handleSpan('', null);
-            _handleLine(op.attributes);
+            handleSpan('', null);
+            handleLine(op.attributes);
             span.clear();
           } else {
             span.writeCharCode(opText.codeUnitAt(i));
@@ -105,11 +105,11 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
         }
         // Remaining span
         if (span.isNotEmpty) {
-          _handleSpan(span.toString(), op.attributes);
+          handleSpan(span.toString(), op.attributes);
         }
       }
     }
-    _handleBlock(currentBlockStyle); // Close the last block
+    handleBlock(currentBlockStyle); // Close the last block
     return buffer.toString();
   }
 

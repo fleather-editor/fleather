@@ -198,5 +198,6 @@ void prepareClipboard() {
     if (message.method == 'Clipboard.hasStrings') {
       return Future.value(<String, dynamic>{'value': true});
     }
+    return null;
   });
 }
