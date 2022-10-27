@@ -55,10 +55,10 @@ class LinkStyleButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  LinkStyleButtonState createState() => LinkStyleButtonState();
+  State<LinkStyleButton> createState() => _LinkStyleButtonState();
 }
 
-class LinkStyleButtonState extends State<LinkStyleButton> {
+class _LinkStyleButtonState extends State<LinkStyleButton> {
   void _didChangeSelection() {
     setState(() {});
   }
@@ -192,10 +192,10 @@ class ToggleStyleButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  ToggleStyleButtonState createState() => ToggleStyleButtonState();
+  State<ToggleStyleButton> createState() => _ToggleStyleButtonState();
 }
 
-class ToggleStyleButtonState extends State<ToggleStyleButton> {
+class _ToggleStyleButtonState extends State<ToggleStyleButton> {
   late bool _isToggled;
 
   ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
@@ -298,11 +298,11 @@ class SelectHeadingStyleButton extends StatefulWidget {
       : super(key: key);
 
   @override
-  SelectHeadingStyleButtonState createState() =>
-      SelectHeadingStyleButtonState();
+  State<SelectHeadingStyleButton> createState() =>
+      _SelectHeadingStyleButtonState();
 }
 
-class SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
+class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
   ParchmentAttribute? _value;
 
   ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
@@ -408,10 +408,10 @@ class IndentationButton extends StatefulWidget {
       : super(key: key);
 
   @override
-  IndentationButtonState createState() => IndentationButtonState();
+  State<IndentationButton> createState() => _IndentationButtonState();
 }
 
-class IndentationButtonState extends State<IndentationButton> {
+class _IndentationButtonState extends State<IndentationButton> {
   ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
 
   void _didChangeEditingValue() {
@@ -683,13 +683,13 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
   }
 
   @override
-  FleatherToolbarState createState() => FleatherToolbarState();
+  State<FleatherToolbar> createState() => _FleatherToolbarState();
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class FleatherToolbarState extends State<FleatherToolbar> {
+class _FleatherToolbarState extends State<FleatherToolbar> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -768,10 +768,10 @@ class FLDropdownButton<T> extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  FLDropdownButtonState<T> createState() => FLDropdownButtonState<T>();
+  State<FLDropdownButton<T>> createState() => _FLDropdownButtonState<T>();
 }
 
-class FLDropdownButtonState<T> extends State<FLDropdownButton<T>> {
+class _FLDropdownButtonState<T> extends State<FLDropdownButton<T>> {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
