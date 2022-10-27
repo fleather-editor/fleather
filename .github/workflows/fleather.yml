@@ -28,10 +28,9 @@ jobs:
         working-directory: ./packages/parchment
         run: dart format --output=none --set-exit-if-changed .
 
-      # Consider passing '--fatal-infos' for slightly stricter analysis.
-      # - name: Parchment - Analyze project source
-      #   working-directory: ./packages/parchment
-      #   run: dart analyze
+      - name: Parchment - Analyze project source
+        working-directory: ./packages/parchment
+        run: dart analyze --fatal-infos
 
       - name: Parchment - Run tests
         working-directory: ./packages/parchment
@@ -51,10 +50,9 @@ jobs:
         working-directory: ./packages/fleather
         run: dart format --output=none --set-exit-if-changed .
 
-      # Consider passing '--fatal-infos' for slightly stricter analysis.
-      # - name: Fleather - Analyze project source
-      #   working-directory: ./packages/fleather
-      #   run: dart analyze
+      - name: Fleather - Analyze project source
+        working-directory: ./packages/fleather
+        run: flutter analyze --fatal-infos
 
       - name: Fleather - Run tests
         working-directory: ./packages/fleather
