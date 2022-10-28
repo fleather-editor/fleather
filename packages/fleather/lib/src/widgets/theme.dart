@@ -139,7 +139,7 @@ class FleatherThemeData {
 
     final inlineCodeStyle = TextStyle(
       fontSize: 14,
-      color: themeData.colorScheme.primaryVariant.withOpacity(0.8),
+      color: themeData.colorScheme.primaryContainer.withOpacity(0.8),
       fontFamily: fontFamily,
     );
 
@@ -163,7 +163,7 @@ class FleatherThemeData {
         ),
       ),
       link: TextStyle(
-        color: themeData.colorScheme.primaryVariant,
+        color: themeData.colorScheme.primaryContainer,
         decoration: TextDecoration.underline,
       ),
       paragraph: TextBlockTheme(

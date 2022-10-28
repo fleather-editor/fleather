@@ -5,9 +5,9 @@ import 'dart:math' as math;
 
 import 'package:quill_delta/quill_delta.dart';
 
-import 'embeds.dart';
 import 'attributes.dart';
 import 'block.dart';
+import 'embeds.dart';
 import 'leaf.dart';
 import 'node.dart';
 
@@ -115,7 +115,7 @@ class LineNode extends ContainerNode<LeafNode>
     var result = ParchmentStyle();
     final excluded = <ParchmentAttribute>{};
 
-    void _handle(ParchmentStyle style) {
+    void handle(ParchmentStyle style) {
       if (result.isEmpty) {
         excluded.addAll(style.values);
       } else {
@@ -137,7 +137,7 @@ class LineNode extends ContainerNode<LeafNode>
       var pos = node.length - data.offset;
       while (!node!.isLast && pos < local) {
         node = node.next as LeafNode;
-        _handle(node.style);
+        handle(node.style);
         pos += node.length;
       }
     }
@@ -151,7 +151,7 @@ class LineNode extends ContainerNode<LeafNode>
     final remaining = length - local;
     if (remaining > 0) {
       final rest = nextLine!.collectStyle(0, remaining);
-      _handle(rest);
+      handle(rest);
     }
 
     return result;

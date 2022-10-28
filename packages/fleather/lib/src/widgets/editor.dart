@@ -448,6 +448,7 @@ class _FleatherEditorSelectionGestureDetectorBuilder
               }
               break;
             case PointerDeviceKind.touch:
+            case PointerDeviceKind.trackpad:
             case PointerDeviceKind.unknown:
               // On macOS/iOS/iPadOS a touch tap places the cursor at the edge
               // of the word.
@@ -836,7 +837,6 @@ class RawEditorState extends EditorState
   void copySelection(SelectionChangedCause cause) {
     final TextSelection selection = textEditingValue.selection;
     final String text = textEditingValue.text;
-    assert(selection != null);
     if (selection.isCollapsed) {
       return;
     }
@@ -875,7 +875,6 @@ class RawEditorState extends EditorState
     }
     final TextSelection selection = textEditingValue.selection;
     final String text = textEditingValue.text;
-    assert(selection != null);
     if (selection.isCollapsed) {
       return;
     }
@@ -894,7 +893,6 @@ class RawEditorState extends EditorState
       return;
     }
     final TextSelection selection = textEditingValue.selection;
-    assert(selection != null);
     if (!selection.isValid) {
       return;
     }
@@ -1587,13 +1585,6 @@ class _Editor extends MultiChildRenderObjectWidget {
     renderObject.padding = padding;
     renderObject.maxContentWidth = maxContentWidth;
   }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    // TODO
-//    properties.add(EnumProperty<Axis>('direction', direction));
-  }
 }
 
 /// An interface for retriving the logical text boundary (left-closed-right-open)
@@ -1635,6 +1626,8 @@ abstract class _TextBoundary {
 
 // -----------------------------  Text Boundaries -----------------------------
 
+// TODO: Check whether to use it or remove it
+// ignore: unused_element
 class _CodeUnitBoundary extends _TextBoundary {
   const _CodeUnitBoundary(this.textEditingValue);
 
@@ -1986,7 +1979,7 @@ class _UpdateTextSelectionAction<T extends DirectionalCaretMovementIntent>
     final bool collapseSelection =
         intent.collapseSelection || !state.widget.selectionEnabled;
     // Collapse to the logical start/end.
-    TextSelection _collapse(TextSelection selection) {
+    TextSelection collapse(TextSelection selection) {
       assert(selection.isValid);
       assert(!selection.isCollapsed);
       return selection.copyWith(
@@ -2000,7 +1993,7 @@ class _UpdateTextSelectionAction<T extends DirectionalCaretMovementIntent>
         collapseSelection) {
       return Actions.invoke(
         context!,
-        UpdateSelectionIntent(state.textEditingValue, _collapse(selection),
+        UpdateSelectionIntent(state.textEditingValue, collapse(selection),
             SelectionChangedCause.keyboard),
       );
     }
@@ -2017,7 +2010,7 @@ class _UpdateTextSelectionAction<T extends DirectionalCaretMovementIntent>
       return Actions.invoke(
         context!,
         UpdateSelectionIntent(state.textEditingValue,
-            _collapse(textBoundarySelection), SelectionChangedCause.keyboard),
+            collapse(textBoundarySelection), SelectionChangedCause.keyboard),
       );
     }
 

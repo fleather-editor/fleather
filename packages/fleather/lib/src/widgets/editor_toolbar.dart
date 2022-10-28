@@ -55,7 +55,7 @@ class LinkStyleButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _LinkStyleButtonState createState() => _LinkStyleButtonState();
+  State<LinkStyleButton> createState() => _LinkStyleButtonState();
 }
 
 class _LinkStyleButtonState extends State<LinkStyleButton> {
@@ -192,7 +192,7 @@ class ToggleStyleButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ToggleStyleButtonState createState() => _ToggleStyleButtonState();
+  State<ToggleStyleButton> createState() => _ToggleStyleButtonState();
 }
 
 class _ToggleStyleButtonState extends State<ToggleStyleButton> {
@@ -298,7 +298,7 @@ class SelectHeadingStyleButton extends StatefulWidget {
       : super(key: key);
 
   @override
-  _SelectHeadingStyleButtonState createState() =>
+  State<SelectHeadingStyleButton> createState() =>
       _SelectHeadingStyleButtonState();
 }
 
@@ -408,7 +408,7 @@ class IndentationButton extends StatefulWidget {
       : super(key: key);
 
   @override
-  _IndentationButtonState createState() => _IndentationButtonState();
+  State<IndentationButton> createState() => _IndentationButtonState();
 }
 
 class _IndentationButtonState extends State<IndentationButton> {
@@ -683,7 +683,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
   }
 
   @override
-  _FleatherToolbarState createState() => _FleatherToolbarState();
+  State<FleatherToolbar> createState() => _FleatherToolbarState();
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -768,7 +768,7 @@ class FLDropdownButton<T> extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _FLDropdownButtonState<T> createState() => _FLDropdownButtonState<T>();
+  State<FLDropdownButton<T>> createState() => _FLDropdownButtonState<T>();
 }
 
 class _FLDropdownButtonState<T> extends State<FLDropdownButton<T>> {

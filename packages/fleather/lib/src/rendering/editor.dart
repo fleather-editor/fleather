@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:parchment/parchment.dart';
 
 import '../../fleather.dart';
 import '../widgets/selection_utils.dart';
@@ -991,8 +990,7 @@ class RenderEditor extends RenderEditableContainerBox
   }
 }
 
-class FleatherVerticalCaretMovementRun
-    extends BidirectionalIterator<TextPosition> {
+class FleatherVerticalCaretMovementRun extends Iterator<TextPosition> {
   FleatherVerticalCaretMovementRun._(
     this._editor,
     this._currentTextPosition,
@@ -1013,7 +1011,9 @@ class FleatherVerticalCaretMovementRun
     return true;
   }
 
-  @override
+  /// Move back to the previous element.
+  ///
+  /// Returns true and updates [current] if successful.
   bool movePrevious() {
     _currentTextPosition = _editor.getTextPositionAbove(_currentTextPosition);
     return true;
