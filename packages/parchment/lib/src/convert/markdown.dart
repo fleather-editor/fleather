@@ -38,7 +38,8 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
   final RegExp _olRegExp = RegExp(r'^( *)\d+[.)] +(.*)');
   final RegExp _bqRegExp = RegExp(r'^> *(.*)');
   final RegExp _codeRegExpTag = RegExp(r'^( *)```');
-  final RegExp _inlineCodeRegExp = RegExp(r'`(.+?)`');
+
+  // final RegExp _inlineCodeRegExp = RegExp(r'`(.+?)`');
   bool _inBlockStack = false;
 
 //  final List<String> _blockStack = [];
