@@ -19,38 +19,34 @@ class ParchmentMarkdownCodec extends Codec<Delta, String> {
 }
 
 class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
-  final List<Map<String, dynamic>?> _attributesByStyleLength = [
-    null,
-    {'i': true}, // _
-    {'b': true}, // **
-    {'i': true, 'b': true} // _**
-  ];
-  final RegExp _headingRegExp = RegExp(r'(#+) *(.+)');
-  final _styleRegExp = RegExp(
-    r'(([*_])(\*{2}|_{2})(?<italic_bold_text>.*?[^ \3\2])\3\2)|((\*{2}|_{2})([*_])(?<bold_italic_text>.*?[^ \7\6])\7\6)|(((\*{1,2})|(_{1,2}))(?<bold_or_italic_text>.*?[^ \10])\10)',
+  static final _headingRegExp = RegExp(r'(#+) *(.+)');
+  static final _styleRegExp = RegExp(
+    // italic then bold
+    r'(([*_])(\*{2}|_{2})(?<italic_bold_text>.*?[^ \3\2])\3\2)|'
+    // bold then italic
+    r'((\*{2}|_{2})([*_])(?<bold_italic_text>.*?[^ \7\6])\7\6)|'
+    // italic or bold
+    r'(((\*{1,2})|(_{1,2}))(?<bold_or_italic_text>.*?[^ \10])\10)|'
+    // inline code
+    r'(`(?<inline_code_text>.+?)`)',
   );
 
-  // TODO: implement full solution as per:
-  // https://www.michaelperrin.fr/blog/2019/02/advanced-regular-expressions
-  final RegExp _linkRegExp =
+  // as per https://www.michaelperrin.fr/blog/2019/02/advanced-regular-expressions
+  static final _linkRegExp =
       RegExp(r'\[(?<text>.+)\]\((?<url>[^ ]+)(?: "(?<title>.+)")?\)');
-  final RegExp _ulRegExp = RegExp(r'^( *)\* +(.*)');
-  final RegExp _olRegExp = RegExp(r'^( *)\d+[.)] +(.*)');
-  final RegExp _bqRegExp = RegExp(r'^> *(.*)');
-  final RegExp _codeRegExpTag = RegExp(r'^( *)```');
+  static final _ulRegExp = RegExp(r'^( *)\* +(.*)');
+  static final _olRegExp = RegExp(r'^( *)\d+[.)] +(.*)');
+  static final _bqRegExp = RegExp(r'^> *(.*)');
+  static final _codeRegExpTag = RegExp(r'^( *)```');
 
-  // final RegExp _inlineCodeRegExp = RegExp(r'`(.+?)`');
   bool _inBlockStack = false;
-
-//  final List<String> _blockStack = [];
-//  int _olDepth = 0;
 
   @override
   Delta convert(String input) {
     final lines = input.split('\n');
     final delta = Delta();
 
-    for (var line in lines) {
+    for (final line in lines) {
       _handleLine(line, delta);
     }
 
@@ -74,8 +70,8 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
     }
   }
 
-  /// Markdown supports headings and blocks within blocks (except for within code)
-  /// but not blocks within headers, or ul within
+  // Markdown supports headings and blocks within blocks (except for within code)
+  // but not blocks within headers, or ul within
   bool _handleBlock(String line, Delta delta,
       [Map<String, dynamic>? attributes]) {
     final match = _codeRegExpTag.matchAsPrefix(line);
@@ -84,10 +80,7 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
       return true;
     }
     if (_inBlockStack) {
-      delta.insert(
-          '$line\n',
-          ParchmentAttribute.code
-              .toJson()); // TODO: replace with?: {'quote': true})
+      delta.insert('$line\n', ParchmentAttribute.code.toJson());
       // Don't bother testing for code blocks within block stacks
       return true;
     }
@@ -103,12 +96,10 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
   // all blocks are supported within bq
   bool _handleBlockQuote(String line, Delta delta,
       [Map<String, dynamic>? attributes]) {
-    var match = _bqRegExp.matchAsPrefix(line);
-    var span = match?.group(1);
+    final match = _bqRegExp.matchAsPrefix(line);
+    final span = match?.group(1);
     if (span != null) {
-      final newAttributes = <String, dynamic>{
-        'block': 'quote'
-      }; // ParchmentAttribute.bq.toJson();
+      final newAttributes = ParchmentAttribute.bq.toJson();
       if (attributes != null) {
         newAttributes.addAll(attributes);
       }
@@ -119,15 +110,13 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
     return false;
   }
 
-  /// ol is supported within ol and bq, but not supported within ul
+  // ol is supported within ol and bq, but not supported within ul
   bool _handleOrderedList(String line, Delta delta,
       [Map<String, dynamic>? attributes]) {
-    var match = _olRegExp.matchAsPrefix(line);
-    var span = match?.group(2);
+    final match = _olRegExp.matchAsPrefix(line);
+    final span = match?.group(2);
     if (span != null) {
-// TODO: support nesting
-//      var depth =  match.group(1).length / 3;
-      Map<String, dynamic> newAttributes = ParchmentAttribute.ol.toJson();
+      final newAttributes = ParchmentAttribute.ol.toJson();
       if (attributes != null) {
         newAttributes.addAll(attributes);
       }
@@ -140,10 +129,9 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
 
   bool _handleUnorderedList(String line, Delta delta,
       [Map<String, dynamic>? attributes]) {
-    var match = _ulRegExp.matchAsPrefix(line);
-    var span = match?.group(2);
+    final match = _ulRegExp.matchAsPrefix(line);
+    final span = match?.group(2);
     if (span != null) {
-//      var depth = match.group(1).length / 3;
       Map<String, dynamic> newAttributes = ParchmentAttribute.ul.toJson();
       if (attributes != null) {
         newAttributes.addAll(attributes);
@@ -161,9 +149,8 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
     final levelTag = match?.group(1);
     if (levelTag != null) {
       final level = levelTag.length;
-      final Map<String, dynamic> newAttributes = {
-        'heading': level
-      }; // ParchmentAttribute.heading.withValue(level).toJson();
+      final newAttributes =
+          ParchmentAttribute.heading.withValue(level).toJson();
       if (attributes != null) {
         newAttributes.addAll(attributes);
       }
@@ -172,13 +159,7 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
       if (span == null) {
         return false;
       }
-      _handleSpan(
-          span,
-          delta,
-          true,
-          attributes != null
-              ? (attributes..addAll(newAttributes))
-              : newAttributes);
+      _handleSpan(span, delta, true, newAttributes);
       return true;
     }
 
@@ -210,6 +191,13 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
       String span, Delta delta, Map<String, dynamic>? outerStyle) {
     var start = 0;
 
+    // `**some code**`
+    //  does not translate to
+    // <code><strong>some code</code></strong>
+    //  but to
+    // <code>**code**</code>
+    if ((outerStyle ?? {}).containsKey('c')) return start;
+
     final matches = _styleRegExp.allMatches(span);
     for (final match in matches) {
       if (match.start > start) {
@@ -223,25 +211,25 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
           delta.insert(span.substring(start, match.start), outerStyle);
         }
       }
-      final String? text;
-      final int styleLength;
+
+      final String text;
+      final String styleTag;
       if (match.namedGroup('italic_bold_text') != null) {
-        text = match.namedGroup('italic_bold_text');
-        styleLength = 3;
+        text = match.namedGroup('italic_bold_text')!;
+        styleTag = '${match.group(2)}${match.group(3)}';
       } else if (match.namedGroup('bold_italic_text') != null) {
-        text = match.namedGroup('bold_italic_text');
-        styleLength = 3;
+        text = match.namedGroup('bold_italic_text')!;
+        styleTag = '${match.group(6)}${match.group(7)}';
+      } else if (match.namedGroup('bold_or_italic_text') != null) {
+        text = match.namedGroup('bold_or_italic_text')!;
+        styleTag = match.group(10)!;
       } else {
-        text = match.namedGroup('bold_or_italic_text');
-        styleLength = match.group(10)?.length ?? 0;
+        assert(match.namedGroup('inline_code_text') != null);
+        text = match.namedGroup('inline_code_text')!;
+        styleTag = '`';
       }
+      final newStyle = _fromStyleTag(styleTag);
 
-      if (text == null) {
-        return start;
-      }
-
-      final newStyle =
-          Map<String, dynamic>.from(_attributesByStyleLength[styleLength]!);
       if (outerStyle != null) {
         newStyle.addAll(outerStyle);
       }
@@ -250,6 +238,34 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
     }
 
     return start;
+  }
+
+  Map<String, dynamic> _fromStyleTag(String styleTag) {
+    assert(
+        (styleTag == '`') |
+            (styleTag == '_') |
+            (styleTag == '*') |
+            (styleTag == '__') |
+            (styleTag == '**') |
+            (styleTag == '__*') |
+            (styleTag == '**_') |
+            (styleTag == '_**') |
+            (styleTag == '*__') |
+            (styleTag == '***') |
+            (styleTag == '___'),
+        'Invalid style tag \'$styleTag\'');
+    assert(styleTag.isNotEmpty, 'Style tag must not be empty');
+    if (styleTag == '`') {
+      return ParchmentAttribute.inlineCode.toJson();
+    }
+    if (styleTag.length == 3) {
+      return ParchmentAttribute.bold.toJson()
+        ..addAll(ParchmentAttribute.italic.toJson());
+    }
+    if (styleTag.length == 2) {
+      return ParchmentAttribute.bold.toJson();
+    }
+    return ParchmentAttribute.italic.toJson();
   }
 
   int _handleLinks(String span, Delta delta, Map<String, dynamic>? outerStyle) {
@@ -266,9 +282,7 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
       if (text == null || href == null) {
         return start;
       }
-      final Map<String, dynamic> newAttributes = {
-        'a': href
-      }; // ParchmentAttribute.link.fromString(href).toJson();
+      final newAttributes = ParchmentAttribute.link.fromString(href).toJson();
       if (outerStyle != null) {
         newAttributes.addAll(outerStyle);
       }
@@ -281,10 +295,6 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
 }
 
 class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
-  // TODO: as per https://daringfireball.net/projects/markdown/basics
-  //  emphasis = "*" || "_"
-  //  strong emphasis = "**" || "__"
-  //  combined = "***" || "___"
   static final simpleBlocks = <ParchmentAttribute, String>{
     ParchmentAttribute.bq: '> ',
     ParchmentAttribute.ul: '* ',
@@ -428,6 +438,8 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
       _writeBoldTag(buffer);
     } else if (attribute == ParchmentAttribute.italic) {
       _writeItalicTag(buffer);
+    } else if (attribute == ParchmentAttribute.inlineCode) {
+      _writeInlineCodeTag(buffer);
     } else if (attribute?.key == ParchmentAttribute.link.key) {
       _writeLinkTag(buffer, attribute as ParchmentAttribute<String>,
           close: close);
@@ -447,6 +459,10 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
 
   void _writeItalicTag(StringBuffer buffer) {
     buffer.write('_');
+  }
+
+  void _writeInlineCodeTag(StringBuffer buffer) {
+    buffer.write('`');
   }
 
   void _writeLinkTag(StringBuffer buffer, ParchmentAttribute<String> link,

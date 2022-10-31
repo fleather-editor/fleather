@@ -199,7 +199,8 @@ void main() {
     });
 
     test('style within link', () {
-      var markdown = 'This **house** is a [**circus**](https://github.com)\n\n';
+      final markdown =
+          'This **house** is a [**circus**](https://github.com)\n\n';
       final delta = parchmentMarkdown.decode(markdown);
 
       expect(delta.elementAt(1).data, 'house');
@@ -215,6 +216,36 @@ void main() {
 
       expect(delta.elementAt(4).data, '\n');
       expect(delta.length, 5);
+    });
+
+    test('inline code only', () {
+      final markdown = 'This is `some code` that works\n';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      expect(delta.elementAt(0).data, 'This is ');
+      expect(delta.elementAt(1).data, 'some code');
+      expect(delta.elementAt(1).attributes?['c'], true);
+      expect(delta.elementAt(2).data, ' that works\n');
+    });
+
+    test('inline code within style', () {
+      final markdown = 'This **is `some code`** that works\n';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      expect(delta.elementAt(1).data, 'is ');
+      expect(delta.elementAt(1).attributes?['b'], true);
+
+      expect(delta.elementAt(2).data, 'some code');
+      expect(delta.elementAt(2).attributes?['b'], true);
+      expect(delta.elementAt(2).attributes?['c'], true);
+    });
+
+    test('inline code around style', () {
+      final markdown = 'This is `**some code**` that works';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      expect(delta.elementAt(1).data, '**some code**');
+      expect(delta.elementAt(1).attributes?['c'], true);
     });
 
     test('heading styles', () {
@@ -310,10 +341,9 @@ void main() {
      });*/
 
     test('multiple styles', () {
-      final delta = parchmentMarkdown.decode(expectedMarkdown);
-      //      expect(delta, doc);
+      final delta = parchmentMarkdown.decode(markdown);
       final andBack = parchmentMarkdown.encode(delta);
-      expect(andBack, expectedMarkdown);
+      expect(andBack, markdown);
     });
   });
 
@@ -451,16 +481,16 @@ void main() {
 
     test('multiple styles', () {
       final result = parchmentMarkdown.encode(delta);
-      expect(result, expectedMarkdown);
+      expect(result, markdown);
     });
   });
 }
 
 final doc =
-    r'[{"insert":"Fleather"},{"insert":"\n","attributes":{"heading":1}},{"insert":"Soft and gentle rich text editing for Flutter applications.","attributes":{"i":true}},{"insert":"\nFleather is an "},{"insert":"early preview","attributes":{"b":true}},{"insert":" open source library.\nDocumentation"},{"insert":"\n","attributes":{"heading":3}},{"insert":"Quick Start"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Data format and Document Model"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Style attributes"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Heuristic rules"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Clean and modern look"},{"insert":"\n","attributes":{"heading":2}},{"insert":"Fleather’s rich text editor is built with simplicity and flexibility in mind. It provides clean interface for distraction-free editing. Think Medium.com-like experience.\nimport ‘package:flutter/material.dart’;"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"import ‘package:parchment/parchment.dart’;"},{"insert":"\n\n","attributes":{"block":"code"}},{"insert":"void main() {"},{"insert":"\n","attributes":{"block":"code"}},{"insert":" print(“Hello world!”);"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"}"},{"insert":"\n","attributes":{"block":"code"}}]';
+    r'[{"insert":"Fleather"},{"insert":"\n","attributes":{"heading":1}},{"insert":"Soft and gentle rich text editing for Flutter applications.","attributes":{"i":true}},{"insert":"\nFleather is an "},{"insert":"early preview","attributes":{"b":true}},{"insert":" open source library.\nDocumentation"},{"insert":"\n","attributes":{"heading":3}},{"insert":"Quick Start"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Data format and Document Model"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Style attributes"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Heuristic rules"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Clean and modern look"},{"insert":"\n","attributes":{"heading":2}},{"insert":"Fleather’s rich text editor is built with "},{"insert": "simplicity and flexibility", "attributes":{"i":true}},{"insert":" in mind. It provides clean interface for distraction-free editing. Think "},{"insert": "Medium.com", "attributes":{"c":true}},{"insert": "-like experience.\nimport ‘package:flutter/material.dart’;"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"import ‘package:parchment/parchment.dart’;"},{"insert":"\n\n","attributes":{"block":"code"}},{"insert":"void main() {"},{"insert":"\n","attributes":{"block":"code"}},{"insert":" print(“Hello world!”);"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"}"},{"insert":"\n","attributes":{"block":"code"}}]';
 final delta = Delta.fromJson(json.decode(doc) as List);
 
-final expectedMarkdown = '''
+final markdown = '''
 # Fleather
 
 _Soft and gentle rich text editing for Flutter applications._
@@ -476,7 +506,7 @@ Fleather is an **early preview** open source library.
 
 ## Clean and modern look
 
-Fleather’s rich text editor is built with simplicity and flexibility in mind. It provides clean interface for distraction-free editing. Think Medium.com-like experience.
+Fleather’s rich text editor is built with _simplicity and flexibility_ in mind. It provides clean interface for distraction-free editing. Think `Medium.com`-like experience.
 
 ```
 import ‘package:flutter/material.dart’;
