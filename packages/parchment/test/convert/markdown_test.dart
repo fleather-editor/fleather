@@ -10,6 +10,26 @@ import 'package:test/test.dart';
 
 void main() {
   group('$ParchmentMarkdownCodec.encode', () {
+    test('should convert empty markdown to valid empty document', () {
+      final markdown = '';
+      final newParchment = ParchmentDocument();
+      final delta = parchmentMarkdown.decode(markdown);
+      expect(delta.length, 1);
+      expect(delta.first.data, '\n');
+      expect(delta, newParchment.toDelta());
+    });
+
+    test(
+        'should convert invalid markdown with only line breaks to valid empty document',
+        () {
+      final markdown = '\n\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+      expect(delta.length, 1);
+      expect(delta.first.data, '\n');
+      final newParchment = ParchmentDocument();
+      expect(delta, newParchment.toDelta());
+    });
+
     test('paragraphs', () {
       final markdown = 'First line\n\nSecond line\n\n';
       final delta = parchmentMarkdown.decode(markdown);

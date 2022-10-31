@@ -50,11 +50,16 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
       _handleLine(line, delta);
     }
 
-    return delta;
+    return delta..trim();
   }
 
   void _handleLine(String line, Delta delta,
       [Map<String, dynamic>? attributes]) {
+    if (line.isEmpty && delta.isEmpty) {
+      delta.insert('\n');
+      return;
+    }
+
     if (_handleBlockQuote(line, delta, attributes)) {
       return;
     }
