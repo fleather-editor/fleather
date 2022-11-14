@@ -9,7 +9,7 @@ import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('$ParchmentMarkdownCodec.encode', () {
+  group('$ParchmentMarkdownCodec.decode', () {
     test('should convert empty markdown to valid empty document', () {
       final markdown = '';
       final newParchment = ParchmentDocument();
@@ -344,21 +344,20 @@ void main() {
       expect(andBack, markdown);
     });
 
-    /*test('nested bq', () {
-       var markdown = '> > nested\n>* bullet\n>1. 1st point\n>1. 2nd point\n\n';
-       final delta = parchmentMarkdown.decode(markdown);
+    test('nested blocks are ignored', () {
+      var markdown = '> > nested\n>* bullet\n>1. 1st point\n>1. 2nd point\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+      final exp = Delta()
+        ..insert('nested\nbullet\n1st point\n2nd point\n', {'block': 'quote'});
+      expect(delta, exp);
+    });
 
-       final andBack = parchmentMarkdown.encode(delta);
-       expect(andBack, markdown);
-     });
-
-     test('code in bq', () {
-       var markdown = '> ```\n> print("Hello world!")\n> ```\n\n';
-       final delta = parchmentMarkdown.decode(markdown);
-
-       final andBack = parchmentMarkdown.encode(delta);
-       expect(andBack, markdown);
-     });*/
+    test('code in bq', () {
+      var markdown = '> ```\n> print("Hello world!")\n> ```\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+      final exp = Delta()..insert('print("Hello world!")\n', {'block': 'code'});
+      expect(delta, exp);
+    });
 
     test('multiple styles', () {
       final delta = parchmentMarkdown.decode(markdown);

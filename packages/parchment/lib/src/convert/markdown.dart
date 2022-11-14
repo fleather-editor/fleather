@@ -411,11 +411,10 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
     return ' ' * (text.length - result.length);
   }
 
-  //
   ParchmentStyle _writeInline(StringBuffer buffer, String text,
       ParchmentStyle style, ParchmentStyle currentStyle) {
     // First close any current styles if needed
-    for (var value in currentStyle.values.reverse()) {
+    for (var value in currentStyle.values.toList().reversed) {
       if (value.scope == ParchmentAttributeScope.line) continue;
       if (style.containsSame(value)) continue;
       final padding = _trimRight(buffer);
@@ -498,15 +497,5 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
       final tag = simpleBlocks[block];
       buffer.write(tag);
     }
-  }
-}
-
-extension<E> on Iterable<E> {
-  Iterable<E> reverse() {
-    final reverse = <E>[];
-    for (final e in this) {
-      reverse.insert(0, e);
-    }
-    return reverse;
   }
 }
