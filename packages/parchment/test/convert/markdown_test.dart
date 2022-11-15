@@ -9,11 +9,360 @@ import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('$ParchmentMarkdownCodec.encode', () {
-    test('unimplemented', () {
-      expect(() {
-        parchmentMarkdown.decode('test');
-      }, throwsUnimplementedError);
+  group('$ParchmentMarkdownCodec.decode', () {
+    test('should convert empty markdown to valid empty document', () {
+      final markdown = '';
+      final newParchment = ParchmentDocument();
+      final delta = parchmentMarkdown.decode(markdown);
+      expect(delta.length, 1);
+      expect(delta.first.data, '\n');
+      expect(delta, newParchment.toDelta());
+    });
+
+    test(
+        'should convert invalid markdown with only line breaks to valid empty document',
+        () {
+      final markdown = '\n\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+      expect(delta.length, 1);
+      expect(delta.first.data, '\n');
+      final newParchment = ParchmentDocument();
+      expect(delta, newParchment.toDelta());
+    });
+
+    test('paragraphs', () {
+      final markdown = 'First line\n\nSecond line\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+      expect(delta.elementAt(0).data, 'First line\nSecond line\n');
+      final andBack = parchmentMarkdown.encode(delta);
+      expect(andBack, markdown);
+    });
+
+    test('italics', () {
+      void runFor(String markdown, bool testEncode) {
+        final delta = parchmentMarkdown.decode(markdown);
+        expect(delta.elementAt(0).data, 'italics');
+        expect(delta.elementAt(0).attributes?['i'], true);
+        expect(delta.elementAt(0).attributes?['b'], null);
+        if (testEncode) {
+          final andBack = parchmentMarkdown.encode(delta);
+          expect(andBack, markdown);
+        }
+      }
+
+      runFor('_italics_\n\n', true);
+      runFor('*italics*\n\n', false);
+    });
+
+    test('multi-word italics', () {
+      void runFor(String markdown, bool testEncode) {
+        final delta = parchmentMarkdown.decode(markdown);
+        expect(delta.elementAt(0).data, 'Okay, ');
+        expect(delta.elementAt(0).attributes, null);
+
+        expect(delta.elementAt(1).data, 'this is in italics');
+        expect(delta.elementAt(1).attributes?['i'], true);
+        expect(delta.elementAt(1).attributes?['b'], null);
+
+        expect(delta.elementAt(3).data, 'so is all of _ this');
+        expect(delta.elementAt(3).attributes?['i'], true);
+
+        expect(delta.elementAt(4).data, ' but this is not\n');
+        expect(delta.elementAt(4).attributes, null);
+        if (testEncode) {
+          final andBack = parchmentMarkdown.encode(delta);
+          expect(andBack, markdown);
+        }
+      }
+
+      runFor(
+          'Okay, _this is in italics_ and _so is all of _ this_ but this is not\n\n',
+          true);
+      runFor(
+          'Okay, *this is in italics* and *so is all of _ this* but this is not\n\n',
+          false);
+    });
+
+    test('bold', () {
+      void runFor(String markdown, bool testEncode) {
+        final delta = parchmentMarkdown.decode(markdown);
+        expect(delta.elementAt(0).data, 'bold');
+        expect(delta.elementAt(0).attributes?['b'], true);
+        expect(delta.elementAt(0).attributes?['i'], null);
+        if (testEncode) {
+          final andBack = parchmentMarkdown.encode(delta);
+          expect(andBack, markdown);
+        }
+      }
+
+      runFor('**bold**\n\n', true);
+      runFor('__bold__\n\n', false);
+    });
+
+    test('multi-word bold', () {
+      void runFor(String markdown, bool testEncode) {
+        final delta = parchmentMarkdown.decode(markdown);
+        expect(delta.elementAt(0).data, 'Okay, ');
+        expect(delta.elementAt(0).attributes, null);
+
+        expect(delta.elementAt(1).data, 'this is bold');
+        expect(delta.elementAt(1).attributes?['b'], true);
+        expect(delta.elementAt(1).attributes?['i'], null);
+
+        expect(delta.elementAt(3).data, 'so is all of __ this');
+        expect(delta.elementAt(3).attributes?['b'], true);
+
+        expect(delta.elementAt(4).data, ' but this is not\n');
+        expect(delta.elementAt(4).attributes, null);
+        if (testEncode) {
+          final andBack = parchmentMarkdown.encode(delta);
+          expect(andBack, markdown);
+        }
+      }
+
+      runFor(
+          'Okay, **this is bold** and **so is all of __ this** but this is not\n\n',
+          true);
+      runFor(
+          'Okay, __this is bold__ and __so is all of __ this__ but this is not\n\n',
+          false);
+    });
+
+    test('intersecting inline styles', () {
+      final markdown = 'This **house _is a_ circus**\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+      expect(delta.elementAt(1).data, 'house ');
+      expect(delta.elementAt(1).attributes?['b'], true);
+      expect(delta.elementAt(1).attributes?['i'], null);
+
+      expect(delta.elementAt(2).data, 'is a');
+      expect(delta.elementAt(2).attributes?['b'], true);
+      expect(delta.elementAt(2).attributes?['i'], true);
+
+      expect(delta.elementAt(3).data, ' circus');
+      expect(delta.elementAt(3).attributes?['b'], true);
+      expect(delta.elementAt(3).attributes?['i'], null);
+
+      final andBack = parchmentMarkdown.encode(delta);
+      expect(andBack, markdown);
+    });
+
+    test('bold and italics alone', () {
+      void runFor(String markdown) {
+        final delta = parchmentMarkdown.decode(markdown);
+        expect(delta.elementAt(0).data, 'this is bold and italic');
+        expect(delta.elementAt(0).attributes?['b'], true);
+        expect(delta.elementAt(0).attributes?['i'], true);
+
+        expect(delta.elementAt(1).data, '\n');
+        expect(delta.length, 2);
+      }
+
+      runFor('**_this is bold and italic_**\n\n');
+      runFor('_**this is bold and italic**_\n\n');
+      runFor('***this is bold and italic***\n\n');
+      runFor('___this is bold and italic___\n\n');
+    });
+
+    test('bold and italics combinations', () {
+      void runFor(String markdown) {
+        final delta = parchmentMarkdown.decode(markdown);
+        expect(delta.elementAt(0).data, 'this is bold');
+        expect(delta.elementAt(0).attributes?['b'], true);
+        expect(delta.elementAt(0).attributes?['i'], null);
+
+        expect(delta.elementAt(2).data, 'this is in italics');
+        expect(delta.elementAt(2).attributes?['b'], null);
+        expect(delta.elementAt(2).attributes?['i'], true);
+
+        expect(delta.elementAt(4).data, 'this is both');
+        expect(delta.elementAt(4).attributes?['b'], true);
+        expect(delta.elementAt(4).attributes?['i'], true);
+      }
+
+      runFor(
+          '**this is bold** _this is in italics_ and **_this is both_**\n\n');
+      runFor(
+          '**this is bold** *this is in italics* and ***this is both***\n\n');
+      runFor(
+          '__this is bold__ _this is in italics_ and ___this is both___\n\n');
+    });
+
+    test('link', () {
+      final markdown = 'This **house** is a [circus](https://github.com)\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      expect(delta.elementAt(1).data, 'house');
+      expect(delta.elementAt(1).attributes?['b'], true);
+      expect(delta.elementAt(1).attributes?['a'], null);
+
+      expect(delta.elementAt(3).data, 'circus');
+      expect(delta.elementAt(3).attributes?['b'], null);
+      expect(delta.elementAt(3).attributes?['a'], 'https://github.com');
+
+      final andBack = parchmentMarkdown.encode(delta);
+      expect(andBack, markdown);
+    });
+
+    test('style around link', () {
+      final markdown =
+          'This **house** is a **[circus](https://github.com)**\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      expect(delta.elementAt(1).data, 'house');
+      expect(delta.elementAt(1).attributes?['b'], true);
+      expect(delta.elementAt(1).attributes?['a'], null);
+
+      expect(delta.elementAt(3).data, 'circus');
+      expect(delta.elementAt(3).attributes?['b'], true);
+      expect(delta.elementAt(3).attributes?['a'], 'https://github.com');
+    });
+
+    test('style within link', () {
+      final markdown =
+          'This **house** is a [**circus**](https://github.com)\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      expect(delta.elementAt(1).data, 'house');
+      expect(delta.elementAt(1).attributes?['b'], true);
+      expect(delta.elementAt(1).attributes?['a'], null);
+
+      expect(delta.elementAt(2).data, ' is a ');
+      expect(delta.elementAt(2).attributes, null);
+
+      expect(delta.elementAt(3).data, 'circus');
+      expect(delta.elementAt(3).attributes?['b'], true);
+      expect(delta.elementAt(3).attributes?['a'], 'https://github.com');
+
+      expect(delta.elementAt(4).data, '\n');
+      expect(delta.length, 5);
+    });
+
+    test('inline code only', () {
+      final markdown = 'This is `some code` that works\n';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      expect(delta.elementAt(0).data, 'This is ');
+      expect(delta.elementAt(1).data, 'some code');
+      expect(delta.elementAt(1).attributes?['c'], true);
+      expect(delta.elementAt(2).data, ' that works\n');
+    });
+
+    test('inline code within style', () {
+      final markdown = 'This **is `some code`** that works\n';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      expect(delta.elementAt(1).data, 'is ');
+      expect(delta.elementAt(1).attributes?['b'], true);
+
+      expect(delta.elementAt(2).data, 'some code');
+      expect(delta.elementAt(2).attributes?['b'], true);
+      expect(delta.elementAt(2).attributes?['c'], true);
+    });
+
+    test('inline code around style', () {
+      final markdown = 'This is `**some code**` that works';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      expect(delta.elementAt(1).data, '**some code**');
+      expect(delta.elementAt(1).attributes?['c'], true);
+    });
+
+    test('heading styles', () {
+      void runFor(String markdown, int level) {
+        final delta = parchmentMarkdown.decode(markdown);
+        expect(delta.elementAt(0).data, 'This is an H$level\n');
+        expect(delta.elementAt(0).attributes?['heading'], level);
+        final andBack = parchmentMarkdown.encode(delta);
+        expect(andBack, markdown);
+      }
+
+      runFor('# This is an H1\n\n', 1);
+      runFor('## This is an H2\n\n', 2);
+      runFor('### This is an H3\n\n', 3);
+    });
+
+    test('ul', () {
+      var markdown = '* a bullet point\n* another bullet point\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      final andBack = parchmentMarkdown.encode(delta);
+      expect(andBack, markdown);
+    });
+
+    test('ol', () {
+      var markdown = '1. 1st point\n1. 2nd point\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      final andBack = parchmentMarkdown.encode(delta);
+      expect(andBack, markdown);
+    });
+
+    test('simple bq', () {
+      //      var markdown = '> quote\n> > nested\n>#Heading\n>**bold**\n>_italics_\n>* bullet\n>1. 1st point\n>1. 2nd point\n\n';
+      var markdown =
+          '> quote\n> # Heading in Quote\n> # **Styled** heading in _block quote_\n> **bold text**\n> _text in italics_\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+
+      expect(delta.elementAt(0).data, 'quote\n');
+      expect(delta.elementAt(0).attributes?['block'], 'quote');
+      expect(delta.elementAt(0).attributes?.length, 1);
+
+      expect(delta.elementAt(1).data, 'Heading in Quote\n');
+      expect(delta.elementAt(1).attributes?['block'], 'quote');
+      expect(delta.elementAt(1).attributes?['heading'], 1);
+      expect(delta.elementAt(1).attributes?.length, 2);
+
+      expect(delta.elementAt(2).data, 'Styled');
+      expect(delta.elementAt(2).attributes?['block'], 'quote');
+      expect(delta.elementAt(2).attributes?['heading'], 1);
+      expect(delta.elementAt(2).attributes?['b'], true);
+      expect(delta.elementAt(2).attributes?.length, 3);
+
+      expect(delta.elementAt(3).data, ' heading in ');
+      expect(delta.elementAt(3).attributes?['block'], 'quote');
+      expect(delta.elementAt(3).attributes?['heading'], 1);
+      expect(delta.elementAt(3).attributes?.length, 2);
+
+      expect(delta.elementAt(4).data, 'block quote');
+      expect(delta.elementAt(4).attributes?['block'], 'quote');
+      expect(delta.elementAt(4).attributes?['heading'], 1);
+      expect(delta.elementAt(4).attributes?['i'], true);
+      expect(delta.elementAt(4).attributes?.length, 3);
+
+      expect(delta.elementAt(6).data, 'bold text');
+      expect(delta.elementAt(6).attributes?['block'], 'quote');
+      expect(delta.elementAt(6).attributes?['b'], true);
+      expect(delta.elementAt(6).attributes?.length, 2);
+
+      expect(delta.elementAt(8).data, 'text in italics');
+      expect(delta.elementAt(8).attributes?['block'], 'quote');
+      expect(delta.elementAt(8).attributes?['i'], true);
+      expect(delta.elementAt(8).attributes?.length, 2);
+
+      final andBack = parchmentMarkdown.encode(delta);
+      expect(andBack, markdown);
+    });
+
+    test('nested blocks are ignored', () {
+      var markdown = '> > nested\n>* bullet\n>1. 1st point\n>1. 2nd point\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+      final exp = Delta()
+        ..insert('nested\nbullet\n1st point\n2nd point\n', {'block': 'quote'});
+      expect(delta, exp);
+    });
+
+    test('code in bq', () {
+      var markdown = '> ```\n> print("Hello world!")\n> ```\n\n';
+      final delta = parchmentMarkdown.decode(markdown);
+      final exp = Delta()..insert('print("Hello world!")\n', {'block': 'code'});
+      expect(delta, exp);
+    });
+
+    test('multiple styles', () {
+      final delta = parchmentMarkdown.decode(markdown);
+      final andBack = parchmentMarkdown.encode(delta);
+      expect(andBack, markdown);
     });
   });
 
@@ -70,6 +419,20 @@ void main() {
 
       final result = parchmentMarkdown.encode(delta);
       expect(result, 'This **house** is a _circus_ \n\n');
+    });
+
+    test('combined inline styles', () {
+      final b = ParchmentAttribute.bold.toJson();
+      final i = ParchmentAttribute.italic.toJson();
+      final delta = Delta()
+        ..insert('This')
+        ..insert(' house ', b..addAll(i))
+        ..insert('is a')
+        ..insert(' circus ', i)
+        ..insert('\n');
+
+      final result = parchmentMarkdown.encode(delta);
+      expect(result, 'This **_house_** is a _circus_ \n\n');
     });
 
     test('links', () {
@@ -137,16 +500,16 @@ void main() {
 
     test('multiple styles', () {
       final result = parchmentMarkdown.encode(delta);
-      expect(result, expectedMarkdown);
+      expect(result, markdown);
     });
   });
 }
 
 final doc =
-    r'[{"insert":"Fleather"},{"insert":"\n","attributes":{"heading":1}},{"insert":"Soft and gentle rich text editing for Flutter applications.","attributes":{"i":true}},{"insert":"\nFleather is an "},{"insert":"early preview","attributes":{"b":true}},{"insert":" open source library.\nDocumentation"},{"insert":"\n","attributes":{"heading":3}},{"insert":"Quick Start"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Data format and Document Model"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Style attributes"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Heuristic rules"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Clean and modern look"},{"insert":"\n","attributes":{"heading":2}},{"insert":"Fleather’s rich text editor is built with simplicity and flexibility in mind. It provides clean interface for distraction-free editing. Think Medium.com-like experience.\nimport ‘package:flutter/material.dart’;"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"import ‘package:parchment/parchment.dart’;"},{"insert":"\n\n","attributes":{"block":"code"}},{"insert":"void main() {"},{"insert":"\n","attributes":{"block":"code"}},{"insert":" print(“Hello world!”);"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"}"},{"insert":"\n","attributes":{"block":"code"}}]';
+    r'[{"insert":"Fleather"},{"insert":"\n","attributes":{"heading":1}},{"insert":"Soft and gentle rich text editing for Flutter applications.","attributes":{"i":true}},{"insert":"\nFleather is an "},{"insert":"early preview","attributes":{"b":true}},{"insert":" open source library.\nDocumentation"},{"insert":"\n","attributes":{"heading":3}},{"insert":"Quick Start"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Data format and Document Model"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Style attributes"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Heuristic rules"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Clean and modern look"},{"insert":"\n","attributes":{"heading":2}},{"insert":"Fleather’s rich text editor is built with "},{"insert": "simplicity and flexibility", "attributes":{"i":true}},{"insert":" in mind. It provides clean interface for distraction-free editing. Think "},{"insert": "Medium.com", "attributes":{"c":true}},{"insert": "-like experience.\nimport ‘package:flutter/material.dart’;"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"import ‘package:parchment/parchment.dart’;"},{"insert":"\n\n","attributes":{"block":"code"}},{"insert":"void main() {"},{"insert":"\n","attributes":{"block":"code"}},{"insert":" print(“Hello world!”);"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"}"},{"insert":"\n","attributes":{"block":"code"}}]';
 final delta = Delta.fromJson(json.decode(doc) as List);
 
-final expectedMarkdown = '''
+final markdown = '''
 # Fleather
 
 _Soft and gentle rich text editing for Flutter applications._
@@ -162,7 +525,7 @@ Fleather is an **early preview** open source library.
 
 ## Clean and modern look
 
-Fleather’s rich text editor is built with simplicity and flexibility in mind. It provides clean interface for distraction-free editing. Think Medium.com-like experience.
+Fleather’s rich text editor is built with _simplicity and flexibility_ in mind. It provides clean interface for distraction-free editing. Think `Medium.com`-like experience.
 
 ```
 import ‘package:flutter/material.dart’;
