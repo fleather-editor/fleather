@@ -3,6 +3,7 @@ import 'package:parchment/parchment.dart';
 
 import '../rendering/editable_box.dart';
 import '../rendering/editable_text_line.dart';
+import 'controller.dart';
 import 'cursor.dart';
 import 'text_line.dart';
 import 'theme.dart';
@@ -32,6 +33,8 @@ class EditableTextLine extends RenderObjectWidget {
   final bool enableInteractiveSelection;
   final bool hasFocus;
   final double devicePixelRatio;
+  final List<TextAnchor> textAnchors;
+  final RenderBox Function() portalTheater;
 
   /// Creates an editable line of text.
   const EditableTextLine({
@@ -44,6 +47,8 @@ class EditableTextLine extends RenderObjectWidget {
     required this.enableInteractiveSelection,
     required this.hasFocus,
     required this.devicePixelRatio,
+    required this.textAnchors,
+    required this.portalTheater,
     this.leading,
     this.indentWidth = 0.0,
     this.spacing = const VerticalSpacing(),
@@ -72,6 +77,8 @@ class EditableTextLine extends RenderObjectWidget {
       hasFocus: hasFocus,
       devicePixelRatio: devicePixelRatio,
       inlineCodeTheme: theme.inlineCode,
+      textAnchors: textAnchors,
+      portalTheater: portalTheater,
     );
   }
 
@@ -85,10 +92,12 @@ class EditableTextLine extends RenderObjectWidget {
     renderObject.cursorController = cursorController;
     renderObject.selection = selection;
     renderObject.selectionColor = selectionColor;
+    renderObject.textAnchors = textAnchors;
     renderObject.enableInteractiveSelection = enableInteractiveSelection;
     renderObject.hasFocus = hasFocus;
     renderObject.devicePixelRatio = devicePixelRatio;
     renderObject.inlineCodeTheme = theme.inlineCode;
+    renderObject.portalTheater = portalTheater;
   }
 }
 

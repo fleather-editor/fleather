@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_portal/enhanced_composited_transform.dart';
 import 'package:parchment/parchment.dart';
 
 import 'controller.dart';
@@ -13,6 +14,16 @@ import 'keyboard_listener.dart';
 import 'link.dart';
 import 'rich_text_proxy.dart';
 import 'theme.dart';
+
+typedef CustomTextSpan = InlineSpan Function(
+    BuildContext,
+    EnhancedLayerLink,
+    TextNode,
+    FleatherThemeData,
+    bool,
+    TextStyle,
+    GestureRecognizer?,
+    MouseCursor?);
 
 /// Line of text in Fleather editor.
 ///
@@ -26,6 +37,8 @@ class TextLine extends StatefulWidget {
   final FleatherEmbedBuilder embedBuilder;
   final ValueChanged<String?>? onLaunchUrl;
   final LinkActionPicker linkActionPicker;
+  final CustomTextSpan? customTextSpan;
+  final RenderBox Function()? portalTheater;
 
   const TextLine({
     Key? key,
@@ -35,6 +48,8 @@ class TextLine extends StatefulWidget {
     required this.embedBuilder,
     required this.onLaunchUrl,
     required this.linkActionPicker,
+    required this.portalTheater,
+    this.customTextSpan,
   }) : super(key: key);
 
   @override
@@ -43,6 +58,7 @@ class TextLine extends StatefulWidget {
 
 class _TextLineState extends State<TextLine> {
   bool _metaOrControlPressed = false;
+  final link = EnhancedLayerLink();
 
   UniqueKey _richTextKey = UniqueKey();
 
@@ -127,6 +143,8 @@ class _TextLineState extends State<TextLine> {
     final textAlign = getTextAlign(widget.node);
     final strutStyle = StrutStyle.fromTextStyle(text.style!);
     return RichTextProxy(
+      layerLink: link,
+      portalTheater: widget.portalTheater,
       textStyle: text.style!,
       textAlign: textAlign,
       strutStyle: strutStyle,
@@ -173,11 +191,22 @@ class _TextLineState extends State<TextLine> {
       final text = segment as TextNode;
       final attrs = text.style;
       final isLink = attrs.contains(ParchmentAttribute.link);
-      return TextSpan(
+
+    final style = _getInlineTextStyle(attrs, widget.node.style, theme);
+    final recognizer =
+        isLink && canLaunchLinks ? _getRecognizer(segment) : null;
+    final mouseCursor =
+        isLink && canLaunchLinks ? SystemMouseCursors.click : null;
+
+    if (widget.customTextSpan != null) {
+      return widget.customTextSpan!.call(
+          context, link, text, theme, isLink, style, recognizer, mouseCursor);
+    }
+    return TextSpan(
         text: text.value,
-        style: _getInlineTextStyle(attrs, widget.node.style, theme),
-        recognizer: isLink && canLaunchLinks ? _getRecognizer(segment) : null,
-        mouseCursor: isLink && canLaunchLinks ? SystemMouseCursors.click : null,
+        style: style,
+        recognizer: recognizer,
+        mouseCursor: mouseCursor,
       );
     } catch (err) {
       return TextSpan(

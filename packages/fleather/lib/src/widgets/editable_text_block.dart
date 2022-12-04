@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 import 'package:fleather/util.dart';
-
 import '../rendering/editable_text_block.dart';
 import 'controller.dart';
 import 'cursor.dart';
@@ -26,6 +25,9 @@ class EditableTextBlock extends StatelessWidget {
   final LinkActionPicker linkActionPicker;
   final ValueChanged<String?>? onLaunchUrl;
   final EdgeInsets? contentPadding;
+  final List<TextAnchor> textAnchors;
+  final CustomTextSpan? customTextSpan;
+  final RenderBox Function() portalTheater;
 
   const EditableTextBlock({
     Key? key,
@@ -40,6 +42,9 @@ class EditableTextBlock extends StatelessWidget {
     required this.hasFocus,
     required this.embedBuilder,
     required this.linkActionPicker,
+    required this.textAnchors,
+    this.customTextSpan,
+    required this.portalTheater,
     this.onLaunchUrl,
     this.contentPadding,
   }) : super(key: key);
@@ -82,12 +87,16 @@ class EditableTextBlock extends StatelessWidget {
             embedBuilder: embedBuilder,
             linkActionPicker: linkActionPicker,
             onLaunchUrl: onLaunchUrl,
+            customTextSpan: customTextSpan,
+            portalTheater: portalTheater,
           ),
           cursorController: cursorController,
           selection: selection,
           selectionColor: selectionColor,
+          textAnchors: textAnchors,
           enableInteractiveSelection: enableInteractiveSelection,
           hasFocus: hasFocus,
+          portalTheater: portalTheater,
         ),
       ));
       index++;

@@ -1,3 +1,4 @@
+import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 
@@ -140,6 +141,17 @@ class FleatherField extends StatefulWidget {
 
   final GlobalKey<EditorState>? editorKey;
 
+  /// Support overriding the default textSpan construction function
+  /// useful to subscribe to mouseEnter / mouseExit
+  /// it is also possible to get the layerlink of a paragraph that way.
+  /// (useful for mentions)
+  final CustomTextSpan? customTextSpan;
+
+  /// When using layerLink (either in customTextSpan or in Anchors) the reference
+  /// overlay from which the overlays wont "escape"
+  /// defaults to the root overlay
+  final RenderBox Function()? portalTheater;
+
   const FleatherField({
     Key? key,
     required this.controller,
@@ -162,6 +174,8 @@ class FleatherField extends StatefulWidget {
     this.decoration,
     this.toolbar,
     this.embedBuilder = defaultFleatherEmbedBuilder,
+    this.customTextSpan,
+    this.portalTheater,
   }) : super(key: key);
 
   @override
@@ -227,6 +241,8 @@ class _FleatherFieldState extends State<FleatherField> {
       scrollPhysics: widget.scrollPhysics,
       onLaunchUrl: widget.onLaunchUrl,
       embedBuilder: widget.embedBuilder,
+      customTextSpan: widget.customTextSpan,
+      portalTheater: widget.portalTheater,
     );
 
     if (widget.toolbar != null) {

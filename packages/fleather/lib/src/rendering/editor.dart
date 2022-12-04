@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_portal/enhanced_composited_transform.dart';
 
 import '../../fleather.dart';
 import '../widgets/selection_utils.dart';
@@ -133,6 +134,8 @@ class RenderEditor extends RenderEditableContainerBox
     required LayerLink endHandleLayerLink,
     required EdgeInsetsGeometry padding,
     required CursorController cursorController,
+    required List<TextAnchor> textAnchors,
+    required RenderBox Function()? portalTheater,
     this.onSelectionChanged,
     EdgeInsets floatingCursorAddedMargin =
         const EdgeInsets.fromLTRB(4, 4, 4, 5),
@@ -145,6 +148,8 @@ class RenderEditor extends RenderEditableContainerBox
         _endHandleLayerLink = endHandleLayerLink,
         _cursorController = cursorController,
         _maxContentWidth = maxContentWidth,
+        _textAnchors = textAnchors,
+        _portalTheater = portalTheater,
         super(
           children: children,
           node: document.root,
@@ -153,6 +158,9 @@ class RenderEditor extends RenderEditableContainerBox
         );
 
   ParchmentDocument _document;
+  EnhancedLayerLink docLayerLink = EnhancedLayerLink();
+  List<TextAnchor> _textAnchors;
+  RenderBox Function()? _portalTheater;
 
   set document(ParchmentDocument value) {
     if (_document == value) {
@@ -160,6 +168,18 @@ class RenderEditor extends RenderEditableContainerBox
     }
     _document = value;
     markNeedsLayout();
+  }
+
+  set textAnchors(List<TextAnchor> textAnchors) {
+    if (textAnchors == _textAnchors) return;
+    _textAnchors = textAnchors;
+    markNeedsPaint();
+  }
+
+  set portalTheater(RenderBox Function()? portalTheater) {
+    if (_portalTheater == portalTheater) return;
+    _portalTheater = portalTheater;
+    markNeedsPaint();
   }
 
   /// Whether the editor is currently focused.
@@ -678,6 +698,7 @@ class RenderEditor extends RenderEditableContainerBox
     defaultPaint(context, offset);
     _updateSelectionExtentsVisibility(offset + _paintOffset);
     _paintHandleLayers(context, getEndpointsForSelection(selection));
+    // _paintTextAnchors(context, offset);
 
     if (hasFocus &&
         _cursorController.showCursor.value &&
@@ -716,6 +737,30 @@ class RenderEditor extends RenderEditableContainerBox
       );
     }
   }
+
+  // void _paintTextAnchors(PaintingContext context, Offset offset2) {
+  //   for (var anchor in _textAnchors) {
+  //     final p = anchor.pos;
+  //     final offset = _getOffsetForCaret(p);
+
+  //     Rect getTheatherRect() {
+  //       assert(_portalTheater != null);
+  //       final theater = _portalTheater!();
+  //       final shift = globalToLocal(Offset.zero, ancestor: theater) - offset;
+  //       final r = shift & theater.size;
+  //       return r;
+  //     }
+
+  //     context.pushLayer(
+  //         EnhancedLeaderLayer(
+  //             debugName: 'anchor',
+  //             offset: offset,
+  //             link: anchor.layerLink,
+  //             theaterRectRelativeToLeader: getTheatherRect),
+  //         super.paint,
+  //         Offset.zero);
+  //   }
+  // }
 
   @override
   double preferredLineHeight(TextPosition position) {

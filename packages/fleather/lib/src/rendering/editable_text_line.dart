@@ -4,8 +4,10 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_portal/enhanced_composited_transform.dart';
 import 'package:parchment/parchment.dart';
 
+import '../widgets/controller.dart';
 import '../widgets/cursor.dart';
 import '../widgets/selection_utils.dart';
 import '../widgets/theme.dart';
@@ -29,6 +31,8 @@ class RenderEditableTextLine extends RenderEditableBox {
     required bool enableInteractiveSelection,
     required bool hasFocus,
     required InlineCodeThemeData inlineCodeTheme,
+    required List<TextAnchor> textAnchors,
+    required RenderBox Function() portalTheater,
     double devicePixelRatio = 1.0,
     // Not implemented fields are below:
     ui.BoxHeightStyle selectionHeightStyle = ui.BoxHeightStyle.tight,
@@ -47,7 +51,9 @@ class RenderEditableTextLine extends RenderEditableBox {
         _enableInteractiveSelection = enableInteractiveSelection,
         _devicePixelRatio = devicePixelRatio,
         _inlineCodeTheme = inlineCodeTheme,
-        _hasFocus = hasFocus;
+        _portalTheater = portalTheater,
+        _hasFocus = hasFocus,
+        _textAnchors = textAnchors;
 
   //
 
@@ -61,6 +67,21 @@ class RenderEditableTextLine extends RenderEditableBox {
   // Start selection implementation
 
   List<TextBox>? _selectionRects;
+
+  List<TextAnchor> _textAnchors;
+  set textAnchors(List<TextAnchor> textAnchors) {
+    if (_textAnchors == textAnchors) return;
+    _textAnchors = textAnchors;
+    //TODO only mark when needed
+    markNeedsPaint();
+  }
+
+  RenderBox Function() _portalTheater;
+  set portalTheater(RenderBox Function() portalTheater) {
+    if (_portalTheater == portalTheater) return;
+    _portalTheater = portalTheater;
+    markNeedsPaint();
+  }
 
   /// The region of text that is selected, if any.
   ///
@@ -727,6 +748,8 @@ class RenderEditableTextLine extends RenderEditableBox {
             context, effectiveOffset, _selectionRects!, _selectionColor);
       }
 
+      _paintAnchors(context, effectiveOffset);
+
       if (hasFocus &&
           _cursorController.showCursor.value &&
           containsCursor &&
@@ -741,6 +764,66 @@ class RenderEditableTextLine extends RenderEditableBox {
           containsCursor &&
           _cursorController.style.paintAboveText) {
         _paintCursor(context, effectiveOffset);
+      }
+    }
+  }
+
+  Rect getTheatherRect(Offset offset) {
+    // assert(_portalTheater != null);
+    final theater = _portalTheater();
+    final shift = globalToLocal(Offset.zero, ancestor: theater) - offset;
+    final r = shift & theater.size;
+    return r;
+  }
+
+  void _paintAnchors(PaintingContext context, Offset effectiveOffset) {
+    for (final textAnchor in _textAnchors) {
+      final selectionColor = textAnchor.selectionColor;
+      if (!intersectsWithSelection(node, textAnchor.selection)) continue;
+      final local = localSelection(node, textAnchor.selection);
+      final selectionRects = body!.getBoxesForSelection(
+        local,
+      );
+
+      if (selectionColor != null) {
+        _paintSelection(
+            context, effectiveOffset, selectionRects, selectionColor);
+      }
+
+      // start of the selection not here.
+      // anchor: we are not interested
+      // cursor: we only paint it if selection is collapsed, so drop also.
+      if (!intersectsWithSelection(
+          node, TextSelection.collapsed(offset: textAnchor.selection.start))) {
+        continue;
+      }
+
+      final textPosition = TextPosition(
+          offset: textAnchor.selection.start - node.documentOffset,
+          affinity: textAnchor.selection.affinity);
+      final layerLink = textAnchor.layerLink;
+      if (layerLink != null) {
+        final caret = getLocalRectForCaret(textPosition);
+        final anchorOffset = caret.topLeft;
+
+        context.pushLayer(
+            EnhancedLeaderLayer(
+                debugName: 'textAnchor#${textAnchor.hashCode}',
+                offset: anchorOffset + effectiveOffset,
+                link: layerLink,
+                theaterRectRelativeToLeader: () =>
+                    getTheatherRect(anchorOffset)),
+            super.paint,
+            Offset.zero);
+      }
+      // only draw anchor cursor if we didnt draw a selection yet
+      if (!textAnchor.selection.isCollapsed) {
+        continue;
+      }
+
+      if (selectionColor != null) {
+        _cursorPainter.paint(
+            context.canvas, effectiveOffset, textPosition, selectionColor);
       }
     }
   }
