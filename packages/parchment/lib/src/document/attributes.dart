@@ -311,6 +311,15 @@ class ParchmentStyle {
     return ParchmentStyle._(result);
   }
 
+  /// Puts [attributes] into this attribute set and returns result as a new set.
+  ParchmentStyle putAll(Iterable<ParchmentAttribute> attributes) {
+    final result = Map<String, ParchmentAttribute>.from(_data);
+    for (final attr in attributes) {
+      result[attr.key] = attr;
+    }
+    return ParchmentStyle._(result);
+  }
+
   /// Merges this attribute set with [attribute] and returns result as a new
   /// attribute set.
   ///
