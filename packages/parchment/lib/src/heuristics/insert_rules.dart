@@ -264,6 +264,7 @@ class PreserveInlineStylesRule extends InsertRule {
       return noLinkResult;
     }
     // We must make sure links are identical in previous and next operations.
+    // ignore: unnecessary_non_null_assertion
     if (attributes![ParchmentAttribute.link.key] ==
         nextAttributes[ParchmentAttribute.link.key]) {
       return Delta()
