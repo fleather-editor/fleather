@@ -60,6 +60,7 @@ class _EncoderState {
   StringBuffer buffer = StringBuffer();
   // Stack on inline tags
   final List<_HtmlInlineTag> openInlineTags = [];
+
   // Stack of blocks currently being processed
   // The first element of the stack is the last block that occurred in the
   // operations. When an operation with a different block comes up, the html
@@ -69,7 +70,7 @@ class _EncoderState {
   // Multiple items in the stack means nested blocks are being handled.
   final List<_HtmlBlockTag> openBlockTags = [];
   int nextLineStartPosition = 0;
-  bool isSingleLigne = true;
+  bool isSingleLine = true;
 }
 
 // Inline tags relate directly to ParchmentAttributeScope.inline.
@@ -174,7 +175,7 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
       _processInlineTags(op, buffer, openInlineTags);
       _writeData(op, buffer);
 
-      // when op is serveral new lines, we need to split op into several ops
+      // when op is several new lines, we need to split op into several ops
       // with a single new line
       if (_isMultipleLines(op)) {
         for (var i = 0; i < (op.data as String).length; i++) {
@@ -189,7 +190,7 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
       }
 
       if (_isNewLine(op)) {
-        state.isSingleLigne = false;
+        state.isSingleLine = false;
         final currentLineStart = state.nextLineStartPosition;
         state.nextLineStartPosition =
             _handleNewLineLineStyle(op, buffer, state.nextLineStartPosition);
@@ -220,7 +221,7 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
 
     // remove default paragraph block if single ligne of text
     String result = buffer.toString();
-    if (state.isSingleLigne && result.startsWith('<p>')) {
+    if (state.isSingleLine && result.startsWith('<p>')) {
       return result.substring('<p>'.length, result.length - '</p>'.length);
     }
     return result;
@@ -288,14 +289,14 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
         _writeBlockTag(buffer, currentBlock);
         position += currentBlock.inducedPadding;
       }
-      state.isSingleLigne = false;
+      state.isSingleLine = false;
     }
 
     final text = op.data as String;
     final lines = text.split('\n');
     // several new lines de facto
     if (lines.length > 2) {
-      state.isSingleLigne = false;
+      state.isSingleLine = false;
     }
     for (var i = 0; i < lines.length; i++) {
       final subOp = Operation.insert(lines[i]);
@@ -309,7 +310,7 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
         if (lines[i].isNotEmpty) {
           // Elements that do not belong to a paragraph but to block of next op
           _writeData(subOp, buffer);
-          state.isSingleLigne = false;
+          state.isSingleLine = false;
         }
         continue;
       }

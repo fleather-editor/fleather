@@ -14,7 +14,7 @@ void main() {
         ]);
         expect(codec.encode(doc.toDelta()), '<p></p><p></p>');
       });
-      
+
       test('plain text', () {
         final doc = ParchmentDocument.fromJson([
           {'insert': 'Something in the way mmmm...\n'}
