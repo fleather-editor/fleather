@@ -276,6 +276,14 @@ class ParchmentStyle {
   /// Checks that this style has only one attribute, and returns that attribute.
   ParchmentAttribute get single => _data.values.single;
 
+  /// Returns line-scoped attributes
+  Iterable<ParchmentAttribute> get lineAttributes =>
+      values.where((e) => e.scope == ParchmentAttributeScope.line);
+
+  /// Returns inline-scoped attributes
+  Iterable<ParchmentAttribute> get inlineAttributes =>
+      values.where((e) => e.scope == ParchmentAttributeScope.inline);
+
   /// Returns `true` if attribute with [key] is present in this set.
   ///
   /// Only checks for presence of specified [key] regardless of the associated
@@ -308,6 +316,15 @@ class ParchmentStyle {
   ParchmentStyle put(ParchmentAttribute attribute) {
     final result = Map<String, ParchmentAttribute>.from(_data);
     result[attribute.key] = attribute;
+    return ParchmentStyle._(result);
+  }
+
+  /// Puts [attributes] into this attribute set and returns result as a new set.
+  ParchmentStyle putAll(Iterable<ParchmentAttribute> attributes) {
+    final result = Map<String, ParchmentAttribute>.from(_data);
+    for (final attr in attributes) {
+      result[attr.key] = attr;
+    }
     return ParchmentStyle._(result);
   }
 
