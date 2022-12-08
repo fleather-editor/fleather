@@ -6,14 +6,6 @@ import 'package:html/parser.dart';
 import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 
-extension on ParchmentStyle {
-  Iterable<ParchmentAttribute> get lineAttributes =>
-      values.where((e) => e.scope == ParchmentAttributeScope.line);
-
-  Iterable<ParchmentAttribute> get inlineAttributes =>
-      values.where((e) => e.scope == ParchmentAttributeScope.inline);
-}
-
 final _inlineAttributesParchmentToHtml = {
   ParchmentAttribute.bold.key: 'strong',
   ParchmentAttribute.italic.key: 'em',
@@ -27,9 +19,7 @@ const _indentWidthInPx = 32;
 
 /// HTML conversion of Parchment
 ///
-/// *note: `<br>` are not recognized as new lines and will be ignored*
-///
-/// ## Inline mapping
+/// ## Inline attributes mapping
 /// - b -> <strong>
 /// - i -> <em>
 /// - u -> <u>
@@ -37,7 +27,7 @@ const _indentWidthInPx = 32;
 /// - c -> <code>
 /// - a -> <a>
 ///
-/// ### Line mapping
+/// ## Line attributes mapping
 /// - default -> <p>
 /// - heading X -> <hX>
 /// - bq -> <blockquote>
@@ -49,6 +39,12 @@ const _indentWidthInPx = 32;
 /// - alignment -> <xxx align="left | right | center | justify">
 /// - direction -> <xxx dir="rtl">
 ///
+/// ## Embed mapping
+/// - [BlockEmbed.image] -> <img src="...">
+/// - [BlockEmbed.horizontalRule] -> <hr>
+///
+/// *note: `<br>` are not recognized as new lines and will be ignored*
+/// *note2: a single line of text with only inline attributes will not be surrounded with `<p>`
 class ParchmentHtmlCodec extends Codec<Delta, String> {
   const ParchmentHtmlCodec();
 
@@ -59,7 +55,24 @@ class ParchmentHtmlCodec extends Codec<Delta, String> {
   Converter<Delta, String> get encoder => const _ParchmentHtmlEncoder();
 }
 
-// Inline tags related directly to ParchmentAttributeScope.inline.
+// Mutable record for the state of the encoder
+class _EncoderState {
+  StringBuffer buffer = StringBuffer();
+  // Stack on inline tags
+  final List<_HtmlInlineTag> openInlineTags = [];
+  // Stack of blocks currently being processed
+  // The first element of the stack is the last block that occurred in the
+  // operations. When an operation with a different block comes up, the html
+  // of the first element are written to the buffer and the first element is
+  // replaced by the new block.
+  //
+  // Multiple items in the stack means nested blocks are being handled.
+  final List<_HtmlBlockTag> openBlockTags = [];
+  int nextLineStartPosition = 0;
+  bool isSingleLigne = true;
+}
+
+// Inline tags relate directly to ParchmentAttributeScope.inline.
 // While iterating through operations, when within a line, one can only know if
 // the corresponding HTML tag is open. Only when the operation doesn't have the
 // attribute can we know that the tag should have been closed at the previous iteration.
@@ -76,7 +89,8 @@ class ParchmentHtmlCodec extends Codec<Delta, String> {
 class _ParchmentHtmlEncoder extends Converter<Delta, String> {
   const _ParchmentHtmlEncoder();
 
-  static bool isPlainIgnoringCSSAndHtmlAttribute(ParchmentStyle style) {
+  // Style has only positioning attributes
+  static bool isPlain(ParchmentStyle style) {
     if (style.isEmpty) return true;
     for (final key in style.keys) {
       if (key == ParchmentAttribute.alignment.key) continue;
@@ -87,10 +101,12 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
     return true;
   }
 
-  // For lists and block code, new lines do not mean a new block
+  // For lists and block code, new lines do not necessarily mean a new block
   static bool isSameBlock(_HtmlBlockTag previous, _HtmlBlockTag current) {
     final p = previous.style.values;
     final c = current.style.values;
+
+    // List items can have different positions (alignment, indent, direction)
     final areOrderedUnorderedLists = (p.contains(ParchmentAttribute.ol) ||
             p.contains(ParchmentAttribute.ul)) &&
         (c.contains(ParchmentAttribute.ol) ||
@@ -98,7 +114,7 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
     final areChecklists =
         p.contains(ParchmentAttribute.cl) && c.contains(ParchmentAttribute.cl);
     if (areOrderedUnorderedLists || areChecklists) {
-      final cssAttributes = [
+      final positionAttributes = [
         ParchmentAttribute.alignment.unset,
         ParchmentAttribute.alignment.center,
         ParchmentAttribute.alignment.right,
@@ -106,8 +122,8 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
         ParchmentAttribute.direction.rtl,
         ParchmentAttribute.direction.unset,
       ];
-      final modifiedPrevious = previous.style.removeAll(cssAttributes);
-      final modifiedCurrent = current.style.removeAll(cssAttributes);
+      final modifiedPrevious = previous.style.removeAll(positionAttributes);
+      final modifiedCurrent = current.style.removeAll(positionAttributes);
       return modifiedCurrent == modifiedPrevious;
     }
     // block code
@@ -142,57 +158,54 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
 
   @override
   String convert(Delta input) {
-    StringBuffer buffer = StringBuffer();
-    // Stack on inline tags
-    final List<_HtmlInlineTag> openInlineTags = [];
-    // Stack of blocks currently being processed
-    // The first element of the stack is the last block that occurred in the
-    // operations. When an operation with a different block comes up, the html
-    // of the first element are written to the buffer and the first element is
-    // replaced by the new block.
-    //
-    // Multiple items in the stack means nested blocks are being handled.
-    final List<_HtmlBlockTag> openBlockTags = [];
-    int nextLineStartPosition = 0;
+    final state = _EncoderState();
+    final inputOperations = input.toList();
+    for (var i = 0; i < inputOperations.length; i++) {
+      final op = inputOperations[i];
+      final buffer = state.buffer;
+      final openInlineTags = state.openInlineTags;
 
-    for (final op in input.toList()) {
       if (_hasPlainParagraph(op)) {
         _processInlineTags(op, buffer, openInlineTags);
-        nextLineStartPosition = _handlePlainBlock(op, buffer, openBlockTags);
+        _handlePlainBlock(op, state);
         continue;
       }
 
       _processInlineTags(op, buffer, openInlineTags);
       _writeData(op, buffer);
 
+      // when op is serveral new lines, we need to split op into several ops
+      // with a single new line
       if (_isMultipleLines(op)) {
         for (var i = 0; i < (op.data as String).length; i++) {
           final subOp = Operation.insert('\n', op.attributes);
-          final currentLineStart = nextLineStartPosition;
-          nextLineStartPosition =
-              _handleNewLineLineStyle(subOp, buffer, nextLineStartPosition);
-          int padding = _handleNewLineBlockStyle(
-              subOp, buffer, openInlineTags, openBlockTags, currentLineStart);
-          nextLineStartPosition += padding;
+          final currentLineStart = state.nextLineStartPosition;
+          state.nextLineStartPosition = _handleNewLineLineStyle(
+              subOp, buffer, state.nextLineStartPosition);
+          int padding =
+              _handleNewLineBlockStyle(subOp, state, currentLineStart);
+          state.nextLineStartPosition += padding;
         }
       }
 
       if (_isNewLine(op)) {
-        final currentLineStart = nextLineStartPosition;
-        nextLineStartPosition =
-            _handleNewLineLineStyle(op, buffer, nextLineStartPosition);
-        int padding = _handleNewLineBlockStyle(
-            op, buffer, openInlineTags, openBlockTags, currentLineStart);
-        nextLineStartPosition += padding;
+        state.isSingleLigne = false;
+        final currentLineStart = state.nextLineStartPosition;
+        state.nextLineStartPosition =
+            _handleNewLineLineStyle(op, buffer, state.nextLineStartPosition);
+        int padding = _handleNewLineBlockStyle(op, state, currentLineStart);
+        state.nextLineStartPosition += padding;
       }
     }
 
     // Close any remaining inline tags
-    for (final attr in openInlineTags) {
-      _writeTag(buffer, attr);
+    for (final attr in state.openInlineTags) {
+      _writeTag(state.buffer, attr);
     }
 
     // Close any remaining blocks
+    final openBlockTags = state.openBlockTags;
+    final buffer = state.buffer;
     for (var i = 0; i < openBlockTags.length; i++) {
       final blockTag = openBlockTags[i];
       // special handling for nested blocs (only nested list at the moment)
@@ -204,7 +217,13 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
       }
       _writeBlockTag(buffer, blockTag..closingPosition = buffer.length);
     }
-    return buffer.toString();
+
+    // remove default paragraph block if single ligne of text
+    String result = buffer.toString();
+    if (state.isSingleLigne && result.startsWith('<p>')) {
+      return result.substring('<p>'.length, result.length - '</p>'.length);
+    }
+    return result;
   }
 
   bool _hasPlainParagraph(Operation op) {
@@ -252,29 +271,37 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
     return matches.length == 1 && matches.first.group(0) == text;
   }
 
-  // returns position indicating where following line will start
+  // update position in state indicating where following line will start
   //
   // Plain block deserve a special treatment as they are the only operations in
   // which the data string will contain several paragraph.
-  int _handlePlainBlock(
-      Operation op, StringBuffer buffer, List<_HtmlBlockTag> openBlockTags) {
+  void _handlePlainBlock(Operation op, _EncoderState state) {
     assert(_hasPlainParagraph(op));
     var position = 0;
     var initialPosition = position;
-
+    final openBlockTags = state.openBlockTags;
+    final buffer = state.buffer;
     if (openBlockTags.isNotEmpty) {
       final currentBlock = openBlockTags.removeAt(0);
       position = currentBlock.closingPosition;
-      if (!isPlainIgnoringCSSAndHtmlAttribute(currentBlock.style)) {
+      if (!isPlain(currentBlock.style)) {
         _writeBlockTag(buffer, currentBlock);
         position += currentBlock.inducedPadding;
       }
+      state.isSingleLigne = false;
     }
 
     final text = op.data as String;
     final lines = text.split('\n');
+    // several new lines de facto
+    if (lines.length > 2) {
+      state.isSingleLigne = false;
+    }
     for (var i = 0; i < lines.length; i++) {
       final subOp = Operation.insert(lines[i]);
+
+      // Last line opens a new paragraph for later treatments and writes to buffer if
+      // there's anything to write (in which case, it is no more a single ligne input)
       if (i == lines.length - 1) {
         // Done with set of paragraphs, add last paragraph to block stack.
         openBlockTags.insert(
@@ -282,6 +309,7 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
         if (lines[i].isNotEmpty) {
           // Elements that do not belong to a paragraph but to block of next op
           _writeData(subOp, buffer);
+          state.isSingleLigne = false;
         }
         continue;
       }
@@ -291,9 +319,10 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
       initialPosition = position;
       position = buffer.length;
     }
-    assert(openBlockTags.length == 1,
-        'Only one paragraph should be pushed in stack');
-    return position;
+
+    assert(openBlockTags.length <= 1,
+        'At most one paragraph should be pushed in stack');
+    state.nextLineStartPosition = position;
   }
 
   // used to write html tags of block lines such as <li> or <code>
@@ -312,11 +341,9 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
   // used to write html tags of blocks themselves.
   // returns padding induced by ex-post addition of block tags
   int _handleNewLineBlockStyle(
-      Operation op,
-      StringBuffer buffer,
-      List<_HtmlInlineTag> openInlineTags,
-      List<_HtmlBlockTag> openBlockTags,
-      int currentLineStart) {
+      Operation op, _EncoderState state, int currentLineStart) {
+    final buffer = state.buffer;
+    final openBlockTags = state.openBlockTags;
     final opStyle = ParchmentStyle.fromJson(op.attributes);
     final startPosition = openBlockTags.firstOrNull?.closingPosition ?? 0;
 
@@ -347,7 +374,7 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
       return currentBlockTag.inducedPadding;
     }
 
-    if (isPlainIgnoringCSSAndHtmlAttribute(openBlockTags[0].style)) {
+    if (isPlain(openBlockTags[0].style)) {
       openBlockTags.removeAt(0);
       openBlockTags.insert(0, newBlockTag..closingPosition = buffer.length);
       return 0;
@@ -392,12 +419,24 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
   }
 
   void _writeData(Operation op, StringBuffer buffer) {
-    if (op.data is! String) return;
-    var text = op.data as String;
-    if (text.endsWith('\n')) {
-      text = text.substring(0, text.length - 1);
+    if (op.data is String) {
+      buffer.write((op.data as String).replaceAll('\n', ''));
+      return;
     }
-    buffer.write(text.replaceAll('\n', ''));
+    if (op.data is Map<String, dynamic>) {
+      final data = op.data as Map<String, dynamic>;
+      final embeddable = EmbeddableObject.fromJson(data);
+      if (embeddable is BlockEmbed) {
+        if (embeddable.type == 'hr') {
+          buffer.write('<hr>');
+          return;
+        }
+        if (embeddable.type == 'image') {
+          buffer.write('<img src="${embeddable.data['source']}">');
+          return;
+        }
+      }
+    }
   }
 }
 
@@ -478,8 +517,7 @@ class _HtmlLineTag extends _HtmlTag {
 
   final ParchmentStyle style;
 
-  bool get isPlain =>
-      _ParchmentHtmlEncoder.isPlainIgnoringCSSAndHtmlAttribute(style);
+  bool get isPlain => _ParchmentHtmlEncoder.isPlain(style);
 
   String? _tagCss;
 

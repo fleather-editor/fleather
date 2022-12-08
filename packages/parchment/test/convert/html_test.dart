@@ -8,19 +8,18 @@ void main() {
 
   group('Encode', () {
     group('Basic text', () {
-      test('only new lines', () {
+      test('only two lines', () {
         final doc = ParchmentDocument.fromJson([
           {'insert': '\n\n'},
         ]);
         expect(codec.encode(doc.toDelta()), '<p></p><p></p>');
       });
-
+      
       test('plain text', () {
         final doc = ParchmentDocument.fromJson([
           {'insert': 'Something in the way mmmm...\n'}
         ]);
-        expect(
-            codec.encode(doc.toDelta()), '<p>Something in the way mmmm...</p>');
+        expect(codec.encode(doc.toDelta()), 'Something in the way mmmm...');
       });
 
       test('bold text', () {
@@ -33,7 +32,7 @@ void main() {
           {'insert': ' mmmm...\n'}
         ]);
         expect(codec.encode(doc.toDelta()),
-            '<p>Something <strong>in the way</strong> mmmm...</p>');
+            'Something <strong>in the way</strong> mmmm...');
       });
 
       test('italic + code + underlined + strikethrough text', () {
@@ -53,7 +52,7 @@ void main() {
           {'insert': '\n'}
         ]);
         expect(codec.encode(doc.toDelta()),
-            '<p><del><u>Something </u></del><em>in the way</em><code> mmmm...</code></p>');
+            '<del><u>Something </u></del><em>in the way</em><code> mmmm...</code>');
       });
 
       test('embedded inline attributes text', () {
@@ -73,7 +72,7 @@ void main() {
           {'insert': '\n'}
         ]);
         expect(codec.encode(doc.toDelta()),
-            '<p><u><a href="https://wikipedia.org">Something </a><em>in the way</em> mmmm...</u></p>');
+            '<u><a href="https://wikipedia.org">Something </a><em>in the way</em> mmmm...</u>');
       });
     });
 
@@ -117,25 +116,6 @@ void main() {
 
     group('Blocks', () {
       group('Paragraph', () {
-        test('single', () {
-          final doc = ParchmentDocument.fromJson([
-            {'insert': 'Hello World!\n'}
-          ]);
-          expect(codec.encode(doc.toDelta()), '<p>Hello World!</p>');
-        });
-
-        test('single containing formatting', () {
-          final doc = ParchmentDocument.fromJson([
-            {
-              'insert': 'Hello',
-              'attributes': {'b': true}
-            },
-            {'insert': ' World!\n'}
-          ]);
-          expect(codec.encode(doc.toDelta()),
-              '<p><strong>Hello</strong> World!</p>');
-        });
-
         test('multiple', () {
           final doc = ParchmentDocument.fromJson([
             {'insert': 'Hello World!\nBye World!\n'},
@@ -409,7 +389,7 @@ void main() {
         ]);
 
         expect(codec.encode(doc.toDelta()),
-            '<p><a href="http://fake.link">Hello World!</a></p>');
+            '<a href="http://fake.link">Hello World!</a>');
       });
 
       test('Italic', () {
@@ -422,7 +402,7 @@ void main() {
         ]);
 
         expect(codec.encode(doc.toDelta()),
-            '<p><a href="http://fake.link"><em>Hello World!</em></a></p>');
+            '<a href="http://fake.link"><em>Hello World!</em></a>');
       });
 
       test('In list', () {
@@ -730,6 +710,28 @@ void main() {
             codec.encode(doc.toDelta()),
             '<p>Something in the way...</p>'
             '<blockquote style="padding-left:32px;">Something in the way...</blockquote>');
+      });
+    });
+
+    group('Embeds', () {
+      test('Image', () {
+        final html = '<img src="http://fake.link/image.png">';
+        final doc = ParchmentDocument.fromJson([
+          {'insert': '\n'}
+        ]);
+        doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
+
+        expect(codec.encode(doc.toDelta()), html);
+      });
+
+      test('Line', () {
+        final html = '<hr>';
+        final doc = ParchmentDocument.fromJson([
+          {'insert': '\n'}
+        ]);
+        doc.insert(0, BlockEmbed.horizontalRule);
+
+        expect(codec.encode(doc.toDelta()), html);
       });
     });
 
@@ -1241,6 +1243,7 @@ void main() {
 
         expect(codec.decode(html), doc.toDelta());
       });
+
       test('Line', () {
         final html = '<hr>';
         final doc = ParchmentDocument.fromJson([
