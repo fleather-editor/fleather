@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
+import 'package:fleather/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
-import 'package:fleather/util.dart';
 
 /// List of style keys which can be toggled for insertion
 List<String> _insertionToggleableStyleKeys = [
@@ -147,6 +147,7 @@ class FleatherController extends ChangeNotifier {
   void updateSelection(TextSelection value,
       {ChangeSource source = ChangeSource.remote}) {
     _updateSelectionSilent(value, source: source);
+    _toggledStyles = ParchmentStyle();
     notifyListeners();
   }
 
