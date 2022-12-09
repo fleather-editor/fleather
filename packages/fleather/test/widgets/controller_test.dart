@@ -176,6 +176,14 @@ void main() {
       expect(result.values, [ParchmentAttribute.bold]);
     });
 
+    test('getSelectionStyle at end of formatted word', () {
+      var selection = const TextSelection.collapsed(offset: 5);
+      controller.replaceText(0, 0, 'Words in bold', selection: selection);
+      controller.formatText(0, 5, ParchmentAttribute.bold);
+      var result = controller.getSelectionStyle();
+      expect(result.values, [ParchmentAttribute.bold]);
+    });
+
     test('getSelectionStyle with toggled style', () {
       var selection = const TextSelection.collapsed(offset: 3);
       controller.replaceText(0, 0, 'Words', selection: selection);

@@ -39,7 +39,9 @@ class FleatherController extends ChangeNotifier {
   ParchmentStyle getSelectionStyle() {
     final start = _selection.start;
     final length = _selection.end - start;
-    var lineStyle = document.collectStyle(start, length);
+    final effectiveStart =
+        _selection.isCollapsed ? math.max(0, start - 1) : start;
+    var lineStyle = document.collectStyle(effectiveStart, length);
 
     lineStyle = lineStyle.mergeAll(toggledStyles);
 
