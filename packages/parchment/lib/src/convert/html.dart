@@ -321,8 +321,9 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
       position = buffer.length;
     }
 
-    assert(openBlockTags.length <= 1,
-        'At most one paragraph should be pushed in stack');
+    // This assert cannot exist otherwise nested lists won't work.
+    // assert(openBlockTags.length <= 1,
+    //     'At most one paragraph should be pushed in stack');
     state.nextLineStartPosition = position;
   }
 
