@@ -23,8 +23,8 @@ class LineNode extends ContainerNode<LeafNode>
     implements StyledNode {
   /// Returns `true` if this line contains a block embedded object.
   bool get hasBlockEmbed {
-    if (childCount == 1 && children.single is EmbedNode) {
-      return !(children.single as EmbedNode).value.inline;
+    if (childCount > 0 && children.first is EmbedNode) {
+      return !(children.first as EmbedNode).value.inline;
     }
     assert(children.every((child) =>
         child is TextNode || (child is EmbedNode && child.value.inline)));
@@ -201,6 +201,7 @@ class LineNode extends ContainerNode<LeafNode>
       // Delta format perspective.
       // We rely on heuristic rules to ensure that embeds occupy an entire line.
       _insertSafe(index, data, style);
+      // TODO: do we need to do something here?
       return;
     }
 

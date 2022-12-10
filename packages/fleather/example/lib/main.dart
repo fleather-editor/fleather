@@ -42,7 +42,8 @@ class _HomePageState extends State<HomePage> {
       final result = await rootBundle.loadString('assets/welcome.json');
       final doc = ParchmentDocument.fromJson(jsonDecode(result));
       _controller = FleatherController(doc);
-    } catch (_) {
+    } catch (err, st) {
+      print('Cannot read welcome.json: $err\n$st');
       _controller = FleatherController();
     }
     setState(() {});
@@ -86,6 +87,7 @@ class _HomePageState extends State<HomePage> {
         color: Colors.grey.shade200,
       );
     }
+
     if (node.value.type == 'icon') {
       final data = node.value.data;
       // Icons.rocket_launch_outlined
@@ -95,10 +97,29 @@ class _HomePageState extends State<HomePage> {
         size: 18,
       );
     }
+
     if (node.value.type == 'image' &&
         node.value.data['source_type'] == 'assets') {
-      return Image.asset(node.value.data['source']);
+      final flex = (node.value.data['orientation'] == 'landscape') ? 2 : 1;
+
+      return Flexible(
+        flex: flex,
+        child: Padding(
+          // Caret takes 2 pixels, hence not symmetric padding values.
+          padding: const EdgeInsets.only(left: 4, right: 2),
+          child: Container(
+            height: 300,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(node.value.data['source']),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+      );
     }
+
     throw UnimplementedError();
   }
 
