@@ -1,3 +1,7 @@
+## 1.3.1
+
+* [Fix] Incorrect style behaviour when toggling formats
+
 ## 1.3.0
 
 * Support document history (undo/redo)
