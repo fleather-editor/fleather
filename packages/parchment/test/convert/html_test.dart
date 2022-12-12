@@ -12,7 +12,7 @@ void main() {
         final doc = ParchmentDocument.fromJson([
           {'insert': '\n\n'},
         ]);
-        expect(codec.encode(doc.toDelta()), '<p></p><p></p>');
+        expect(codec.encode(doc.toDelta()), '<p><br></p><p></p>');
       });
 
       test('plain text', () {
@@ -73,6 +73,44 @@ void main() {
         ]);
         expect(codec.encode(doc.toDelta()),
             '<u><a href="https://wikipedia.org">Something </a><em>in the way</em> mmmm...</u>');
+      });
+
+      test('html escaping', () {
+        final doc = ParchmentDocument.fromJson([
+          {
+            'insert':
+                'HTML special characters like < > & are escaped, but not \' " /.\n',
+          },
+        ]);
+        expect(codec.encode(doc.toDelta()),
+            'HTML special characters like &lt; &gt; &amp; are escaped, but not \' " /.');
+      });
+
+      test('multiple line breaks in a row should render as actual line breaks',
+          () {
+        // This has three blank lines between the Line 1/Line2 pair.
+        // The Line3/Line4 pair does not have blank lines, but both pairs should render to the
+        // same height. The Line5/Line6 pair has 3 blank lines but also were emboldened in Fleather.
+        // The blank line after Line5 has a space in it just to distinguish it from a completely
+        // blank line.
+        final doc = ParchmentDocument.fromJson([
+          {
+            'insert':
+                'Line 1\n\n\n\nLine 2\nLine3\nnot blank1\nnot blank2\nnot blank3\nLine 4\n'
+          },
+          {
+            'insert': 'Line 5',
+            'attributes': {'b': true}
+          },
+          {'insert': '\n \n\n\n'},
+          {
+            'insert': 'Line 6',
+            'attributes': {'b': true}
+          },
+          {'insert': '\n'}
+        ]);
+        expect(codec.encode(doc.toDelta()),
+            '<p>Line 1</p><p><br></p><p><br></p><p><br></p><p>Line 2</p><p>Line3</p><p>not blank1</p><p>not blank2</p><p>not blank3</p><p>Line 4</p><p><strong>Line 5</strong></p><p> <br></p><p><br></p><p><br></p><p><strong>Line 6</strong></p>');
       });
     });
 
@@ -153,7 +191,7 @@ void main() {
           ]);
 
           expect(codec.encode(doc.toDelta()),
-              '<blockquote>Hello World!</blockquote>');
+              '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
         });
 
         test('Consecutive with same style', () {
@@ -172,8 +210,8 @@ void main() {
 
           expect(
               codec.encode(doc.toDelta()),
-              '<blockquote>Hello World!</blockquote>'
-              '<blockquote>Hello World!</blockquote>');
+              '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>'
+              '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
         });
 
         test('Consecutive with different styles', () {
@@ -192,8 +230,8 @@ void main() {
 
           expect(
               codec.encode(doc.toDelta()),
-              '<blockquote>Hello World!</blockquote>'
-              '<blockquote style="text-align:center;">Hello World!</blockquote>');
+              '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>'
+              '<blockquote style="text-align:center;margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
         });
       });
 
@@ -219,10 +257,10 @@ void main() {
         expect(
           codec.encode(doc.toDelta()),
           '<pre>'
-          '<code>void main() {</code>'
-          '<code></code>'
-          '<code>  print("Hello World!");</code>'
-          '<code>}</code>'
+          'void main() {\n'
+          '\n'
+          '  print("Hello World!");\n'
+          '}\n'
           '</pre>',
         );
       });
@@ -238,7 +276,7 @@ void main() {
         ]);
         expect(
           codec.encode(doc.toDelta()),
-          '<pre><code>some code</code></pre>'
+          '<pre>some code\n</pre>'
           '<p>Hello world</p>',
         );
       });
@@ -265,7 +303,7 @@ void main() {
           codec.encode(doc.toDelta()),
           '<p>Hello world</p>'
           '<p><strong>Another</strong> one</p>'
-          '<blockquote>some <strong>quote</strong></blockquote>',
+          '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">some <strong>quote</strong></blockquote>',
         );
       });
 
@@ -292,9 +330,9 @@ void main() {
           '<p>Hello world</p>'
           '<p>Hello world</p>'
           '<p>Hello world</p>'
-          '<pre><code>some code</code></pre>'
+          '<pre>some code\n</pre>'
           '<p>Hello world</p>'
-          '<blockquote>some quote</blockquote>'
+          '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">some quote</blockquote>'
           '<p>Hello world</p>',
         );
       });
@@ -372,8 +410,8 @@ void main() {
         expect(
             codec.encode(doc.toDelta()),
             '<div class="checklist">'
-            '<div class="checklist-item"><input type="checkbox" checked><label>item</label></div>'
-            '<div class="checklist-item"><input type="checkbox"><label>item</label></div>'
+            '<div class="checklist-item"><input type="checkbox" checked disabled><label>&nbsp;item</label></div>'
+            '<div class="checklist-item"><input type="checkbox" disabled><label>&nbsp;item</label></div>'
             '</div>');
       });
     });
@@ -684,6 +722,26 @@ void main() {
         );
       });
 
+      // TODO This test currently fails on an assertion: 'openBlockTags.length <= 1'
+      test('Multi-level lists with trailing paragraph', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Test\n'},
+          {'insert': 'Multi-level lists'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+          {'insert': 'with trailing paragraph'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 1}
+          },
+          {'insert': 'End\n'}
+        ]);
+        expect(codec.encode(doc.toDelta()),
+            '<p>Test</p><ol><li>Multi-level lists</li><ol><li>with trailing paragraph</li></ol></ol><p>End</p>');
+      }, skip: true);
+
       test('Paragraph with margin', () {
         final doc = ParchmentDocument.fromJson([
           {'insert': 'Something in the way...\nSomething in the way...'},
@@ -709,13 +767,14 @@ void main() {
         expect(
             codec.encode(doc.toDelta()),
             '<p>Something in the way...</p>'
-            '<blockquote style="padding-left:32px;">Something in the way...</blockquote>');
+            '<blockquote style="padding-left:32px;margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Something in the way...</blockquote>');
       });
     });
 
     group('Embeds', () {
       test('Image', () {
-        final html = '<img src="http://fake.link/image.png">';
+        final html =
+            '<img src="http://fake.link/image.png" style="max-width: 100%; object-fit: contain;">';
         final doc = ParchmentDocument.fromJson([
           {'insert': '\n'}
         ]);
@@ -1300,7 +1359,7 @@ void main() {
         expect(codec.decode(html), doc.toDelta());
       });
     });
-  }, skip: false);
+  });
 }
 
 final doc = [
@@ -1402,10 +1461,10 @@ final htmlDoc = '<h1>Fleather</h1>'
     '<h2>Clean and modern look</h2>'
     '<p>Fleather’s rich text editor is built with <em>simplicity and flexibility</em> in mind. It provides clean interface for distraction-free editing. Think <code>Medium.com</code>-like experience.</p>'
     '<pre>'
-    '<code>import ‘package:flutter/material.dart’;</code>'
-    '<code>import ‘package:parchment/parchment.dart’;</code>'
-    '<code></code>'
-    '<code>void main() {</code>'
-    '<code> print(“Hello world!”);</code>'
-    '<code>}</code>'
+    'import ‘package:flutter/material.dart’;\n'
+    'import ‘package:parchment/parchment.dart’;\n'
+    '\n'
+    'void main() {\n'
+    ' print(“Hello world!”);\n'
+    '}\n'
     '</pre>';

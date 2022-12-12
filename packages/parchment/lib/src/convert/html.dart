@@ -31,7 +31,7 @@ const _indentWidthInPx = 32;
 /// - default -> <p>
 /// - heading X -> <hX>
 /// - bq -> <blockquote>
-/// - code -> <pre><code>
+/// - code -> <pre>
 /// - ol -> <ol><li>
 /// - ul -> <ul><li>
 /// - cl -> <div class="checklist">
@@ -89,6 +89,10 @@ class _EncoderState {
 // These behave almost as line tags except there can be nested blocks
 class _ParchmentHtmlEncoder extends Converter<Delta, String> {
   const _ParchmentHtmlEncoder();
+
+  static const _htmlElementEscape = HtmlEscape(HtmlEscapeMode.element);
+  static final _brPrEolRegex = RegExp(r'<br></p>$');
+  static final _brEolRegex = RegExp(r'<br>$');
 
   // Style has only positioning attributes
   static bool isPlain(ParchmentStyle style) {
@@ -160,9 +164,7 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
   @override
   String convert(Delta input) {
     final state = _EncoderState();
-    final inputOperations = input.toList();
-    for (var i = 0; i < inputOperations.length; i++) {
-      final op = inputOperations[i];
+    for (final op in input.toList()) {
       final buffer = state.buffer;
       final openInlineTags = state.openInlineTags;
 
@@ -219,11 +221,16 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
       _writeBlockTag(buffer, blockTag..closingPosition = buffer.length);
     }
 
-    // remove default paragraph block if single ligne of text
+    // Remove default paragraph block if single line of text
     String result = buffer.toString();
     if (state.isSingleLine && result.startsWith('<p>')) {
-      return result.substring('<p>'.length, result.length - '</p>'.length);
+      result = result.substring('<p>'.length, result.length - '</p>'.length);
     }
+
+    // Remove the final <br> if there is one.
+    result = result
+        .replaceFirst(_brPrEolRegex, '</p>')
+        .replaceFirst(_brEolRegex, '');
     return result;
   }
 
@@ -321,7 +328,8 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
       position = buffer.length;
     }
 
-    // This assert cannot exist otherwise nested lists won't work.
+    // TODO This assert currently fails the 'Multi-level lists with trailing paragraph' test.
+    // TODO Taking the assert out causes the test to at least generate HTML, albeit incorrect.
     // assert(openBlockTags.length <= 1,
     //     'At most one paragraph should be pushed in stack');
     state.nextLineStartPosition = position;
@@ -395,11 +403,20 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
   void _writeTag(StringBuffer buffer, _HtmlTag tag) {
     final html = buffer.toString();
     buffer.clear();
+    final preHtml = html.substring(0, tag.openingPosition);
+    final openTag = tag.openTag;
+    var innerHtml = html.substring(tag.openingPosition);
+    final closeTag = tag.closeTag;
+    if (closeTag == '</p>' && innerHtml.trim().isEmpty) {
+      // Add <br> if it is a blank paragraph. This should render as an empty line.
+      innerHtml = '$innerHtml<br>';
+    }
+
     buffer.writeAll([
-      html.substring(0, tag.openingPosition),
-      tag.openTag,
-      html.substring(tag.openingPosition),
-      tag.closeTag
+      preHtml,
+      openTag,
+      innerHtml,
+      closeTag,
     ]);
   }
 
@@ -422,7 +439,12 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
 
   void _writeData(Operation op, StringBuffer buffer) {
     if (op.data is String) {
-      buffer.write((op.data as String).replaceAll('\n', ''));
+      var elementContent = op.data as String;
+      // TODO Unless in pre.
+      elementContent = elementContent.replaceAll('\n', '');
+      // All content must be HTML-escaped
+      elementContent = _htmlElementEscape.convert(elementContent);
+      buffer.write(elementContent);
       return;
     }
     if (op.data is Map<String, dynamic>) {
@@ -434,7 +456,10 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
           return;
         }
         if (embeddable.type == 'image') {
-          buffer.write('<img src="${embeddable.data['source']}">');
+          // Force the image to fit within any max. width that might be set. If
+          // no width or max-width is set on an outer block, then this does nothing.
+          buffer.write(
+              '<img src="${embeddable.data['source']}" style="max-width: 100%; object-fit: contain;">');
           return;
         }
       }
@@ -525,14 +550,14 @@ class _HtmlLineTag extends _HtmlTag {
 
   String get tagCss {
     if (_tagCss == null) {
-      var content = alignmentCss;
-      content =
-          content == null ? indentationCss : content += indentationCss ?? '';
-      if (content == null) {
-        _tagCss = '';
-        return _tagCss!;
-      }
-      _tagCss = '$_styleAttributePrefix$content$_styleAttributeSuffix';
+      final content = [
+        alignmentCss,
+        indentationCss,
+        blockquoteCss,
+      ].where((css) => css != null).join();
+      _tagCss = content.isEmpty
+          ? ''
+          : '$_styleAttributePrefix$content$_styleAttributeSuffix';
     }
     return _tagCss!;
   }
@@ -555,6 +580,13 @@ class _HtmlLineTag extends _HtmlTag {
       return '${alignmentPrefix}justify$alignmentSuffix';
     }
     return null;
+  }
+
+  String? get blockquoteCss {
+    // inline style required for HTML-based email.
+    return style.values.contains(ParchmentAttribute.bq)
+        ? 'margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;'
+        : null;
   }
 
   String? get indentationCss {
@@ -609,7 +641,7 @@ class _HtmlLineTag extends _HtmlTag {
           openTag += '<blockquote$attribute$css>';
         }
         if (attr.value == ParchmentAttribute.code.value) {
-          openTag += '<code>';
+          // We are in a <pre> block at this point. No <code> tag is needed.
         }
         if (attr.value == ParchmentAttribute.ol.value) {
           openTag += '<li$attribute$css>';
@@ -622,8 +654,10 @@ class _HtmlLineTag extends _HtmlTag {
               .firstWhereOrNull((e) => e.key == ParchmentAttribute.checked.key);
           final checkedAttribute =
               checked != null && checked.value ? ' checked' : '';
+          // Checkboxes disabled so user cannot toggle them.
+          // &nbsp to give a little space between the checkbox and the label.
           openTag +=
-              '<div class="checklist-item"$attribute$css><input type="checkbox"$checkedAttribute><label>';
+              '<div class="checklist-item"$attribute$css><input type="checkbox"$checkedAttribute disabled><label>&nbsp;';
         }
       }
     }
@@ -633,30 +667,31 @@ class _HtmlLineTag extends _HtmlTag {
   @override
   String get closeTag {
     if (isPlain) return '</p>';
-    String openTag = '';
+    String closeTag = '';
     for (final attr in style.values) {
       if (attr.key == ParchmentAttribute.heading.key) {
-        openTag += '</h${attr.value}>';
+        closeTag += '</h${attr.value}>';
       }
       if (attr.key == ParchmentAttribute.block.key) {
         if (attr.value == ParchmentAttribute.bq.value) {
-          openTag += '</blockquote>';
+          closeTag += '</blockquote>';
         }
         if (attr.value == ParchmentAttribute.code.value) {
-          openTag += '</code>';
+          // We are in a <pre> block. We only need to add a newline to display as a line break.
+          closeTag += '\n';
         }
         if (attr.value == ParchmentAttribute.ol.value) {
-          openTag += '</li>';
+          closeTag += '</li>';
         }
         if (attr.value == ParchmentAttribute.ul.value) {
-          openTag += '</li>';
+          closeTag += '</li>';
         }
         if (attr.value == ParchmentAttribute.cl.value) {
-          openTag += '</label></div>';
+          closeTag += '</label></div>';
         }
       }
     }
-    return openTag;
+    return closeTag;
   }
 
   @override
