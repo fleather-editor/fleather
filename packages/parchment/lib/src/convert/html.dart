@@ -31,7 +31,7 @@ const _indentWidthInPx = 32;
 /// - default -> <p>
 /// - heading X -> <hX>
 /// - bq -> <blockquote>
-/// - code -> <pre>
+/// - code -> <pre><code>
 /// - ol -> <ol><li>
 /// - ul -> <ul><li>
 /// - cl -> <div class="checklist">
@@ -641,7 +641,8 @@ class _HtmlLineTag extends _HtmlTag {
           openTag += '<blockquote$attribute$css>';
         }
         if (attr.value == ParchmentAttribute.code.value) {
-          // We are in a <pre> block at this point. No <code> tag is needed.
+          // We are in a <pre> block at this point.
+          openTag += '<code>';
         }
         if (attr.value == ParchmentAttribute.ol.value) {
           openTag += '<li$attribute$css>';
@@ -677,8 +678,8 @@ class _HtmlLineTag extends _HtmlTag {
           closeTag += '</blockquote>';
         }
         if (attr.value == ParchmentAttribute.code.value) {
-          // We are in a <pre> block. We only need to add a newline to display as a line break.
-          closeTag += '\n';
+          // We are in a <pre> block. We need to add a newline to display as a line break.
+          closeTag += '</code>\n';
         }
         if (attr.value == ParchmentAttribute.ol.value) {
           closeTag += '</li>';

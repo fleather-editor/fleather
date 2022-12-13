@@ -256,11 +256,10 @@ void main() {
 
         expect(
           codec.encode(doc.toDelta()),
-          '<pre>'
-          'void main() {\n'
-          '\n'
-          '  print("Hello World!");\n'
-          '}\n'
+          '<pre><code>void main() {</code>\n'
+          '<code></code>\n'
+          '<code>  print("Hello World!");</code>\n'
+          '<code>}</code>\n'
           '</pre>',
         );
       });
@@ -276,8 +275,8 @@ void main() {
         ]);
         expect(
           codec.encode(doc.toDelta()),
-          '<pre>some code\n</pre>'
-          '<p>Hello world</p>',
+          '<pre><code>some code</code>\n'
+          '</pre><p>Hello world</p>',
         );
       });
 
@@ -330,7 +329,7 @@ void main() {
           '<p>Hello world</p>'
           '<p>Hello world</p>'
           '<p>Hello world</p>'
-          '<pre>some code\n</pre>'
+          '<pre><code>some code</code>\n</pre>'
           '<p>Hello world</p>'
           '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">some quote</blockquote>'
           '<p>Hello world</p>',
@@ -1461,10 +1460,10 @@ final htmlDoc = '<h1>Fleather</h1>'
     '<h2>Clean and modern look</h2>'
     '<p>Fleather’s rich text editor is built with <em>simplicity and flexibility</em> in mind. It provides clean interface for distraction-free editing. Think <code>Medium.com</code>-like experience.</p>'
     '<pre>'
-    'import ‘package:flutter/material.dart’;\n'
-    'import ‘package:parchment/parchment.dart’;\n'
-    '\n'
-    'void main() {\n'
-    ' print(“Hello world!”);\n'
-    '}\n'
+    '<code>import ‘package:flutter/material.dart’;</code>\n'
+    '<code>import ‘package:parchment/parchment.dart’;</code>\n'
+    '<code></code>\n'
+    '<code>void main() {</code>\n'
+    '<code> print(“Hello world!”);</code>\n'
+    '<code>}</code>\n'
     '</pre>';
