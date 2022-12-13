@@ -641,8 +641,7 @@ class _HtmlLineTag extends _HtmlTag {
           openTag += '<blockquote$attribute$css>';
         }
         if (attr.value == ParchmentAttribute.code.value) {
-          // We are in a <pre> block at this point.
-          openTag += '<code>';
+          // We are in a <pre><code> block at this point, so no need for an additional <code>.
         }
         if (attr.value == ParchmentAttribute.ol.value) {
           openTag += '<li$attribute$css>';
@@ -678,8 +677,8 @@ class _HtmlLineTag extends _HtmlTag {
           closeTag += '</blockquote>';
         }
         if (attr.value == ParchmentAttribute.code.value) {
-          // We are in a <pre> block. We need to add a newline to display as a line break.
-          closeTag += '</code>\n';
+          // We are in a <pre><code> block. We need to add a newline to display as a line break.
+          closeTag += '\n';
         }
         if (attr.value == ParchmentAttribute.ol.value) {
           closeTag += '</li>';
@@ -745,7 +744,7 @@ class _HtmlBlockTag extends _HtmlTag {
     for (final attr in style.values) {
       if (attr.key == ParchmentAttribute.block.key) {
         if (attr.value == ParchmentAttribute.code.value) {
-          openTag += '<pre>';
+          openTag += '<pre><code>';
         }
         if (attr.value == ParchmentAttribute.ol.value) {
           openTag += '<ol>';
@@ -767,7 +766,7 @@ class _HtmlBlockTag extends _HtmlTag {
     for (final attr in style.values) {
       if (attr.key == ParchmentAttribute.block.key) {
         if (attr.value == ParchmentAttribute.code.value) {
-          openTag += '</pre>';
+          openTag += '</code></pre>';
         }
         if (attr.value == ParchmentAttribute.ol.value) {
           openTag += '</ol>';
