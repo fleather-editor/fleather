@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
+import 'package:fleather/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
-import 'package:fleather/util.dart';
 
 /// List of style keys which can be toggled for insertion
 List<String> _insertionToggleableStyleKeys = [
@@ -39,7 +39,9 @@ class FleatherController extends ChangeNotifier {
   ParchmentStyle getSelectionStyle() {
     final start = _selection.start;
     final length = _selection.end - start;
-    var lineStyle = document.collectStyle(start, length);
+    final effectiveStart =
+        _selection.isCollapsed ? math.max(0, start - 1) : start;
+    var lineStyle = document.collectStyle(effectiveStart, length);
 
     lineStyle = lineStyle.mergeAll(toggledStyles);
 
@@ -147,6 +149,7 @@ class FleatherController extends ChangeNotifier {
   void updateSelection(TextSelection value,
       {ChangeSource source = ChangeSource.remote}) {
     _updateSelectionSilent(value, source: source);
+    _toggledStyles = ParchmentStyle();
     notifyListeners();
   }
 

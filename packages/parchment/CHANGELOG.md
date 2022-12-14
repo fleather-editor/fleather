@@ -1,3 +1,8 @@
+## 1.3.1
+
+* HTML codec
+* Markdown codec
+
 ## 1.2.1
 
 * [Fix] new line after inline embed insertion

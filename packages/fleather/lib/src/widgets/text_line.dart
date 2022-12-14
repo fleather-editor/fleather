@@ -128,8 +128,7 @@ class _TextLineState extends State<TextLine> {
 
     final text = buildText(context, widget.node);
     final textAlign = getTextAlign(widget.node);
-    final strutStyle =
-        StrutStyle.fromTextStyle(text.style!, forceStrutHeight: false);
+    final strutStyle = StrutStyle.fromTextStyle(text.style!);
     return RichTextProxy(
       textStyle: text.style!,
       textAlign: textAlign,

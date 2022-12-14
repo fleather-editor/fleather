@@ -14,8 +14,10 @@ class FleatherApp extends StatelessWidget {
   const FleatherApp({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => const MaterialApp(
+  Widget build(BuildContext context) => MaterialApp(
         debugShowCheckedModeBanner: false,
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
         title: 'Fleather - rich-text editor for Flutter',
         home: HomePage(),
       );

@@ -1,10 +1,10 @@
 // Copyright (c) 2018, the Zefyr project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
+import 'package:fleather/fleather.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
-import 'package:fleather/fleather.dart';
 
 void main() {
   group('$FleatherController', () {
@@ -29,6 +29,16 @@ void main() {
       expect(notified, isTrue);
       expect(controller.selection, const TextSelection.collapsed(offset: 0));
       // expect(controller.lastChangeSource, ChangeSource.remote);
+    });
+
+    test('new selection reset toggled styles', () {
+      controller = FleatherController(ParchmentDocument.fromJson([
+        {'insert': 'Some text\n'}
+      ]));
+      controller.formatText(2, 0, ParchmentAttribute.bold);
+      expect(controller.toggledStyles, ParchmentStyle.fromJson({'b': true}));
+      controller.updateSelection(const TextSelection.collapsed(offset: 0));
+      expect(controller.toggledStyles, ParchmentStyle());
     });
 
     test('compose', () {
@@ -161,6 +171,14 @@ void main() {
     test('getSelectionStyle', () {
       var selection = const TextSelection.collapsed(offset: 3);
       controller.replaceText(0, 0, 'Words', selection: selection);
+      controller.formatText(0, 5, ParchmentAttribute.bold);
+      var result = controller.getSelectionStyle();
+      expect(result.values, [ParchmentAttribute.bold]);
+    });
+
+    test('getSelectionStyle at end of formatted word', () {
+      var selection = const TextSelection.collapsed(offset: 5);
+      controller.replaceText(0, 0, 'Words in bold', selection: selection);
       controller.formatText(0, 5, ParchmentAttribute.bold);
       var result = controller.getSelectionStyle();
       expect(result.values, [ParchmentAttribute.bold]);
