@@ -106,6 +106,10 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
     return true;
   }
 
+  static bool isChecklist(ParchmentStyle style) {
+    return style.values.contains(ParchmentAttribute.cl);
+  }
+
   // For lists and block code, new lines do not necessarily mean a new block
   static bool isSameBlock(_HtmlBlockTag previous, _HtmlBlockTag current) {
     final p = previous.style.values;
@@ -235,7 +239,10 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
         position += blockTag.inducedPadding;
       }
 
-      blockTag.closingPosition = buffer.length;
+      if (!isChecklist(blockTag.style)) {
+        blockTag.closingPosition = buffer.length;
+      }
+
       _writeBlockTag(buffer, blockTag);
     }
 

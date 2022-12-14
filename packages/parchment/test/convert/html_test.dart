@@ -446,6 +446,49 @@ void main() {
             '<div class="checklist-item"><input type="checkbox" disabled><label>&nbsp;item</label></div>'
             '</div>');
       });
+
+      test('Checklist followed by a link', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Check - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'cl', 'checked': true}
+          },
+          {'insert': 'Check - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'cl'}
+          },
+          {'insert': 'A link to a '},
+          {
+            'insert': 'site',
+            'attributes': {'a': 'https://example.com'}
+          },
+          {'insert': '.\n'}
+        ]);
+
+        expect(codec.encode(doc.toDelta()),
+            '<div class="checklist"><div class="checklist-item"><input type="checkbox" checked disabled><label>&nbsp;Check - 1</label></div><div class="checklist-item"><input type="checkbox" disabled><label>&nbsp;Check - 2</label></div></div><p>A link to a <a href="https://example.com">site</a>.</p>');
+      });
+
+      test('Checklist followed by a paragraph', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Check - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'cl', 'checked': true}
+          },
+          {'insert': 'Check - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'cl'}
+          },
+          {'insert': 'Paragraph\n'},
+        ]);
+
+        expect(codec.encode(doc.toDelta()),
+            '<div class="checklist"><div class="checklist-item"><input type="checkbox" checked disabled><label>&nbsp;Check - 1</label></div><div class="checklist-item"><input type="checkbox" disabled><label>&nbsp;Check - 2</label></div></div><p>Paragraph</p>');
+      });
     });
 
     group('Links', () {
