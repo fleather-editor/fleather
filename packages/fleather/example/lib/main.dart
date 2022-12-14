@@ -100,14 +100,11 @@ class _HomePageState extends State<HomePage> {
 
     if (node.value.type == 'image' &&
         node.value.data['source_type'] == 'assets') {
-      final flex = (node.value.data['orientation'] == 'landscape') ? 2 : 1;
-
-      return Flexible(
-        flex: flex,
-        child: Padding(
+      return Padding(
           // Caret takes 2 pixels, hence not symmetric padding values.
           padding: const EdgeInsets.only(left: 4, right: 2),
           child: Container(
+            width: 300,
             height: 300,
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -116,7 +113,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-        ),
       );
     }
 

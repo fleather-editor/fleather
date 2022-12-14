@@ -149,7 +149,7 @@
   {
     "insert": {
       "_type": "image",
-      "_inline": false,
+      "_inline": true,
       "source": "images/breeze.jpg",
       "orientation": "landscape",
       "source_type": "assets"
@@ -158,7 +158,7 @@
   {
     "insert": {
       "_type": "image",
-      "_inline": false,
+      "_inline": true,
       "source": "images/cody-manning-82xt4MtbJqg-unsplash.jpg",
       "source_type": "assets"
     }

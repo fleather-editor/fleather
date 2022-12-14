@@ -121,20 +121,15 @@ class _TextLineState extends State<TextLine> {
     assert(debugCheckHasMediaQuery(context));
 
     if (widget.node.hasBlockEmbed) {
-      final embeds = widget.node.children
-          .whereType<EmbedNode>()
-          .where((embed) => !embed.value.inline)
-          .map((embed) => widget.embedBuilder(context, embed));
-
-      return GroupEmbedProxy(
-        children: embeds.toList(),
+      return EmbedProxy(
+        child: widget.embedBuilder(context, widget.node.first as EmbedNode),
       );
     }
 
     final text = buildText(context, widget.node);
     final textAlign = getTextAlign(widget.node);
     final strutStyle =
-        StrutStyle.fromTextStyle(text.style!, forceStrutHeight: true);
+        StrutStyle.fromTextStyle(text.style!, forceStrutHeight: false);
     return RichTextProxy(
       textStyle: text.style!,
       textAlign: textAlign,
@@ -175,8 +170,10 @@ class _TextLineState extends State<TextLine> {
 
   InlineSpan _segmentToTextSpan(Node segment, FleatherThemeData theme) {
     if (segment is EmbedNode) {
-      return WidgetSpan(
-          child: EmbedProxy(child: widget.embedBuilder(context, segment)));
+      // TODO: Why do we need EmbedProxy? Things work fine without it.
+      // return WidgetSpan(
+      //     child: EmbedProxy(child: widget.embedBuilder(context, segment)));
+      return WidgetSpan(child: widget.embedBuilder(context, segment));
     }
     final text = segment as TextNode;
     final attrs = text.style;
