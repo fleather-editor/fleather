@@ -116,7 +116,7 @@ abstract class RenderEditableBox extends RenderBox {
   /// visually contiguous.
   ///
   /// Valid only after [layout].
-  // List<TextBox> getBoxesForSelection(TextSelection selection);
+  List<TextBox> getBoxesForSelection(TextSelection selection);
 
   /// Returns a point for the base selection handle used on touch-oriented
   /// devices.
