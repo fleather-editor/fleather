@@ -368,6 +368,7 @@ class RenderEditableTextLine extends RenderEditableBox {
         Offset(boxes.last.end, boxes.last.bottom), boxes.last.direction);
   }
 
+  @override
   List<TextBox> getBoxesForSelection(TextSelection selection) {
     final parentData = body!.parentData as BoxParentData;
     final boxes = body!.getBoxesForSelection(selection);
