@@ -201,7 +201,6 @@ class LineNode extends ContainerNode<LeafNode>
       // Delta format perspective.
       // We rely on heuristic rules to ensure that embeds occupy an entire line.
       _insertSafe(index, data, style);
-      // TODO: do we need to do something here?
       return;
     }
 

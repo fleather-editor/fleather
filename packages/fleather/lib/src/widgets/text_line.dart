@@ -119,13 +119,10 @@ class _TextLineState extends State<TextLine> {
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
-
     if (widget.node.hasBlockEmbed) {
-      return EmbedProxy(
-        child: widget.embedBuilder(context, widget.node.first as EmbedNode),
-      );
+      final embed = widget.node.children.single as EmbedNode;
+      return EmbedProxy(child: widget.embedBuilder(context, embed));
     }
-
     final text = buildText(context, widget.node);
     final textAlign = getTextAlign(widget.node);
     final strutStyle = StrutStyle.fromTextStyle(text.style!);
