@@ -34,7 +34,6 @@ List<Operation> skipToLineAt(DeltaIterator iter, int length) {
   return prefix;
 }
 
-// TODO: check where this is used
 bool isBlockEmbed(Object data) {
   if (data is EmbeddableObject) {
     return !data.inline;

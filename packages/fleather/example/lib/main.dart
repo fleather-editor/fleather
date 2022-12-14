@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:quill_delta/quill_delta.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void main() {
@@ -40,7 +41,17 @@ class _HomePageState extends State<HomePage> {
   Future<void> _initController() async {
     try {
       final result = await rootBundle.loadString('assets/welcome.json');
-      final doc = ParchmentDocument.fromJson(jsonDecode(result));
+      final heuristics = ParchmentHeuristics(
+        formatRules: [],
+        insertRules: [
+          ForceNewlineForInsertsAroundInlineImageRule(),
+        ],
+        deleteRules: [],
+      ).merge(ParchmentHeuristics.fallback);
+      final doc = ParchmentDocument.fromJson(
+        jsonDecode(result),
+        heuristics: heuristics,
+      );
       _controller = FleatherController(doc);
     } catch (err, st) {
       print('Cannot read welcome.json: $err\n$st');
@@ -101,18 +112,18 @@ class _HomePageState extends State<HomePage> {
     if (node.value.type == 'image' &&
         node.value.data['source_type'] == 'assets') {
       return Padding(
-          // Caret takes 2 pixels, hence not symmetric padding values.
-          padding: const EdgeInsets.only(left: 4, right: 2),
-          child: Container(
-            width: 300,
-            height: 300,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(node.value.data['source']),
-                fit: BoxFit.cover,
-              ),
+        // Caret takes 2 pixels, hence not symmetric padding values.
+        padding: const EdgeInsets.only(left: 4, right: 2),
+        child: Container(
+          width: 300,
+          height: 300,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(node.value.data['source']),
+              fit: BoxFit.cover,
             ),
           ),
+        ),
       );
     }
 
@@ -126,5 +137,46 @@ class _HomePageState extends State<HomePage> {
     if (_canLaunch) {
       await launchUrl(uri);
     }
+  }
+}
+
+class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
+  @override
+  Delta? apply(Delta document, int index, Object data) {
+    if (data is! String) return null;
+
+    final iter = DeltaIterator(document);
+    final previous = iter.skip(index);
+    final target = iter.next();
+    final cursorBeforeBlockEmbed = _isInlineImage(target.data);
+    final cursorAfterBlockEmbed =
+        previous != null && _isInlineImage(previous.data);
+
+    if (cursorBeforeBlockEmbed || cursorAfterBlockEmbed) {
+      final delta = Delta()..retain(index);
+      if (cursorBeforeBlockEmbed && !data.endsWith('\n')) {
+        return delta
+          ..insert(data)
+          ..insert('\n');
+      }
+      if (cursorAfterBlockEmbed && !data.startsWith('\n')) {
+        return delta
+          ..insert('\n')
+          ..insert(data);
+      }
+      return delta..insert(data);
+    }
+    return null;
+  }
+
+  bool _isInlineImage(Object data) {
+    if (data is EmbeddableObject) {
+      return data.type == 'image' && data.inline;
+    }
+    if (data is Map) {
+      return data[EmbeddableObject.kTypeKey] == 'image' &&
+          data[EmbeddableObject.kInlineKey];
+    }
+    return false;
   }
 }
