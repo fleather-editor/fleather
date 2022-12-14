@@ -207,22 +207,10 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
     }
 
     // Close any remaining blocks
-    final openBlockTags = state.openBlockTags;
-    final buffer = state.buffer;
-    for (var i = 0; i < openBlockTags.length; i++) {
-      final blockTag = openBlockTags[i];
-      // special handling for nested blocs (only nested list at the moment)
-      if (i < openBlockTags.length - 1 &&
-          isNestedList(openBlockTags[i + 1].style, blockTag.style)) {
-        // blockTag.closingPosition = nextLineStartPosition;
-        _writeBlockTag(buffer, blockTag..closingPosition = buffer.length);
-        continue;
-      }
-      _writeBlockTag(buffer, blockTag..closingPosition = buffer.length);
-    }
+    _closeOpenBlocks(state);
 
     // Remove default paragraph block if single line of text
-    String result = buffer.toString();
+    String result = state.buffer.toString();
     if (state.isSingleLine && result.startsWith('<p>')) {
       result = result.substring('<p>'.length, result.length - '</p>'.length);
     }
@@ -232,6 +220,27 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
         .replaceFirst(_brPrEolRegex, '</p>')
         .replaceFirst(_brEolRegex, '');
     return result;
+  }
+
+  /// Closes all open blocks and returns the ending position.
+  int _closeOpenBlocks(_EncoderState state) {
+    final openBlockTags = state.openBlockTags;
+    final buffer = state.buffer;
+    final numToClose = openBlockTags.length;
+    var position = 0;
+    for (var i = 0; i < numToClose; i++) {
+      final blockTag = openBlockTags[i];
+      position += blockTag.closingPosition;
+      if (!isPlain(blockTag.style)) {
+        position += blockTag.inducedPadding;
+      }
+
+      blockTag.closingPosition = buffer.length;
+      _writeBlockTag(buffer, blockTag);
+    }
+
+    state.openBlockTags.clear();
+    return numToClose == 1 ? position : buffer.length;
   }
 
   bool _hasPlainParagraph(Operation op) {
@@ -289,13 +298,9 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
     var initialPosition = position;
     final openBlockTags = state.openBlockTags;
     final buffer = state.buffer;
+
     if (openBlockTags.isNotEmpty) {
-      final currentBlock = openBlockTags.removeAt(0);
-      position = currentBlock.closingPosition;
-      if (!isPlain(currentBlock.style)) {
-        _writeBlockTag(buffer, currentBlock);
-        position += currentBlock.inducedPadding;
-      }
+      position = _closeOpenBlocks(state);
       state.isSingleLine = false;
     }
 
@@ -309,7 +314,7 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
       final subOp = Operation.insert(lines[i]);
 
       // Last line opens a new paragraph for later treatments and writes to buffer if
-      // there's anything to write (in which case, it is no more a single ligne input)
+      // there's anything to write (in which case, it is no more a single line input)
       if (i == lines.length - 1) {
         // Done with set of paragraphs, add last paragraph to block stack.
         openBlockTags.insert(
@@ -328,10 +333,8 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
       position = buffer.length;
     }
 
-    // TODO This assert currently fails the 'Multi-level lists with trailing paragraph' test.
-    // TODO Taking the assert out causes the test to at least generate HTML, albeit incorrect.
-    // assert(openBlockTags.length <= 1,
-    //     'At most one paragraph should be pushed in stack');
+    assert(openBlockTags.length <= 1,
+        'At most one paragraph should be pushed in stack');
     state.nextLineStartPosition = position;
   }
 
@@ -402,16 +405,16 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
 
   void _writeTag(StringBuffer buffer, _HtmlTag tag) {
     final html = buffer.toString();
-    buffer.clear();
     final preHtml = html.substring(0, tag.openingPosition);
-    final openTag = tag.openTag;
     var innerHtml = html.substring(tag.openingPosition);
-    final closeTag = tag.closeTag;
+    var openTag = tag.openTag;
+    var closeTag = tag.closeTag;
     if (closeTag == '</p>' && innerHtml.trim().isEmpty) {
       // Add <br> if it is a blank paragraph. This should render as an empty line.
       innerHtml = '$innerHtml<br>';
     }
 
+    buffer.clear();
     buffer.writeAll([
       preHtml,
       openTag,
@@ -426,13 +429,15 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
       return;
     }
 
+    final openTag = tag.openTag;
+    final closeTag = tag.closeTag;
     final html = buffer.toString();
     buffer.clear();
     buffer.writeAll([
       html.substring(0, tag.openingPosition),
-      tag.openTag,
+      openTag,
       html.substring(tag.openingPosition, tag.closingPosition),
-      tag.closeTag,
+      closeTag,
       html.substring(tag.closingPosition),
     ]);
   }
@@ -440,7 +445,6 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
   void _writeData(Operation op, StringBuffer buffer) {
     if (op.data is String) {
       var elementContent = op.data as String;
-      // TODO Unless in pre.
       elementContent = elementContent.replaceAll('\n', '');
       // All content must be HTML-escaped
       elementContent = _htmlElementEscape.convert(elementContent);
@@ -552,8 +556,8 @@ class _HtmlLineTag extends _HtmlTag {
     if (_tagCss == null) {
       final content = [
         alignmentCss,
-        indentationCss,
         blockquoteCss,
+        indentationCss,
       ].where((css) => css != null).join();
       _tagCss = content.isEmpty
           ? ''
@@ -585,7 +589,7 @@ class _HtmlLineTag extends _HtmlTag {
   String? get blockquoteCss {
     // inline style required for HTML-based email.
     return style.values.contains(ParchmentAttribute.bq)
-        ? 'margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;'
+        ? 'margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;'
         : null;
   }
 

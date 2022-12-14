@@ -112,6 +112,39 @@ void main() {
         expect(codec.encode(doc.toDelta()),
             '<p>Line 1</p><p><br></p><p><br></p><p><br></p><p>Line 2</p><p>Line3</p><p>not blank1</p><p>not blank2</p><p>not blank3</p><p>Line 4</p><p><strong>Line 5</strong></p><p> <br></p><p><br></p><p><br></p><p><strong>Line 6</strong></p>');
       });
+
+      test('several styled lines in a row', () {
+        // Tests that we don't generate nested <p> tags.
+        final doc = ParchmentDocument.fromJson([
+          {
+            'insert': 'Bold',
+            'attributes': {'b': true}
+          },
+          {'insert': '\n'},
+          {
+            'insert': 'Italic',
+            'attributes': {'i': true}
+          },
+          {'insert': '\n'},
+          {
+            'insert': 'Bold',
+            'attributes': {'b': true}
+          },
+          {'insert': '\n'},
+          {
+            'insert': 'Italic',
+            'attributes': {'i': true}
+          },
+          {'insert': '\n'},
+          {
+            'insert': 'Bold',
+            'attributes': {'b': true}
+          },
+          {'insert': '\n'},
+        ]);
+        expect(codec.encode(doc.toDelta()),
+            '<p><strong>Bold</strong></p><p><em>Italic</em></p><p><strong>Bold</strong></p><p><em>Italic</em></p><p><strong>Bold</strong></p>');
+      });
     });
 
     group('Headings', () {
@@ -191,7 +224,7 @@ void main() {
           ]);
 
           expect(codec.encode(doc.toDelta()),
-              '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
+              '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
         });
 
         test('Consecutive with same style', () {
@@ -210,8 +243,8 @@ void main() {
 
           expect(
               codec.encode(doc.toDelta()),
-              '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>'
-              '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
+              '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>'
+              '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
         });
 
         test('Consecutive with different styles', () {
@@ -230,8 +263,8 @@ void main() {
 
           expect(
               codec.encode(doc.toDelta()),
-              '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>'
-              '<blockquote style="text-align:center;margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
+              '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>'
+              '<blockquote style="text-align:center;margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
         });
       });
 
@@ -302,7 +335,7 @@ void main() {
           codec.encode(doc.toDelta()),
           '<p>Hello world</p>'
           '<p><strong>Another</strong> one</p>'
-          '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">some <strong>quote</strong></blockquote>',
+          '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">some <strong>quote</strong></blockquote>',
         );
       });
 
@@ -331,7 +364,7 @@ void main() {
           '<p>Hello world</p>'
           '<pre><code>some code\n</code></pre>'
           '<p>Hello world</p>'
-          '<blockquote style="margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">some quote</blockquote>'
+          '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">some quote</blockquote>'
           '<p>Hello world</p>',
         );
       });
@@ -721,25 +754,122 @@ void main() {
         );
       });
 
-      // TODO This test currently fails on an assertion: 'openBlockTags.length <= 1'
       test('Multi-level lists with trailing paragraph', () {
         final doc = ParchmentDocument.fromJson([
           {'insert': 'Test\n'},
-          {'insert': 'Multi-level lists'},
+          {'insert': 'Level 1 - 1'},
           {
             'insert': '\n',
             'attributes': {'block': 'ol'}
           },
-          {'insert': 'with trailing paragraph'},
+          {'insert': 'Level 1 - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+          {'insert': 'Level 2 - 1'},
           {
             'insert': '\n',
             'attributes': {'block': 'ol', 'indent': 1}
           },
-          {'insert': 'End\n'}
+          {'insert': 'Level 2 - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 1}
+          },
+          {'insert': 'No longer in list\n'}
         ]);
         expect(codec.encode(doc.toDelta()),
-            '<p>Test</p><ol><li>Multi-level lists</li><ol><li>with trailing paragraph</li></ol></ol><p>End</p>');
-      }, skip: true);
+            '<p>Test</p><ol><li>Level 1 - 1</li><li>Level 1 - 2</li><ol><li>Level 2 - 1</li><li>Level 2 - 2</li></ol></ol><p>No longer in list</p>');
+      });
+
+      test('Extreme multi-level lists with trailing paragraph', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Test\n'},
+          {'insert': 'Level 1 - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+          {'insert': 'Level 1 - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+          {'insert': 'Level 2 - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 1}
+          },
+          {'insert': 'Level 2 - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 1}
+          },
+          {'insert': 'Level 3 - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 2}
+          },
+          {'insert': 'Level 3 - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 2}
+          },
+          {'insert': 'Level 4 - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 3}
+          },
+          {'insert': 'Level 4 - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 3}
+          },
+          {'insert': 'No longer in list\n'}
+        ]);
+        expect(codec.encode(doc.toDelta()),
+            '<p>Test</p><ol><li>Level 1 - 1</li><li>Level 1 - 2</li><ol><li>Level 2 - 1</li><li>Level 2 - 2</li><ol><li>Level 3 - 1</li><li>Level 3 - 2</li><ol><li>Level 4 - 1</li><li>Level 4 - 2</li></ol></ol></ol></ol><p>No longer in list</p>');
+      });
+
+      test('Multiple Multi-level lists', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Test\n'},
+          {'insert': 'Level 1 - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+          {'insert': 'Level 1 - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+          {'insert': 'Level 2 - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 1}
+          },
+          {'insert': 'Level 2 - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 1}
+          },
+          {'insert': 'No longer in list\n'},
+          {'insert': 'In a new list - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+          {'insert': 'In a new list - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+        ]);
+        expect(codec.encode(doc.toDelta()),
+            '<p>Test</p><ol><li>Level 1 - 1</li><li>Level 1 - 2</li><ol><li>Level 2 - 1</li><li>Level 2 - 2</li></ol></ol><p>No longer in list</p><ol><li>In a new list - 1</li><li>In a new list - 2</li></ol>');
+      });
 
       test('Paragraph with margin', () {
         final doc = ParchmentDocument.fromJson([
@@ -755,7 +885,7 @@ void main() {
             '<p style="padding-left:32px;">Something in the way...</p>');
       });
 
-      test('Quotes with margin', () {
+      test('Quotes with indent', () {
         final doc = ParchmentDocument.fromJson([
           {'insert': 'Something in the way...\nSomething in the way...'},
           {
@@ -766,7 +896,25 @@ void main() {
         expect(
             codec.encode(doc.toDelta()),
             '<p>Something in the way...</p>'
-            '<blockquote style="padding-left:32px;margin: 0px 0px 0px 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Something in the way...</blockquote>');
+            '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;padding-left:32px;">Something in the way...</blockquote>');
+      });
+
+      test('Quote with embedded heading', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Quote'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'quote'}
+          },
+          {'insert': 'header'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'quote', 'heading': 1}
+          },
+          {'insert': 'Not in quote\n'},
+        ]);
+        expect(codec.encode(doc.toDelta()),
+            '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Quote</blockquote><blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;"><h1 style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">header</blockquote></h1><p>Not in quote</p>');
       });
     });
 
