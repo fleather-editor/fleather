@@ -478,12 +478,15 @@ class _IndentationButtonState extends State<IndentationButton> {
 
 class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget> children;
+  final EdgeInsetsGeometry? padding;
 
-  const FleatherToolbar({Key? key, required this.children}) : super(key: key);
+  const FleatherToolbar({Key? key, this.padding, required this.children})
+      : super(key: key);
 
   factory FleatherToolbar.basic({
     Key? key,
     required FleatherController controller,
+    EdgeInsetsGeometry? padding,
     bool hideBoldButton = false,
     bool hideItalicButton = false,
     bool hideUnderLineButton = false,
@@ -503,7 +506,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
     List<Widget> trailing = const <Widget>[],
     bool hideAlignment = false,
   }) {
-    return FleatherToolbar(key: key, children: [
+    return FleatherToolbar(key: key, padding: padding, children: [
       ...leading,
       Visibility(
         visible: !hideBoldButton,
@@ -727,7 +730,7 @@ class _FleatherToolbarState extends State<FleatherToolbar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
       constraints: BoxConstraints.tightFor(height: widget.preferredSize.height),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
