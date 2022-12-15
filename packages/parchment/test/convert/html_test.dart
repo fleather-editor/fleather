@@ -333,6 +333,26 @@ void main() {
         );
       });
 
+      test('Code then bold paragraph', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'some code'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'code'}
+          },
+          {
+            'insert': 'Hello world',
+            'attributes': {'b': true}
+          },
+          {'insert': '\n'}
+        ]);
+        expect(
+          codec.encode(doc.toDelta()),
+          '<pre><code>some code\n'
+          '</code></pre><p><strong>Hello world</strong></p>',
+        );
+      });
+
       test('Paragraphs then quote', () {
         final doc = ParchmentDocument.fromJson([
           {'insert': 'Hello world\n'},
