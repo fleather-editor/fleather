@@ -109,8 +109,23 @@ void main() {
           },
           {'insert': '\n'}
         ]);
-        expect(codec.encode(doc.toDelta()),
-            '<p>Line 1</p><p><br></p><p><br></p><p><br></p><p>Line 2</p><p>Line3</p><p>not blank1</p><p>not blank2</p><p>not blank3</p><p>Line 4</p><p><strong>Line 5</strong></p><p> <br></p><p><br></p><p><br></p><p><strong>Line 6</strong></p>');
+        expect(
+            codec.encode(doc.toDelta()),
+            '<p>Line 1</p>'
+            '<p><br></p>'
+            '<p><br></p>'
+            '<p><br></p>'
+            '<p>Line 2</p>'
+            '<p>Line3</p>'
+            '<p>not blank1</p>'
+            '<p>not blank2</p>'
+            '<p>not blank3</p>'
+            '<p>Line 4</p>'
+            '<p><strong>Line 5</strong></p>'
+            '<p> <br></p>'
+            '<p><br></p>'
+            '<p><br></p>'
+            '<p><strong>Line 6</strong></p>');
       });
 
       test('several styled lines in a row', () {
@@ -142,8 +157,13 @@ void main() {
           },
           {'insert': '\n'},
         ]);
-        expect(codec.encode(doc.toDelta()),
-            '<p><strong>Bold</strong></p><p><em>Italic</em></p><p><strong>Bold</strong></p><p><em>Italic</em></p><p><strong>Bold</strong></p>');
+        expect(
+            codec.encode(doc.toDelta()),
+            '<p><strong>Bold</strong></p>'
+            '<p><em>Italic</em></p>'
+            '<p><strong>Bold</strong></p>'
+            '<p><em>Italic</em></p>'
+            '<p><strong>Bold</strong></p>');
       });
     });
 
@@ -467,8 +487,13 @@ void main() {
           {'insert': '.\n'}
         ]);
 
-        expect(codec.encode(doc.toDelta()),
-            '<div class="checklist"><div class="checklist-item"><input type="checkbox" checked disabled><label>&nbsp;Check - 1</label></div><div class="checklist-item"><input type="checkbox" disabled><label>&nbsp;Check - 2</label></div></div><p>A link to a <a href="https://example.com">site</a>.</p>');
+        expect(
+            codec.encode(doc.toDelta()),
+            '<div class="checklist">'
+            '<div class="checklist-item"><input type="checkbox" checked disabled><label>&nbsp;Check - 1</label></div>'
+            '<div class="checklist-item"><input type="checkbox" disabled><label>&nbsp;Check - 2</label></div>'
+            '</div>'
+            '<p>A link to a <a href="https://example.com">site</a>.</p>');
       });
 
       test('Checklist followed by a paragraph', () {
@@ -486,8 +511,12 @@ void main() {
           {'insert': 'Paragraph\n'},
         ]);
 
-        expect(codec.encode(doc.toDelta()),
-            '<div class="checklist"><div class="checklist-item"><input type="checkbox" checked disabled><label>&nbsp;Check - 1</label></div><div class="checklist-item"><input type="checkbox" disabled><label>&nbsp;Check - 2</label></div></div><p>Paragraph</p>');
+        expect(
+            codec.encode(doc.toDelta()),
+            '<div class="checklist">'
+            '<div class="checklist-item"><input type="checkbox" checked disabled><label>&nbsp;Check - 1</label></div>'
+            '<div class="checklist-item"><input type="checkbox" disabled><label>&nbsp;Check - 2</label></div></div>'
+            '<p>Paragraph</p>');
       });
     });
 

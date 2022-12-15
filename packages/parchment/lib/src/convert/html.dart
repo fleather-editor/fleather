@@ -106,10 +106,6 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
     return true;
   }
 
-  static bool isChecklist(ParchmentStyle style) {
-    return style.values.contains(ParchmentAttribute.cl);
-  }
-
   // For lists and block code, new lines do not necessarily mean a new block
   static bool isSameBlock(_HtmlBlockTag previous, _HtmlBlockTag current) {
     final p = previous.style.values;
@@ -227,22 +223,25 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
   }
 
   /// Closes all open blocks and returns the ending position.
-  int _closeOpenBlocks(_EncoderState state) {
+  int _closeOpenBlocks(_EncoderState state,
+      {bool beforePlainParagraphHandling = false}) {
     final openBlockTags = state.openBlockTags;
     final buffer = state.buffer;
     final numToClose = openBlockTags.length;
-    var position = 0;
+    int position = 0;
     for (var i = 0; i < numToClose; i++) {
       final blockTag = openBlockTags[i];
-      position += blockTag.closingPosition;
+      if (position > 0) {
+        blockTag.closingPosition = position;
+      } else {
+        position = blockTag.closingPosition;
+      }
       if (!isPlain(blockTag.style)) {
         position += blockTag.inducedPadding;
       }
-
-      if (!isChecklist(blockTag.style)) {
+      if (i == numToClose - 1 && !beforePlainParagraphHandling) {
         blockTag.closingPosition = buffer.length;
       }
-
       _writeBlockTag(buffer, blockTag);
     }
 
@@ -307,7 +306,7 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
     final buffer = state.buffer;
 
     if (openBlockTags.isNotEmpty) {
-      position = _closeOpenBlocks(state);
+      position = _closeOpenBlocks(state, beforePlainParagraphHandling: true);
       state.isSingleLine = false;
     }
 
