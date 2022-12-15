@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> {
         node.value.data['source_type'] == 'assets') {
       return Padding(
         // Caret takes 2 pixels, hence not symmetric padding values.
-        padding: const EdgeInsets.only(left: 4, right: 2),
+        padding: const EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
         child: Container(
           width: 300,
           height: 300,
@@ -156,17 +156,14 @@ class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
 
     if (cursorBeforeBlockEmbed || cursorAfterBlockEmbed) {
       final delta = Delta()..retain(index);
-      if (cursorBeforeBlockEmbed && !data.endsWith('\n')) {
-        return delta
-          ..insert(data)
-          ..insert('\n');
-      }
       if (cursorAfterBlockEmbed && !data.startsWith('\n')) {
-        return delta
-          ..insert('\n')
-          ..insert(data);
+        delta.insert('\n');
       }
-      return delta..insert(data);
+      delta.insert(data);
+      if (cursorBeforeBlockEmbed && !data.endsWith('\n')) {
+        delta.insert('\n');
+      }
+      return delta;
     }
     return null;
   }
