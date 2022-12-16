@@ -166,10 +166,8 @@ class _TextLineState extends State<TextLine> {
 
   InlineSpan _segmentToTextSpan(Node segment, FleatherThemeData theme) {
     if (segment is EmbedNode) {
-      // TODO: Why do we need EmbedProxy? Things work fine without it.
-      // return WidgetSpan(
-      //     child: EmbedProxy(child: widget.embedBuilder(context, segment)));
-      return WidgetSpan(child: widget.embedBuilder(context, segment));
+      return WidgetSpan(
+          child: EmbedProxy(child: widget.embedBuilder(context, segment)));
     }
     final text = segment as TextNode;
     final attrs = text.style;
