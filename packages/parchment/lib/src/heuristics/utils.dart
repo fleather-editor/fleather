@@ -43,3 +43,13 @@ bool isBlockEmbed(Object data) {
   }
   return false;
 }
+
+bool isGroupBlockEmbed(Object data) {
+  if (data is EmbeddableObject) {
+    return data.group && isBlockEmbed(data);
+  }
+  if (data is Map) {
+    return data[EmbeddableObject.kGroupKey] == true && isBlockEmbed(data);
+  }
+  return false;
+}

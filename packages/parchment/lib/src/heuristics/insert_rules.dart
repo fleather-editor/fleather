@@ -341,17 +341,14 @@ class ForceNewlineForInsertsAroundBlockEmbedRule extends InsertRule {
 
     if (cursorBeforeBlockEmbed || cursorAfterBlockEmbed) {
       final delta = Delta()..retain(index);
-      if (cursorBeforeBlockEmbed && !data.endsWith('\n')) {
-        return delta
-          ..insert(data)
-          ..insert('\n');
-      }
       if (cursorAfterBlockEmbed && !data.startsWith('\n')) {
-        return delta
-          ..insert('\n')
-          ..insert(data);
+        delta.insert('\n');
       }
-      return delta..insert(data);
+      delta.insert(data);
+      if (cursorBeforeBlockEmbed && !data.endsWith('\n')) {
+        delta.insert('\n');
+      }
+      return delta;
     }
     return null;
   }

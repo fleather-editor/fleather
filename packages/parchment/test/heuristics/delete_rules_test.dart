@@ -97,7 +97,7 @@ void main() {
         ..insert(BlockEmbed.horizontalRule)
         ..insert('\n');
       final actual = rule.apply(doc, 8, 1);
-      final expected = Delta()..retain(8);
+      final expected = Delta();
       expect(actual, expected);
     });
 
@@ -107,7 +107,7 @@ void main() {
         ..insert(BlockEmbed.horizontalRule)
         ..insert('\n');
       final actual = rule.apply(doc, 10, 1);
-      final expected = Delta()..retain(11);
+      final expected = Delta();
       expect(actual, expected);
     });
 
@@ -134,10 +134,8 @@ void main() {
         ..insert('Text')
         ..insert('\n');
       final actual = rule.apply(doc, 10, 1);
-      final expected = Delta()
-        ..retain(11)
-        ..delete(1);
-      expect(actual, expected);
+      // Delegate to next rules
+      expect(actual, isNull);
     });
 
     test('allows deleting empty line(s) before embed', () {
@@ -150,6 +148,18 @@ void main() {
         ..insert('Text')
         ..insert('\n');
       final actual = rule.apply(doc, 11, 1);
+      expect(actual, isNull);
+    });
+
+    test('allows deleting empty line in-between group embeds', () {
+      final doc = Delta()
+        ..insert('Document\n')
+        ..insert(BlockEmbed('image', group: true))
+        ..insert('\n')
+        ..insert(BlockEmbed('image', group: true))
+        ..insert('\n');
+      final actual = rule.apply(doc, 10, 1);
+      // Delegate to next rules
       expect(actual, isNull);
     });
   });

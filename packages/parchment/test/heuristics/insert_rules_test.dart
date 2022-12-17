@@ -524,4 +524,45 @@ void main() {
       expect(actual, expected);
     });
   });
+
+  group('$ForceNewlineForInsertsAroundBlockEmbedRule', () {
+    final rule = ForceNewlineForInsertsAroundBlockEmbedRule();
+
+    test('insert text after embed', () {
+      final doc = Delta()
+        ..insert('abc\n')
+        ..insert(BlockEmbed.horizontalRule)
+        ..insert('\n');
+      final actual = rule.apply(doc, 5, '123');
+      final expected = Delta()
+        ..retain(5)
+        ..insert('\n123');
+      expect(actual, expected);
+    });
+
+    test('insert text before embed', () {
+      final doc = Delta()
+        ..insert('abc\n')
+        ..insert(BlockEmbed.horizontalRule)
+        ..insert('\n');
+      final actual = rule.apply(doc, 4, '123');
+      final expected = Delta()
+        ..retain(4)
+        ..insert('123\n');
+      expect(actual, expected);
+    });
+
+    test('insert text in-between embeds', () {
+      final doc = Delta()
+        ..insert('abc\n')
+        ..insert(BlockEmbed('image', group: true))
+        ..insert(BlockEmbed('image', group: true))
+        ..insert('\n');
+      final actual = rule.apply(doc, 5, '123');
+      final expected = Delta()
+        ..retain(5)
+        ..insert('\n123\n');
+      expect(actual, expected);
+    });
+  });
 }

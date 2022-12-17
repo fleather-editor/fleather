@@ -109,55 +109,82 @@ class EnsureEmbedLineRule extends DeleteRule {
   Delta? apply(Delta document, int index, int length) {
     final iter = DeltaIterator(document);
 
-    // First, check if newline deleted after an embed.
-    var op = iter.skip(index);
-    var indexDelta = 0;
-    var lengthDelta = 0;
-    var remaining = length;
-    var foundBlockEmbed = false;
-    var hasLineBreakBefore = false;
-    if (op != null && isBlockEmbed(op.data)) {
-      foundBlockEmbed = true;
-      var candidate = iter.next(1);
-      remaining--;
-      if (candidate.data == '\n') {
-        indexDelta += 1;
-        lengthDelta -= 1;
+    final prev = iter.skip(index);
+    // Text that we want to delete
+    final target = iter.skip(length);
 
-        /// Check if it's an empty line
-        candidate = iter.next(1);
-        remaining--;
-        if (candidate.data == '\n') {
-          // Allow deleting empty line after an embed.
-          lengthDelta += 1;
+    final targetText = target?.data is String ? target!.data as String : '';
+    if (targetText.endsWith('\n') || targetText.startsWith('\n')) {
+      // Text or block that comes after deleted text
+      final next = iter.next();
+
+      final prevText = prev?.data is String ? prev!.data as String : '';
+      final nextText = next.data is String ? next.data as String : '';
+      if (prev == null || prevText.endsWith('\n') || nextText == '\n') {
+        // Allow deleting in-between empty lines
+        return null;
+      }
+
+      final canPrevGroup = isGroupBlockEmbed(prev.data);
+      final canNextGroup = isGroupBlockEmbed(next.data);
+      if (canPrevGroup && canNextGroup) {
+        // Allow joining embeds that support grouping
+        return null;
+      }
+
+      final isPrevBlock = isBlockEmbed(prev.data);
+      final isNextBlock = isBlockEmbed(next.data);
+
+      if (isPrevBlock) {
+        if (nextText.startsWith('\n')) {
+          // Block + \n + text  --> all good
+          return _withDeletion(index, length);
         }
-      }
-    } else {
-      // If op is `null` it's beginning of the doc, e.g. implicit line break.
-      final opText = op?.data is String ? op?.data as String : '';
-      hasLineBreakBefore = op == null || opText.endsWith('\n');
-    }
 
-    // Second, check if newline deleted before an embed.
-    op = iter.skip(remaining);
-    final opText = op?.data is String ? op!.data as String : '';
-    if (op != null && opText.endsWith('\n')) {
-      final candidate = iter.next(1);
-      // If there is a newline before deleted range we allow the operation
-      // since it results in a correctly formatted line with a single embed in
-      // it.
-      if (!hasLineBreakBefore && isBlockEmbed(candidate.data)) {
-        foundBlockEmbed = true;
-        lengthDelta -= 1;
+        // Block + text  --> keep single newline from target
+        return _withSingleNewline(index, length, targetText);
       }
-    }
 
-    if (foundBlockEmbed) {
-      return Delta()
-        ..retain(index + indexDelta)
-        ..delete(length + lengthDelta);
+      if (isNextBlock) {
+        if (prevText.endsWith('\n')) {
+          // Text + \n + block  --> all good
+          return _withDeletion(index, length);
+        }
+
+        // Text + block  --> keep single newline from target
+        return _withSingleNewline(index, length, targetText);
+      }
     }
 
     return null;
+  }
+
+  static Delta _withDeletion(int index, int length) {
+    return Delta()
+      ..retain(index)
+      ..delete(length);
+  }
+
+  /// Delete target text but a single newline character.
+  static Delta _withSingleNewline(int index, int length, String targetText) {
+    if (targetText == '\n') {
+      // No changes needed
+      return Delta();
+    }
+
+    // TODO: we need to clear attributes from kept newline
+    //       e.g. try deleting list next to embed
+
+    if (targetText.startsWith('\n')) {
+      // Keep leading newline
+      return Delta()
+        ..retain(index + 1)
+        ..delete(length - 2);
+    } else {
+      // Keep trailing newline
+      return Delta()
+        ..retain(index)
+        ..delete(length - 1);
+    }
   }
 }

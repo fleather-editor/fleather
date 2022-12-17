@@ -16,14 +16,20 @@ class EmbeddableObject {
   /// Key of the "inline" attribute in the data map. This key is reserved.
   static const kInlineKey = '_inline';
 
+  /// Key of the "group" attribute in the data map. This key is reserved.
+  static const kGroupKey = '_group';
+
   EmbeddableObject(
     this.type, {
     required this.inline,
+    this.group = false,
     Map<String, dynamic> data = const {},
   })  : assert(!data.containsKey(kTypeKey),
             'The "$kTypeKey" key is reserved in $EmbeddableObject data and cannot be used.'),
         assert(!data.containsKey(kInlineKey),
             'The "$kInlineKey" key is reserved in $EmbeddableObject data and cannot be used.'),
+        assert(!data.containsKey(kGroupKey),
+            'The "$kGroupKey" key is reserved in $EmbeddableObject data and cannot be used.'),
         _data = Map.from(data);
 
   /// The type of this object.
@@ -33,6 +39,9 @@ class EmbeddableObject {
   /// text, otherwise it occupies an entire line.
   final bool inline;
 
+  /// If set to `true` then this object can be present with other embeds on the same line.
+  final bool group;
+
   /// The data payload of this object.
   Map<String, dynamic> get data => UnmodifiableMapView(_data);
   final Map<String, dynamic> _data;
@@ -40,13 +49,15 @@ class EmbeddableObject {
   static EmbeddableObject fromJson(Map<String, dynamic> json) {
     final type = json[kTypeKey] as String;
     final inline = json[kInlineKey] as bool;
+    final group = json[kGroupKey] as bool? ?? false;
     final data = Map<String, dynamic>.from(json);
     data.remove(kTypeKey);
     data.remove(kInlineKey);
+    data.remove(kGroupKey);
     if (inline) {
       return SpanEmbed(type, data: data);
     }
-    return BlockEmbed(type, data: data);
+    return BlockEmbed(type, group: group, data: data);
   }
 
   @override
@@ -72,6 +83,9 @@ class EmbeddableObject {
     final json = Map<String, dynamic>.from(_data);
     json[kTypeKey] = type;
     json[kInlineKey] = inline;
+    if (group) {
+      json[kGroupKey] = group;
+    }
     return json;
   }
 }
@@ -94,10 +108,9 @@ class SpanEmbed extends EmbeddableObject {
 /// of embedded objects and allows users to define their own types.
 class BlockEmbed extends EmbeddableObject {
   /// Creates a new block embed of specified [type] and containing [data].
-  BlockEmbed(
-    String type, {
-    Map<String, dynamic> data = const {},
-  }) : super(type, inline: false, data: data);
+  BlockEmbed(String type,
+      {Map<String, dynamic> data = const {}, bool group = false})
+      : super(type, inline: false, group: group, data: data);
 
   static final BlockEmbed horizontalRule = BlockEmbed('hr');
   static BlockEmbed image(String source) =>
