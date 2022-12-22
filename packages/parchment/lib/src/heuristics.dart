@@ -97,4 +97,13 @@ class ParchmentHeuristics {
     }
     throw StateError('Failed to apply delete heuristic rules: none applied.');
   }
+
+  /// Creates a copy of this heuristics with rules from other appended.
+  ParchmentHeuristics merge(ParchmentHeuristics other) {
+    return ParchmentHeuristics(
+      formatRules: formatRules..addAll(other.formatRules),
+      insertRules: insertRules..addAll(other.insertRules),
+      deleteRules: deleteRules..addAll(other.deleteRules),
+    );
+  }
 }

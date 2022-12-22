@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:quill_delta/quill_delta.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void main() {
@@ -42,9 +43,20 @@ class _HomePageState extends State<HomePage> {
   Future<void> _initController() async {
     try {
       final result = await rootBundle.loadString('assets/welcome.json');
-      final doc = ParchmentDocument.fromJson(jsonDecode(result));
+      final heuristics = ParchmentHeuristics(
+        formatRules: [],
+        insertRules: [
+          ForceNewlineForInsertsAroundInlineImageRule(),
+        ],
+        deleteRules: [],
+      ).merge(ParchmentHeuristics.fallback);
+      final doc = ParchmentDocument.fromJson(
+        jsonDecode(result),
+        heuristics: heuristics,
+      );
       _controller = FleatherController(doc);
-    } catch (_) {
+    } catch (err, st) {
+      print('Cannot read welcome.json: $err\n$st');
       _controller = FleatherController();
     }
     setState(() {});
@@ -88,6 +100,7 @@ class _HomePageState extends State<HomePage> {
         color: Colors.grey.shade200,
       );
     }
+
     if (node.value.type == 'icon') {
       final data = node.value.data;
       // Icons.rocket_launch_outlined
@@ -97,10 +110,25 @@ class _HomePageState extends State<HomePage> {
         size: 18,
       );
     }
+
     if (node.value.type == 'image' &&
         node.value.data['source_type'] == 'assets') {
-      return Image.asset(node.value.data['source']);
+      return Padding(
+        // Caret takes 2 pixels, hence not symmetric padding values.
+        padding: const EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
+        child: Container(
+          width: 300,
+          height: 300,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(node.value.data['source']),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      );
     }
+
     throw UnimplementedError();
   }
 
@@ -111,5 +139,45 @@ class _HomePageState extends State<HomePage> {
     if (_canLaunch) {
       await launchUrl(uri);
     }
+  }
+}
+
+/// This is an example insert rule that will insert a new line before and
+/// after inline image embed.
+class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
+  @override
+  Delta? apply(Delta document, int index, Object data) {
+    if (data is! String) return null;
+
+    final iter = DeltaIterator(document);
+    final previous = iter.skip(index);
+    final target = iter.next();
+    final cursorBeforeInlineEmbed = _isInlineImage(target.data);
+    final cursorAfterInlineEmbed =
+        previous != null && _isInlineImage(previous.data);
+
+    if (cursorBeforeInlineEmbed || cursorAfterInlineEmbed) {
+      final delta = Delta()..retain(index);
+      if (cursorAfterInlineEmbed && !data.startsWith('\n')) {
+        delta.insert('\n');
+      }
+      delta.insert(data);
+      if (cursorBeforeInlineEmbed && !data.endsWith('\n')) {
+        delta.insert('\n');
+      }
+      return delta;
+    }
+    return null;
+  }
+
+  bool _isInlineImage(Object data) {
+    if (data is EmbeddableObject) {
+      return data.type == 'image' && data.inline;
+    }
+    if (data is Map) {
+      return data[EmbeddableObject.kTypeKey] == 'image' &&
+          data[EmbeddableObject.kInlineKey];
+    }
+    return false;
   }
 }

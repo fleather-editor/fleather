@@ -144,6 +144,29 @@
     }
   },
   {
+    "insert": "Group images together on a single line:\n"
+  },
+  {
+    "insert": {
+      "_type": "image",
+      "_inline": true,
+      "source": "images/breeze.jpg",
+      "orientation": "landscape",
+      "source_type": "assets"
+    }
+  },
+  {
+    "insert": {
+      "_type": "image",
+      "_inline": true,
+      "source": "images/cody-manning-82xt4MtbJqg-unsplash.jpg",
+      "source_type": "assets"
+    }
+  },
+  {
+    "insert": "\n"
+  },
+  {
     "insert": "The best part of Fleather is that you can use it in almost every platform Flutter supports!\n"
   }
 ]

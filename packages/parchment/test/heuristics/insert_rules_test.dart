@@ -44,6 +44,19 @@ void main() {
       expect(actual, isNotNull);
       expect(actual, expected);
     });
+
+    test('applies before an embed', () {
+      final doc = Delta()
+        ..insert('Hello ')
+        ..insert({'_type': 'icon', '_inline': true})
+        ..insert('\n');
+      final actual = rule.apply(doc, 6, '\n');
+      final expected = Delta()
+        ..retain(6)
+        ..insert('\n');
+      expect(actual, isNotNull);
+      expect(actual, expected);
+    });
   });
 
   group('$ResetLineFormatOnNewLineRule', () {

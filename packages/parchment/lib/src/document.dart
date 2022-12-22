@@ -38,22 +38,25 @@ class ParchmentChange {
 /// A rich text document.
 class ParchmentDocument {
   /// Creates new empty Parchment document.
-  ParchmentDocument()
-      : _heuristics = ParchmentHeuristics.fallback,
+  ParchmentDocument(
+      {ParchmentHeuristics heuristics = ParchmentHeuristics.fallback})
+      : _heuristics = heuristics,
         _delta = Delta()..insert('\n') {
     _loadDocument(_delta);
   }
 
   /// Creates new ParchmentDocument from provided JSON `data`.
-  ParchmentDocument.fromJson(List data)
-      : _heuristics = ParchmentHeuristics.fallback,
+  ParchmentDocument.fromJson(List data,
+      {ParchmentHeuristics heuristics = ParchmentHeuristics.fallback})
+      : _heuristics = heuristics,
         _delta = _migrateDelta(Delta.fromJson(data)) {
     _loadDocument(_delta);
   }
 
   /// Creates new ParchmentDocument from provided `delta`.
-  ParchmentDocument.fromDelta(Delta delta)
-      : _heuristics = ParchmentHeuristics.fallback,
+  ParchmentDocument.fromDelta(Delta delta,
+      {ParchmentHeuristics heuristics = ParchmentHeuristics.fallback})
+      : _heuristics = heuristics,
         _delta = _migrateDelta(delta) {
     _loadDocument(_delta);
   }

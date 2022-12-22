@@ -89,12 +89,13 @@ class PreserveLineStyleOnSplitRule extends InsertRule {
     final after = iter.next();
     if (isEdgeLineSplit(before, after)) return null;
 
-    // This is not an edge line split, meaning that the cursor is somewhere in
-    // the middle of the lines' text. Which in turn means there is no embeds
-    // around the cursor and it is safe to assume we have only text.
-    final textAfter = after.data as String;
-
     final result = Delta()..retain(index);
+    if (after.data is! String) {
+      result.insert('\n');
+      return result;
+    }
+
+    final textAfter = after.data as String;
     if (textAfter.contains('\n')) {
       // It is not allowed to combine line and inline styles in insert
       // operation containing newline together with other characters.
