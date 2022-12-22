@@ -142,6 +142,8 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+/// This is an example insert rule that will insert a new line before and
+/// after inline image embed.
 class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
   @override
   Delta? apply(Delta document, int index, Object data) {
@@ -150,17 +152,17 @@ class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
     final iter = DeltaIterator(document);
     final previous = iter.skip(index);
     final target = iter.next();
-    final cursorBeforeBlockEmbed = _isInlineImage(target.data);
-    final cursorAfterBlockEmbed =
+    final cursorBeforeInlineEmbed = _isInlineImage(target.data);
+    final cursorAfterInlineEmbed =
         previous != null && _isInlineImage(previous.data);
 
-    if (cursorBeforeBlockEmbed || cursorAfterBlockEmbed) {
+    if (cursorBeforeInlineEmbed || cursorAfterInlineEmbed) {
       final delta = Delta()..retain(index);
-      if (cursorAfterBlockEmbed && !data.startsWith('\n')) {
+      if (cursorAfterInlineEmbed && !data.startsWith('\n')) {
         delta.insert('\n');
       }
       delta.insert(data);
-      if (cursorBeforeBlockEmbed && !data.endsWith('\n')) {
+      if (cursorBeforeInlineEmbed && !data.endsWith('\n')) {
         delta.insert('\n');
       }
       return delta;
