@@ -334,6 +334,11 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
   }
 
   @override
+  List<TextBox> getBoxesForSelection(TextSelection selection) {
+    throw UnimplementedError();
+  }
+
+  @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     return defaultHitTestChildren(result, position: position);
   }
