@@ -478,12 +478,15 @@ class _IndentationButtonState extends State<IndentationButton> {
 
 class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget> children;
+  final EdgeInsetsGeometry? padding;
 
-  const FleatherToolbar({Key? key, required this.children}) : super(key: key);
+  const FleatherToolbar({Key? key, this.padding, required this.children})
+      : super(key: key);
 
   factory FleatherToolbar.basic({
     Key? key,
     required FleatherController controller,
+    EdgeInsetsGeometry? padding,
     bool hideBoldButton = false,
     bool hideItalicButton = false,
     bool hideUnderLineButton = false,
@@ -503,7 +506,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
     List<Widget> trailing = const <Widget>[],
     bool hideAlignment = false,
   }) {
-    return FleatherToolbar(key: key, children: [
+    return FleatherToolbar(key: key, padding: padding, children: [
       ...leading,
       Visibility(
         visible: !hideBoldButton,
@@ -550,9 +553,16 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
         ),
       ),
       Visibility(
-          visible: !hideDirection,
+          visible: !hideBoldButton &&
+              !hideItalicButton &&
+              !hideUnderLineButton &&
+              !hideStrikeThrough &&
+              !hideInlineCode,
           child: VerticalDivider(
               indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+
+      /// ################################################################
+
       Visibility(
           visible: !hideDirection,
           child: ToggleStyleButton(
@@ -560,7 +570,13 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
             icon: Icons.format_textdirection_r_to_l,
             controller: controller,
           )),
-      VerticalDivider(indent: 16, endIndent: 16, color: Colors.grey.shade400),
+      Visibility(
+          visible: !hideDirection,
+          child: VerticalDivider(
+              indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+
+      /// ################################################################
+
       Visibility(
         visible: !hideAlignment,
         child: ToggleStyleButton(
@@ -597,9 +613,12 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
         ),
       ),
       Visibility(
-          visible: !hideIndentation,
+          visible: !hideAlignment,
           child: VerticalDivider(
               indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+
+      /// ################################################################
+
       Visibility(
         visible: !hideIndentation,
         child: IndentationButton(
@@ -614,13 +633,21 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
         ),
       ),
       Visibility(
-          visible: !hideHeadingStyle,
+          visible: !hideIndentation,
           child: VerticalDivider(
               indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+
+      /// ################################################################
+
       Visibility(
           visible: !hideHeadingStyle,
           child: SelectHeadingStyleButton(controller: controller)),
-      VerticalDivider(indent: 16, endIndent: 16, color: Colors.grey.shade400),
+      Visibility(
+          visible: !hideHeadingStyle,
+          child: VerticalDivider(
+              indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+
+      /// ################################################################
       Visibility(
         visible: !hideListNumbers,
         child: ToggleStyleButton(
@@ -629,6 +656,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
           icon: Icons.format_list_numbered,
         ),
       ),
+
       Visibility(
         visible: !hideListBullets,
         child: ToggleStyleButton(
@@ -654,9 +682,15 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
         ),
       ),
       Visibility(
-          visible: !hideListNumbers && !hideListBullets && !hideCodeBlock,
+          visible: !hideListNumbers &&
+              !hideListBullets &&
+              !hideListChecks &&
+              !hideCodeBlock,
           child: VerticalDivider(
               indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+
+      /// ################################################################
+
       Visibility(
         visible: !hideQuote,
         child: ToggleStyleButton(
@@ -669,6 +703,9 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
           visible: !hideQuote,
           child: VerticalDivider(
               indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+
+      /// ################################################################
+
       Visibility(
           visible: !hideLink, child: LinkStyleButton(controller: controller)),
       Visibility(
@@ -693,7 +730,7 @@ class _FleatherToolbarState extends State<FleatherToolbar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
       constraints: BoxConstraints.tightFor(height: widget.preferredSize.height),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
