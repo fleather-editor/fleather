@@ -1,3 +1,8 @@
+## 1.4.0
+
+* Support modifying document rules
+* [Fix] HTML codec fixes
+
 ## 1.3.1
 
 * HTML codec
