@@ -205,6 +205,10 @@ class FleatherEditor extends StatefulWidget {
 
   final GlobalKey<EditorState>? editorKey;
 
+  final CustomTextSpan? customTextSpan;
+
+  final RenderBox Function()? portalTheater;
+
   const FleatherEditor({
     Key? key,
     required this.controller,
@@ -227,6 +231,8 @@ class FleatherEditor extends StatefulWidget {
     this.onLaunchUrl,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
+    this.customTextSpan,
+    this.portalTheater,
   }) : super(key: key);
 
   @override
@@ -342,6 +348,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       onLaunchUrl: widget.onLaunchUrl,
       embedBuilder: widget.embedBuilder,
       linkActionPickerDelegate: widget.linkActionPickerDelegate,
+      portalTheater: widget.portalTheater,
       // encapsulated fields below
       cursorStyle: CursorStyle(
         color: cursorColor,
@@ -355,6 +362,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       selectionColor: selectionColor,
       showSelectionHandles: showSelectionHandles,
       selectionControls: textSelectionControls,
+      customTextSpan: widget.customTextSpan,
     );
 
     child = FleatherShortcuts(
@@ -525,6 +533,8 @@ class RawEditor extends StatefulWidget {
     this.selectionControls,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
+    this.customTextSpan,
+    this.portalTheater,
   })  : assert(scrollable || scrollController != null),
         assert(maxHeight == null || maxHeight > 0),
         assert(minHeight == null || minHeight >= 0),
@@ -678,6 +688,9 @@ class RawEditor extends StatefulWidget {
   final FleatherEmbedBuilder embedBuilder;
 
   final LinkActionPickerDelegate linkActionPickerDelegate;
+
+  final CustomTextSpan? customTextSpan;
+  final RenderBox Function()? portalTheater;
 
   bool get selectionEnabled => enableInteractiveSelection;
 
@@ -1236,6 +1249,8 @@ class RawEditorState extends EditorState
           onSelectionChanged: _handleSelectionChanged,
           padding: widget.padding,
           maxContentWidth: widget.maxContentWidth,
+          portalTheater: widget.portalTheater,
+          textAnchors: widget.controller.textAnchors,
           children: _buildChildren(context),
         ),
       ),
@@ -1271,6 +1286,8 @@ class RawEditorState extends EditorState
               padding: widget.padding,
               maxContentWidth: widget.maxContentWidth,
               cursorController: _cursorController,
+              textAnchors: widget.controller.textAnchors,
+              portalTheater: widget.portalTheater,
               children: _buildChildren(context),
             ),
           ),
@@ -1304,7 +1321,14 @@ class RawEditorState extends EditorState
     );
   }
 
+  RenderBox _defaultPortalTheater() {
+    return Overlay.of(context, rootOverlay: true)!.context.findRenderObject()!
+        as RenderBox;
+  }
+
   List<Widget> _buildChildren(BuildContext context) {
+    final portalTheater = widget.portalTheater ?? _defaultPortalTheater;
+
     final result = <Widget>[];
     for (final node in widget.controller.document.root.children) {
       if (node is LineNode) {
@@ -1317,6 +1341,7 @@ class RawEditorState extends EditorState
             cursorController: _cursorController,
             selection: widget.controller.selection,
             selectionColor: widget.selectionColor,
+            textAnchors: widget.controller.textAnchors,
             enableInteractiveSelection: widget.enableInteractiveSelection,
             body: TextLine(
               node: node,
@@ -1325,9 +1350,12 @@ class RawEditorState extends EditorState
               embedBuilder: widget.embedBuilder,
               linkActionPicker: _linkActionPicker,
               onLaunchUrl: widget.onLaunchUrl,
+              customTextSpan: widget.customTextSpan,
+              portalTheater: portalTheater,
             ),
             hasFocus: _hasFocus,
             devicePixelRatio: MediaQuery.of(context).devicePixelRatio,
+            portalTheater: portalTheater,
           ),
         ));
       } else if (node is BlockNode) {
@@ -1335,6 +1363,7 @@ class RawEditorState extends EditorState
         result.add(Directionality(
           textDirection: getDirectionOfNode(node),
           child: EditableTextBlock(
+            portalTheater: portalTheater,
             node: node,
             controller: widget.controller,
             readOnly: widget.readOnly,
@@ -1342,6 +1371,7 @@ class RawEditorState extends EditorState
             cursorController: _cursorController,
             selection: widget.controller.selection,
             selectionColor: widget.selectionColor,
+            textAnchors: widget.controller.textAnchors,
             enableInteractiveSelection: widget.enableInteractiveSelection,
             hasFocus: _hasFocus,
             contentPadding: (block == ParchmentAttribute.block.code)
@@ -1350,6 +1380,7 @@ class RawEditorState extends EditorState
             embedBuilder: widget.embedBuilder,
             linkActionPicker: _linkActionPicker,
             onLaunchUrl: widget.onLaunchUrl,
+            customTextSpan: widget.customTextSpan,
           ),
         ));
       } else {
@@ -1538,8 +1569,10 @@ class _Editor extends MultiChildRenderObjectWidget {
     required this.endHandleLayerLink,
     required this.onSelectionChanged,
     required this.cursorController,
+    required this.textAnchors,
     this.padding = EdgeInsets.zero,
     this.maxContentWidth,
+    required this.portalTheater,
   }) : super(key: key, children: children);
 
   final ViewportOffset? offset;
@@ -1553,6 +1586,8 @@ class _Editor extends MultiChildRenderObjectWidget {
   final EdgeInsetsGeometry padding;
   final double? maxContentWidth;
   final CursorController cursorController;
+  final List<TextAnchor> textAnchors;
+  final RenderBox Function()? portalTheater;
 
   @override
   RenderEditor createRenderObject(BuildContext context) {
@@ -1568,6 +1603,8 @@ class _Editor extends MultiChildRenderObjectWidget {
       cursorController: cursorController,
       padding: padding,
       maxContentWidth: maxContentWidth,
+      textAnchors: textAnchors,
+      portalTheater: portalTheater,
     );
   }
 
@@ -1585,6 +1622,8 @@ class _Editor extends MultiChildRenderObjectWidget {
     renderObject.onSelectionChanged = onSelectionChanged;
     renderObject.padding = padding;
     renderObject.maxContentWidth = maxContentWidth;
+    renderObject.textAnchors = textAnchors;
+    renderObject.portalTheater = portalTheater;
   }
 }
 

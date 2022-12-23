@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_portal/enhanced_composited_transform.dart';
 
 import '../rendering/paragraph_proxy.dart';
 
@@ -7,15 +8,18 @@ class RichTextProxy extends SingleChildRenderObjectWidget {
   const RichTextProxy({
     Key? key,
     required RichText child,
+    required this.layerLink,
     required this.textStyle,
     required this.locale,
     required this.strutStyle,
     required this.textAlign,
+    required this.portalTheater,
     this.textScaleFactor = 1.0,
     this.textWidthBasis = TextWidthBasis.parent,
     this.textHeightBehavior,
   }) : super(key: key, child: child);
 
+  final EnhancedLayerLink layerLink;
   final TextStyle textStyle;
   final TextAlign textAlign;
   final double textScaleFactor;
@@ -24,9 +28,13 @@ class RichTextProxy extends SingleChildRenderObjectWidget {
   final TextWidthBasis textWidthBasis;
   final TextHeightBehavior? textHeightBehavior;
 
+  final RenderBox Function()? portalTheater;
+
   @override
   RenderParagraphProxy createRenderObject(BuildContext context) {
     return RenderParagraphProxy(
+      layerLink: layerLink,
+      portalTheater: portalTheater,
       textStyle: textStyle,
       textDirection: Directionality.of(context),
       textScaleFactor: textScaleFactor,
@@ -48,5 +56,6 @@ class RichTextProxy extends SingleChildRenderObjectWidget {
     renderObject.strutStyle = strutStyle;
     renderObject.textWidthBasis = textWidthBasis;
     renderObject.textHeightBehavior = textHeightBehavior;
+    renderObject.portalTheater = portalTheater;
   }
 }

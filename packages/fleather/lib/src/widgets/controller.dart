@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:fleather/util.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_portal/enhanced_composited_transform.dart';
 import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 
@@ -14,6 +15,31 @@ List<String> _insertionToggleableStyleKeys = [
   ParchmentAttribute.inlineCode.key,
 ];
 
+// A TextAnchor
+// use the layerLink to position overlay linked to that text position
+// if a color is specified a TextSelection will be drawn (useful for remote cursors/selections)
+// if no color are specified this can be used for implementing all kind of overlays
+// like mentions autocomplete, commands, floating toolbars.
+class TextAnchor {
+  TextSelection selection;
+  Color? selectionColor;
+
+  final EnhancedLayerLink? layerLink;
+
+  TextAnchor._({required this.selection, this.selectionColor, this.layerLink});
+
+  static TextAnchor toShowSelection(
+      TextSelection selection, Color selectionColor) {
+    return TextAnchor._(selection: selection, selectionColor: selectionColor);
+  }
+
+  static TextAnchor withLayerLink(TextPosition position) {
+    return TextAnchor._(
+        selection: TextSelection.fromPosition(position),
+        layerLink: EnhancedLayerLink());
+  }
+}
+
 class FleatherController extends ChangeNotifier {
   FleatherController([ParchmentDocument? document])
       : document = document ?? ParchmentDocument(),
@@ -25,6 +51,20 @@ class FleatherController extends ChangeNotifier {
   /// Currently selected text within the [document].
   TextSelection get selection => _selection;
   TextSelection _selection;
+  List<TextAnchor> get textAnchors => _textAnchors;
+  var _textAnchors = List<TextAnchor>.unmodifiable([]);
+
+  void addTextAnchor(TextAnchor anchor) {
+    _textAnchors = [..._textAnchors, anchor];
+    notifyListeners();
+  }
+
+  void removeTextAnchor(TextAnchor anchor) {
+    _textAnchors = _textAnchors
+        .where((element) => element != anchor)
+        .toList(growable: false);
+    notifyListeners();
+  }
 
   /// Store any styles attribute that got toggled by the tap of a button
   /// and that has not been applied yet.
