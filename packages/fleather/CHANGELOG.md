@@ -1,3 +1,9 @@
+## 1.4.0
+
+* Keyboard appearance depends on default brightness
+* [Fix] Line height accounts for `SpanEmbed` height
+* [Fix] Editor toolbar UI
+
 ## 1.3.1
 
 * [Fix] Incorrect style behaviour when toggling formats
