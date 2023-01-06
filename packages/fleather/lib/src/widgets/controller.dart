@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:fleather/src/widgets/history.dart';
 import 'package:fleather/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:parchment/parchment.dart';
@@ -17,10 +18,14 @@ List<String> _insertionToggleableStyleKeys = [
 class FleatherController extends ChangeNotifier {
   FleatherController([ParchmentDocument? document])
       : document = document ?? ParchmentDocument(),
+        history = HistoryStack.doc(document),
         _selection = const TextSelection.collapsed(offset: 0);
 
   /// Document managed by this controller.
   final ParchmentDocument document;
+
+  /// A list of changes applied to this doc. The changes could be undone or redone.
+  final HistoryStack history;
 
   /// Currently selected text within the [document].
   TextSelection get selection => _selection;

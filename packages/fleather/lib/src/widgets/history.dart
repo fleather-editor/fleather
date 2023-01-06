@@ -29,8 +29,7 @@ class FleatherHistory extends StatefulWidget {
 }
 
 class _FleatherHistoryState extends State<FleatherHistory> {
-  late _Throttled<Delta> _throttledPush;
-  late HistoryStack _stack;
+  late final _Throttled<Delta> _throttledPush;
   Timer? _throttleTimer;
 
   // This duration was chosen as a best fit for the behavior of Mac, Linux,
@@ -39,11 +38,11 @@ class _FleatherHistoryState extends State<FleatherHistory> {
   static const Duration _kThrottleDuration = Duration(milliseconds: 500);
 
   void _undo(UndoTextIntent intent) {
-    _update(_stack.undo());
+    _update(widget.controller.history.undo());
   }
 
   void _redo(RedoTextIntent intent) {
-    _update(_stack.redo());
+    _update(widget.controller.history.redo());
   }
 
   void _update(Delta? changeDelta) {
@@ -52,30 +51,8 @@ class _FleatherHistoryState extends State<FleatherHistory> {
     }
 
     widget.controller.compose(changeDelta,
-        selection: _fromDelta(changeDelta), source: ChangeSource.local);
-  }
-
-  TextSelection _fromDelta(Delta changeDelta) {
-    assert(changeDelta.isNotEmpty);
-    final firstOp = changeDelta.first;
-    int baseOffset = 0;
-    // change starts at index following first plain retain
-    if (firstOp.isRetain && firstOp.attributes == null) {
-      baseOffset = firstOp.length;
-    }
-    int extentOffset = baseOffset;
-    final lastOp = changeDelta.last;
-    // if change is a change in format, selection must cover the rest of the
-    // change
-    if (lastOp.isRetain && lastOp.attributes != null) {
-      extentOffset = changeDelta.textLength;
-    }
-    // if change is an insertion, cursor is set at the end of the insertion
-    if (lastOp.isInsert) {
-      baseOffset = changeDelta.textLength;
-      extentOffset = baseOffset;
-    }
-    return TextSelection(baseOffset: baseOffset, extentOffset: extentOffset);
+        selection: HistoryStack.selectionFromDelta(changeDelta),
+        source: ChangeSource.local);
   }
 
   void _onLocalChanges() {
@@ -88,9 +65,8 @@ class _FleatherHistoryState extends State<FleatherHistory> {
   @override
   void initState() {
     super.initState();
-    _stack = HistoryStack(widget.controller.document.toDelta());
-    _throttledPush =
-        _throttle(duration: _kThrottleDuration, function: _stack.push);
+    _throttledPush = _throttle(
+        duration: _kThrottleDuration, function: widget.controller.history.push);
     widget.controller.addListener(_onLocalChanges);
   }
 
@@ -98,9 +74,6 @@ class _FleatherHistoryState extends State<FleatherHistory> {
   void didUpdateWidget(FleatherHistory oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
-      _stack = HistoryStack(widget.controller.document.toDelta());
-      _throttledPush =
-          _throttle(duration: _kThrottleDuration, function: _stack.push);
       oldWidget.controller.removeListener(_onLocalChanges);
       widget.controller.addListener(_onLocalChanges);
     }
@@ -136,6 +109,10 @@ class _FleatherHistoryState extends State<FleatherHistory> {
 class HistoryStack {
   /// Creates an instance of [HistoryStack].
   HistoryStack(this._currentState);
+
+  /// Creates an instance of [HistoryStack] from a [ParchmentDocument].
+  HistoryStack.doc(ParchmentDocument? doc)
+      : this(doc?.toDelta() ?? ParchmentDocument().toDelta());
 
   // List of historical changes made to document
   final List<_Change> _list = [];
@@ -195,6 +172,11 @@ class HistoryStack {
     return undoDelta;
   }
 
+  /// Returns true if there is at least one undo operation.
+  bool get canUndo {
+    return _list.isNotEmpty && _currentIndex != -1;
+  }
+
   /// Returns the current [_Change] to apply to current document to reach desired
   /// document state.
   ///
@@ -214,6 +196,34 @@ class HistoryStack {
       return redoDelta;
     }
     return null;
+  }
+
+  /// Returns true if there is at least one redo operation.
+  bool get canRedo {
+    return _list.isNotEmpty && (_currentIndex < _list.length - 1);
+  }
+
+  static TextSelection selectionFromDelta(Delta changeDelta) {
+    assert(changeDelta.isNotEmpty);
+    final firstOp = changeDelta.first;
+    int baseOffset = 0;
+    // change starts at index following first plain retain
+    if (firstOp.isRetain && firstOp.attributes == null) {
+      baseOffset = firstOp.length;
+    }
+    int extentOffset = baseOffset;
+    final lastOp = changeDelta.last;
+    // if change is a change in format, selection must cover the rest of the
+    // change
+    if (lastOp.isRetain && lastOp.attributes != null) {
+      extentOffset = changeDelta.textLength;
+    }
+    // if change is an insertion, cursor is set at the end of the insertion
+    if (lastOp.isInsert) {
+      baseOffset = changeDelta.textLength;
+      extentOffset = baseOffset;
+    }
+    return TextSelection(baseOffset: baseOffset, extentOffset: extentOffset);
   }
 }
 

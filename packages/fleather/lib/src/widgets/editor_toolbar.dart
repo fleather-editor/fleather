@@ -1,5 +1,7 @@
+import 'package:fleather/src/widgets/history.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
+import 'package:quill_delta/quill_delta.dart';
 
 import 'controller.dart';
 
@@ -41,6 +43,80 @@ class InsertEmbedButton extends StatelessWidget {
       },
     );
   }
+}
+
+class UndoRedoButton extends StatelessWidget {
+  final FleatherController controller;
+  final _UndoRedoButtonVariant _variant;
+
+  const UndoRedoButton._(this.controller, this._variant, {Key? key})
+      : super(key: key);
+
+  const UndoRedoButton.undo({
+    Key? key,
+    required FleatherController controller,
+  }) : this._(controller, _UndoRedoButtonVariant.undo, key: key);
+
+  const UndoRedoButton.redo({
+    Key? key,
+    required FleatherController controller,
+  }) : this._(controller, _UndoRedoButtonVariant.redo, key: key);
+
+  bool _isEnabled() {
+    if (_variant == _UndoRedoButtonVariant.undo) {
+      return controller.history.canUndo;
+    } else {
+      return controller.history.canRedo;
+    }
+  }
+
+  void _onPressed() {
+    if (_variant == _UndoRedoButtonVariant.undo) {
+      _update(controller.history.undo());
+    } else {
+      _update(controller.history.redo());
+    }
+  }
+
+  void _update(Delta? changeDelta) {
+    if (changeDelta == null || changeDelta.isEmpty) {
+      return;
+    }
+
+    controller.compose(changeDelta,
+        selection: HistoryStack.selectionFromDelta(changeDelta),
+        source: ChangeSource.local);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+        animation: controller,
+        builder: (context, child) {
+          final icon =
+              _variant == _UndoRedoButtonVariant.undo ? Icons.undo : Icons.redo;
+          final isEnabled = _isEnabled();
+          final theme = Theme.of(context);
+
+          return FLIconButton(
+            highlightElevation: 0,
+            hoverElevation: 0,
+            size: 32,
+            icon: Icon(
+              icon,
+              size: 18,
+              color: isEnabled ? theme.iconTheme.color : theme.disabledColor,
+            ),
+            fillColor: Theme.of(context).canvasColor,
+            onPressed: isEnabled ? _onPressed : null,
+          );
+        });
+  }
+}
+
+enum _UndoRedoButtonVariant {
+  undo,
+  redo,
 }
 
 /// Toolbar button for formatting text as a link.
@@ -502,6 +578,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
     bool hideLink = false,
     bool hideHorizontalRule = false,
     bool hideDirection = false,
+    bool hideUndoRedo = false,
     List<Widget> leading = const <Widget>[],
     List<Widget> trailing = const <Widget>[],
     bool hideAlignment = false,
@@ -715,6 +792,26 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
           icon: Icons.horizontal_rule,
         ),
       ),
+      Visibility(
+          visible: !hideHorizontalRule || !hideLink,
+          child: VerticalDivider(
+              indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+
+      /// ################################################################
+
+      Visibility(
+        visible: !hideUndoRedo,
+        child: UndoRedoButton.undo(
+          controller: controller,
+        ),
+      ),
+      Visibility(
+        visible: !hideUndoRedo,
+        child: UndoRedoButton.redo(
+          controller: controller,
+        ),
+      ),
+
       ...trailing,
     ]);
   }
