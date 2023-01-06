@@ -137,16 +137,18 @@ class ResetLineFormatOnNewLineRule extends InsertRule {
     final targetText = target.data as String;
 
     if (targetText.startsWith('\n')) {
-      Map<String, dynamic>? resetStyle;
       if (target.attributes != null &&
           target.attributes!.containsKey(ParchmentAttribute.heading.key)) {
-        resetStyle = ParchmentAttribute.heading.unset.toJson();
+        final resetStyle = ParchmentAttribute.heading.unset.toJson();
+        return Delta()
+          ..retain(index)
+          ..insert('\n', target.attributes)
+          ..retain(1, resetStyle)
+          ..trim();
+      } else {
+        // Nothing needs to be reset
+        return null;
       }
-      return Delta()
-        ..retain(index)
-        ..insert('\n', target.attributes)
-        ..retain(1, resetStyle)
-        ..trim();
     }
     return null;
   }
@@ -282,13 +284,12 @@ class PreserveInlineStylesRule extends InsertRule {
 class AutoFormatLinksRule extends InsertRule {
   const AutoFormatLinksRule();
 
-  @override
-  Delta? apply(Delta document, int index, Object data) {
+  static Delta? formatLink(Delta document, int index, Object data) {
     if (data is! String) return null;
 
-    // This rule applies to a space inserted after a link, so we can ignore
+    // This rule applies to a space or newline inserted after a link, so we can ignore
     // everything else.
-    if (data != ' ') return null;
+    if (data != ' ' && data != '\n') return null;
 
     final iter = DeltaIterator(document);
     final previous = iter.skip(index);
@@ -314,11 +315,22 @@ class AutoFormatLinksRule extends InsertRule {
           .addAll(ParchmentAttribute.link.fromString(link.toString()).toJson());
       return Delta()
         ..retain(index - candidate.length)
-        ..retain(candidate.length, attributes)
-        ..insert(data, previous.attributes);
+        ..retain(candidate.length, attributes);
     } on FormatException {
       return null; // Our candidate is not a link.
     }
+  }
+
+  @override
+  Delta? apply(Delta document, int index, Object data) {
+    final delta = formatLink(document, index, data);
+    if (delta == null) {
+      return null;
+    }
+
+    final iter = DeltaIterator(document);
+    final previous = iter.skip(index);
+    return delta..insert(data, previous?.attributes);
   }
 }
 
@@ -415,7 +427,11 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
 
     // Go over each inserted line and ensure block style is applied.
     final lines = data.split('\n');
-    final result = Delta()..retain(index);
+
+    // Try to format link after hitting newline
+    final linkDelta = AutoFormatLinksRule.formatLink(document, index, data);
+    final result = linkDelta ?? (Delta()..retain(index));
+
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
       if (line.isNotEmpty) {

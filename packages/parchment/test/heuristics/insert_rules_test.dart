@@ -75,14 +75,10 @@ void main() {
       expect(actual, expected);
     });
 
-    test('applies without style reset if not needed', () {
+    test("doesn't apply without style reset if not needed", () {
       final doc = Delta()..insert('Hello world\n');
       final actual = rule.apply(doc, 11, '\n');
-      expect(actual, isNotNull);
-      final expected = Delta()
-        ..retain(11)
-        ..insert('\n');
-      expect(actual, expected);
+      expect(actual, isNull);
     });
 
     test('applies at the beginning of a document', () {
@@ -217,6 +213,16 @@ void main() {
       expect(expected, actual);
     });
 
+    test('apply simple newline', () {
+      final doc = Delta()..insert('Doc with link https://example.com');
+      final actual = rule.apply(doc, 33, '\n');
+      final expected = Delta()
+        ..retain(14)
+        ..retain(19, link)
+        ..insert('\n');
+      expect(expected, actual);
+    });
+
     test('applies only to insert of single space', () {
       final doc = Delta()..insert('Doc with link https://example.com');
       final actual = rule.apply(doc, 33, '/');
@@ -257,6 +263,18 @@ void main() {
         ..insert('also ')
         ..insert('\n', ul);
       expect(actual, isNotNull);
+      expect(actual, expected);
+    });
+
+    test('formats a link in a block', () {
+      final link = ParchmentAttribute.link.fromString('http://a.com').toJson();
+      final doc = Delta()
+        ..insert('http://a.com')
+        ..insert('\n', ul);
+      final actual = rule.apply(doc, 12, '\n');
+      final expected = Delta()
+        ..retain(12, link)
+        ..insert('\n', ul);
       expect(actual, expected);
     });
 
