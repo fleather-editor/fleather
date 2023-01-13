@@ -1,5 +1,4 @@
 import 'package:fleather/fleather.dart';
-import 'package:fleather/src/widgets/history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,10 +34,12 @@ void main() {
 
     group('empty stack', () {
       test('undo returns null', () {
+        expect(stack.canUndo, false);
         expect(stack.undo(), isNull);
       });
 
       test('redo returns null', () {
+        expect(stack.canRedo, false);
         expect(stack.redo(), isNull);
       });
     });
@@ -54,8 +55,10 @@ void main() {
         ..delete(3);
       stack.push(change);
       stack.push(otherChange);
+      expect(stack.canUndo, true);
       var act = stack.undo();
       expect(act, expOther);
+      expect(stack.canUndo, true);
       act = stack.undo();
       expect(act, exp);
     });
@@ -67,6 +70,7 @@ void main() {
       expect(act, isNotNull);
       act = stack.undo();
       expect(act, isNull);
+      expect(stack.canUndo, false);
     });
 
     test('redoes twice', () {
@@ -82,8 +86,10 @@ void main() {
       stack.push(otherChange);
       stack.undo();
       stack.undo();
+      expect(stack.canRedo, true);
       var act = stack.redo();
       expect(act, exp);
+      expect(stack.canRedo, true);
       act = stack.redo();
       expect(act, expOther);
     });
@@ -96,6 +102,7 @@ void main() {
       expect(act, isNotNull);
       act = stack.redo();
       expect(act, isNull);
+      expect(stack.canRedo, false);
     });
 
     test('pushes new items while index is at start', () {
