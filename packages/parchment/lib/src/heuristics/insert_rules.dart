@@ -139,15 +139,13 @@ class ResetLineFormatOnNewLineRule extends InsertRule {
     if (targetText.startsWith('\n')) {
       if (target.attributes != null &&
           target.attributes!.containsKey(ParchmentAttribute.heading.key)) {
+        // Reset heading style
         final resetStyle = ParchmentAttribute.heading.unset.toJson();
         return Delta()
           ..retain(index)
           ..insert('\n', target.attributes)
           ..retain(1, resetStyle)
           ..trim();
-      } else {
-        // Nothing needs to be reset
-        return null;
       }
     }
     return null;
