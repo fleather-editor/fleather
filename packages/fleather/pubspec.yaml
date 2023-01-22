@@ -14,7 +14,6 @@ dependencies:
   quill_delta: ^3.0.0-nullsafety.2
   parchment:
     path: ../parchment
-  characters: ^1.2.0
 
 dev_dependencies:
   flutter_test:
