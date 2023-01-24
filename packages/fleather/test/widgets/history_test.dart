@@ -1,5 +1,6 @@
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/widgets/history.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
@@ -189,6 +190,51 @@ void main() {
           editor.controller.selection,
           const TextSelection(
               baseOffset: initialLength - 5, extentOffset: initialLength));
+    });
+
+    testWidgets('update widget', (tester) async {
+      Future<void> showKeyboard() async {
+        return TestAsyncUtils.guard<void>(() async {
+          final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+          editor.requestKeyboard();
+          await tester.pumpAndSettle();
+        });
+      }
+
+      Future<void> enterText(TextEditingValue text) async {
+        return TestAsyncUtils.guard<void>(() async {
+          await showKeyboard();
+          tester.binding.testTextInput.updateEditingValue(text);
+          await tester.idle();
+          await tester.pumpAndSettle();
+        });
+      }
+
+      final documentDelta = Delta()..insert('Something in the way mmmmm\n');
+      await tester.pumpWidget(
+        MaterialApp(
+          home: TestUpdateWidget(
+            focusNodeAfterChange: FocusNode(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // update widget
+      await tester.tap(find.byType(TextButton));
+
+      await enterText(const TextEditingValue(
+          text: 'Something in the way mmmmm\n',
+          selection: TextSelection.collapsed(offset: 26)));
+      // Throttle time of 500ms in history
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      var editorState = tester.state<RawEditorState>(find.byType(RawEditor));
+
+      expect(editorState.controller.document.toDelta(), documentDelta);
+      await undo(tester);
+      editorState = tester.state<RawEditorState>(find.byType(RawEditor));
+      expect(editorState.controller.document.toDelta(), Delta()..insert('\n'));
     });
   });
 }

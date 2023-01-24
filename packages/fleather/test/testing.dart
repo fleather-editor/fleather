@@ -160,3 +160,44 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
     });
   }
 }
+
+class TestUpdateWidget extends StatefulWidget {
+  const TestUpdateWidget(
+      {Key? key,
+      required this.focusNodeAfterChange,
+      this.testField = false,
+      this.document})
+      : super(key: key);
+
+  final FocusNode focusNodeAfterChange;
+  final bool testField;
+  final ParchmentDocument? document;
+
+  @override
+  State<StatefulWidget> createState() => TestUpdateWidgetState();
+}
+
+class TestUpdateWidgetState extends State<TestUpdateWidget> {
+  FocusNode? focusNode;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextButton(
+            onPressed: () =>
+                setState(() => focusNode = widget.focusNodeAfterChange),
+            child: const Text('Change state'),
+          ),
+          widget.testField
+              ? FleatherField(
+                  controller: FleatherController(widget.document),
+                  focusNode: focusNode,
+                )
+              : FleatherEditor(
+                  controller: FleatherController(widget.document),
+                  focusNode: focusNode,
+                ),
+        ],
+      );
+}

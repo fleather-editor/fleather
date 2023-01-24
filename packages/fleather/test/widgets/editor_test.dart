@@ -150,43 +150,6 @@ void main() {
   });
 }
 
-class TestUpdateWidget extends StatefulWidget {
-  const TestUpdateWidget(
-      {Key? key, required this.focusNodeAfterChange, this.testField = false})
-      : super(key: key);
-
-  final FocusNode focusNodeAfterChange;
-  final bool testField;
-
-  @override
-  State<StatefulWidget> createState() => TestUpdateWidgetState();
-}
-
-class TestUpdateWidgetState extends State<TestUpdateWidget> {
-  FocusNode? focusNode;
-
-  @override
-  Widget build(BuildContext context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextButton(
-            onPressed: () =>
-                setState(() => focusNode = widget.focusNodeAfterChange),
-            child: const Text('Change state'),
-          ),
-          widget.testField
-              ? FleatherField(
-                  controller: FleatherController(),
-                  focusNode: focusNode,
-                )
-              : FleatherEditor(
-                  controller: FleatherController(),
-                  focusNode: focusNode,
-                ),
-        ],
-      );
-}
-
 const clipboardText = 'copied text';
 
 void prepareClipboard() {

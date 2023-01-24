@@ -29,7 +29,7 @@ class FleatherHistory extends StatefulWidget {
 }
 
 class _FleatherHistoryState extends State<FleatherHistory> {
-  late final _Throttled<Delta> _throttledPush;
+  late _Throttled<Delta> _throttledPush;
   late HistoryStack _stack;
   Timer? _throttleTimer;
 
@@ -99,6 +99,8 @@ class _FleatherHistoryState extends State<FleatherHistory> {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       _stack = HistoryStack(widget.controller.document.toDelta());
+      _throttledPush =
+          _throttle(duration: _kThrottleDuration, function: _stack.push);
       oldWidget.controller.removeListener(_onLocalChanges);
       widget.controller.addListener(_onLocalChanges);
     }
