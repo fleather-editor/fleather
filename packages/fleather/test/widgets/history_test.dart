@@ -1,5 +1,6 @@
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/widgets/history.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
@@ -187,6 +188,39 @@ void main() {
       expect(editor.controller.document.toDelta(), endState);
       expect(
           editor.controller.selection,
+          const TextSelection(
+              baseOffset: initialLength - 5, extentOffset: initialLength));
+    });
+
+    testWidgets('update widget', (tester) async {
+      const initialLength = 'Something in the way mmmmm'.length;
+      final documentDelta = Delta()
+        ..insert('Something', {'b': true})
+        ..insert(' in the way ')
+        ..insert('mmmmm', {'i': true})
+        ..insert('\n');
+      final controller =
+          FleatherController(ParchmentDocument.fromDelta(documentDelta));
+      await tester.pumpWidget(MaterialApp(
+        home: TestUpdateWidget(
+          focusNodeAfterChange: FocusNode(),
+          controller: controller,
+        ),
+      ));
+      final endState = documentDelta.compose(Delta()
+        ..retain(initialLength - 5)
+        ..delete(5)
+        ..insert('mmmmm'));
+      await tester.pumpAndSettle();
+      controller.formatText(
+          initialLength - 5, 5, ParchmentAttribute.italic.unset);
+      // Throttle time of 500ms in history
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      await undo(tester);
+      expect(controller.document.toDelta(), documentDelta);
+      expect(
+          controller.selection,
           const TextSelection(
               baseOffset: initialLength - 5, extentOffset: initialLength));
     });

@@ -160,3 +160,45 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
     });
   }
 }
+
+class TestUpdateWidget extends StatefulWidget {
+  TestUpdateWidget(
+      {Key? key,
+      required this.focusNodeAfterChange,
+      this.testField = false,
+      FleatherController? controller})
+      : controller = controller ?? FleatherController(),
+        super(key: key);
+
+  final FocusNode focusNodeAfterChange;
+  final bool testField;
+  final FleatherController controller;
+
+  @override
+  State<StatefulWidget> createState() => TestUpdateWidgetState();
+}
+
+class TestUpdateWidgetState extends State<TestUpdateWidget> {
+  FocusNode? focusNode;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextButton(
+            onPressed: () =>
+                setState(() => focusNode = widget.focusNodeAfterChange),
+            child: const Text('Change state'),
+          ),
+          widget.testField
+              ? FleatherField(
+                  controller: widget.controller,
+                  focusNode: focusNode,
+                )
+              : FleatherEditor(
+                  controller: widget.controller,
+                  focusNode: focusNode,
+                ),
+        ],
+      );
+}
