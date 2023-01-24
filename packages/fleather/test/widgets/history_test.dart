@@ -193,37 +193,48 @@ void main() {
     });
 
     testWidgets('update widget', (tester) async {
-      const initialLength = 'Something in the way mmmmm'.length;
-      final documentDelta = Delta()
-        ..insert('Something', {'b': true})
-        ..insert(' in the way ')
-        ..insert('mmmmm', {'i': true})
-        ..insert('\n');
-      final controller =
-          FleatherController(ParchmentDocument.fromDelta(documentDelta));
-      await tester.pumpWidget(MaterialApp(
-        home: TestUpdateWidget(
-          focusNodeAfterChange: FocusNode(),
-          controller: controller,
+      Future<void> showKeyboard() async {
+        return TestAsyncUtils.guard<void>(() async {
+          final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+          editor.requestKeyboard();
+          await tester.pumpAndSettle();
+        });
+      }
+
+      Future<void> enterText(TextEditingValue text) async {
+        return TestAsyncUtils.guard<void>(() async {
+          await showKeyboard();
+          tester.binding.testTextInput.updateEditingValue(text);
+          await tester.idle();
+          await tester.pumpAndSettle();
+        });
+      }
+
+      final documentDelta = Delta()..insert('Something in the way mmmmm\n');
+      await tester.pumpWidget(
+        MaterialApp(
+          home: TestUpdateWidget(
+            focusNodeAfterChange: FocusNode(),
+          ),
         ),
-      ));
-      final endState = documentDelta.compose(Delta()
-        ..retain(initialLength - 5)
-        ..delete(5)
-        ..insert('mmmmm'));
+      );
       await tester.pumpAndSettle();
-      controller.formatText(
-          initialLength - 5, 5, ParchmentAttribute.italic.unset);
+
+      // update widget
+      await tester.tap(find.byType(TextButton));
+
+      await enterText(const TextEditingValue(
+          text: 'Something in the way mmmmm\n',
+          selection: TextSelection.collapsed(offset: 26)));
       // Throttle time of 500ms in history
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
-      expect(controller.document.toDelta(), endState);
+      var editorState = tester.state<RawEditorState>(find.byType(RawEditor));
+
+      expect(editorState.controller.document.toDelta(), documentDelta);
       await undo(tester);
-      expect(controller.document.toDelta(), documentDelta);
-      expect(
-          controller.selection,
-          const TextSelection(
-              baseOffset: initialLength - 5, extentOffset: initialLength));
+      editorState = tester.state<RawEditorState>(find.byType(RawEditor));
+      expect(editorState.controller.document.toDelta(), Delta()..insert('\n'));
     });
   });
 }

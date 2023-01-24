@@ -162,17 +162,16 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
 }
 
 class TestUpdateWidget extends StatefulWidget {
-  TestUpdateWidget(
+  const TestUpdateWidget(
       {Key? key,
       required this.focusNodeAfterChange,
       this.testField = false,
-      FleatherController? controller})
-      : controller = controller ?? FleatherController(),
-        super(key: key);
+      this.document})
+      : super(key: key);
 
   final FocusNode focusNodeAfterChange;
   final bool testField;
-  final FleatherController controller;
+  final ParchmentDocument? document;
 
   @override
   State<StatefulWidget> createState() => TestUpdateWidgetState();
@@ -192,11 +191,11 @@ class TestUpdateWidgetState extends State<TestUpdateWidget> {
           ),
           widget.testField
               ? FleatherField(
-                  controller: widget.controller,
+                  controller: FleatherController(widget.document),
                   focusNode: focusNode,
                 )
               : FleatherEditor(
-                  controller: widget.controller,
+                  controller: FleatherController(widget.document),
                   focusNode: focusNode,
                 ),
         ],
