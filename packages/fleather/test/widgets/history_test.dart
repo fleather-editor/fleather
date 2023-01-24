@@ -217,6 +217,7 @@ void main() {
       // Throttle time of 500ms in history
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
+      expect(controller.document.toDelta(), endState);
       await undo(tester);
       expect(controller.document.toDelta(), documentDelta);
       expect(
