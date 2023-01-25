@@ -1214,6 +1214,18 @@ class RawEditorState extends EditorState
   }
 
   @override
+  void didChangeInputControl(
+      TextInputControl? oldControl, TextInputControl? newControl) {
+    if (_hasFocus && hasConnection) {
+      oldControl?.hide();
+      newControl?.show();
+    }
+  }
+
+  @override
+  void performSelector(String selectorName) {}
+
+  @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
     super.build(context); // See AutomaticKeepAliveClientMixin.
