@@ -1222,8 +1222,19 @@ class RawEditorState extends EditorState
     }
   }
 
+  // On MacOS some actions are sent as selectors. We need to manually find the right Action and invoke it.
+  // Ref: https://github.com/flutter/flutter/blob/3.7.0/packages/flutter/lib/src/widgets/editable_text.dart#L3731
   @override
-  void performSelector(String selectorName) {}
+  void performSelector(String selectorName) {
+    final Intent? intent = intentForMacOSSelector(selectorName);
+
+    if (intent != null) {
+      final BuildContext? primaryContext = primaryFocus?.context;
+      if (primaryContext != null) {
+        Actions.invoke(primaryContext, intent);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
