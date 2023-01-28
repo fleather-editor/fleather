@@ -3,6 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:fleather/fleather.dart';
+import 'package:fleather/src/widgets/editor_input_client_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
@@ -201,3 +202,7 @@ class TestUpdateWidgetState extends State<TestUpdateWidget> {
         ],
       );
 }
+
+RawEditorStateTextInputClientMixin getInputClient() =>
+    (find.byType(RawEditor).evaluate().single as StatefulElement).state
+        as RawEditorStateTextInputClientMixin;
