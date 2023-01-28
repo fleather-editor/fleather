@@ -1,5 +1,6 @@
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/widgets/editor_input_client_mixin.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -19,12 +20,7 @@ class MockEditorState extends Mock implements EditorState {
 class MockRawEditorState extends MockEditorState
     with RawEditorStateTextInputClientMixin {}
 
-class MockTextEditingDelta extends Mock implements TextEditingDelta {
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return super.toString();
-  }
-}
+class MockTextEditingDelta extends Mock implements TextEditingDelta {}
 
 class MockFleatherController extends Mock implements FleatherController {}
 

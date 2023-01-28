@@ -293,17 +293,6 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       });
     }
   }
-
-
-  @override
-  void didChangeInputControl(TextInputControl? oldControl, TextInputControl? newControl) {
-    // no-op
-  }
-
-  @override
-  void performSelector(String selectorName) {
-    // no-op
-  }
 }
 
 extension on TextRange {
