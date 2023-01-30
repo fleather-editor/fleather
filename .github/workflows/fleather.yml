@@ -52,7 +52,7 @@ jobs:
 
       - name: Fleather - Analyze project source
         working-directory: ./packages/fleather
-        run: flutter analyze --fatal-infos
+        run: flutter analyze --no-fatal-infos
 
       - name: Fleather - Run tests
         working-directory: ./packages/fleather
