@@ -1180,7 +1180,7 @@ class RawEditorState extends EditorState
         return;
       }
 
-      final viewport = RenderAbstractViewport.of(renderEditor)!;
+      final viewport = RenderAbstractViewport.of(renderEditor);
       final editorOffset = renderEditor.localToGlobal(const Offset(0.0, 0.0),
           ancestor: viewport);
       final offsetInViewport = _scrollController.offset + editorOffset.dy;
@@ -1211,6 +1211,29 @@ class RawEditorState extends EditorState
     final link =
         (linkNode as StyledNode).style.get(ParchmentAttribute.link)!.value!;
     return widget.linkActionPickerDelegate(context, link);
+  }
+
+  @override
+  void didChangeInputControl(
+      TextInputControl? oldControl, TextInputControl? newControl) {
+    if (_hasFocus && hasConnection) {
+      oldControl?.hide();
+      newControl?.show();
+    }
+  }
+
+  // On MacOS some actions are sent as selectors. We need to manually find the right Action and invoke it.
+  // Ref: https://github.com/flutter/flutter/blob/3.7.0/packages/flutter/lib/src/widgets/editable_text.dart#L3731
+  @override
+  void performSelector(String selectorName) {
+    final Intent? intent = intentForMacOSSelector(selectorName);
+
+    if (intent != null) {
+      final BuildContext? primaryContext = primaryFocus?.context;
+      if (primaryContext != null) {
+        Actions.invoke(primaryContext, intent);
+      }
+    }
   }
 
   @override
