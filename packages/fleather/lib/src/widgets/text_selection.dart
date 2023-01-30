@@ -50,14 +50,9 @@ class EditorTextSelectionOverlay {
     bool handlesVisible = false,
   })  : _handlesVisible = handlesVisible,
         _value = value {
-    final OverlayState? overlay = Overlay.of(context, rootOverlay: true);
-    assert(
-        overlay != null,
-        'No Overlay widget exists above $context.\n'
-        'Usually the Navigator created by WidgetsApp provides the overlay. Perhaps your '
-        'app content was created above the Navigator with the WidgetsApp builder parameter.');
+    final OverlayState overlay = Overlay.of(context, rootOverlay: true);
     _toolbarController =
-        AnimationController(duration: fadeDuration, vsync: overlay!);
+        AnimationController(duration: fadeDuration, vsync: overlay);
   }
 
   /// The context in which the selection handles should appear.
@@ -189,7 +184,7 @@ class EditorTextSelectionOverlay {
               _buildHandle(context, _TextSelectionHandlePosition.end)),
     ];
 
-    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)!
+    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
         .insertAll(_handles!);
   }
 
@@ -206,7 +201,7 @@ class EditorTextSelectionOverlay {
   void showToolbar() {
     assert(_toolbar == null);
     _toolbar = OverlayEntry(builder: _buildToolbar);
-    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)!
+    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
         .insert(_toolbar!);
     _toolbarController.forward(from: 0.0);
   }
