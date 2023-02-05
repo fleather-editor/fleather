@@ -19,7 +19,12 @@ class MockEditorState extends Mock implements EditorState {
 class MockRawEditorState extends MockEditorState
     with RawEditorStateTextInputClientMixin {}
 
-class MockTextEditingDelta extends Mock implements TextEditingDelta {}
+class MockTextEditingDelta extends Mock implements TextEditingDelta {
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return '';
+  }
+}
 
 class MockFleatherController extends Mock implements FleatherController {}
 
