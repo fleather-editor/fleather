@@ -1,6 +1,5 @@
 import 'dart:ui' as ui;
 
-import 'package:fleather/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +9,7 @@ import '../rendering/editor.dart';
 import 'editor.dart';
 
 mixin RawEditorStateTextInputClientMixin on EditorState
-    implements TextInputClient {
+    implements DeltaTextInputClient {
   TextInputConnection? _textInputConnection;
   TextEditingValue? _lastKnownRemoteTextEditingValue;
 
@@ -28,12 +27,6 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   /// - cmd/ctrl+a to select all.
   /// - Changing the selection using a physical keyboard.
   bool get shouldCreateInputConnection => kIsWeb || !widget.readOnly;
-
-  void _remoteValueChanged(
-      int start, String deleted, String inserted, TextSelection selection) {
-    widget.controller
-        .replaceText(start, deleted.length, inserted, selection: selection);
-  }
 
   /// Returns `true` if there is open input connection.
   bool get hasConnection =>
@@ -64,6 +57,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
           readOnly: widget.readOnly,
           obscureText: false,
           autocorrect: false,
+          enableDeltaModel: true,
           inputAction: TextInputAction.newline,
           keyboardAppearance: widget.keyboardAppearance,
           textCapitalization: widget.textCapitalization,
@@ -120,51 +114,33 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   AutofillScope? get currentAutofillScope => null;
 
   @override
+  void updateEditingValueWithDeltas(List<TextEditingDelta> textEditingDeltas) {
+    if (!shouldCreateInputConnection || textEditingDeltas.isEmpty) return;
+
+    for (final textEditingDelta in textEditingDeltas) {
+      int start = 0, length = 0;
+      String data = '';
+      if (textEditingDelta is TextEditingDeltaInsertion) {
+        start = textEditingDelta.insertionOffset;
+        data = textEditingDelta.textInserted;
+      } else if (textEditingDelta is TextEditingDeltaDeletion) {
+        start = textEditingDelta.deletedRange.start;
+        length = textEditingDelta.deletedRange.length;
+      } else if (textEditingDelta is TextEditingDeltaReplacement) {
+        start = textEditingDelta.replacedRange.start;
+        length = textEditingDelta.replacedRange.length;
+        data = textEditingDelta.replacementText;
+      }
+      _lastKnownRemoteTextEditingValue =
+          textEditingDelta.apply(_lastKnownRemoteTextEditingValue!);
+      widget.controller.replaceText(start, length, data,
+          selection: textEditingDelta.selection);
+    }
+  }
+
+  @override
   void updateEditingValue(TextEditingValue value) {
-    if (!shouldCreateInputConnection) {
-      return;
-    }
-
-    if (_lastKnownRemoteTextEditingValue == value) {
-      // There is no difference between this value and the last known value.
-      return;
-    }
-
-    // Check if only composing range changed.
-    if (_lastKnownRemoteTextEditingValue!.text == value.text &&
-        _lastKnownRemoteTextEditingValue!.selection == value.selection) {
-      // This update only modifies composing range. Since we don't keep track
-      // of composing range in Zefyr we just need to update last known value
-      // here.
-      // This check fixes an issue on Android when it sends
-      // composing updates separately from regular changes for text and
-      // selection.
-      _lastKnownRemoteTextEditingValue = value;
-      return;
-    }
-
-    // Note Flutter (unintentionally?) silences errors occurred during
-    // text input update, so we have to report it ourselves.
-    // For more details see https://github.com/flutter/flutter/issues/19191
-    // TODO: remove try-catch when/if Flutter stops silencing these errors.
-    try {
-      final effectiveLastKnownValue = _lastKnownRemoteTextEditingValue!;
-      _lastKnownRemoteTextEditingValue = value;
-      final oldText = effectiveLastKnownValue.text;
-      final text = value.text;
-      final cursorPosition = value.selection.extentOffset;
-      final diff = fastDiff(oldText, text, cursorPosition);
-      _remoteValueChanged(
-          diff.start, diff.deleted, diff.inserted, value.selection);
-    } catch (e, trace) {
-      FlutterError.reportError(FlutterErrorDetails(
-        exception: e,
-        stack: trace,
-        library: 'Fleather',
-        context: ErrorSummary('while updating editing value'),
-      ));
-      rethrow;
-    }
+    // no-op
   }
 
   @override
@@ -317,4 +293,8 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       });
     }
   }
+}
+
+extension on TextRange {
+  int get length => end - start;
 }

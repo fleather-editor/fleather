@@ -137,9 +137,17 @@ void main() {
         ..delete(5)
         ..insert('mmmmm,', {'i': true}));
       await editor.pump();
-      await editor.enterText(const TextEditingValue(
-          text: 'Something in the way mmmmm,\n',
-          selection: TextSelection.collapsed(offset: 26)));
+      final inputClient = getInputClient();
+      inputClient.openConnectionIfNeeded();
+      inputClient.updateEditingValueWithDeltas([
+        const TextEditingDeltaInsertion(
+            oldText: 'Something in the way mmmmm',
+            textInserted: ',',
+            insertionOffset: initialLength,
+            selection: TextSelection.collapsed(offset: 26),
+            composing: TextRange.collapsed(26))
+      ]);
+
       // Throttle time of 500ms in history
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
@@ -204,6 +212,16 @@ void main() {
       Future<void> enterText(TextEditingValue text) async {
         return TestAsyncUtils.guard<void>(() async {
           await showKeyboard();
+          final inputClient = getInputClient();
+          inputClient.updateEditingValueWithDeltas([
+            TextEditingDeltaInsertion(
+              oldText: inputClient.textEditingValue.text,
+              textInserted: text.text,
+              insertionOffset: 0,
+              selection: text.selection,
+              composing: text.composing,
+            )
+          ]);
           tester.binding.testTextInput.updateEditingValue(text);
           await tester.idle();
           await tester.pumpAndSettle();
@@ -224,7 +242,7 @@ void main() {
       await tester.tap(find.byType(TextButton));
 
       await enterText(const TextEditingValue(
-          text: 'Something in the way mmmmm\n',
+          text: 'Something in the way mmmmm',
           selection: TextSelection.collapsed(offset: 26)));
       // Throttle time of 500ms in history
       await tester.pump(const Duration(milliseconds: 500));
