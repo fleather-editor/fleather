@@ -1,3 +1,10 @@
+## 1.5.0
+
+* [Fix] Ensure that text boxes are only the required size
+* [Fix] History not working when widget updated 
+* Support Flutter v3.7
+* Support `TextEditingDelta` handling
+
 ## 1.4.0
 
 * Keyboard appearance depends on default brightness

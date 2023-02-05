@@ -1,3 +1,7 @@
+## 1.5.0
+
+* Format link after hitting newline
+
 ## 1.4.0
 
 * Support modifying document rules
