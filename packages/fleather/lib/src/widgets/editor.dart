@@ -27,6 +27,20 @@ import 'text_line.dart';
 import 'text_selection.dart';
 import 'theme.dart';
 
+/// Widget builder function for context menu in [FleatherEditor].
+typedef FleatherContextMenuBuilder = Widget Function(
+  BuildContext context,
+  EditorState editableTextState,
+);
+
+/// Default implementation of a widget builder function for context menu.
+Widget defaultContextMenuBuilder(
+        BuildContext context, EditorState editableTextState) =>
+    AdaptiveTextSelectionToolbar.buttonItems(
+      buttonItems: editableTextState.contextMenuButtonItems,
+      anchors: editableTextState.contextMenuAnchors,
+    );
+
 /// Builder function for embeddable objects in [FleatherEditor].
 typedef FleatherEmbedBuilder = Widget Function(
     BuildContext context, EmbedNode node);
@@ -188,6 +202,11 @@ class FleatherEditor extends StatefulWidget {
   /// Defaults to [defaultFleatherEmbedBuilder].
   final FleatherEmbedBuilder embedBuilder;
 
+  /// Builds the text selection toolbar when requested by the user.
+  ///
+  /// Defaults to [defaultContextMenuBuilder].
+  final FleatherContextMenuBuilder contextMenuBuilder;
+
   /// Delegate function responsible for showing menu with link actions on
   /// mobile platforms (iOS, Android).
   ///
@@ -225,6 +244,7 @@ class FleatherEditor extends StatefulWidget {
     this.keyboardAppearance,
     this.scrollPhysics,
     this.onLaunchUrl,
+    this.contextMenuBuilder = defaultContextMenuBuilder,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
   }) : super(key: key);
@@ -514,15 +534,10 @@ class RawEditor extends StatefulWidget {
     this.onLaunchUrl,
     required this.selectionColor,
     this.scrollPhysics,
-    this.toolbarOptions = const ToolbarOptions(
-      copy: true,
-      cut: true,
-      paste: true,
-      selectAll: true,
-    ),
     required this.cursorStyle,
     this.showSelectionHandles = false,
     this.selectionControls,
+    this.contextMenuBuilder = defaultContextMenuBuilder,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
   })  : assert(scrollable || scrollController != null),
@@ -563,11 +578,10 @@ class RawEditor extends StatefulWidget {
   /// a link in the document.
   final ValueChanged<String?>? onLaunchUrl;
 
-  /// Configuration of toolbar options.
+  /// Builds the text selection toolbar when requested by the user.
   ///
-  /// By default, all options are enabled. If [readOnly] is true,
-  /// paste and cut will be disabled regardless.
-  final ToolbarOptions toolbarOptions;
+  /// Defaults to [defaultContextMenuBuilder].
+  final FleatherContextMenuBuilder contextMenuBuilder;
 
   /// Whether to show selection handles.
   ///
@@ -713,6 +727,8 @@ class RawEditor extends StatefulWidget {
 ///
 abstract class EditorState extends State<RawEditor>
     implements TextSelectionDelegate {
+  ClipboardStatusNotifier? get clipboardStatus;
+
   ScrollController get scrollController;
 
   RenderEditor get renderEditor;
@@ -728,6 +744,10 @@ abstract class EditorState extends State<RawEditor>
   void requestKeyboard();
 
   FocusNode get effectiveFocusNode;
+
+  TextSelectionToolbarAnchors get contextMenuAnchors;
+
+  List<ContextMenuButtonItem> get contextMenuButtonItems;
 }
 
 class RawEditorState extends EditorState
@@ -762,7 +782,8 @@ class RawEditorState extends EditorState
       _floatingCursorResetController;
   late AnimationController _floatingCursorResetController;
 
-  final ClipboardStatusNotifier? _clipboardStatus =
+  @override
+  final ClipboardStatusNotifier? clipboardStatus =
       kIsWeb ? null : ClipboardStatusNotifier();
   final LayerLink _toolbarLayerLink = LayerLink();
   final LayerLink _startHandleLayerLink = LayerLink();
@@ -941,7 +962,7 @@ class RawEditorState extends EditorState
   void initState() {
     super.initState();
 
-    _clipboardStatus?.addListener(_onChangedClipboardStatus);
+    clipboardStatus?.addListener(_onChangedClipboardStatus);
 
     widget.controller.addListener(_didChangeTextEditingValue);
 
@@ -1048,8 +1069,8 @@ class RawEditorState extends EditorState
     effectiveFocusNode.removeListener(_handleFocusChanged);
     _internalFocusNode?.dispose();
     _cursorController.dispose();
-    _clipboardStatus?.removeListener(_onChangedClipboardStatus);
-    _clipboardStatus?.dispose();
+    clipboardStatus?.removeListener(_onChangedClipboardStatus);
+    clipboardStatus?.dispose();
     super.dispose();
   }
 
@@ -1085,7 +1106,7 @@ class RawEditorState extends EditorState
     } else {
       if (_selectionOverlay == null) {
         _selectionOverlay = EditorTextSelectionOverlay(
-          clipboardStatus: _clipboardStatus,
+          clipboardStatus: clipboardStatus,
           context: context,
           value: textEditingValue,
           debugRequiredFor: widget,
@@ -1096,6 +1117,8 @@ class RawEditorState extends EditorState
           selectionControls: widget.selectionControls,
           selectionDelegate: this,
           dragStartBehavior: DragStartBehavior.start,
+          contextMenuBuilder: (context) =>
+              widget.contextMenuBuilder(context, this),
         );
       } else {
         _selectionOverlay!.update(textEditingValue);
@@ -1545,6 +1568,57 @@ class RawEditorState extends EditorState
   @override
   void removeTextPlaceholder() {
     // TODO: implement removeTextPlaceholder
+  }
+
+  /// Returns the anchor points for the default context menu.
+  @override
+  TextSelectionToolbarAnchors get contextMenuAnchors {
+    final selection = textEditingValue.selection;
+    // Find the horizontal midpoint, just above the selected text.
+    final List<TextSelectionPoint> endpoints =
+        renderEditor.getEndpointsForSelection(selection);
+
+    final Rect editingRegion = Rect.fromPoints(
+      renderEditor.localToGlobal(Offset.zero),
+      renderEditor.localToGlobal(renderEditor.size.bottomRight(Offset.zero)),
+    );
+
+    final baseLineHeight = renderEditor.preferredLineHeight(selection.base);
+    final extentLineHeight = renderEditor.preferredLineHeight(selection.extent);
+    final smallestLineHeight = math.min(baseLineHeight, extentLineHeight);
+    final bool isMultiline =
+        endpoints.last.point.dy - endpoints.first.point.dy >
+            smallestLineHeight / 2;
+
+    // If the selected text spans more than 1 line, horizontally center the toolbar.
+    // Derived from both iOS and Android.
+    final double midX = isMultiline
+        ? editingRegion.width / 2
+        : (endpoints.first.point.dx + endpoints.last.point.dx) / 2;
+
+    final Offset midpoint =
+        Offset(midX, endpoints[0].point.dy - baseLineHeight);
+
+    return TextSelectionToolbarAnchors(primaryAnchor: midpoint);
+  }
+
+  /// Returns the [ContextMenuButtonItem]s representing the buttons in this
+  /// platform's default selection menu using [EditableText.getEditableButtonItems].
+  @override
+  List<ContextMenuButtonItem> get contextMenuButtonItems {
+    return EditableText.getEditableButtonItems(
+      clipboardStatus: clipboardStatus?.value,
+      onCopy: copyEnabled
+          ? () => copySelection(SelectionChangedCause.toolbar)
+          : null,
+      onCut:
+          cutEnabled ? () => cutSelection(SelectionChangedCause.toolbar) : null,
+      onPaste:
+          pasteEnabled ? () => pasteText(SelectionChangedCause.toolbar) : null,
+      onSelectAll: selectAllEnabled
+          ? () => selectAll(SelectionChangedCause.toolbar)
+          : null,
+    );
   }
 }
 
