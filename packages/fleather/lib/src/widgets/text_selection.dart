@@ -41,6 +41,7 @@ class EditorTextSelectionOverlay {
     required this.startHandleLayerLink,
     required this.endHandleLayerLink,
     required this.renderObject,
+    this.contextMenuBuilder,
     this.debugRequiredFor,
     this.selectionControls,
     this.selectionDelegate,
@@ -83,6 +84,9 @@ class EditorTextSelectionOverlay {
 
   /// Builds text selection handles and toolbar.
   final TextSelectionControls? selectionControls;
+
+  /// Builds context menu.
+  final WidgetBuilder? contextMenuBuilder;
 
   /// The delegate for manipulating the current selection in the owning
   /// text field.
@@ -300,53 +304,14 @@ class EditorTextSelectionOverlay {
   }
 
   Widget _buildToolbar(BuildContext context) {
-    if (selectionControls == null) return Container();
-
-    // Find the horizontal midpoint, just above the selected text.
-    final List<TextSelectionPoint> endpoints =
-        renderObject.getEndpointsForSelection(_selection);
-
-    final Rect editingRegion = Rect.fromPoints(
-      renderObject.localToGlobal(Offset.zero),
-      renderObject.localToGlobal(renderObject.size.bottomRight(Offset.zero)),
-    );
-
-    final baseLineHeight = renderObject.preferredLineHeight(_selection.base);
-    final extentLineHeight =
-        renderObject.preferredLineHeight(_selection.extent);
-    final smallestLineHeight = math.min(baseLineHeight, extentLineHeight);
-    final bool isMultiline =
-        endpoints.last.point.dy - endpoints.first.point.dy >
-            smallestLineHeight / 2;
-
-    // If the selected text spans more than 1 line, horizontally center the toolbar.
-    // Derived from both iOS and Android.
-    final double midX = isMultiline
-        ? editingRegion.width / 2
-        : (endpoints.first.point.dx + endpoints.last.point.dx) / 2;
-
-    final Offset midpoint = Offset(
-      midX,
-      // The y-coordinate won't be made use of most likely.
-      endpoints[0].point.dy - baseLineHeight,
-    );
+    if (contextMenuBuilder == null) return Container();
 
     return FadeTransition(
       opacity: _toolbarOpacity,
       child: CompositedTransformFollower(
         link: toolbarLayerLink,
         showWhenUnlinked: false,
-        offset: -editingRegion.topLeft,
-        child: selectionControls!.buildToolbar(
-          context,
-          editingRegion,
-          baseLineHeight,
-          midpoint,
-          endpoints,
-          selectionDelegate!,
-          clipboardStatus!,
-          null,
-        ),
+        child: contextMenuBuilder!(context),
       ),
     );
   }

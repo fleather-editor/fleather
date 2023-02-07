@@ -138,6 +138,11 @@ class FleatherField extends StatefulWidget {
   /// Defaults to [defaultFleatherEmbedBuilder].
   final FleatherEmbedBuilder embedBuilder;
 
+  /// Builds the text selection toolbar when requested by the user.
+  ///
+  /// Defaults to [defaultContextMenuBuilder].
+  final FleatherContextMenuBuilder contextMenuBuilder;
+
   final GlobalKey<EditorState>? editorKey;
 
   const FleatherField({
@@ -161,6 +166,7 @@ class FleatherField extends StatefulWidget {
     this.onLaunchUrl,
     this.decoration,
     this.toolbar,
+    this.contextMenuBuilder = defaultContextMenuBuilder,
     this.embedBuilder = defaultFleatherEmbedBuilder,
   }) : super(key: key);
 
@@ -227,6 +233,7 @@ class _FleatherFieldState extends State<FleatherField> {
       scrollPhysics: widget.scrollPhysics,
       onLaunchUrl: widget.onLaunchUrl,
       embedBuilder: widget.embedBuilder,
+      contextMenuBuilder: widget.contextMenuBuilder,
     );
 
     if (widget.toolbar != null) {
