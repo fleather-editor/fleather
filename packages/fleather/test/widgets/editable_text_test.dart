@@ -1,3 +1,4 @@
+import 'package:fleather/fleather.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -55,6 +56,8 @@ Future<void> insertText(WidgetTester tester, String textInserted,
         insertionOffset: atOffset,
         selection: const TextSelection.collapsed(offset: 0),
         composing: TextRange.empty));
+    // account for thottling of history stack update
+    await tester.pump(throttleDuration);
     await tester.idle();
   });
 }
@@ -67,6 +70,8 @@ Future<void> deleteText(WidgetTester tester,
         deletedRange: TextRange(start: at, end: at + nbCharacters),
         selection: const TextSelection.collapsed(offset: 0),
         composing: TextRange.empty));
+    // account for thottling of history stack update
+    await tester.pump(throttleDuration);
     await tester.idle();
   });
 }
@@ -82,6 +87,8 @@ Future<void> replaceText(WidgetTester tester,
         replacementText: withText,
         selection: const TextSelection.collapsed(offset: 0),
         composing: TextRange.empty));
+    // account for thottling of history stack update
+    await tester.pump(throttleDuration);
     await tester.idle();
   });
 }

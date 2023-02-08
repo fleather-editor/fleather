@@ -22,7 +22,7 @@ class FleatherController extends ChangeNotifier {
         _history = HistoryStack.doc(document),
         _selection = const TextSelection.collapsed(offset: 0) {
     _throttledPush = _throttle(
-      duration: _throttleDuration,
+      duration: throttleDuration,
       function: _history.push,
     );
   }
@@ -129,7 +129,6 @@ class FleatherController extends ChangeNotifier {
         );
       }
     }
-    // _lastChangeSource = ChangeSource.local;
     _updateHistory();
     notifyListeners();
   }
@@ -154,8 +153,8 @@ class FleatherController extends ChangeNotifier {
     if (_selection != adjustedSelection) {
       _updateSelectionSilent(adjustedSelection, source: source);
     }
-    notifyListeners();
     _updateHistory();
+    notifyListeners();
   }
 
   /// Formats current selection with [attribute].
@@ -186,7 +185,9 @@ class FleatherController extends ChangeNotifier {
       {TextSelection? selection, ChangeSource source = ChangeSource.remote}) {
     if (change.isNotEmpty) {
       document.compose(change, source);
-      _updateHistory();
+      if (source != ChangeSource.history) {
+        _updateHistory();
+      }
     }
     if (selection != null) {
       _updateSelectionSilent(selection, source: source);
@@ -216,7 +217,6 @@ class FleatherController extends ChangeNotifier {
   void _updateSelectionSilent(TextSelection value,
       {ChangeSource source = ChangeSource.remote}) {
     _selection = value;
-//    _lastChangeSource = source;
     _ensureSelectionBeforeLastBreak();
   }
 
@@ -242,7 +242,8 @@ class FleatherController extends ChangeNotifier {
 // This duration was chosen as a best fit for the behavior of Mac, Linux,
 // and Windows undo/redo state save durations, but it is not perfect for any
 // of them.
-const Duration _throttleDuration = Duration(milliseconds: 500);
+@visibleForTesting
+const Duration throttleDuration = Duration(milliseconds: 500);
 
 extension HistoryHandler on FleatherController {
   /// Sets current document state to it's previous state, if any.
@@ -262,7 +263,7 @@ extension HistoryHandler on FleatherController {
 
     compose(changeDelta,
         selection: HistoryStack.selectionFromDelta(changeDelta),
-        source: ChangeSource.local);
+        source: ChangeSource.history);
   }
 
   void _updateHistory() {
