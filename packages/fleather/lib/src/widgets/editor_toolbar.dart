@@ -64,28 +64,18 @@ class UndoRedoButton extends StatelessWidget {
 
   bool _isEnabled() {
     if (_variant == _UndoRedoButtonVariant.undo) {
-      return controller.history.canUndo;
+      return controller.canUndo;
     } else {
-      return controller.history.canRedo;
+      return controller.canRedo;
     }
   }
 
   void _onPressed() {
     if (_variant == _UndoRedoButtonVariant.undo) {
-      _update(controller.history.undo());
+      controller.undo();
     } else {
-      _update(controller.history.redo());
+      controller.redo();
     }
-  }
-
-  void _update(Delta? changeDelta) {
-    if (changeDelta == null || changeDelta.isEmpty) {
-      return;
-    }
-
-    controller.compose(changeDelta,
-        selection: HistoryStack.selectionFromDelta(changeDelta),
-        source: ChangeSource.local);
   }
 
   @override

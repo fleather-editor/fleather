@@ -29,60 +29,27 @@ class FleatherHistory extends StatefulWidget {
 }
 
 class _FleatherHistoryState extends State<FleatherHistory> {
-  late final _Throttled<Delta> _throttledPush;
-  Timer? _throttleTimer;
-
-  // This duration was chosen as a best fit for the behavior of Mac, Linux,
-  // and Windows undo/redo state save durations, but it is not perfect for any
-  // of them.
-  static const Duration _kThrottleDuration = Duration(milliseconds: 500);
 
   void _undo(UndoTextIntent intent) {
-    _update(widget.controller.history.undo());
+    widget.controller.undo();
   }
 
   void _redo(RedoTextIntent intent) {
-    _update(widget.controller.history.redo());
-  }
-
-  void _update(Delta? changeDelta) {
-    if (changeDelta == null || changeDelta.isEmpty) {
-      return;
-    }
-
-    widget.controller.compose(changeDelta,
-        selection: HistoryStack.selectionFromDelta(changeDelta),
-        source: ChangeSource.local);
-  }
-
-  void _onLocalChanges() {
-    if (widget.controller.plainTextEditingValue == TextEditingValue.empty) {
-      return;
-    }
-    _throttleTimer = _throttledPush(widget.controller.document.toDelta());
+    widget.controller.redo();
   }
 
   @override
   void initState() {
     super.initState();
-    _throttledPush = _throttle(
-        duration: _kThrottleDuration, function: widget.controller.history.push);
-    widget.controller.addListener(_onLocalChanges);
   }
 
   @override
   void didUpdateWidget(FleatherHistory oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.controller != oldWidget.controller) {
-      oldWidget.controller.removeListener(_onLocalChanges);
-      widget.controller.addListener(_onLocalChanges);
-    }
   }
 
   @override
   void dispose() {
-    widget.controller.removeListener(_onLocalChanges);
-    _throttleTimer?.cancel();
     super.dispose();
   }
 
@@ -237,45 +204,7 @@ class _Change {
   final Delta redoDelta;
 }
 
-/// A function that can be throttled with the throttle function.
-typedef _Throttleable<T> = void Function(T currentArg);
 
-/// A function that has been throttled by [_throttle].
-typedef _Throttled<T> = Timer Function(T currentArg);
-
-/// Returns a _Throttled that will call through to the given function only a
-/// maximum of once per duration.
-///
-/// Only works for functions that take exactly one argument and return void.
-_Throttled<T> _throttle<T>({
-  required Duration duration,
-  required _Throttleable<T> function,
-  // If true, calls at the start of the timer.
-  bool leadingEdge = false,
-}) {
-  Timer? timer;
-  bool calledDuringTimer = false;
-  late T arg;
-
-  return (T currentArg) {
-    arg = currentArg;
-    if (timer != null) {
-      calledDuringTimer = true;
-      return timer!;
-    }
-    if (leadingEdge) {
-      function(arg);
-    }
-    calledDuringTimer = false;
-    timer = Timer(duration, () {
-      if (!leadingEdge || calledDuringTimer) {
-        function(arg);
-      }
-      timer = null;
-    });
-    return timer!;
-  };
-}
 
 extension on Delta {
   int get textLength {
