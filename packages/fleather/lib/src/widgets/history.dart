@@ -29,7 +29,6 @@ class FleatherHistory extends StatefulWidget {
 }
 
 class _FleatherHistoryState extends State<FleatherHistory> {
-
   void _undo(UndoTextIntent intent) {
     widget.controller.undo();
   }
@@ -203,8 +202,6 @@ class _Change {
   final Delta undoDelta;
   final Delta redoDelta;
 }
-
-
 
 extension on Delta {
   int get textLength {
