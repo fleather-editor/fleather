@@ -127,9 +127,11 @@ class FleatherController extends ChangeNotifier {
           ),
           source: ChangeSource.local,
         );
+        // Only update history when text is being updated
+        // We do not want to update it when selection is changed
+        _updateHistory();
       }
     }
-    _updateHistory();
     notifyListeners();
   }
 

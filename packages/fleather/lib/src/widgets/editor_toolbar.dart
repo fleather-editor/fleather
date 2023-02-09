@@ -1,7 +1,5 @@
-import 'package:fleather/src/widgets/history.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
-import 'package:quill_delta/quill_delta.dart';
 
 import 'controller.dart';
 
