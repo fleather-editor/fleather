@@ -64,7 +64,8 @@ void main() {
       final finder = find.text('Paste');
       expect(finder, findsOneWidget);
       await tester.tap(finder);
-      await tester.pumpAndSettle();
+      // account for throttling of history update
+      await tester.pumpAndSettle(throttleDuration);
       expect(editor.document.toPlainText(), '$clipboardText\n');
     });
 
@@ -82,7 +83,8 @@ void main() {
       final finder = find.text('Paste');
       expect(finder, findsOneWidget);
       await tester.tap(finder);
-      await tester.pumpAndSettle();
+      // account for throttling of history update
+      await tester.pumpAndSettle(throttleDuration);
       expect(editor.document.toPlainText(), '$clipboardText\n');
     });
 

@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:fleather/src/widgets/history.dart';
 import 'package:fleather/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:parchment/parchment.dart';
@@ -17,10 +19,22 @@ List<String> _insertionToggleableStyleKeys = [
 class FleatherController extends ChangeNotifier {
   FleatherController([ParchmentDocument? document])
       : document = document ?? ParchmentDocument(),
-        _selection = const TextSelection.collapsed(offset: 0);
+        _history = HistoryStack.doc(document),
+        _selection = const TextSelection.collapsed(offset: 0) {
+    _throttledPush = _throttle(
+      duration: throttleDuration,
+      function: _history.push,
+    );
+  }
 
   /// Document managed by this controller.
   final ParchmentDocument document;
+
+  // A list of changes applied to this doc. The changes could be undone or redone.
+  final HistoryStack _history;
+
+  late final _Throttled<Delta> _throttledPush;
+  Timer? _throttleTimer;
 
   /// Currently selected text within the [document].
   TextSelection get selection => _selection;
@@ -107,9 +121,11 @@ class FleatherController extends ChangeNotifier {
           ),
           source: ChangeSource.local,
         );
+        // Only update history when text is being updated
+        // We do not want to update it when selection is changed
+        _updateHistory();
       }
     }
-//    _lastChangeSource = ChangeSource.local;
     notifyListeners();
   }
 
@@ -133,6 +149,7 @@ class FleatherController extends ChangeNotifier {
     if (_selection != adjustedSelection) {
       _updateSelectionSilent(adjustedSelection, source: source);
     }
+    _updateHistory();
     notifyListeners();
   }
 
@@ -164,6 +181,9 @@ class FleatherController extends ChangeNotifier {
       {TextSelection? selection, ChangeSource source = ChangeSource.remote}) {
     if (change.isNotEmpty) {
       document.compose(change, source);
+      if (source != ChangeSource.history) {
+        _updateHistory();
+      }
     }
     if (selection != null) {
       _updateSelectionSilent(selection, source: source);
@@ -185,6 +205,7 @@ class FleatherController extends ChangeNotifier {
   @override
   void dispose() {
     document.close();
+    _throttleTimer?.cancel();
     super.dispose();
   }
 
@@ -192,7 +213,6 @@ class FleatherController extends ChangeNotifier {
   void _updateSelectionSilent(TextSelection value,
       {ChangeSource source = ChangeSource.remote}) {
     _selection = value;
-//    _lastChangeSource = source;
     _ensureSelectionBeforeLastBreak();
   }
 
@@ -213,4 +233,85 @@ class FleatherController extends ChangeNotifier {
       composing: TextRange.empty,
     );
   }
+}
+
+// This duration was chosen as a best fit for the behavior of Mac, Linux,
+// and Windows undo/redo state save durations, but it is not perfect for any
+// of them.
+@visibleForTesting
+const Duration throttleDuration = Duration(milliseconds: 500);
+
+extension HistoryHandler on FleatherController {
+  /// Returns true if there is at least one undo operation.
+  bool get canUndo => _history.canUndo;
+
+  /// Returns true if there is at least one redo operation.
+  bool get canRedo => _history.canRedo;
+
+  /// Sets current document state to it's previous state, if any.
+  void undo() {
+    _update(_history.undo());
+  }
+
+  /// Sets current document state to it's next state, if any.
+  void redo() {
+    _update(_history.redo());
+  }
+
+  void _update(Delta? changeDelta) {
+    if (changeDelta == null || changeDelta.isEmpty) {
+      return;
+    }
+
+    compose(changeDelta,
+        selection: HistoryStack.selectionFromDelta(changeDelta),
+        source: ChangeSource.history);
+  }
+
+  void _updateHistory() {
+    if (plainTextEditingValue == TextEditingValue.empty) {
+      return;
+    }
+    _throttleTimer = _throttledPush(document.toDelta());
+  }
+}
+
+/// A function that can be throttled with the throttle function.
+typedef _Throttleable<T> = void Function(T currentArg);
+
+/// A function that has been throttled by [_throttle].
+typedef _Throttled<T> = Timer Function(T currentArg);
+
+/// Returns a _Throttled that will call through to the given function only a
+/// maximum of once per duration.
+///
+/// Only works for functions that take exactly one argument and return void.
+_Throttled<T> _throttle<T>({
+  required Duration duration,
+  required _Throttleable<T> function,
+  // If true, calls at the start of the timer.
+  bool leadingEdge = false,
+}) {
+  Timer? timer;
+  bool calledDuringTimer = false;
+  late T arg;
+
+  return (T currentArg) {
+    arg = currentArg;
+    if (timer != null) {
+      calledDuringTimer = true;
+      return timer!;
+    }
+    if (leadingEdge) {
+      function(arg);
+    }
+    calledDuringTimer = false;
+    timer = Timer(duration, () {
+      if (!leadingEdge || calledDuringTimer) {
+        function(arg);
+      }
+      timer = null;
+    });
+    return timer!;
+  };
 }

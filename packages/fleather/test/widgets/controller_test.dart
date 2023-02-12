@@ -4,6 +4,7 @@
 import 'package:fleather/fleather.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:quill_delta/quill_delta.dart';
 
 void main() {
@@ -209,6 +210,59 @@ void main() {
           ..insert('\n'),
       );
       // expect(controller.lastChangeSource, ChangeSource.local);
+    });
+
+    group('history', () {
+      group('empty stack', () {
+        test('undo returns null', () {
+          expect(controller.canUndo, false);
+          final expDelta = controller.document.toDelta();
+          controller.undo();
+          expect(controller.document.toDelta(), expDelta);
+        });
+
+        test('redo returns null', () {
+          expect(controller.canRedo, false);
+          final expDelta = controller.document.toDelta();
+          controller.redo();
+          expect(controller.document.toDelta(), expDelta);
+        });
+      });
+      test('undoes twice', () {
+        fakeAsync((async) {
+          controller.compose(Delta()..insert('Hello'));
+          async.flushTimers();
+          controller.compose(Delta()
+            ..retain(5)
+            ..insert(' world'));
+          async.flushTimers();
+          controller.compose(Delta()
+            ..retain(11)
+            ..insert(' ok'));
+          async.flushTimers();
+          expect(controller.canUndo, true);
+          expect(controller.document.toDelta(),
+              Delta()..insert('Hello world ok\n'));
+          controller.undo();
+          expect(
+              controller.document.toDelta(), Delta()..insert('Hello world\n'));
+          expect(controller.canUndo, true);
+          controller.undo();
+          expect(controller.document.toDelta(), Delta()..insert('Hello\n'));
+        });
+      });
+
+      test('undoes too many times', () {
+        fakeAsync((async) {
+          controller.compose(Delta()..insert('Hello world'));
+          async.flushTimers();
+          controller.undo();
+          expect(controller.document.toDelta(), Delta()..insert('\n'));
+          expect(controller.canUndo, false);
+          controller.undo();
+          expect(controller.document.toDelta(), Delta()..insert('\n'));
+        });
+      });
     });
   });
 }

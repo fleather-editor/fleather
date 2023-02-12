@@ -19,6 +19,9 @@ enum ChangeSource {
 
   /// Change originated from a remote action.
   remote,
+
+  /// Change originated from undo/redo action
+  history,
 }
 
 /// Represents a change in a [ParchmentDocument].
