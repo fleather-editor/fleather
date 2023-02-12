@@ -46,12 +46,6 @@ class FleatherController extends ChangeNotifier {
   ParchmentStyle get toggledStyles => _toggledStyles;
   ParchmentStyle _toggledStyles = ParchmentStyle();
 
-  /// Returns true if there is at least one undo operation.
-  bool get canUndo => _history.canUndo;
-
-  /// Returns true if there is at least one redo operation.
-  bool get canRedo => _history.canRedo;
-
   /// Returns style of specified text range.
   ///
   /// If nothing is selected but we've toggled an attribute,
@@ -248,6 +242,12 @@ class FleatherController extends ChangeNotifier {
 const Duration throttleDuration = Duration(milliseconds: 500);
 
 extension HistoryHandler on FleatherController {
+  /// Returns true if there is at least one undo operation.
+  bool get canUndo => _history.canUndo;
+
+  /// Returns true if there is at least one redo operation.
+  bool get canRedo => _history.canRedo;
+
   /// Sets current document state to it's previous state, if any.
   void undo() {
     _update(_history.undo());

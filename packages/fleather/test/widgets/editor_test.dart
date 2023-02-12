@@ -65,8 +65,7 @@ void main() {
       expect(finder, findsOneWidget);
       await tester.tap(finder);
       // account for throttling of history update
-      await tester.pump(throttleDuration);
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(throttleDuration);
       expect(editor.document.toPlainText(), '$clipboardText\n');
     });
 
@@ -85,8 +84,7 @@ void main() {
       expect(finder, findsOneWidget);
       await tester.tap(finder);
       // account for throttling of history update
-      await tester.pump(throttleDuration);
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(throttleDuration);
       expect(editor.document.toPlainText(), '$clipboardText\n');
     });
 

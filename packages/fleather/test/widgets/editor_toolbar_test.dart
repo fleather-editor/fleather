@@ -1,31 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:fleather/fleather.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
-
-// Workaround to avoid icon and text to generated pixel overflow
-Future<void> loadRobotoFont() async {
-  final regular = ByteData.view(
-      File('./test/resources/fonts/roboto-font/Roboto-Regular.ttf')
-          .readAsBytesSync()
-          .buffer);
-  final bold = ByteData.view(
-      File('./test/resources/fonts/roboto-font/Roboto-Bold.ttf')
-          .readAsBytesSync()
-          .buffer);
-  final italic = ByteData.view(
-      File('./test/resources/fonts/roboto-font/Roboto-Italic.ttf')
-          .readAsBytesSync()
-          .buffer);
-  await (FontLoader('Roboto')
-        ..addFont(Future.value(regular))
-        ..addFont(Future.value(bold))
-        ..addFont(Future.value(italic)))
-      .load();
-}
 
 Widget widget(FleatherController controller) {
   return MaterialApp(
@@ -47,9 +23,7 @@ Widget widget(FleatherController controller) {
 
 void main() {
   group('$FleatherToolbar', () {
-    setUp(() async => await loadRobotoFont());
-
-    testWidgets('Undo/Redi', (tester) async {
+    testWidgets('Undo/Redo', (tester) async {
       final controller = FleatherController();
       await tester.pumpWidget(widget(controller));
       await tester.pumpAndSettle();
