@@ -1578,40 +1578,15 @@ class RawEditorState extends EditorState
     final List<TextSelectionPoint> endpoints =
         renderEditor.getEndpointsForSelection(selection);
 
-    final Rect editingRegion = Rect.fromPoints(
-      renderEditor.localToGlobal(Offset.zero),
-      renderEditor.localToGlobal(renderEditor.size.bottomRight(Offset.zero)),
-    );
-
     final baseLineHeight = renderEditor.preferredLineHeight(selection.base);
     final extentLineHeight = renderEditor.preferredLineHeight(selection.extent);
     final smallestLineHeight = math.min(baseLineHeight, extentLineHeight);
 
-    final bool isMultiline =
-        endpoints.last.point.dy - endpoints.first.point.dy >
-            smallestLineHeight / 2;
-
-    final Rect selectionRect = Rect.fromLTRB(
-      isMultiline
-          ? editingRegion.left
-          : editingRegion.left + endpoints.first.point.dx,
-      editingRegion.top + endpoints.first.point.dy - smallestLineHeight,
-      isMultiline
-          ? editingRegion.right
-          : editingRegion.left + endpoints.last.point.dx,
-      editingRegion.top + endpoints.last.point.dy,
-    );
-
-    return TextSelectionToolbarAnchors(
-      primaryAnchor: Offset(
-        selectionRect.left + selectionRect.width / 2,
-        clampDouble(selectionRect.top, editingRegion.top, editingRegion.bottom),
-      ),
-      secondaryAnchor: Offset(
-        selectionRect.left + selectionRect.width / 2,
-        clampDouble(selectionRect.bottom, editingRegion.top, editingRegion.bottom),
-      ),
-    );
+    return TextSelectionToolbarAnchors.fromSelection(
+        renderBox: renderEditor,
+        startGlyphHeight: smallestLineHeight,
+        endGlyphHeight: smallestLineHeight,
+        selectionEndpoints: endpoints);
   }
 
   /// Returns the [ContextMenuButtonItem]s representing the buttons in this
