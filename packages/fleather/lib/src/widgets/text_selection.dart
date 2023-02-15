@@ -24,7 +24,8 @@ const Duration _kDragSelectionUpdateThrottle = Duration(milliseconds: 50);
 
 /// The text position that a give selection handle manipulates. Dragging the
 /// [start] handle always moves the [start]/[baseOffset] of the selection.
-enum _TextSelectionHandlePosition { start, end }
+@visibleForTesting
+enum TextSelectionHandlePosition { start, end }
 
 /// An object that manages a pair of text selection handles.
 ///
@@ -48,9 +49,7 @@ class EditorTextSelectionOverlay {
     this.onSelectionHandleTapped,
     this.clipboardStatus,
     this.dragStartBehavior = DragStartBehavior.start,
-    bool handlesVisible = false,
-  })  : _handlesVisible = handlesVisible,
-        _value = value {
+  }) : _value = value {
     final OverlayState overlay = Overlay.of(context, rootOverlay: true);
     _toolbarController =
         AnimationController(duration: fadeDuration, vsync: overlay);
@@ -146,64 +145,25 @@ class EditorTextSelectionOverlay {
 
   TextSelection get _selection => _value.selection;
 
-  /// Whether selection handles are visible.
-  ///
-  /// Set to false if you want to hide the handles. Use this property to show or
-  /// hide the handle without rebuilding them.
-  ///
-  /// If this method is called while the [SchedulerBinding.schedulerPhase] is
-  /// [SchedulerPhase.persistentCallbacks], i.e. during the build, layout, or
-  /// paint phases (see [WidgetsBinding.drawFrame]), then the update is delayed
-  /// until the post-frame callbacks phase. Otherwise the update is done
-  /// synchronously. This means that it is safe to call during builds, but also
-  /// that if you do call this during a build, the UI will not update until the
-  /// next frame (i.e. many milliseconds later).
-  ///
-  /// Defaults to false.
-  bool get handlesVisible => _handlesVisible;
-  bool _handlesVisible = false;
-
-  set handlesVisible(bool visible) {
-    if (_handlesVisible == visible) return;
-    _handlesVisible = visible;
-    // If we are in build state, it will be too late to update visibility.
-    // We will need to schedule the build in next frame.
-    if (SchedulerBinding.instance.schedulerPhase ==
-        SchedulerPhase.persistentCallbacks) {
-      SchedulerBinding.instance.addPostFrameCallback(_markNeedsBuild);
-    } else {
-      _markNeedsBuild();
-    }
-  }
-
   /// Builds the handles by inserting them into the [context]'s overlay.
   void showHandles() {
     if (_handles != null) return;
     _handles = <OverlayEntry>[
       OverlayEntry(
           builder: (BuildContext context) =>
-              _buildHandle(context, _TextSelectionHandlePosition.start)),
+              _buildHandle(context, TextSelectionHandlePosition.start)),
       OverlayEntry(
           builder: (BuildContext context) =>
-              _buildHandle(context, _TextSelectionHandlePosition.end)),
+              _buildHandle(context, TextSelectionHandlePosition.end)),
     ];
 
     Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
         .insertAll(_handles!);
   }
 
-  /// Destroys the handles by removing them from overlay.
-  void hideHandles() {
-    if (_handles != null) {
-      _handles![0].remove();
-      _handles![1].remove();
-      _handles = null;
-    }
-  }
-
   /// Shows the toolbar by inserting it into the [context]'s overlay.
   void showToolbar() {
-    assert(_toolbar == null);
+    if (_toolbar != null) return;
     _toolbar = OverlayEntry(builder: _buildToolbar);
     Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
         .insert(_toolbar!);
@@ -247,7 +207,7 @@ class EditorTextSelectionOverlay {
   }
 
   /// Whether the handles are currently visible.
-  bool get handlesAreVisible => _handles != null && handlesVisible;
+  bool get handlesAreVisible => _handles != null;
 
   /// Whether the toolbar is currently visible.
   bool get toolbarIsVisible => _toolbar != null;
@@ -255,20 +215,28 @@ class EditorTextSelectionOverlay {
   /// Hides the entire overlay including the toolbar and the handles.
   void hide() {
     if (_handles != null) {
-      _handles![0].remove();
-      _handles![1].remove();
-      _handles = null;
+      hideHandles();
     }
     if (_toolbar != null) {
       hideToolbar();
     }
   }
 
+  /// Hides the selection handles.
+  ///
+  /// To hide the whole overlay, see [hide].
+  void hideHandles() {
+    if (_handles == null) return;
+    _handles![0].remove();
+    _handles![1].remove();
+    _handles = null;
+  }
+
   /// Hides the toolbar part of the overlay.
   ///
   /// To hide the whole overlay, see [hide].
   void hideToolbar() {
-    assert(_toolbar != null);
+    if (_toolbar == null) return;
     _toolbarController.stop();
     _toolbar!.remove();
     _toolbar = null;
@@ -281,26 +249,24 @@ class EditorTextSelectionOverlay {
   }
 
   Widget _buildHandle(
-      BuildContext context, _TextSelectionHandlePosition position) {
+      BuildContext context, TextSelectionHandlePosition position) {
     if ((_selection.isCollapsed &&
-            position == _TextSelectionHandlePosition.end) ||
+            position == TextSelectionHandlePosition.end) ||
         selectionControls == null)
       return Container(); // hide the second handle when collapsed
-    return Visibility(
-        visible: handlesVisible,
-        child: _TextSelectionHandleOverlay(
-          onSelectionHandleChanged: (TextSelection newSelection) {
-            _handleSelectionHandleChanged(newSelection, position);
-          },
-          onSelectionHandleTapped: onSelectionHandleTapped,
-          startHandleLayerLink: startHandleLayerLink,
-          endHandleLayerLink: endHandleLayerLink,
-          renderObject: renderObject,
-          selection: _selection,
-          selectionControls: selectionControls,
-          position: position,
-          dragStartBehavior: dragStartBehavior,
-        ));
+    return TextSelectionHandleOverlay(
+      onSelectionHandleChanged: (TextSelection newSelection) {
+        _handleSelectionHandleChanged(newSelection, position);
+      },
+      onSelectionHandleTapped: onSelectionHandleTapped,
+      startHandleLayerLink: startHandleLayerLink,
+      endHandleLayerLink: endHandleLayerLink,
+      renderObject: renderObject,
+      selection: _selection,
+      selectionControls: selectionControls,
+      position: position,
+      dragStartBehavior: dragStartBehavior,
+    );
   }
 
   Widget _buildToolbar(BuildContext context) {
@@ -317,13 +283,13 @@ class EditorTextSelectionOverlay {
   }
 
   void _handleSelectionHandleChanged(
-      TextSelection newSelection, _TextSelectionHandlePosition position) {
+      TextSelection newSelection, TextSelectionHandlePosition position) {
     late TextPosition textPosition;
     switch (position) {
-      case _TextSelectionHandlePosition.start:
+      case TextSelectionHandlePosition.start:
         textPosition = newSelection.base;
         break;
-      case _TextSelectionHandlePosition.end:
+      case TextSelectionHandlePosition.end:
         textPosition = newSelection.extent;
         break;
     }
@@ -335,8 +301,9 @@ class EditorTextSelectionOverlay {
 }
 
 /// This widget represents a single draggable text selection handle.
-class _TextSelectionHandleOverlay extends StatefulWidget {
-  const _TextSelectionHandleOverlay({
+@visibleForTesting
+class TextSelectionHandleOverlay extends StatefulWidget {
+  const TextSelectionHandleOverlay({
     Key? key,
     required this.selection,
     required this.position,
@@ -350,7 +317,7 @@ class _TextSelectionHandleOverlay extends StatefulWidget {
   }) : super(key: key);
 
   final TextSelection selection;
-  final _TextSelectionHandlePosition position;
+  final TextSelectionHandlePosition position;
   final LayerLink startHandleLayerLink;
   final LayerLink endHandleLayerLink;
   final RenderEditor renderObject;
@@ -360,21 +327,20 @@ class _TextSelectionHandleOverlay extends StatefulWidget {
   final DragStartBehavior dragStartBehavior;
 
   @override
-  _TextSelectionHandleOverlayState createState() =>
+  State<TextSelectionHandleOverlay> createState() =>
       _TextSelectionHandleOverlayState();
 
   ValueListenable<bool> get _visibility {
     switch (position) {
-      case _TextSelectionHandlePosition.start:
+      case TextSelectionHandlePosition.start:
         return renderObject.selectionStartInViewport;
-      case _TextSelectionHandlePosition.end:
+      case TextSelectionHandlePosition.end:
         return renderObject.selectionEndInViewport;
     }
   }
 }
 
-class _TextSelectionHandleOverlayState
-    extends State<_TextSelectionHandleOverlay>
+class _TextSelectionHandleOverlayState extends State<TextSelectionHandleOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -400,7 +366,7 @@ class _TextSelectionHandleOverlayState
   }
 
   @override
-  void didUpdateWidget(_TextSelectionHandleOverlay oldWidget) {
+  void didUpdateWidget(TextSelectionHandleOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
     oldWidget._visibility.removeListener(_handleVisibilityChanged);
     _handleVisibilityChanged();
@@ -426,7 +392,7 @@ class _TextSelectionHandleOverlayState
         widget.selection.extentOffset >= widget.selection.baseOffset;
     TextSelection? newSelection;
     switch (widget.position) {
-      case _TextSelectionHandlePosition.start:
+      case TextSelectionHandlePosition.start:
         newSelection = TextSelection(
           baseOffset:
               isNormalized ? position.offset : widget.selection.baseOffset,
@@ -434,7 +400,7 @@ class _TextSelectionHandleOverlayState
               isNormalized ? widget.selection.extentOffset : position.offset,
         );
         break;
-      case _TextSelectionHandlePosition.end:
+      case TextSelectionHandlePosition.end:
         newSelection = TextSelection(
           baseOffset:
               isNormalized ? widget.selection.baseOffset : position.offset,
@@ -460,7 +426,7 @@ class _TextSelectionHandleOverlayState
     TextSelectionHandleType? type;
 
     switch (widget.position) {
-      case _TextSelectionHandlePosition.start:
+      case TextSelectionHandlePosition.start:
         layerLink = widget.startHandleLayerLink;
         type = _chooseType(
           widget.renderObject.textDirection,
@@ -468,7 +434,7 @@ class _TextSelectionHandleOverlayState
           TextSelectionHandleType.right,
         );
         break;
-      case _TextSelectionHandlePosition.end:
+      case TextSelectionHandlePosition.end:
         // For collapsed selections, we shouldn't be building the [end] handle.
         assert(!widget.selection.isCollapsed);
         layerLink = widget.endHandleLayerLink;
@@ -486,7 +452,7 @@ class _TextSelectionHandleOverlayState
     //       May have to use getSelectionBoxes instead of preferredLineHeight.
     //       or expose TextStyle on the render object and calculate
     //       preferredLineHeight / style.height
-    final textPosition = widget.position == _TextSelectionHandlePosition.start
+    final textPosition = widget.position == TextSelectionHandlePosition.start
         ? widget.selection.base
         : widget.selection.extent;
     final lineHeight = widget.renderObject.preferredLineHeight(textPosition);

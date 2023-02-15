@@ -1,4 +1,5 @@
 import 'package:fleather/fleather.dart';
+import 'package:fleather/src/widgets/text_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,8 +29,26 @@ void main() {
       expect(text.children!.first.style!.color, Colors.red);
     });
 
-    testWidgets('collapses selection when unfocused', (tester) async {
+    testWidgets('Hides toolbar and selection handles only when text changed',
+        (tester) async {
       final editor = EditorSandBox(tester: tester);
+      await editor.pump();
+      await tester.longPress(find.byType(FleatherEditor));
+      await tester.pump();
+      // expect(find.byType(TextSelectionHandleOverlay), findsNWidgets(2));
+      expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+      editor.controller.formatText(0, 2, ParchmentAttribute.bold);
+      await tester.pump(throttleDuration);
+// expect(find.byType(TextSelectionHandleOverlay), findsNWidgets(2));
+      expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+      editor.controller.replaceText(0, 0, 'A');
+      await tester.pump(throttleDuration);
+      expect(find.byType(TextSelectionHandleOverlay), findsNothing);
+      expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
+    });
+
+    testWidgets('collapses selection when unfocused', (tester) async {
+      final editor = EditorSandBox(tester: tester, autofocus: true);
       await editor.pumpAndTap();
       await editor.updateSelection(base: 0, extent: 3);
       // expect(editor.findSelectionHandle(), findsNWidgets(2));

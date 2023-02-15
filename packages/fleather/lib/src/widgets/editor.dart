@@ -1038,7 +1038,12 @@ class RawEditorState extends EditorState
       _selectionOverlay?.update(textEditingValue);
     }
 
-    _selectionOverlay?.handlesVisible = _shouldShowSelectionHandles();
+    if (_shouldShowSelectionHandles()) {
+      _selectionOverlay?.showHandles();
+    } else {
+      _selectionOverlay?.hideHandles();
+    }
+
     if (!shouldCreateInputConnection) {
       closeConnectionIfNeeded();
     } else {
@@ -1074,7 +1079,15 @@ class RawEditorState extends EditorState
     super.dispose();
   }
 
+  // Storing the raw text of last textEditingValue
+  String? _lastText;
+
   void _didChangeTextEditingValue() {
+    // Hide toolbars and selection handles if text is changed
+    if (_lastText != textEditingValue.text) {
+      hideToolbar(true);
+    }
+    _lastText = textEditingValue.text;
     requestKeyboard();
 
     _showCaretOnScreen();
@@ -1123,7 +1136,12 @@ class RawEditorState extends EditorState
       } else {
         _selectionOverlay!.update(textEditingValue);
       }
-      _selectionOverlay?.handlesVisible = _shouldShowSelectionHandles();
+
+      if (_shouldShowSelectionHandles()) {
+        _selectionOverlay?.showHandles();
+      } else {
+        _selectionOverlay?.hideHandles();
+      }
       _selectionOverlay!.showHandles();
     }
 
