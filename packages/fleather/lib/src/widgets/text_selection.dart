@@ -18,6 +18,22 @@ import 'package:flutter/services.dart';
 import '../rendering/editor.dart';
 import 'editor.dart';
 
+/// If this method is called while the [SchedulerBinding.schedulerPhase] is
+/// [SchedulerPhase.persistentCallbacks], i.e. during the build, layout, or
+/// paint phases (see [WidgetsBinding.drawFrame]), then the execution of given
+/// function is delayed until the post-frame callbacks phase. Otherwise the
+/// execution is done synchronously. This means that it is safe to call during
+/// builds, but also that if you do call this during a build, the function will
+/// not get executed until the next frame (i.e. many milliseconds later).
+void _duringBuildSafeExecute(Function func) {
+  if (SchedulerBinding.instance.schedulerPhase ==
+      SchedulerPhase.persistentCallbacks) {
+    SchedulerBinding.instance.addPostFrameCallback((_) => func());
+  } else {
+    func();
+  }
+}
+
 /// A duration that controls how often the drag selection update callback is
 /// called.
 const Duration _kDragSelectionUpdateThrottle = Duration(milliseconds: 50);
@@ -157,8 +173,9 @@ class EditorTextSelectionOverlay {
               _buildHandle(context, TextSelectionHandlePosition.end)),
     ];
 
-    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
-        .insertAll(_handles!);
+    _duringBuildSafeExecute(() => Overlay.of(context,
+            rootOverlay: true, debugRequiredFor: debugRequiredFor)
+        .insertAll(_handles!));
   }
 
   /// Shows the toolbar by inserting it into the [context]'s overlay.
@@ -171,23 +188,10 @@ class EditorTextSelectionOverlay {
   }
 
   /// Updates the overlay after the selection has changed.
-  ///
-  /// If this method is called while the [SchedulerBinding.schedulerPhase] is
-  /// [SchedulerPhase.persistentCallbacks], i.e. during the build, layout, or
-  /// paint phases (see [WidgetsBinding.drawFrame]), then the update is delayed
-  /// until the post-frame callbacks phase. Otherwise the update is done
-  /// synchronously. This means that it is safe to call during builds, but also
-  /// that if you do call this during a build, the UI will not update until the
-  /// next frame (i.e. many milliseconds later).
   void update(TextEditingValue newValue) {
     if (_value == newValue) return;
     _value = newValue;
-    if (SchedulerBinding.instance.schedulerPhase ==
-        SchedulerPhase.persistentCallbacks) {
-      SchedulerBinding.instance.addPostFrameCallback(_markNeedsBuild);
-    } else {
-      _markNeedsBuild();
-    }
+    _duringBuildSafeExecute(_markNeedsBuild);
   }
 
   /// Causes the overlay to update its rendering.
