@@ -1086,8 +1086,9 @@ class RawEditorState extends EditorState
     // Hide toolbars and selection handles if text is changed
     if (_lastText != textEditingValue.text) {
       hideToolbar(true);
+      _lastText = textEditingValue.text;
     }
-    _lastText = textEditingValue.text;
+
     requestKeyboard();
 
     _showCaretOnScreen();

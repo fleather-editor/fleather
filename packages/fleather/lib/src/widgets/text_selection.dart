@@ -25,7 +25,7 @@ import 'editor.dart';
 /// execution is done synchronously. This means that it is safe to call during
 /// builds, but also that if you do call this during a build, the function will
 /// not get executed until the next frame (i.e. many milliseconds later).
-void _duringBuildSafeExecute(Function func) {
+void _safeExecuteDuringBuild(Function func) {
   if (SchedulerBinding.instance.schedulerPhase ==
       SchedulerPhase.persistentCallbacks) {
     SchedulerBinding.instance.addPostFrameCallback((_) => func());
@@ -173,7 +173,7 @@ class EditorTextSelectionOverlay {
               _buildHandle(context, TextSelectionHandlePosition.end)),
     ];
 
-    _duringBuildSafeExecute(() => Overlay.of(context,
+    _safeExecuteDuringBuild(() => Overlay.of(context,
             rootOverlay: true, debugRequiredFor: debugRequiredFor)
         .insertAll(_handles!));
   }
@@ -191,7 +191,7 @@ class EditorTextSelectionOverlay {
   void update(TextEditingValue newValue) {
     if (_value == newValue) return;
     _value = newValue;
-    _duringBuildSafeExecute(_markNeedsBuild);
+    _safeExecuteDuringBuild(_markNeedsBuild);
   }
 
   /// Causes the overlay to update its rendering.
