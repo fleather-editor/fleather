@@ -1,5 +1,4 @@
 import 'package:fleather/fleather.dart';
-import 'package:fleather/src/widgets/text_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,17 +32,17 @@ void main() {
         (tester) async {
       final editor = EditorSandBox(tester: tester);
       await editor.pump();
-      await tester.longPress(find.byType(FleatherEditor));
+      await tester.longPressAt(const Offset(20, 20));
       await tester.pump();
-      // expect(find.byType(TextSelectionHandleOverlay), findsNWidgets(2));
+      expect(editor.findSelectionHandles(), findsNWidgets(2));
       expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
       editor.controller.formatText(0, 2, ParchmentAttribute.bold);
       await tester.pump(throttleDuration);
-// expect(find.byType(TextSelectionHandleOverlay), findsNWidgets(2));
+      expect(editor.findSelectionHandles(), findsNWidgets(2));
       expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
       editor.controller.replaceText(0, 0, 'A');
       await tester.pump(throttleDuration);
-      expect(find.byType(TextSelectionHandleOverlay), findsNothing);
+      expect(editor.findSelectionHandles(), findsNothing);
       expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
     });
 

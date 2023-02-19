@@ -4,6 +4,7 @@
 
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/widgets/editor_input_client_mixin.dart';
+import 'package:fleather/src/widgets/text_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
@@ -109,6 +110,8 @@ class EditorSandBox {
         as RawMaterialButton;
     return button;
   }
+
+  Finder findSelectionHandles() => find.byType(TextSelectionHandleOverlay);
 
   Future<void> enterText(TextEditingValue text) async {
     return TestAsyncUtils.guard<void>(() async {
