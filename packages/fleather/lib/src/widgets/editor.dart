@@ -1578,28 +1578,15 @@ class RawEditorState extends EditorState
     final List<TextSelectionPoint> endpoints =
         renderEditor.getEndpointsForSelection(selection);
 
-    final Rect editingRegion = Rect.fromPoints(
-      renderEditor.localToGlobal(Offset.zero),
-      renderEditor.localToGlobal(renderEditor.size.bottomRight(Offset.zero)),
-    );
-
     final baseLineHeight = renderEditor.preferredLineHeight(selection.base);
     final extentLineHeight = renderEditor.preferredLineHeight(selection.extent);
     final smallestLineHeight = math.min(baseLineHeight, extentLineHeight);
-    final bool isMultiline =
-        endpoints.last.point.dy - endpoints.first.point.dy >
-            smallestLineHeight / 2;
 
-    // If the selected text spans more than 1 line, horizontally center the toolbar.
-    // Derived from both iOS and Android.
-    final double midX = isMultiline
-        ? editingRegion.width / 2
-        : (endpoints.first.point.dx + endpoints.last.point.dx) / 2;
-
-    final Offset midpoint =
-        Offset(midX, endpoints[0].point.dy - baseLineHeight);
-
-    return TextSelectionToolbarAnchors(primaryAnchor: midpoint);
+    return TextSelectionToolbarAnchors.fromSelection(
+        renderBox: renderEditor,
+        startGlyphHeight: smallestLineHeight,
+        endGlyphHeight: smallestLineHeight,
+        selectionEndpoints: endpoints);
   }
 
   /// Returns the [ContextMenuButtonItem]s representing the buttons in this

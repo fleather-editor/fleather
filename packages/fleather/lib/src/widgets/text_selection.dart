@@ -310,6 +310,7 @@ class EditorTextSelectionOverlay {
       opacity: _toolbarOpacity,
       child: CompositedTransformFollower(
         link: toolbarLayerLink,
+        offset: -renderObject.localToGlobal(Offset.zero),
         showWhenUnlinked: false,
         child: contextMenuBuilder!(context),
       ),
