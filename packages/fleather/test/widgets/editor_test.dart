@@ -20,7 +20,8 @@ void main() {
       final BuildContext context = tester.element(find.byType(Container));
       var theme = FleatherThemeData.fallback(context)
           .copyWith(link: const TextStyle(color: Colors.red));
-      var editor = EditorSandBox(tester: tester, document: doc, theme: theme);
+      var editor =
+          EditorSandBox(tester: tester, document: doc, fleatherTheme: theme);
       await editor.pumpAndTap();
       // await tester.pumpAndSettle();
       final p = tester.widget(find.byType(RichText).first) as RichText;
@@ -94,6 +95,28 @@ void main() {
           MaterialApp(home: FleatherEditor(controller: FleatherController()));
       await tester.pumpWidget(widget);
       // Fails if thrown
+    });
+
+    testWidgets('Can select last separated character in paragraph on iOS',
+        (WidgetTester tester) async {
+      const text = 'Test.';
+      final document = ParchmentDocument.fromJson([
+        {'insert': '$text\n'}
+      ]);
+      final editor = EditorSandBox(
+        tester: tester,
+        document: document,
+        autofocus: true,
+        theme: ThemeData(platform: TargetPlatform.iOS),
+      );
+      await editor.pump();
+      expect(editor.selection, const TextSelection.collapsed(offset: 0));
+      await tester.tap(find.byType(FleatherEditor));
+      await tester.pump();
+      expect(
+          editor.selection,
+          const TextSelection.collapsed(
+              offset: text.length, affinity: TextAffinity.upstream));
     });
 
     group('didUpdateWidget', () {
