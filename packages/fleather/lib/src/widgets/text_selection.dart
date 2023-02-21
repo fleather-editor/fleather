@@ -40,7 +40,6 @@ const Duration _kDragSelectionUpdateThrottle = Duration(milliseconds: 50);
 
 /// The text position that a give selection handle manipulates. Dragging the
 /// [start] handle always moves the [start]/[baseOffset] of the selection.
-@visibleForTesting
 enum TextSelectionHandlePosition { start, end }
 
 /// An object that manages a pair of text selection handles.
