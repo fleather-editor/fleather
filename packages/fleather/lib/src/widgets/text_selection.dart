@@ -163,7 +163,7 @@ class EditorTextSelectionOverlay {
 
   /// Builds the handles by inserting them into the [context]'s overlay.
   void showHandles() {
-    if (_handles != null) return;
+    if (handlesAreVisible) return;
     _handles = <OverlayEntry>[
       OverlayEntry(
           builder: (BuildContext context) =>
@@ -180,7 +180,7 @@ class EditorTextSelectionOverlay {
 
   /// Shows the toolbar by inserting it into the [context]'s overlay.
   void showToolbar() {
-    if (_toolbar != null) return;
+    if (toolbarIsVisible) return;
     _toolbar = OverlayEntry(builder: _buildToolbar);
     Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
         .insert(_toolbar!);
@@ -203,7 +203,7 @@ class EditorTextSelectionOverlay {
   }
 
   void _markNeedsBuild([Duration? duration]) {
-    if (_handles != null) {
+    if (handlesAreVisible) {
       _handles![0].markNeedsBuild();
       _handles![1].markNeedsBuild();
     }
@@ -218,19 +218,15 @@ class EditorTextSelectionOverlay {
 
   /// Hides the entire overlay including the toolbar and the handles.
   void hide() {
-    if (_handles != null) {
-      hideHandles();
-    }
-    if (_toolbar != null) {
-      hideToolbar();
-    }
+    hideHandles();
+    hideToolbar();
   }
 
   /// Hides the selection handles.
   ///
   /// To hide the whole overlay, see [hide].
   void hideHandles() {
-    if (_handles == null) return;
+    if (!handlesAreVisible) return;
     _handles![0].remove();
     _handles![1].remove();
     _handles = null;
@@ -240,7 +236,7 @@ class EditorTextSelectionOverlay {
   ///
   /// To hide the whole overlay, see [hide].
   void hideToolbar() {
-    if (_toolbar == null) return;
+    if (!toolbarIsVisible) return;
     _toolbarController.stop();
     _toolbar!.remove();
     _toolbar = null;
