@@ -1079,16 +1079,7 @@ class RawEditorState extends EditorState
     super.dispose();
   }
 
-  // Storing the raw text of last textEditingValue
-  String? _lastText;
-
   void _didChangeTextEditingValue() {
-    // Hide toolbars and selection handles if text is changed
-    if (_lastText != textEditingValue.text) {
-      hideToolbar(true);
-      _lastText = textEditingValue.text;
-    }
-
     requestKeyboard();
 
     _showCaretOnScreen();
