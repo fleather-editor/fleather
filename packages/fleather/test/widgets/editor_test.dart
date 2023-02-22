@@ -28,19 +28,23 @@ void main() {
       expect(text.children!.first.style!.color, Colors.red);
     });
 
-    testWidgets('Hides toolbar and selection handles only when text changed',
+    testWidgets('Hides toolbar and selection handles when text changed',
         (tester) async {
+      const delta = TextEditingDeltaInsertion(
+        oldText: 'Add ',
+        textInserted: 'Test',
+        insertionOffset: 0,
+        selection: TextSelection.collapsed(offset: 0),
+        composing: TextRange.empty,
+      );
       final editor = EditorSandBox(tester: tester);
       await editor.pump();
       await tester.longPressAt(const Offset(20, 20));
       await tester.pump();
       expect(editor.findSelectionHandles(), findsNWidgets(2));
       expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
-      editor.controller.formatText(0, 2, ParchmentAttribute.bold);
-      await tester.pump(throttleDuration);
-      expect(editor.findSelectionHandles(), findsNWidgets(2));
-      expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
-      editor.controller.replaceText(0, 0, 'A');
+      final state = tester.state(find.byType(RawEditor)) as RawEditorState;
+      state.updateEditingValueWithDeltas([delta]);
       await tester.pump(throttleDuration);
       expect(editor.findSelectionHandles(), findsNothing);
       expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
