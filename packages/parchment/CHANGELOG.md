@@ -1,3 +1,7 @@
+## 1.6.0
+
+* Allow to undo/redo changes from toolbar
+
 ## 1.5.0
 
 * Format link after hitting newline
