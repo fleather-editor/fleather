@@ -20,7 +20,8 @@ void main() {
       final BuildContext context = tester.element(find.byType(Container));
       var theme = FleatherThemeData.fallback(context)
           .copyWith(link: const TextStyle(color: Colors.red));
-      var editor = EditorSandBox(tester: tester, document: doc, theme: theme);
+      var editor =
+          EditorSandBox(tester: tester, document: doc, fleatherTheme: theme);
       await editor.pumpAndTap();
       // await tester.pumpAndSettle();
       final p = tester.widget(find.byType(RichText).first) as RichText;
@@ -94,6 +95,88 @@ void main() {
           MaterialApp(home: FleatherEditor(controller: FleatherController()));
       await tester.pumpWidget(widget);
       // Fails if thrown
+    });
+
+    group('Text selection', () {
+      testWidgets('Can select last separated character in paragraph on iOS',
+          (tester) async {
+        const text = 'Test.';
+        final document = ParchmentDocument.fromJson([
+          {'insert': '$text\n'}
+        ]);
+        final editor = EditorSandBox(
+          tester: tester,
+          document: document,
+          autofocus: true,
+          theme: ThemeData(platform: TargetPlatform.iOS),
+        );
+        await editor.pump();
+        await tester.tapAt(tester.getBottomRight(find.byType(FleatherEditor)) -
+            const Offset(1, 1));
+        await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection.collapsed(
+                offset: text.length, affinity: TextAffinity.upstream));
+      });
+
+      testWidgets(
+          'Tapping after the beginning of a word moves cursor after word on iOS',
+          (tester) async {
+        final editor = EditorSandBox(
+          tester: tester,
+          autofocus: true,
+          theme: ThemeData(platform: TargetPlatform.iOS),
+        );
+        await editor.pump();
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(10, -1));
+        await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection.collapsed(
+                offset: 4, affinity: TextAffinity.upstream));
+      });
+
+      testWidgets(
+          'Tapping before the beginning of a word moves cursor at the end of previous word on iOS',
+          (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'ab cd ef\n'}
+        ]);
+        final editor = EditorSandBox(
+          tester: tester,
+          document: document,
+          autofocus: true,
+          theme: ThemeData(platform: TargetPlatform.iOS),
+        );
+        await editor.pump();
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(48, -1));
+        await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection.collapsed(
+                offset: 3, affinity: TextAffinity.downstream));
+      });
+
+      testWidgets(
+          'Tapping moves the cursor right where user tapped on other platforms',
+          (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Test\n'}
+        ]);
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(10, -1));
+        await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection.collapsed(
+                offset: 1, affinity: TextAffinity.upstream));
+      });
     });
 
     group('didUpdateWidget', () {

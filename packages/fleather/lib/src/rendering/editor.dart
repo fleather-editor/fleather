@@ -511,27 +511,19 @@ class RenderEditor extends RenderEditableContainerBox
     final child = childAtPosition(position);
     final nodeOffset = child.node.offset;
     final localPosition = TextPosition(
-      offset: position.offset - nodeOffset,
-      affinity: position.affinity,
-    );
+        offset: position.offset - nodeOffset, affinity: position.affinity);
     final localWord = child.getWordBoundary(localPosition);
     final word = TextRange(
-      start: localWord.start + nodeOffset,
-      end: localWord.end + nodeOffset,
-    );
-    if (position.offset - word.start <= 1) {
-      _handleSelectionChange(
-        TextSelection.collapsed(
-            offset: word.start, affinity: TextAffinity.downstream),
-        cause,
-      );
+        start: localWord.start + nodeOffset, end: localWord.end + nodeOffset);
+    final TextSelection newSelection;
+    if (position.offset <= word.start) {
+      newSelection = TextSelection.collapsed(
+          offset: word.start, affinity: TextAffinity.downstream);
     } else {
-      _handleSelectionChange(
-        TextSelection.collapsed(
-            offset: word.end, affinity: TextAffinity.upstream),
-        cause,
-      );
+      newSelection = TextSelection.collapsed(
+          offset: word.end, affinity: TextAffinity.upstream);
     }
+    _handleSelectionChange(newSelection, cause);
   }
 
   @override
