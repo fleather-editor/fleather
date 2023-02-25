@@ -135,6 +135,10 @@ mixin RawEditorStateTextInputClientMixin on EditorState
           textEditingDelta.apply(_lastKnownRemoteTextEditingValue!);
       widget.controller.replaceText(start, length, data,
           selection: textEditingDelta.selection);
+
+      if (data.isNotEmpty) {
+        hideToolbar(true);
+      }
     }
   }
 

@@ -29,8 +29,30 @@ void main() {
       expect(text.children!.first.style!.color, Colors.red);
     });
 
-    testWidgets('collapses selection when unfocused', (tester) async {
+    testWidgets('Hides toolbar and selection handles when text changed',
+        (tester) async {
+      const delta = TextEditingDeltaInsertion(
+        oldText: 'Add ',
+        textInserted: 'Test',
+        insertionOffset: 0,
+        selection: TextSelection.collapsed(offset: 0),
+        composing: TextRange.empty,
+      );
       final editor = EditorSandBox(tester: tester);
+      await editor.pump();
+      await tester.longPressAt(const Offset(20, 20));
+      await tester.pump();
+      expect(editor.findSelectionHandles(), findsNWidgets(2));
+      expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+      final state = tester.state(find.byType(RawEditor)) as RawEditorState;
+      state.updateEditingValueWithDeltas([delta]);
+      await tester.pump(throttleDuration);
+      expect(editor.findSelectionHandles(), findsNothing);
+      expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
+    });
+
+    testWidgets('collapses selection when unfocused', (tester) async {
+      final editor = EditorSandBox(tester: tester, autofocus: true);
       await editor.pumpAndTap();
       await editor.updateSelection(base: 0, extent: 3);
       // expect(editor.findSelectionHandle(), findsNWidgets(2));

@@ -1038,7 +1038,12 @@ class RawEditorState extends EditorState
       _selectionOverlay?.update(textEditingValue);
     }
 
-    _selectionOverlay?.handlesVisible = _shouldShowSelectionHandles();
+    if (_shouldShowSelectionHandles()) {
+      _selectionOverlay?.showHandles();
+    } else {
+      _selectionOverlay?.hideHandles();
+    }
+
     if (!shouldCreateInputConnection) {
       closeConnectionIfNeeded();
     } else {
@@ -1123,7 +1128,12 @@ class RawEditorState extends EditorState
       } else {
         _selectionOverlay!.update(textEditingValue);
       }
-      _selectionOverlay?.handlesVisible = _shouldShowSelectionHandles();
+
+      if (_shouldShowSelectionHandles()) {
+        _selectionOverlay?.showHandles();
+      } else {
+        _selectionOverlay?.hideHandles();
+      }
       _selectionOverlay!.showHandles();
     }
 
