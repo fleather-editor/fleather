@@ -315,7 +315,6 @@ class _FleatherEditorState extends State<FleatherEditor>
 
     switch (theme.platform) {
       case TargetPlatform.iOS:
-      case TargetPlatform.macOS:
         final cupertinoTheme = CupertinoTheme.of(context);
         textSelectionControls = cupertinoTextSelectionControls;
         paintCursorAboveText = true;
@@ -328,11 +327,32 @@ class _FleatherEditorState extends State<FleatherEditor>
             iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
         break;
 
+      case TargetPlatform.macOS:
+        final CupertinoThemeData cupertinoTheme = CupertinoTheme.of(context);
+        textSelectionControls = cupertinoDesktopTextSelectionControls;
+        paintCursorAboveText = true;
+        cursorOpacityAnimates = false;
+        cursorColor = selectionTheme.cursorColor ?? cupertinoTheme.primaryColor;
+        selectionColor = selectionTheme.selectionColor ??
+            cupertinoTheme.primaryColor.withOpacity(0.40);
+        cursorRadius ??= const Radius.circular(2.0);
+        cursorOffset = Offset(
+            iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
+        break;
+
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
+        textSelectionControls = materialTextSelectionControls;
+        paintCursorAboveText = false;
+        cursorOpacityAnimates = false;
+        cursorColor = selectionTheme.cursorColor ?? theme.colorScheme.primary;
+        selectionColor = selectionTheme.selectionColor ??
+            theme.colorScheme.primary.withOpacity(0.40);
+        break;
+
       case TargetPlatform.linux:
       case TargetPlatform.windows:
-        textSelectionControls = materialTextSelectionControls;
+        textSelectionControls = desktopTextSelectionControls;
         paintCursorAboveText = false;
         cursorOpacityAnimates = false;
         cursorColor = selectionTheme.cursorColor ?? theme.colorScheme.primary;

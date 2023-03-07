@@ -1,4 +1,6 @@
 import 'package:fleather/fleather.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -198,6 +200,66 @@ void main() {
             editor.selection,
             const TextSelection.collapsed(
                 offset: 1, affinity: TextAffinity.upstream));
+      });
+
+      testWidgets('selection handles for iOS', (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+        final document = ParchmentDocument();
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
+        expect(rawEditor.selectionControls,
+            const TypeMatcher<CupertinoTextSelectionControls>());
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      testWidgets('selection handles for macOS', (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        final document = ParchmentDocument();
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
+        expect(rawEditor.selectionControls,
+            const TypeMatcher<CupertinoDesktopTextSelectionControls>());
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      testWidgets('selection handles for Android', (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+        final document = ParchmentDocument();
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
+        expect(rawEditor.selectionControls,
+            const TypeMatcher<MaterialTextSelectionControls>());
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      testWidgets('selection handles for Windows', (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+        final document = ParchmentDocument();
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
+        expect(rawEditor.selectionControls,
+            const TypeMatcher<DesktopTextSelectionControls>());
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      testWidgets('selection handles for Linux', (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+        final document = ParchmentDocument();
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
+        expect(rawEditor.selectionControls,
+            const TypeMatcher<DesktopTextSelectionControls>());
+        debugDefaultTargetPlatformOverride = null;
       });
     });
 
