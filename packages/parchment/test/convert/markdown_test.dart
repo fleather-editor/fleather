@@ -291,7 +291,7 @@ void main() {
     });
 
     test('ol', () {
-      var markdown = '1. 1st point\n1. 2nd point\n\n';
+      var markdown = '1. 1st point\n2. 2nd point\n\n';
       final delta = parchmentMarkdown.decode(markdown);
 
       final andBack = parchmentMarkdown.encode(delta);
@@ -506,7 +506,7 @@ void main() {
       }
 
       runFor(ParchmentAttribute.ul, 'text', '* text\n* text\n\n');
-      runFor(ParchmentAttribute.ol, 'text', '1. text\n1. text\n\n');
+      runFor(ParchmentAttribute.ol, 'text', '1. text\n2. text\n\n');
       runFor(ParchmentAttribute.bq, 'text', '> text\n> text\n\n');
       runFor(ParchmentAttribute.code, 'text', '```\ntext\ntext\n```\n\n');
     });
