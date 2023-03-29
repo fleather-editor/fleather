@@ -303,7 +303,6 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
   static final simpleBlocks = <ParchmentAttribute, String>{
     ParchmentAttribute.bq: '> ',
     ParchmentAttribute.ul: '* ',
-    ParchmentAttribute.ol: '1. ',
   };
 
   @override
@@ -313,7 +312,7 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
     final lineBuffer = StringBuffer();
     ParchmentAttribute<String>? currentBlockStyle;
     var currentInlineStyle = ParchmentStyle();
-    var currentBlockLines = [];
+    List<String> currentBlockLines = [];
 
     void handleBlock(ParchmentAttribute<String>? blockStyle) {
       if (currentBlockLines.isEmpty) {
@@ -328,6 +327,11 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
         buffer.write(currentBlockLines.join('\n'));
         _writeAttribute(buffer, blockStyle, close: true);
         buffer.writeln();
+      } else if (blockStyle == ParchmentAttribute.ol) {
+        int currentItemOrder = 1;
+        for (final line in currentBlockLines) {
+          buffer.write('${currentItemOrder++}. $line\n');
+        }
       } else {
         for (var line in currentBlockLines) {
           _writeBlockTag(buffer, blockStyle);

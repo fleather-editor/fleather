@@ -480,6 +480,19 @@ void main() {
       runFor(ParchmentAttribute.code, 'List item', '```\nList item\n```\n\n');
     });
 
+    test('ol', () {
+      final delta = Delta()
+        ..insert('Hello')
+        ..insert('\n', ParchmentAttribute.ol.toJson())
+        ..insert('This is a')
+        ..insert('\n', ParchmentAttribute.ol.toJson())
+        ..insert('List')
+        ..insert('\n', ParchmentAttribute.ol.toJson());
+      final result = parchmentMarkdown.encode(delta);
+      final expected = '1. Hello\n2. This is a\n3. List\n\n';
+      expect(result, expected);
+    });
+
     test('multiline blocks', () {
       void runFor(ParchmentAttribute<String> attribute, String source,
           String expected) {
