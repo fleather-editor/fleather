@@ -284,18 +284,26 @@ void main() {
 
     test('ul', () {
       var markdown = '* a bullet point\n* another bullet point\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
-
-      final andBack = parchmentMarkdown.encode(delta);
-      expect(andBack, markdown);
+      final act = parchmentMarkdown.decode(markdown);
+      final exp = Delta()
+        ..insert('a bullet point')
+        ..insert('\n', {'block': 'ul'})
+        ..insert('another bullet point')
+        ..insert('\n', {'block': 'ul'});
+      expect(act, exp);
     });
 
     test('ol', () {
-      var markdown = '1. 1st point\n1. 2nd point\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
-
-      final andBack = parchmentMarkdown.encode(delta);
-      expect(andBack, markdown);
+      var markdown = '1. Hello\n2. This is a\n3. List\n\n';
+      final act = parchmentMarkdown.decode(markdown);
+      final exp = Delta()
+        ..insert('Hello')
+        ..insert('\n', {'block': 'ol'})
+        ..insert('This is a')
+        ..insert('\n', {'block': 'ol'})
+        ..insert('List')
+        ..insert('\n', {'block': 'ol'});
+      expect(act, exp);
     });
 
     test('simple bq', () {
@@ -345,10 +353,11 @@ void main() {
     });
 
     test('nested blocks are ignored', () {
-      var markdown = '> > nested\n>* bullet\n>1. 1st point\n>1. 2nd point\n\n';
+      var markdown = '> > nested\n>* bullet\n>1. 1st point\n>2. 2nd point\n\n';
       final delta = parchmentMarkdown.decode(markdown);
       final exp = Delta()
-        ..insert('nested\nbullet\n1st point\n2nd point\n', {'block': 'quote'});
+        ..insert('> nested\n* bullet\n1. 1st point\n2. 2nd point\n',
+            {'block': 'quote'});
       expect(delta, exp);
     });
 
@@ -480,6 +489,19 @@ void main() {
       runFor(ParchmentAttribute.code, 'List item', '```\nList item\n```\n\n');
     });
 
+    test('ol', () {
+      final delta = Delta()
+        ..insert('Hello')
+        ..insert('\n', ParchmentAttribute.ol.toJson())
+        ..insert('This is a')
+        ..insert('\n', ParchmentAttribute.ol.toJson())
+        ..insert('List')
+        ..insert('\n', ParchmentAttribute.ol.toJson());
+      final result = parchmentMarkdown.encode(delta);
+      final expected = '1. Hello\n2. This is a\n3. List\n\n';
+      expect(result, expected);
+    });
+
     test('multiline blocks', () {
       void runFor(ParchmentAttribute<String> attribute, String source,
           String expected) {
@@ -493,7 +515,7 @@ void main() {
       }
 
       runFor(ParchmentAttribute.ul, 'text', '* text\n* text\n\n');
-      runFor(ParchmentAttribute.ol, 'text', '1. text\n1. text\n\n');
+      runFor(ParchmentAttribute.ol, 'text', '1. text\n2. text\n\n');
       runFor(ParchmentAttribute.bq, 'text', '> text\n> text\n\n');
       runFor(ParchmentAttribute.code, 'text', '```\ntext\ntext\n```\n\n');
     });

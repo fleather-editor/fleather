@@ -101,6 +101,10 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
   // all blocks are supported within bq
   bool _handleBlockQuote(String line, Delta delta,
       [Map<String, dynamic>? attributes]) {
+    // we do not support nested blocks
+    if (attributes?.containsKey('block') ?? false) {
+      return false;
+    }
     final match = _bqRegExp.matchAsPrefix(line);
     final span = match?.group(1);
     if (span != null) {
@@ -118,15 +122,16 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
   // ol is supported within ol and bq, but not supported within ul
   bool _handleOrderedList(String line, Delta delta,
       [Map<String, dynamic>? attributes]) {
+    // we do not support nested blocks
+    if (attributes?.containsKey('block') ?? false) {
+      return false;
+    }
     final match = _olRegExp.matchAsPrefix(line);
     final span = match?.group(2);
     if (span != null) {
-      final newAttributes = ParchmentAttribute.ol.toJson();
-      if (attributes != null) {
-        newAttributes.addAll(attributes);
-      }
+      _handleSpan(span, delta, false, attributes);
       // There's probably no reason why you would have other block types on the same line
-      _handleSpan(span, delta, true, newAttributes);
+      _handleSpan('', delta, true, ParchmentAttribute.ol.toJson());
       return true;
     }
     return false;
@@ -134,15 +139,16 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
 
   bool _handleUnorderedList(String line, Delta delta,
       [Map<String, dynamic>? attributes]) {
+    // we do not support nested blocks
+    if (attributes?.containsKey('block') ?? false) {
+      return false;
+    }
     final match = _ulRegExp.matchAsPrefix(line);
     final span = match?.group(2);
     if (span != null) {
-      Map<String, dynamic> newAttributes = ParchmentAttribute.ul.toJson();
-      if (attributes != null) {
-        newAttributes.addAll(attributes);
-      }
+      _handleSpan(span, delta, false, attributes);
       // There's probably no reason why you would have other block types on the same line
-      _handleSpan(span, delta, true, newAttributes);
+      _handleSpan('', delta, true, ParchmentAttribute.ul.toJson());
       return true;
     }
     return false;
@@ -303,7 +309,6 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
   static final simpleBlocks = <ParchmentAttribute, String>{
     ParchmentAttribute.bq: '> ',
     ParchmentAttribute.ul: '* ',
-    ParchmentAttribute.ol: '1. ',
   };
 
   @override
@@ -313,7 +318,7 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
     final lineBuffer = StringBuffer();
     ParchmentAttribute<String>? currentBlockStyle;
     var currentInlineStyle = ParchmentStyle();
-    var currentBlockLines = [];
+    List<String> currentBlockLines = [];
 
     void handleBlock(ParchmentAttribute<String>? blockStyle) {
       if (currentBlockLines.isEmpty) {
@@ -328,6 +333,11 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
         buffer.write(currentBlockLines.join('\n'));
         _writeAttribute(buffer, blockStyle, close: true);
         buffer.writeln();
+      } else if (blockStyle == ParchmentAttribute.ol) {
+        int currentItemOrder = 1;
+        for (final line in currentBlockLines) {
+          buffer.write('${currentItemOrder++}. $line\n');
+        }
       } else {
         for (var line in currentBlockLines) {
           _writeBlockTag(buffer, blockStyle);
