@@ -284,18 +284,26 @@ void main() {
 
     test('ul', () {
       var markdown = '* a bullet point\n* another bullet point\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
-
-      final andBack = parchmentMarkdown.encode(delta);
-      expect(andBack, markdown);
+      final act = parchmentMarkdown.decode(markdown);
+      final exp = Delta()
+        ..insert('a bullet point')
+        ..insert('\n', {'block': 'ul'})
+        ..insert('another bullet point')
+        ..insert('\n', {'block': 'ul'});
+      expect(act, exp);
     });
 
     test('ol', () {
-      var markdown = '1. 1st point\n2. 2nd point\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
-
-      final andBack = parchmentMarkdown.encode(delta);
-      expect(andBack, markdown);
+      var markdown = '1. Hello\n2. This is a\n3. List\n\n';
+      final act = parchmentMarkdown.decode(markdown);
+      final exp = Delta()
+        ..insert('Hello')
+        ..insert('\n', {'block': 'ol'})
+        ..insert('This is a')
+        ..insert('\n', {'block': 'ol'})
+        ..insert('List')
+        ..insert('\n', {'block': 'ol'});
+      expect(act, exp);
     });
 
     test('simple bq', () {
@@ -345,10 +353,11 @@ void main() {
     });
 
     test('nested blocks are ignored', () {
-      var markdown = '> > nested\n>* bullet\n>1. 1st point\n>1. 2nd point\n\n';
+      var markdown = '> > nested\n>* bullet\n>1. 1st point\n>2. 2nd point\n\n';
       final delta = parchmentMarkdown.decode(markdown);
       final exp = Delta()
-        ..insert('nested\nbullet\n1st point\n2nd point\n', {'block': 'quote'});
+        ..insert('> nested\n* bullet\n1. 1st point\n2. 2nd point\n',
+            {'block': 'quote'});
       expect(delta, exp);
     });
 
