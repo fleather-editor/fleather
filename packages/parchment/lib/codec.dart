@@ -3,16 +3,16 @@
 // BSD-style license that can be found in the LICENSE file.
 
 /// Provides codecs to convert Parchment documents to other formats.
-library parchment.convert;
+library parchment.codec;
 
-import 'src/convert/markdown.dart';
-import 'src/convert/html.dart';
+import 'src/codecs/markdown.dart';
+import 'src/codecs/html.dart';
 
-export 'src/convert/markdown.dart';
-export 'src/convert/html.dart';
+export 'src/codecs/markdown.dart';
+export 'src/codecs/html.dart';
 
 /// Markdown codec for Parchment documents.
-const ParchmentMarkdownCodec parchmentMarkdown = ParchmentMarkdownCodec();
+const parchmentMarkdown = ParchmentMarkdownCodec();
 
 /// HTML codec for Parchment documents.
-const ParchmentHtmlCodec parchmentHtml = ParchmentHtmlCodec();
+const parchmentHtml = ParchmentHtmlCodec();
