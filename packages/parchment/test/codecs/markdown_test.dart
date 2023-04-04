@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 import 'dart:convert';
 
-import 'package:parchment/convert.dart';
+import 'package:parchment/codec.dart';
 import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
@@ -13,7 +13,7 @@ void main() {
     test('should convert empty markdown to valid empty document', () {
       final markdown = '';
       final newParchment = ParchmentDocument();
-      final delta = parchmentMarkdown.decode(markdown);
+      final delta = parchmentMarkdown.decode(markdown).toDelta();
       expect(delta.length, 1);
       expect(delta.first.data, '\n');
       expect(delta, newParchment.toDelta());
@@ -23,7 +23,7 @@ void main() {
         'should convert invalid markdown with only line breaks to valid empty document',
         () {
       final markdown = '\n\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
+      final delta = parchmentMarkdown.decode(markdown).toDelta();
       expect(delta.length, 1);
       expect(delta.first.data, '\n');
       final newParchment = ParchmentDocument();
@@ -32,20 +32,22 @@ void main() {
 
     test('paragraphs', () {
       final markdown = 'First line\n\nSecond line\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
+      final document = parchmentMarkdown.decode(markdown);
+      final delta = document.toDelta();
       expect(delta.elementAt(0).data, 'First line\nSecond line\n');
-      final andBack = parchmentMarkdown.encode(delta);
+      final andBack = parchmentMarkdown.encode(document);
       expect(andBack, markdown);
     });
 
     test('italics', () {
       void runFor(String markdown, bool testEncode) {
-        final delta = parchmentMarkdown.decode(markdown);
+        final document = parchmentMarkdown.decode(markdown);
+        final delta = document.toDelta();
         expect(delta.elementAt(0).data, 'italics');
         expect(delta.elementAt(0).attributes?['i'], true);
         expect(delta.elementAt(0).attributes?['b'], null);
         if (testEncode) {
-          final andBack = parchmentMarkdown.encode(delta);
+          final andBack = parchmentMarkdown.encode(document);
           expect(andBack, markdown);
         }
       }
@@ -56,7 +58,8 @@ void main() {
 
     test('multi-word italics', () {
       void runFor(String markdown, bool testEncode) {
-        final delta = parchmentMarkdown.decode(markdown);
+        final document = parchmentMarkdown.decode(markdown);
+        final delta = document.toDelta();
         expect(delta.elementAt(0).data, 'Okay, ');
         expect(delta.elementAt(0).attributes, null);
 
@@ -70,7 +73,7 @@ void main() {
         expect(delta.elementAt(4).data, ' but this is not\n');
         expect(delta.elementAt(4).attributes, null);
         if (testEncode) {
-          final andBack = parchmentMarkdown.encode(delta);
+          final andBack = parchmentMarkdown.encode(document);
           expect(andBack, markdown);
         }
       }
@@ -85,12 +88,13 @@ void main() {
 
     test('bold', () {
       void runFor(String markdown, bool testEncode) {
-        final delta = parchmentMarkdown.decode(markdown);
+        final document = parchmentMarkdown.decode(markdown);
+        final delta = document.toDelta();
         expect(delta.elementAt(0).data, 'bold');
         expect(delta.elementAt(0).attributes?['b'], true);
         expect(delta.elementAt(0).attributes?['i'], null);
         if (testEncode) {
-          final andBack = parchmentMarkdown.encode(delta);
+          final andBack = parchmentMarkdown.encode(document);
           expect(andBack, markdown);
         }
       }
@@ -101,7 +105,8 @@ void main() {
 
     test('multi-word bold', () {
       void runFor(String markdown, bool testEncode) {
-        final delta = parchmentMarkdown.decode(markdown);
+        final document = parchmentMarkdown.decode(markdown);
+        final delta = document.toDelta();
         expect(delta.elementAt(0).data, 'Okay, ');
         expect(delta.elementAt(0).attributes, null);
 
@@ -115,7 +120,7 @@ void main() {
         expect(delta.elementAt(4).data, ' but this is not\n');
         expect(delta.elementAt(4).attributes, null);
         if (testEncode) {
-          final andBack = parchmentMarkdown.encode(delta);
+          final andBack = parchmentMarkdown.encode(document);
           expect(andBack, markdown);
         }
       }
@@ -130,7 +135,8 @@ void main() {
 
     test('intersecting inline styles', () {
       final markdown = 'This **house _is a_ circus**\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
+      final document = parchmentMarkdown.decode(markdown);
+      final delta = document.toDelta();
       expect(delta.elementAt(1).data, 'house ');
       expect(delta.elementAt(1).attributes?['b'], true);
       expect(delta.elementAt(1).attributes?['i'], null);
@@ -143,13 +149,14 @@ void main() {
       expect(delta.elementAt(3).attributes?['b'], true);
       expect(delta.elementAt(3).attributes?['i'], null);
 
-      final andBack = parchmentMarkdown.encode(delta);
+      final andBack = parchmentMarkdown.encode(document);
       expect(andBack, markdown);
     });
 
     test('bold and italics alone', () {
       void runFor(String markdown) {
-        final delta = parchmentMarkdown.decode(markdown);
+        final document = parchmentMarkdown.decode(markdown);
+        final delta = document.toDelta();
         expect(delta.elementAt(0).data, 'this is bold and italic');
         expect(delta.elementAt(0).attributes?['b'], true);
         expect(delta.elementAt(0).attributes?['i'], true);
@@ -166,7 +173,8 @@ void main() {
 
     test('bold and italics combinations', () {
       void runFor(String markdown) {
-        final delta = parchmentMarkdown.decode(markdown);
+        final document = parchmentMarkdown.decode(markdown);
+        final delta = document.toDelta();
         expect(delta.elementAt(0).data, 'this is bold');
         expect(delta.elementAt(0).attributes?['b'], true);
         expect(delta.elementAt(0).attributes?['i'], null);
@@ -190,7 +198,8 @@ void main() {
 
     test('link', () {
       final markdown = 'This **house** is a [circus](https://github.com)\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
+      final document = parchmentMarkdown.decode(markdown);
+      final delta = document.toDelta();
 
       expect(delta.elementAt(1).data, 'house');
       expect(delta.elementAt(1).attributes?['b'], true);
@@ -200,14 +209,14 @@ void main() {
       expect(delta.elementAt(3).attributes?['b'], null);
       expect(delta.elementAt(3).attributes?['a'], 'https://github.com');
 
-      final andBack = parchmentMarkdown.encode(delta);
+      final andBack = parchmentMarkdown.encode(document);
       expect(andBack, markdown);
     });
 
     test('style around link', () {
       final markdown =
           'This **house** is a **[circus](https://github.com)**\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
+      final delta = parchmentMarkdown.decode(markdown).toDelta();
 
       expect(delta.elementAt(1).data, 'house');
       expect(delta.elementAt(1).attributes?['b'], true);
@@ -221,7 +230,7 @@ void main() {
     test('style within link', () {
       final markdown =
           'This **house** is a [**circus**](https://github.com)\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
+      final delta = parchmentMarkdown.decode(markdown).toDelta();
 
       expect(delta.elementAt(1).data, 'house');
       expect(delta.elementAt(1).attributes?['b'], true);
@@ -240,7 +249,7 @@ void main() {
 
     test('inline code only', () {
       final markdown = 'This is `some code` that works\n';
-      final delta = parchmentMarkdown.decode(markdown);
+      final delta = parchmentMarkdown.decode(markdown).toDelta();
 
       expect(delta.elementAt(0).data, 'This is ');
       expect(delta.elementAt(1).data, 'some code');
@@ -250,7 +259,7 @@ void main() {
 
     test('inline code within style', () {
       final markdown = 'This **is `some code`** that works\n';
-      final delta = parchmentMarkdown.decode(markdown);
+      final delta = parchmentMarkdown.decode(markdown).toDelta();
 
       expect(delta.elementAt(1).data, 'is ');
       expect(delta.elementAt(1).attributes?['b'], true);
@@ -262,7 +271,7 @@ void main() {
 
     test('inline code around style', () {
       final markdown = 'This is `**some code**` that works';
-      final delta = parchmentMarkdown.decode(markdown);
+      final delta = parchmentMarkdown.decode(markdown).toDelta();
 
       expect(delta.elementAt(1).data, '**some code**');
       expect(delta.elementAt(1).attributes?['c'], true);
@@ -270,10 +279,17 @@ void main() {
 
     test('heading styles', () {
       void runFor(String markdown, int level) {
-        final delta = parchmentMarkdown.decode(markdown);
-        expect(delta.elementAt(0).data, 'This is an H$level\n');
-        expect(delta.elementAt(0).attributes?['heading'], level);
-        final andBack = parchmentMarkdown.encode(delta);
+        final document = parchmentMarkdown.decode(markdown);
+        final delta = document.toDelta();
+
+        expect(
+            delta,
+            Delta()
+              ..insert('This is an H$level')
+              ..insert(
+                  '\n', ParchmentAttribute.heading.withValue(level).toJson()));
+
+        final andBack = parchmentMarkdown.encode(document);
         expect(andBack, markdown);
       }
 
@@ -284,7 +300,7 @@ void main() {
 
     test('ul', () {
       var markdown = '* a bullet point\n* another bullet point\n\n';
-      final act = parchmentMarkdown.decode(markdown);
+      final act = parchmentMarkdown.decode(markdown).toDelta();
       final exp = Delta()
         ..insert('a bullet point')
         ..insert('\n', {'block': 'ul'})
@@ -295,7 +311,7 @@ void main() {
 
     test('ol', () {
       var markdown = '1. Hello\n2. This is a\n3. List\n\n';
-      final act = parchmentMarkdown.decode(markdown);
+      final act = parchmentMarkdown.decode(markdown).toDelta();
       final exp = Delta()
         ..insert('Hello')
         ..insert('\n', {'block': 'ol'})
@@ -310,61 +326,57 @@ void main() {
       //      var markdown = '> quote\n> > nested\n>#Heading\n>**bold**\n>_italics_\n>* bullet\n>1. 1st point\n>1. 2nd point\n\n';
       var markdown =
           '> quote\n> # Heading in Quote\n> # **Styled** heading in _block quote_\n> **bold text**\n> _text in italics_\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
+      final document = parchmentMarkdown.decode(markdown);
+      final delta = document.toDelta();
 
-      expect(delta.elementAt(0).data, 'quote\n');
-      expect(delta.elementAt(0).attributes?['block'], 'quote');
-      expect(delta.elementAt(0).attributes?.length, 1);
+      expect(
+        delta,
+        Delta()
+          ..insert('quote')
+          ..insert('\n', ParchmentAttribute.bq.toJson())
+          ..insert('Heading in Quote')
+          ..insert('\n', {
+            ...ParchmentAttribute.bq.toJson(),
+            ...ParchmentAttribute.h1.toJson(),
+          })
+          ..insert('Styled', ParchmentAttribute.bold.toJson())
+          ..insert(' heading in ')
+          ..insert('block quote', ParchmentAttribute.italic.toJson())
+          ..insert('\n', {
+            ...ParchmentAttribute.bq.toJson(),
+            ...ParchmentAttribute.h1.toJson(),
+          })
+          ..insert('bold text', ParchmentAttribute.bold.toJson())
+          ..insert('\n', ParchmentAttribute.bq.toJson())
+          ..insert('text in italics', ParchmentAttribute.italic.toJson())
+          ..insert('\n', ParchmentAttribute.bq.toJson()),
+      );
 
-      expect(delta.elementAt(1).data, 'Heading in Quote\n');
-      expect(delta.elementAt(1).attributes?['block'], 'quote');
-      expect(delta.elementAt(1).attributes?['heading'], 1);
-      expect(delta.elementAt(1).attributes?.length, 2);
-
-      expect(delta.elementAt(2).data, 'Styled');
-      expect(delta.elementAt(2).attributes?['block'], 'quote');
-      expect(delta.elementAt(2).attributes?['heading'], 1);
-      expect(delta.elementAt(2).attributes?['b'], true);
-      expect(delta.elementAt(2).attributes?.length, 3);
-
-      expect(delta.elementAt(3).data, ' heading in ');
-      expect(delta.elementAt(3).attributes?['block'], 'quote');
-      expect(delta.elementAt(3).attributes?['heading'], 1);
-      expect(delta.elementAt(3).attributes?.length, 2);
-
-      expect(delta.elementAt(4).data, 'block quote');
-      expect(delta.elementAt(4).attributes?['block'], 'quote');
-      expect(delta.elementAt(4).attributes?['heading'], 1);
-      expect(delta.elementAt(4).attributes?['i'], true);
-      expect(delta.elementAt(4).attributes?.length, 3);
-
-      expect(delta.elementAt(6).data, 'bold text');
-      expect(delta.elementAt(6).attributes?['block'], 'quote');
-      expect(delta.elementAt(6).attributes?['b'], true);
-      expect(delta.elementAt(6).attributes?.length, 2);
-
-      expect(delta.elementAt(8).data, 'text in italics');
-      expect(delta.elementAt(8).attributes?['block'], 'quote');
-      expect(delta.elementAt(8).attributes?['i'], true);
-      expect(delta.elementAt(8).attributes?.length, 2);
-
-      final andBack = parchmentMarkdown.encode(delta);
+      final andBack = parchmentMarkdown.encode(document);
       expect(andBack, markdown);
     });
 
     test('nested blocks are ignored', () {
       var markdown = '> > nested\n>* bullet\n>1. 1st point\n>2. 2nd point\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
+      final delta = parchmentMarkdown.decode(markdown).toDelta();
       final exp = Delta()
-        ..insert('> nested\n* bullet\n1. 1st point\n2. 2nd point\n',
-            {'block': 'quote'});
+        ..insert('> nested')
+        ..insert('\n', {'block': 'quote'})
+        ..insert('* bullet')
+        ..insert('\n', {'block': 'quote'})
+        ..insert('1. 1st point')
+        ..insert('\n', {'block': 'quote'})
+        ..insert('2. 2nd point')
+        ..insert('\n', {'block': 'quote'});
       expect(delta, exp);
     });
 
     test('code in bq', () {
       var markdown = '> ```\n> print("Hello world!")\n> ```\n\n';
-      final delta = parchmentMarkdown.decode(markdown);
-      final exp = Delta()..insert('print("Hello world!")\n', {'block': 'code'});
+      final delta = parchmentMarkdown.decode(markdown).toDelta();
+      final exp = Delta()
+        ..insert('print("Hello world!")')
+        ..insert('\n', {'block': 'code'});
       expect(delta, exp);
     });
 
@@ -378,7 +390,8 @@ void main() {
   group('$ParchmentMarkdownCodec.encode', () {
     test('split adjacent paragraphs', () {
       final delta = Delta()..insert('First line\nSecond line\n');
-      final result = parchmentMarkdown.encode(delta);
+      final result =
+          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
       expect(result, 'First line\n\nSecond line\n\n');
     });
 
@@ -391,7 +404,8 @@ void main() {
           ..insert('circus', attribute.toJson())
           ..insert('\n');
 
-        final result = parchmentMarkdown.encode(delta);
+        final result =
+            parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
         expect(result, expected);
       }
 
@@ -412,7 +426,8 @@ void main() {
         ..insert('circus', b)
         ..insert('\n');
 
-      final result = parchmentMarkdown.encode(delta);
+      final result =
+          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
       expect(result, 'This **house _is a_ circus**\n\n');
     });
 
@@ -426,7 +441,8 @@ void main() {
         ..insert(' circus ', i)
         ..insert('\n');
 
-      final result = parchmentMarkdown.encode(delta);
+      final result =
+          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
       expect(result, 'This **house** is a _circus_ \n\n');
     });
 
@@ -440,7 +456,8 @@ void main() {
         ..insert(' circus ', i)
         ..insert('\n');
 
-      final result = parchmentMarkdown.encode(delta);
+      final result =
+          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
       expect(result, 'This **_house_** is a _circus_ \n\n');
     });
 
@@ -454,7 +471,8 @@ void main() {
         ..insert(' circus ', link.toJson())
         ..insert('\n');
 
-      final result = parchmentMarkdown.encode(delta);
+      final result =
+          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
       expect(result, 'This **house** is a [circus](https://github.com) \n\n');
     });
 
@@ -464,7 +482,8 @@ void main() {
         final delta = Delta()
           ..insert(source)
           ..insert('\n', attribute.toJson());
-        final result = parchmentMarkdown.encode(delta);
+        final result =
+            parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
         expect(result, expected);
       }
 
@@ -479,7 +498,8 @@ void main() {
         final delta = Delta()
           ..insert(source)
           ..insert('\n', attribute.toJson());
-        final result = parchmentMarkdown.encode(delta);
+        final result =
+            parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
         expect(result, expected);
       }
 
@@ -497,7 +517,8 @@ void main() {
         ..insert('\n', ParchmentAttribute.ol.toJson())
         ..insert('List')
         ..insert('\n', ParchmentAttribute.ol.toJson());
-      final result = parchmentMarkdown.encode(delta);
+      final result =
+          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
       final expected = '1. Hello\n2. This is a\n3. List\n\n';
       expect(result, expected);
     });
@@ -510,7 +531,8 @@ void main() {
           ..insert('\n', attribute.toJson())
           ..insert(source)
           ..insert('\n', attribute.toJson());
-        final result = parchmentMarkdown.encode(delta);
+        final result =
+            parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
         expect(result, expected);
       }
 
@@ -521,7 +543,8 @@ void main() {
     });
 
     test('multiple styles', () {
-      final result = parchmentMarkdown.encode(delta);
+      final result =
+          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
       expect(result, markdown);
     });
   });

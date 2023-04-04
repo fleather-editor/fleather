@@ -7,18 +7,24 @@ import 'dart:convert';
 import 'package:quill_delta/quill_delta.dart';
 
 import '../document/attributes.dart';
+import '../document.dart';
+import '../document/block.dart';
+import '../document/leaf.dart';
+import '../document/line.dart';
 
-class ParchmentMarkdownCodec extends Codec<Delta, String> {
+class ParchmentMarkdownCodec extends Codec<ParchmentDocument, String> {
   const ParchmentMarkdownCodec();
 
   @override
-  Converter<String, Delta> get decoder => _ParchmentMarkdownDecoder();
+  Converter<String, ParchmentDocument> get decoder =>
+      _ParchmentMarkdownDecoder();
 
   @override
-  Converter<Delta, String> get encoder => _ParchmentMarkdownEncoder();
+  Converter<ParchmentDocument, String> get encoder =>
+      _ParchmentMarkdownEncoder();
 }
 
-class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
+class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
   static final _headingRegExp = RegExp(r'(#+) *(.+)');
   static final _styleRegExp = RegExp(
     // italic then bold
@@ -42,7 +48,7 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
   bool _inBlockStack = false;
 
   @override
-  Delta convert(String input) {
+  ParchmentDocument convert(String input) {
     final lines = input.split('\n');
     final delta = Delta();
 
@@ -50,48 +56,54 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
       _handleLine(line, delta);
     }
 
-    return delta..trim();
+    return ParchmentDocument.fromDelta(delta..trim());
   }
 
-  void _handleLine(String line, Delta delta,
-      [Map<String, dynamic>? attributes]) {
+  void _handleLine(String line, Delta delta, [ParchmentStyle? style]) {
     if (line.isEmpty && delta.isEmpty) {
       delta.insert('\n');
       return;
     }
 
-    if (_handleBlockQuote(line, delta, attributes)) {
+    if (_handleBlockQuote(line, delta, style)) {
       return;
     }
-    if (_handleBlock(line, delta, attributes)) {
+    if (_handleBlock(line, delta, style)) {
       return;
     }
-    if (_handleHeading(line, delta, attributes)) {
+    if (_handleHeading(line, delta, style)) {
       return;
     }
 
     if (line.isNotEmpty) {
-      _handleSpan(line, delta, true, attributes);
+      if (style?.isInline ?? true) {
+        _handleSpan(line, delta, true, style);
+      } else {
+        _handleSpan(line, delta, false,
+            ParchmentStyle().putAll(style?.inlineAttributes ?? []));
+        _handleSpan('\n', delta, false,
+            ParchmentStyle().putAll(style?.lineAttributes ?? []));
+      }
     }
   }
 
   // Markdown supports headings and blocks within blocks (except for within code)
   // but not blocks within headers, or ul within
-  bool _handleBlock(String line, Delta delta,
-      [Map<String, dynamic>? attributes]) {
+  bool _handleBlock(String line, Delta delta, [ParchmentStyle? style]) {
     final match = _codeRegExpTag.matchAsPrefix(line);
     if (match != null) {
       _inBlockStack = !_inBlockStack;
       return true;
     }
     if (_inBlockStack) {
-      delta.insert('$line\n', ParchmentAttribute.code.toJson());
+      delta.insert(line);
+      delta.insert('\n', ParchmentAttribute.code.toJson());
       // Don't bother testing for code blocks within block stacks
       return true;
     }
 
-    if (_handleOrderedList(line, delta, attributes) ||
-        _handleUnorderedList(line, delta, attributes)) {
+    if (_handleOrderedList(line, delta, style) ||
+        _handleUnorderedList(line, delta, style)) {
       return true;
     }
 
@@ -99,86 +111,84 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
   }
 
   // all blocks are supported within bq
-  bool _handleBlockQuote(String line, Delta delta,
-      [Map<String, dynamic>? attributes]) {
+  bool _handleBlockQuote(String line, Delta delta, [ParchmentStyle? style]) {
     // we do not support nested blocks
-    if (attributes?.containsKey('block') ?? false) {
+    if (style?.contains(ParchmentAttribute.block) ?? false) {
       return false;
     }
     final match = _bqRegExp.matchAsPrefix(line);
     final span = match?.group(1);
     if (span != null) {
-      final newAttributes = ParchmentAttribute.bq.toJson();
-      if (attributes != null) {
-        newAttributes.addAll(attributes);
-      }
+      final newStyle = (style ?? ParchmentStyle()).put(ParchmentAttribute.bq);
+
       // all blocks are supported within bq
-      _handleLine(span, delta, newAttributes);
+      _handleLine(span, delta, newStyle);
       return true;
     }
     return false;
   }
 
   // ol is supported within ol and bq, but not supported within ul
-  bool _handleOrderedList(String line, Delta delta,
-      [Map<String, dynamic>? attributes]) {
+  bool _handleOrderedList(String line, Delta delta, [ParchmentStyle? style]) {
     // we do not support nested blocks
-    if (attributes?.containsKey('block') ?? false) {
+    if (style?.contains(ParchmentAttribute.block) ?? false) {
       return false;
     }
     final match = _olRegExp.matchAsPrefix(line);
     final span = match?.group(2);
     if (span != null) {
-      _handleSpan(span, delta, false, attributes);
-      // There's probably no reason why you would have other block types on the same line
-      _handleSpan('', delta, true, ParchmentAttribute.ol.toJson());
+      _handleSpan(span, delta, false, style);
+      _handleSpan(
+          '\n', delta, false, ParchmentStyle().put(ParchmentAttribute.ol));
       return true;
     }
     return false;
   }
 
-  bool _handleUnorderedList(String line, Delta delta,
-      [Map<String, dynamic>? attributes]) {
+  bool _handleUnorderedList(String line, Delta delta, [ParchmentStyle? style]) {
     // we do not support nested blocks
-    if (attributes?.containsKey('block') ?? false) {
+    if (style?.contains(ParchmentAttribute.block) ?? false) {
       return false;
     }
+
+    final newStyle = (style ?? ParchmentStyle()).put(ParchmentAttribute.ul);
+
     final match = _ulRegExp.matchAsPrefix(line);
     final span = match?.group(2);
     if (span != null) {
-      _handleSpan(span, delta, false, attributes);
-      // There's probably no reason why you would have other block types on the same line
-      _handleSpan('', delta, true, ParchmentAttribute.ul.toJson());
+      _handleSpan(span, delta, false,
+          ParchmentStyle().putAll(newStyle.inlineAttributes));
+      _handleSpan(
+          '\n', delta, false, ParchmentStyle().putAll(newStyle.lineAttributes));
       return true;
     }
     return false;
   }
 
-  bool _handleHeading(String line, Delta delta,
-      [Map<String, dynamic>? attributes]) {
+  bool _handleHeading(String line, Delta delta, [ParchmentStyle? style]) {
     final match = _headingRegExp.matchAsPrefix(line);
     final levelTag = match?.group(1);
     if (levelTag != null) {
       final level = levelTag.length;
-      final newAttributes =
-          ParchmentAttribute.heading.withValue(level).toJson();
-      if (attributes != null) {
-        newAttributes.addAll(attributes);
-      }
+      final newStyle = (style ?? ParchmentStyle())
+          .put(ParchmentAttribute.heading.withValue(level));
 
       final span = match?.group(2);
       if (span == null) {
         return false;
       }
-      _handleSpan(span, delta, true, newAttributes);
+      _handleSpan(span, delta, false,
+          ParchmentStyle().putAll(newStyle.inlineAttributes));
+      _handleSpan(
+          '\n', delta, false, ParchmentStyle().putAll(newStyle.lineAttributes));
       return true;
     }
 
     return false;
   }
 
-  void _handleSpan(String span, Delta delta, bool addNewLine,
-      Map<String, dynamic>? outerStyle) {
+  void _handleSpan(
+      String span, Delta delta, bool addNewLine, ParchmentStyle? outerStyle) {
     var start = _handleStyles(span, delta, outerStyle);
     span = span.substring(start);
 
@@ -189,17 +199,16 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
 
     if (span.isNotEmpty) {
       if (addNewLine) {
-        delta.insert('$span\n', outerStyle);
+        delta.insert('$span\n', outerStyle?.toJson());
       } else {
-        delta.insert(span, outerStyle);
+        delta.insert(span, outerStyle?.toJson());
       }
     } else if (addNewLine) {
-      delta.insert('\n', outerStyle);
+      delta.insert('\n', outerStyle?.toJson());
     }
   }
 
-  int _handleStyles(
-      String span, Delta delta, Map<String, dynamic>? outerStyle) {
+  int _handleStyles(String span, Delta delta, ParchmentStyle? outerStyle) {
     var start = 0;
 
     // `**some code**`
@@ -207,19 +216,23 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
     // <code><strong>some code</code></strong>
     //  but to
     // <code>**code**</code>
-    if ((outerStyle ?? {}).containsKey('c')) return start;
+    if (outerStyle?.contains(ParchmentAttribute.inlineCode) ?? false) {
+      return start;
+    }
 
     final matches = _styleRegExp.allMatches(span);
     for (final match in matches) {
       if (match.start > start) {
         if (span.substring(match.start - 1, match.start) == '[') {
-          delta.insert(span.substring(start, match.start - 1), outerStyle);
+          delta.insert(
+              span.substring(start, match.start - 1), outerStyle?.toJson());
           start = match.start -
               1 +
               _handleLinks(span.substring(match.start - 1), delta, outerStyle);
           continue;
         } else {
-          delta.insert(span.substring(start, match.start), outerStyle);
+          delta.insert(
+              span.substring(start, match.start), outerStyle?.toJson());
         }
       }
 
@@ -239,11 +252,12 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
         text = match.namedGroup('inline_code_text')!;
         styleTag = '`';
       }
-      final newStyle = _fromStyleTag(styleTag);
+      var newStyle = _fromStyleTag(styleTag);
 
       if (outerStyle != null) {
-        newStyle.addAll(outerStyle);
+        newStyle = newStyle.mergeAll(outerStyle);
       }
+
       _handleSpan(text, delta, false, newStyle);
       start = match.end;
     }
@@ -251,7 +265,7 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
     return start;
   }
 
-  Map<String, dynamic> _fromStyleTag(String styleTag) {
+  ParchmentStyle _fromStyleTag(String styleTag) {
     assert(
         (styleTag == '`') |
             (styleTag == '_') |
@@ -267,19 +281,19 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
         'Invalid style tag \'$styleTag\'');
     assert(styleTag.isNotEmpty, 'Style tag must not be empty');
     if (styleTag == '`') {
-      return ParchmentAttribute.inlineCode.toJson();
+      return ParchmentStyle().put(ParchmentAttribute.inlineCode);
     }
     if (styleTag.length == 3) {
-      return ParchmentAttribute.bold.toJson()
-        ..addAll(ParchmentAttribute.italic.toJson());
+      return ParchmentStyle()
+          .putAll([ParchmentAttribute.bold, ParchmentAttribute.italic]);
     }
     if (styleTag.length == 2) {
-      return ParchmentAttribute.bold.toJson();
+      return ParchmentStyle().put(ParchmentAttribute.bold);
     }
-    return ParchmentAttribute.italic.toJson();
+    return ParchmentStyle().put(ParchmentAttribute.italic);
   }
 
-  int _handleLinks(String span, Delta delta, Map<String, dynamic>? outerStyle) {
+  int _handleLinks(String span, Delta delta, ParchmentStyle? outerStyle) {
     var start = 0;
 
     final matches = _linkRegExp.allMatches(span);
@@ -293,11 +307,10 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
       if (text == null || href == null) {
         return start;
       }
-      final newAttributes = ParchmentAttribute.link.fromString(href).toJson();
-      if (outerStyle != null) {
-        newAttributes.addAll(outerStyle);
-      }
-      _handleSpan(text, delta, false, newAttributes);
+      final newStyle = (outerStyle ?? ParchmentStyle())
+          .put(ParchmentAttribute.link.fromString(href));
+
+      _handleSpan(text, delta, false, newStyle);
       start = match.end;
     }
 
@@ -305,112 +318,12 @@ class _ParchmentMarkdownDecoder extends Converter<String, Delta> {
   }
 }
 
-class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
+class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
   static final simpleBlocks = <ParchmentAttribute, String>{
     ParchmentAttribute.bq: '> ',
     ParchmentAttribute.ul: '* ',
+    ParchmentAttribute.ol: '. ',
   };
-
-  @override
-  String convert(Delta input) {
-    final iterator = DeltaIterator(input);
-    final buffer = StringBuffer();
-    final lineBuffer = StringBuffer();
-    ParchmentAttribute<String>? currentBlockStyle;
-    var currentInlineStyle = ParchmentStyle();
-    List<String> currentBlockLines = [];
-
-    void handleBlock(ParchmentAttribute<String>? blockStyle) {
-      if (currentBlockLines.isEmpty) {
-        return; // Empty block
-      }
-
-      if (blockStyle == null) {
-        buffer.write(currentBlockLines.join('\n\n'));
-        buffer.writeln();
-      } else if (blockStyle == ParchmentAttribute.code) {
-        _writeAttribute(buffer, blockStyle);
-        buffer.write(currentBlockLines.join('\n'));
-        _writeAttribute(buffer, blockStyle, close: true);
-        buffer.writeln();
-      } else if (blockStyle == ParchmentAttribute.ol) {
-        int currentItemOrder = 1;
-        for (final line in currentBlockLines) {
-          buffer.write('${currentItemOrder++}. $line\n');
-        }
-      } else {
-        for (var line in currentBlockLines) {
-          _writeBlockTag(buffer, blockStyle);
-          buffer.write(line);
-          buffer.writeln();
-        }
-      }
-      buffer.writeln();
-    }
-
-    void handleSpan(String text, Map<String, dynamic>? attributes) {
-      final style = ParchmentStyle.fromJson(attributes);
-      currentInlineStyle =
-          _writeInline(lineBuffer, text, style, currentInlineStyle);
-    }
-
-    void handleLine(Map<String, dynamic>? attributes) {
-      final style = ParchmentStyle.fromJson(attributes);
-      final lineBlock = style.get(ParchmentAttribute.block);
-      if (lineBlock == currentBlockStyle) {
-        currentBlockLines.add(_writeLine(lineBuffer.toString(), style));
-      } else {
-        handleBlock(currentBlockStyle);
-        currentBlockLines.clear();
-        currentBlockLines.add(_writeLine(lineBuffer.toString(), style));
-
-        currentBlockStyle = lineBlock;
-      }
-      lineBuffer.clear();
-    }
-
-    while (iterator.hasNext) {
-      final op = iterator.next();
-      final opText = op.data is String ? op.data as String : '';
-      final lf = opText.indexOf('\n');
-      if (lf == -1) {
-        handleSpan(op.data as String, op.attributes);
-      } else {
-        var span = StringBuffer();
-        for (var i = 0; i < opText.length; i++) {
-          if (opText.codeUnitAt(i) == 0x0A) {
-            if (span.isNotEmpty) {
-              // Write the span if it's not empty.
-              handleSpan(span.toString(), op.attributes);
-            }
-            // Close any open inline styles.
-            handleSpan('', null);
-            handleLine(op.attributes);
-            span.clear();
-          } else {
-            span.writeCharCode(opText.codeUnitAt(i));
-          }
-        }
-        // Remaining span
-        if (span.isNotEmpty) {
-          handleSpan(span.toString(), op.attributes);
-        }
-      }
-    }
-    handleBlock(currentBlockStyle); // Close the last block
-    return buffer.toString();
-  }
-
-  String _writeLine(String text, ParchmentStyle style) {
-    var buffer = StringBuffer();
-    if (style.contains(ParchmentAttribute.heading)) {
-      _writeAttribute(buffer, style.get<int>(ParchmentAttribute.heading));
-    }
-
-    // Write the text itself
-    buffer.write(text);
-    return buffer.toString();
-  }
 
   String _trimRight(StringBuffer buffer) {
     var text = buffer.toString();
@@ -421,29 +334,101 @@ class _ParchmentMarkdownEncoder extends Converter<Delta, String> {
     return ' ' * (text.length - result.length);
   }
 
-  ParchmentStyle _writeInline(StringBuffer buffer, String text,
-      ParchmentStyle style, ParchmentStyle currentStyle) {
-    // First close any current styles if needed
-    for (var value in currentStyle.values.toList().reversed) {
-      if (value.scope == ParchmentAttributeScope.line) continue;
-      if (style.containsSame(value)) continue;
-      final padding = _trimRight(buffer);
-      _writeAttribute(buffer, value, close: true);
-      if (padding.isNotEmpty) buffer.write(padding);
+  void handleText(
+      StringBuffer buffer, TextNode node, ParchmentStyle currentInlineStyle) {
+    final style = node.style;
+    final rightPadding = _trimRight(buffer);
+
+    for (final attr in currentInlineStyle.inlineAttributes.toList().reversed) {
+      if (!style.contains(attr)) {
+        _writeAttribute(buffer, attr, close: true);
+      }
     }
-    // Now open any new styles.
-    for (var value in style.values) {
-      if (value.scope == ParchmentAttributeScope.line) continue;
-      if (currentStyle.containsSame(value)) continue;
-      final originalText = text;
-      text = text.trimLeft();
-      final padding = ' ' * (originalText.length - text.length);
-      if (padding.isNotEmpty) buffer.write(padding);
-      _writeAttribute(buffer, value);
+
+    buffer.write(rightPadding);
+
+    final leftTrimmedText = node.value.trimLeft();
+
+    buffer.write(' ' * (node.length - leftTrimmedText.length));
+
+    for (final attr in style.inlineAttributes) {
+      if (!currentInlineStyle.contains(attr)) {
+        _writeAttribute(buffer, attr);
+      }
     }
-    // Write the text itself
-    buffer.write(text);
-    return style;
+
+    buffer.write(leftTrimmedText);
+  }
+
+  @override
+  String convert(ParchmentDocument input) {
+    final buffer = StringBuffer();
+    final lineBuffer = StringBuffer();
+    var currentInlineStyle = ParchmentStyle();
+    ParchmentAttribute? currentBlockAttribute;
+
+    void handleLine(LineNode node) {
+      if (node.hasBlockEmbed) return;
+
+      for (final attr in node.style.lineAttributes) {
+        if (attr.key == ParchmentAttribute.block.key) {
+          if (currentBlockAttribute != attr) {
+            _writeAttribute(lineBuffer, attr);
+            currentBlockAttribute = attr;
+          } else if (attr != ParchmentAttribute.code) {
+            _writeAttribute(lineBuffer, attr);
+          }
+        } else {
+          _writeAttribute(lineBuffer, attr);
+        }
+      }
+
+      for (final textNode in node.children) {
+        handleText(lineBuffer, textNode as TextNode, currentInlineStyle);
+        currentInlineStyle = textNode.style;
+      }
+
+      handleText(lineBuffer, TextNode(), currentInlineStyle);
+
+      currentInlineStyle = ParchmentStyle();
+
+      final blockAttribute = node.style.get(ParchmentAttribute.block);
+      if (currentBlockAttribute != blockAttribute) {
+        _writeAttribute(lineBuffer, currentBlockAttribute, close: true);
+      }
+
+      buffer.write(lineBuffer);
+      lineBuffer.clear();
+    }
+
+    void handleBlock(BlockNode node) {
+      int currentItemOrder = 1;
+      for (final lineNode in node.children) {
+        if (node.style.containsSame(ParchmentAttribute.ol)) {
+          lineBuffer.write(currentItemOrder);
+        }
+        handleLine(lineNode as LineNode);
+        if (!lineNode.isLast) {
+          buffer.write('\n');
+        }
+        currentItemOrder += 1;
+      }
+
+      handleLine(LineNode());
+      currentBlockAttribute = null;
+    }
+
+    for (final child in input.root.children) {
+      if (child is LineNode) {
+        handleLine(child);
+        buffer.write('\n\n');
+      } else if (child is BlockNode) {
+        handleBlock(child);
+        buffer.write('\n\n');
+      }
+    }
+
+    return buffer.toString();
   }
 
   void _writeAttribute(StringBuffer buffer, ParchmentAttribute? attribute,

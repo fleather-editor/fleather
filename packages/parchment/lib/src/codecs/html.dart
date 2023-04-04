@@ -45,14 +45,16 @@ const _indentWidthInPx = 32;
 ///
 /// *note: `<br>` are not recognized as new lines and will be ignored*
 /// *note2: a single line of text with only inline attributes will not be surrounded with `<p>`
-class ParchmentHtmlCodec extends Codec<Delta, String> {
+class ParchmentHtmlCodec extends Codec<ParchmentDocument, String> {
   const ParchmentHtmlCodec();
 
   @override
-  Converter<String, Delta> get decoder => const _ParchmentHtmlDecoder();
+  Converter<String, ParchmentDocument> get decoder =>
+      const _ParchmentHtmlDecoder();
 
   @override
-  Converter<Delta, String> get encoder => const _ParchmentHtmlEncoder();
+  Converter<ParchmentDocument, String> get encoder =>
+      const _ParchmentHtmlEncoder();
 }
 
 // Mutable record for the state of the encoder
@@ -87,7 +89,7 @@ class _EncoderState {
 // Block tags are line Parchment attributes that can contain several lines.
 // These can be code or lists.
 // These behave almost as line tags except there can be nested blocks
-class _ParchmentHtmlEncoder extends Converter<Delta, String> {
+class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
   const _ParchmentHtmlEncoder();
 
   static const _htmlElementEscape = HtmlEscape(HtmlEscapeMode.element);
@@ -162,9 +164,9 @@ class _ParchmentHtmlEncoder extends Converter<Delta, String> {
   }
 
   @override
-  String convert(Delta input) {
+  String convert(ParchmentDocument input) {
     final state = _EncoderState();
-    for (final op in input.toList()) {
+    for (final op in input.toDelta().toList()) {
       final buffer = state.buffer;
       final openInlineTags = state.openInlineTags;
 
@@ -806,11 +808,11 @@ class _HtmlBlockTag extends _HtmlTag {
       super.hashCode ^ style.hashCode ^ closingPosition.hashCode;
 }
 
-class _ParchmentHtmlDecoder extends Converter<String, Delta> {
+class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
   const _ParchmentHtmlDecoder();
 
   @override
-  Delta convert(String input) {
+  ParchmentDocument convert(String input) {
     Delta delta = Delta();
     final htmlDocument = parse(input);
 
@@ -818,7 +820,8 @@ class _ParchmentHtmlDecoder extends Converter<String, Delta> {
       delta = delta.concat(_parseNode(node));
     }
     _appendNewLineForTopLevelText(delta);
-    return delta;
+
+    return ParchmentDocument.fromDelta(delta);
   }
 
   void _appendNewLineForTopLevelText(Delta delta) {

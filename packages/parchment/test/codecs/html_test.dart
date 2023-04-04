@@ -1,5 +1,5 @@
 import 'package:parchment/parchment.dart';
-import 'package:parchment/src/convert/html.dart';
+import 'package:parchment/src/codecs/html.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
@@ -12,14 +12,14 @@ void main() {
         final doc = ParchmentDocument.fromJson([
           {'insert': '\n\n'},
         ]);
-        expect(codec.encode(doc.toDelta()), '<p><br></p><p></p>');
+        expect(codec.encode(doc), '<p><br></p><p></p>');
       });
 
       test('plain text', () {
         final doc = ParchmentDocument.fromJson([
           {'insert': 'Something in the way mmmm...\n'}
         ]);
-        expect(codec.encode(doc.toDelta()), 'Something in the way mmmm...');
+        expect(codec.encode(doc), 'Something in the way mmmm...');
       });
 
       test('bold text', () {
@@ -31,8 +31,8 @@ void main() {
           },
           {'insert': ' mmmm...\n'}
         ]);
-        expect(codec.encode(doc.toDelta()),
-            'Something <strong>in the way</strong> mmmm...');
+        expect(
+            codec.encode(doc), 'Something <strong>in the way</strong> mmmm...');
       });
 
       test('italic + code + underlined + strikethrough text', () {
@@ -51,7 +51,7 @@ void main() {
           },
           {'insert': '\n'}
         ]);
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<del><u>Something </u></del><em>in the way</em><code> mmmm...</code>');
       });
 
@@ -71,7 +71,7 @@ void main() {
           },
           {'insert': '\n'}
         ]);
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<u><a href="https://wikipedia.org">Something </a><em>in the way</em> mmmm...</u>');
       });
 
@@ -82,7 +82,7 @@ void main() {
                 'HTML special characters like < > & are escaped, but not \' " /.\n',
           },
         ]);
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             'HTML special characters like &lt; &gt; &amp; are escaped, but not \' " /.');
       });
 
@@ -110,7 +110,7 @@ void main() {
           {'insert': '\n'}
         ]);
         expect(
-            codec.encode(doc.toDelta()),
+            codec.encode(doc),
             '<p>Line 1</p>'
             '<p><br></p>'
             '<p><br></p>'
@@ -158,7 +158,7 @@ void main() {
           {'insert': '\n'},
         ]);
         expect(
-            codec.encode(doc.toDelta()),
+            codec.encode(doc),
             '<p><strong>Bold</strong></p>'
             '<p><em>Italic</em></p>'
             '<p><strong>Bold</strong></p>'
@@ -177,7 +177,7 @@ void main() {
           },
         ]);
 
-        expect(codec.encode(doc.toDelta()), '<h1>Hello World!</h1>');
+        expect(codec.encode(doc), '<h1>Hello World!</h1>');
       });
 
       test('2', () {
@@ -189,7 +189,7 @@ void main() {
           }
         ]);
 
-        expect(codec.encode(doc.toDelta()), '<h2>Hello World!</h2>');
+        expect(codec.encode(doc), '<h2>Hello World!</h2>');
       });
 
       test('3', () {
@@ -201,7 +201,7 @@ void main() {
           }
         ]);
 
-        expect(codec.encode(doc.toDelta()), '<h3>Hello World!</h3>');
+        expect(codec.encode(doc), '<h3>Hello World!</h3>');
       });
     });
 
@@ -211,8 +211,7 @@ void main() {
           final doc = ParchmentDocument.fromJson([
             {'insert': 'Hello World!\nBye World!\n'},
           ]);
-          expect(codec.encode(doc.toDelta()),
-              '<p>Hello World!</p><p>Bye World!</p>');
+          expect(codec.encode(doc), '<p>Hello World!</p><p>Bye World!</p>');
         });
 
         test('multiple formatted', () {
@@ -228,7 +227,7 @@ void main() {
             },
             {'insert': '\n'}
           ]);
-          expect(codec.encode(doc.toDelta()),
+          expect(codec.encode(doc),
               '<p><strong>Hello World!</strong></p><p><strong>Bye World!</strong></p>');
         });
       });
@@ -243,7 +242,7 @@ void main() {
             }
           ]);
 
-          expect(codec.encode(doc.toDelta()),
+          expect(codec.encode(doc),
               '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
         });
 
@@ -262,7 +261,7 @@ void main() {
           ]);
 
           expect(
-              codec.encode(doc.toDelta()),
+              codec.encode(doc),
               '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>'
               '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
         });
@@ -282,7 +281,7 @@ void main() {
           ]);
 
           expect(
-              codec.encode(doc.toDelta()),
+              codec.encode(doc),
               '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>'
               '<blockquote style="text-align:center;margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Hello World!</blockquote>');
         });
@@ -308,7 +307,7 @@ void main() {
         ]);
 
         expect(
-          codec.encode(doc.toDelta()),
+          codec.encode(doc),
           '<pre><code>void main() {\n'
           '\n'
           '  print("Hello World!");\n'
@@ -327,7 +326,7 @@ void main() {
           {'insert': 'Hello world\n'},
         ]);
         expect(
-          codec.encode(doc.toDelta()),
+          codec.encode(doc),
           '<pre><code>some code\n'
           '</code></pre><p>Hello world</p>',
         );
@@ -347,7 +346,7 @@ void main() {
           {'insert': '\n'}
         ]);
         expect(
-          codec.encode(doc.toDelta()),
+          codec.encode(doc),
           '<pre><code>some code\n'
           '</code></pre><p><strong>Hello world</strong></p>',
         );
@@ -372,7 +371,7 @@ void main() {
           },
         ]);
         expect(
-          codec.encode(doc.toDelta()),
+          codec.encode(doc),
           '<p>Hello world</p>'
           '<p><strong>Another</strong> one</p>'
           '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">some <strong>quote</strong></blockquote>',
@@ -397,7 +396,7 @@ void main() {
           {'insert': 'Hello world\n'},
         ]);
         expect(
-          codec.encode(doc.toDelta()),
+          codec.encode(doc),
           '<p>Hello world</p>'
           '<p>Hello world</p>'
           '<p>Hello world</p>'
@@ -423,7 +422,7 @@ void main() {
           }
         ]);
 
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<ol><li>Hello World!</li><li>This is Fleather!</li></ol>');
       });
 
@@ -444,7 +443,7 @@ void main() {
           }
         ]);
 
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<ol><li><strong>Hello World!</strong></li><li>This is Fleather!</li></ol>');
       });
 
@@ -462,7 +461,7 @@ void main() {
           }
         ]);
 
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<ul><li>Hello World!</li><li>This is Fleather!</li></ul>');
       });
       test('Checklist', () {
@@ -480,7 +479,7 @@ void main() {
         ]);
 
         expect(
-            codec.encode(doc.toDelta()),
+            codec.encode(doc),
             '<div class="checklist">'
             '<div class="checklist-item"><input type="checkbox" checked disabled><label>&nbsp;item</label></div>'
             '<div class="checklist-item"><input type="checkbox" disabled><label>&nbsp;item</label></div>'
@@ -508,7 +507,7 @@ void main() {
         ]);
 
         expect(
-            codec.encode(doc.toDelta()),
+            codec.encode(doc),
             '<div class="checklist">'
             '<div class="checklist-item"><input type="checkbox" checked disabled><label>&nbsp;Check - 1</label></div>'
             '<div class="checklist-item"><input type="checkbox" disabled><label>&nbsp;Check - 2</label></div>'
@@ -532,7 +531,7 @@ void main() {
         ]);
 
         expect(
-            codec.encode(doc.toDelta()),
+            codec.encode(doc),
             '<div class="checklist">'
             '<div class="checklist-item"><input type="checkbox" checked disabled><label>&nbsp;Check - 1</label></div>'
             '<div class="checklist-item"><input type="checkbox" disabled><label>&nbsp;Check - 2</label></div></div>'
@@ -550,8 +549,8 @@ void main() {
           {'insert': '\n'}
         ]);
 
-        expect(codec.encode(doc.toDelta()),
-            '<a href="http://fake.link">Hello World!</a>');
+        expect(
+            codec.encode(doc), '<a href="http://fake.link">Hello World!</a>');
       });
 
       test('Italic', () {
@@ -563,7 +562,7 @@ void main() {
           {'insert': '\n'}
         ]);
 
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<a href="http://fake.link"><em>Hello World!</em></a>');
       });
 
@@ -579,7 +578,7 @@ void main() {
           }
         ]);
 
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<ul><li><a href="http://fake.link">Hello World!</a></li></ul>');
       });
     });
@@ -596,7 +595,7 @@ void main() {
           }
         ]);
 
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<p>Hello World!</p><p dir="rtl">Hello World!</p>');
       });
 
@@ -618,7 +617,7 @@ void main() {
           },
         ]);
 
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<ol><li>Hello World!</li><li dir="rtl" style="text-align:center;">Hello World!</li></ol>');
       });
     });
@@ -632,7 +631,7 @@ void main() {
             'attributes': {'alignment': 'center'}
           }
         ]);
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<p style="text-align:center;">Hello World!</p>');
       });
 
@@ -660,7 +659,7 @@ void main() {
           }
         ]);
         expect(
-          codec.encode(doc.toDelta()),
+          codec.encode(doc),
           '<p>Hello World!</p>'
           '<p style="text-align:right;">Hello World!</p>'
           '<p style="text-align:center;">Hello World!</p>'
@@ -692,7 +691,7 @@ void main() {
           }
         ]);
         expect(
-            codec.encode(doc.toDelta()),
+            codec.encode(doc),
             '<ol>'
             '<li>Hello World!</li>'
             '<li style="text-align:right;">Hello World!</li>'
@@ -738,7 +737,7 @@ void main() {
         ]);
 
         expect(
-            codec.encode(doc.toDelta()),
+            codec.encode(doc),
             '<ol>'
             '<li>item</li>'
             '<ul>'
@@ -818,7 +817,7 @@ void main() {
         ]);
 
         expect(
-          codec.encode(doc.toDelta()),
+          codec.encode(doc),
           '<ol>'
           '<li>item</li>'
           '<ul>'
@@ -871,7 +870,7 @@ void main() {
           },
           {'insert': 'No longer in list\n'}
         ]);
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<p>Test</p><ol><li>Level 1 - 1</li><li>Level 1 - 2</li><ol><li>Level 2 - 1</li><li>Level 2 - 2</li></ol></ol><p>No longer in list</p>');
       });
 
@@ -920,7 +919,7 @@ void main() {
           },
           {'insert': 'No longer in list\n'}
         ]);
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<p>Test</p><ol><li>Level 1 - 1</li><li>Level 1 - 2</li><ol><li>Level 2 - 1</li><li>Level 2 - 2</li><ol><li>Level 3 - 1</li><li>Level 3 - 2</li><ol><li>Level 4 - 1</li><li>Level 4 - 2</li></ol></ol></ol></ol><p>No longer in list</p>');
       });
 
@@ -959,7 +958,7 @@ void main() {
             'attributes': {'block': 'ol'}
           },
         ]);
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<p>Test</p><ol><li>Level 1 - 1</li><li>Level 1 - 2</li><ol><li>Level 2 - 1</li><li>Level 2 - 2</li></ol></ol><p>No longer in list</p><ol><li>In a new list - 1</li><li>In a new list - 2</li></ol>');
       });
 
@@ -972,7 +971,7 @@ void main() {
           },
         ]);
         expect(
-            codec.encode(doc.toDelta()),
+            codec.encode(doc),
             '<p>Something in the way...</p>'
             '<p style="padding-left:32px;">Something in the way...</p>');
       });
@@ -986,7 +985,7 @@ void main() {
           },
         ]);
         expect(
-            codec.encode(doc.toDelta()),
+            codec.encode(doc),
             '<p>Something in the way...</p>'
             '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;padding-left:32px;">Something in the way...</blockquote>');
       });
@@ -1005,7 +1004,7 @@ void main() {
           },
           {'insert': 'Not in quote\n'},
         ]);
-        expect(codec.encode(doc.toDelta()),
+        expect(codec.encode(doc),
             '<blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">Quote</blockquote><blockquote style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;"><h1 style="margin: 0 0 0 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-left: 1ex;">header</blockquote></h1><p>Not in quote</p>');
       });
     });
@@ -1019,7 +1018,7 @@ void main() {
         ]);
         doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
 
-        expect(codec.encode(doc.toDelta()), html);
+        expect(codec.encode(doc), html);
       });
 
       test('Line', () {
@@ -1029,12 +1028,12 @@ void main() {
         ]);
         doc.insert(0, BlockEmbed.horizontalRule);
 
-        expect(codec.encode(doc.toDelta()), html);
+        expect(codec.encode(doc), html);
       });
     });
 
     test('Multiple styles', () {
-      final act = codec.encode(delta);
+      final act = codec.encode(ParchmentDocument.fromDelta(delta));
       expect(act, htmlDoc);
     });
   });
@@ -1047,7 +1046,7 @@ void main() {
           {'insert': 'Hello World!\n'}
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('Bold paragraph', () {
@@ -1060,7 +1059,7 @@ void main() {
           {'insert': '\n'},
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('Underline paragraph', () {
@@ -1073,7 +1072,7 @@ void main() {
           {'insert': '\n'},
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('Strikethrough paragraph', () {
@@ -1086,7 +1085,7 @@ void main() {
           {'insert': '\n'},
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('Italic paragraph', () {
@@ -1099,7 +1098,7 @@ void main() {
           {'insert': '\n'},
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('Bold and Italic paragraph', () {
@@ -1112,7 +1111,7 @@ void main() {
           {'insert': '\n'},
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('embedded inline attributes text', () {
@@ -1133,7 +1132,7 @@ void main() {
           },
           {'insert': '\n'}
         ]);
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
     });
 
@@ -1148,7 +1147,7 @@ void main() {
           },
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('2', () {
@@ -1161,7 +1160,7 @@ void main() {
           }
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('3', () {
@@ -1174,7 +1173,7 @@ void main() {
           }
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
     });
 
@@ -1187,7 +1186,7 @@ void main() {
               'insert': 'Hello World!\n',
             }
           ]);
-          expect(codec.decode(html), doc.toDelta());
+          expect(codec.decode(html).toDelta(), doc.toDelta());
         });
 
         test('Paragraph with link', () {
@@ -1206,7 +1205,7 @@ void main() {
             }
           ]);
 
-          expect(codec.decode(html), doc.toDelta());
+          expect(codec.decode(html).toDelta(), doc.toDelta());
         });
 
         test('Multiples paragraphs', () {
@@ -1235,7 +1234,7 @@ void main() {
             }
           ]);
 
-          expect(codec.decode(html), doc.toDelta());
+          expect(codec.decode(html).toDelta(), doc.toDelta());
         });
       });
 
@@ -1249,7 +1248,7 @@ void main() {
           }
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
       test('Code', () {
         final html = '<pre>'
@@ -1275,7 +1274,7 @@ void main() {
           }
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('Code then paragraph', () {
@@ -1289,7 +1288,7 @@ void main() {
           },
           {'insert': 'Hello world\n'},
         ]);
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('Paragraphs then quote', () {
@@ -1313,7 +1312,7 @@ void main() {
             'attributes': {'block': 'quote'}
           },
         ]);
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('Ordered list', () {
@@ -1331,7 +1330,7 @@ void main() {
           }
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
       test('List with bold', () {
         final html = '<ol><li><strong>Hello World!</strong></li></ol><br><br>';
@@ -1346,7 +1345,7 @@ void main() {
           }
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
       test('Unordered list', () {
         final html =
@@ -1364,7 +1363,7 @@ void main() {
           }
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
     });
 
@@ -1378,7 +1377,7 @@ void main() {
             'attributes': {'alignment': 'center'}
           }
         ]);
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('all paragraph alignments', () {
@@ -1403,7 +1402,7 @@ void main() {
             'attributes': {'alignment': 'justify'}
           }
         ]);
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('all list alignments', () {
@@ -1435,7 +1434,7 @@ void main() {
             'attributes': {'block': 'ol', 'alignment': 'justify'}
           }
         ]);
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
     });
 
@@ -1527,7 +1526,7 @@ void main() {
             'attributes': {'block': 'ul', 'indent': 1}
           },
         ]);
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
     });
 
@@ -1539,7 +1538,7 @@ void main() {
         ]);
         doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('Line', () {
@@ -1549,7 +1548,7 @@ void main() {
         ]);
         doc.insert(0, BlockEmbed.horizontalRule);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
     });
 
@@ -1564,7 +1563,7 @@ void main() {
           {'insert': '\n'}
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('Italic', () {
@@ -1578,7 +1577,7 @@ void main() {
           {'insert': '\n'}
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('In list', () {
@@ -1595,7 +1594,7 @@ void main() {
           }
         ]);
 
-        expect(codec.decode(html), doc.toDelta());
+        expect(codec.decode(html).toDelta(), doc.toDelta());
       });
     });
   });
