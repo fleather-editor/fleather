@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 /// Provides codecs to convert Parchment documents to other formats.
-library parchment.codec;
+library parchment.codecs;
 
 import 'src/codecs/markdown.dart';
 import 'src/codecs/html.dart';
