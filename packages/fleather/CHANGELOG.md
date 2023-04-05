@@ -1,3 +1,7 @@
+## 1.7.0
+
+* Adaptive selection controls for platforms
+
 ## 1.6.0
 
 * Allow to undo/redo changes from toolbar

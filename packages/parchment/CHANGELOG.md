@@ -1,3 +1,8 @@
+## 1.7.0
+
+* [Breaking Change] Change codecs to accept ParchmentDocument instead of Delta
+* [Fix] Blocks serialization/deserialization issues in markdown codec
+
 ## 1.6.0
 
 * Allow to undo/redo changes from toolbar

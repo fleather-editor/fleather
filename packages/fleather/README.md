@@ -22,7 +22,7 @@ Add Fleather to your dependencies.
 dependencies:
   flutter:
     sdk: flutter
-  fleather: ^1.2.2
+  fleather: ^1.7.0
 ```
 
 ## Usage
@@ -45,6 +45,9 @@ Column(
   ],
 ),
 ```
+
+## Migration
+For migration guides check out [MIGRATION.md](https://github.com/fleather-editor/fleather/blob/master/MIGRATION.md).
 
 ## Credits
 
