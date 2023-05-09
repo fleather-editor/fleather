@@ -115,7 +115,6 @@ class EditableTextBlock extends StatelessWidget {
           FleatherThemeData theme, List<LineNode> children) =>
       children
           .map((node) => _CheckboxPoint(
-                width: 32,
                 value: node.style.containsSame(ParchmentAttribute.checked),
                 enabled: !readOnly,
                 onChanged: (checked) => _toggle(node, checked),
@@ -314,7 +313,7 @@ class _NumberPoint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: AlignmentDirectional.topEnd,
+      alignment: AlignmentDirectional.bottomEnd,
       width: width,
       padding: EdgeInsetsDirectional.only(end: padding),
       child: Text(withDot ? '$number.' : '$number', style: style),
@@ -335,7 +334,7 @@ class _BulletPoint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: AlignmentDirectional.topEnd,
+      alignment: AlignmentDirectional.bottomEnd,
       width: width,
       padding: const EdgeInsetsDirectional.only(end: 13.0),
       child: Text('•', style: style),
@@ -344,14 +343,12 @@ class _BulletPoint extends StatelessWidget {
 }
 
 class _CheckboxPoint extends StatefulWidget {
-  final double width;
   final bool value;
   final bool enabled;
   final ValueChanged<bool> onChanged;
 
   const _CheckboxPoint({
     Key? key,
-    required this.width,
     required this.value,
     required this.enabled,
     required this.onChanged,
@@ -364,11 +361,15 @@ class _CheckboxPoint extends StatefulWidget {
 class _CheckboxPointState extends State<_CheckboxPoint> {
   @override
   Widget build(BuildContext context) {
-    return Checkbox(
-      value: widget.value,
-      onChanged:
-          widget.enabled ? (value) => widget.onChanged(!widget.value) : null,
-      splashRadius: 0,
+    return Align(
+      alignment: AlignmentDirectional.bottomEnd,
+      child: Checkbox(
+        value: widget.value,
+        visualDensity: VisualDensity.compact,
+        onChanged:
+            widget.enabled ? (value) => widget.onChanged(!widget.value) : null,
+        splashRadius: 0,
+      ),
     );
   }
 }
