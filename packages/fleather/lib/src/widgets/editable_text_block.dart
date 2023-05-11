@@ -125,10 +125,8 @@ class EditableTextBlock extends StatelessWidget {
           FleatherThemeData theme, List<Node> children) =>
       children
           .map((_) => _BulletPoint(
-                style:
-                    theme.paragraph.style.copyWith(fontWeight: FontWeight.bold),
-                width: 32,
-              ))
+              style:
+                  theme.paragraph.style.copyWith(fontWeight: FontWeight.bold)))
           .toList();
 
   List<Widget> _buildNumberPointsForCodeBlock(
@@ -313,7 +311,7 @@ class _NumberPoint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: AlignmentDirectional.bottomEnd,
+      alignment: AlignmentDirectional.topEnd,
       width: width,
       padding: EdgeInsetsDirectional.only(end: padding),
       child: Text(withDot ? '$number.' : '$number', style: style),
@@ -322,27 +320,25 @@ class _NumberPoint extends StatelessWidget {
 }
 
 class _BulletPoint extends StatelessWidget {
-  final double width;
   final TextStyle style;
 
   const _BulletPoint({
     Key? key,
-    required this.width,
     required this.style,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: AlignmentDirectional.bottomEnd,
-      width: width,
+      alignment: AlignmentDirectional.topEnd,
+      width: 32,
       padding: const EdgeInsetsDirectional.only(end: 13.0),
       child: Text('•', style: style),
     );
   }
 }
 
-class _CheckboxPoint extends StatefulWidget {
+class _CheckboxPoint extends StatelessWidget {
   final bool value;
   final bool enabled;
   final ValueChanged<bool> onChanged;
@@ -355,19 +351,14 @@ class _CheckboxPoint extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CheckboxPointState createState() => _CheckboxPointState();
-}
-
-class _CheckboxPointState extends State<_CheckboxPoint> {
-  @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: AlignmentDirectional.bottomEnd,
+    return Container(
+      alignment: AlignmentDirectional.topEnd,
+      padding: const EdgeInsetsDirectional.only(end: 8.0),
       child: Checkbox(
-        value: widget.value,
+        value: value,
         visualDensity: VisualDensity.compact,
-        onChanged:
-            widget.enabled ? (value) => widget.onChanged(!widget.value) : null,
+        onChanged: enabled ? (_) => onChanged(!value) : null,
         splashRadius: 0,
       ),
     );
