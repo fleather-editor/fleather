@@ -297,6 +297,11 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       });
     }
   }
+
+  @override
+  void insertContent(KeyboardInsertedContent content) {
+    // TODO: implement insertContent
+  }
 }
 
 extension on TextRange {

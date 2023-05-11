@@ -259,7 +259,7 @@ class _EditableBlock extends MultiChildRenderObjectWidget {
   final Decoration decoration;
   final EdgeInsets? contentPadding;
 
-  _EditableBlock({
+  const _EditableBlock({
     Key? key,
     required this.node,
     required this.decoration,

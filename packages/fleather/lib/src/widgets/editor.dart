@@ -1640,7 +1640,7 @@ class RawEditorState extends EditorState
 }
 
 class _Editor extends MultiChildRenderObjectWidget {
-  _Editor({
+  const _Editor({
     required Key key,
     required List<Widget> children,
     this.offset,

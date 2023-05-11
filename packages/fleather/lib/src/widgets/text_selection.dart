@@ -839,6 +839,9 @@ class EditorTextSelectionGestureDetectorBuilder {
   }
 }
 
+typedef DragSelectionUpdateCallback = Function(
+    DragStartDetails, DragUpdateDetails);
+
 /// A gesture detector to respond to non-exclusive event chains for a text field.
 ///
 /// An ordinary [GestureDetector] configured to handle events like tap and
