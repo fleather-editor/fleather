@@ -10,7 +10,7 @@ dependencies:
   collection: ^1.16.0
   quill_delta: ^3.0.0-nullsafety.2
   quiver: ^3.1.0
-  intl: ^0.17.0
+  intl: ^0.18.0
   html: ^0.15.1
 
 dev_dependencies:
