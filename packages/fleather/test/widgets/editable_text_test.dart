@@ -1,5 +1,5 @@
 import 'package:fleather/fleather.dart';
-import 'package:flutter/material.dart';
+import 'package:fleather/src/widgets/checkbox.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
@@ -55,7 +55,7 @@ void main() {
         final editor = EditorSandBox(
             tester: tester, document: ParchmentDocument.fromDelta(delta));
         await editor.pump();
-        expect(find.byType(Checkbox), findsOneWidget);
+        expect(find.byType(FleatherCheckbox), findsOneWidget);
       });
 
       testWidgets('bullet list', (tester) async {

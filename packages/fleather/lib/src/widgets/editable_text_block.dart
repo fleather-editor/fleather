@@ -1,9 +1,10 @@
 import 'package:collection/collection.dart';
+import 'package:fleather/util.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
-import 'package:fleather/util.dart';
 
 import '../rendering/editable_text_block.dart';
+import 'checkbox.dart';
 import 'controller.dart';
 import 'cursor.dart';
 import 'editable_text_line.dart';
@@ -113,13 +114,13 @@ class EditableTextBlock extends StatelessWidget {
 
   List<Widget> _buildCheckboxForCheckList(
           FleatherThemeData theme, List<LineNode> children) =>
-      children
-          .map((node) => _CheckboxPoint(
-                value: node.style.containsSame(ParchmentAttribute.checked),
-                enabled: !readOnly,
-                onChanged: (checked) => _toggle(node, checked),
-              ))
-          .toList();
+      children.map((node) {
+        return _CheckboxPoint(
+          value: node.style.containsSame(ParchmentAttribute.checked),
+          enabled: !readOnly,
+          onChanged: (checked) => _toggle(node, checked),
+        );
+      }).toList();
 
   List<Widget> _buildBulletPointForBulletList(
           FleatherThemeData theme, List<Node> children) =>
@@ -339,10 +340,6 @@ class _BulletPoint extends StatelessWidget {
 }
 
 class _CheckboxPoint extends StatelessWidget {
-  final bool value;
-  final bool enabled;
-  final ValueChanged<bool> onChanged;
-
   const _CheckboxPoint({
     Key? key,
     required this.value,
@@ -350,16 +347,18 @@ class _CheckboxPoint extends StatelessWidget {
     required this.onChanged,
   }) : super(key: key);
 
+  final bool value;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       alignment: AlignmentDirectional.topEnd,
-      padding: const EdgeInsetsDirectional.only(end: 8.0),
-      child: Checkbox(
+      padding: const EdgeInsetsDirectional.only(top: 2.0, end: 12.0),
+      child: FleatherCheckbox(
         value: value,
-        visualDensity: VisualDensity.compact,
         onChanged: enabled ? (_) => onChanged(!value) : null,
-        splashRadius: 0,
       ),
     );
   }
