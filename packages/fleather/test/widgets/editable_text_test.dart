@@ -94,7 +94,7 @@ Future<void> replaceText(WidgetTester tester,
 }
 
 void updateDeltaEditingValue(TextEditingDelta delta, {int? client}) {
-  TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .handlePlatformMessage(
     SystemChannels.textInput.name,
     SystemChannels.textInput.codec.encodeMethodCall(

@@ -322,7 +322,7 @@ void main() {
 const clipboardText = 'copied text';
 
 void prepareClipboard() {
-  TestDefaultBinaryMessengerBinding.instance?.defaultBinaryMessenger
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(SystemChannels.platform, (message) {
     if (message.method == 'Clipboard.getData') {
       return Future.value(<String, dynamic>{'text': clipboardText});
