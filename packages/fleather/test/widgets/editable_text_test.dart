@@ -1,6 +1,8 @@
 import 'package:fleather/fleather.dart';
+import 'package:fleather/src/widgets/checkbox.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:quill_delta/quill_delta.dart';
 
 import '../testing.dart';
 
@@ -43,6 +45,38 @@ void main() {
       final editor = EditorSandBox(tester: tester);
       await editor.pump();
       expect(editor.focusNode.hasFocus, isFalse);
+    });
+
+    group('lists', () {
+      testWidgets('check list', (tester) async {
+        final delta = Delta()
+          ..insert('an item')
+          ..insert('\n', {'block': 'cl'});
+        final editor = EditorSandBox(
+            tester: tester, document: ParchmentDocument.fromDelta(delta));
+        await editor.pump();
+        expect(find.byType(FleatherCheckbox), findsOneWidget);
+      });
+
+      testWidgets('bullet list', (tester) async {
+        final delta = Delta()
+          ..insert('an item')
+          ..insert('\n', {'block': 'ul'});
+        final editor = EditorSandBox(
+            tester: tester, document: ParchmentDocument.fromDelta(delta));
+        await editor.pump();
+        expect(find.text('•', findRichText: true), findsOneWidget);
+      });
+
+      testWidgets('numbered list', (tester) async {
+        final delta = Delta()
+          ..insert('an item')
+          ..insert('\n', {'block': 'ol'});
+        final editor = EditorSandBox(
+            tester: tester, document: ParchmentDocument.fromDelta(delta));
+        await editor.pump();
+        expect(find.text('1.', findRichText: true), findsOneWidget);
+      });
     });
   });
 }

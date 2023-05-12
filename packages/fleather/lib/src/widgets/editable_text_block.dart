@@ -1,9 +1,10 @@
 import 'package:collection/collection.dart';
+import 'package:fleather/util.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
-import 'package:fleather/util.dart';
 
 import '../rendering/editable_text_block.dart';
+import 'checkbox.dart';
 import 'controller.dart';
 import 'cursor.dart';
 import 'editable_text_line.dart';
@@ -113,23 +114,20 @@ class EditableTextBlock extends StatelessWidget {
 
   List<Widget> _buildCheckboxForCheckList(
           FleatherThemeData theme, List<LineNode> children) =>
-      children
-          .map((node) => _CheckboxPoint(
-                width: 32,
-                value: node.style.containsSame(ParchmentAttribute.checked),
-                enabled: !readOnly,
-                onChanged: (checked) => _toggle(node, checked),
-              ))
-          .toList();
+      children.map((node) {
+        return _CheckboxPoint(
+          value: node.style.containsSame(ParchmentAttribute.checked),
+          enabled: !readOnly,
+          onChanged: (checked) => _toggle(node, checked),
+        );
+      }).toList();
 
   List<Widget> _buildBulletPointForBulletList(
           FleatherThemeData theme, List<Node> children) =>
       children
           .map((_) => _BulletPoint(
-                style:
-                    theme.paragraph.style.copyWith(fontWeight: FontWeight.bold),
-                width: 32,
-              ))
+              style:
+                  theme.paragraph.style.copyWith(fontWeight: FontWeight.bold)))
           .toList();
 
   List<Widget> _buildNumberPointsForCodeBlock(
@@ -323,12 +321,10 @@ class _NumberPoint extends StatelessWidget {
 }
 
 class _BulletPoint extends StatelessWidget {
-  final double width;
   final TextStyle style;
 
   const _BulletPoint({
     Key? key,
-    required this.width,
     required this.style,
   }) : super(key: key);
 
@@ -336,39 +332,34 @@ class _BulletPoint extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: AlignmentDirectional.topEnd,
-      width: width,
+      width: 32,
       padding: const EdgeInsetsDirectional.only(end: 13.0),
       child: Text('•', style: style),
     );
   }
 }
 
-class _CheckboxPoint extends StatefulWidget {
-  final double width;
-  final bool value;
-  final bool enabled;
-  final ValueChanged<bool> onChanged;
-
+class _CheckboxPoint extends StatelessWidget {
   const _CheckboxPoint({
     Key? key,
-    required this.width,
     required this.value,
     required this.enabled,
     required this.onChanged,
   }) : super(key: key);
 
-  @override
-  _CheckboxPointState createState() => _CheckboxPointState();
-}
+  final bool value;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
 
-class _CheckboxPointState extends State<_CheckboxPoint> {
   @override
   Widget build(BuildContext context) {
-    return Checkbox(
-      value: widget.value,
-      onChanged:
-          widget.enabled ? (value) => widget.onChanged(!widget.value) : null,
-      splashRadius: 0,
+    return Container(
+      alignment: AlignmentDirectional.topEnd,
+      padding: const EdgeInsetsDirectional.only(top: 2.0, end: 12.0),
+      child: FleatherCheckbox(
+        value: value,
+        onChanged: enabled ? (_) => onChanged(!value) : null,
+      ),
     );
   }
 }

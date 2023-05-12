@@ -152,11 +152,13 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
 
   @override
   Widget build(BuildContext context) {
-    return FleatherField(
-      controller: widget.controller,
-      focusNode: widget.focusNode,
-      readOnly: !_enabled,
-      autofocus: widget.autofocus,
+    return Material(
+      child: FleatherField(
+        controller: widget.controller,
+        focusNode: widget.focusNode,
+        readOnly: !_enabled,
+        autofocus: widget.autofocus,
+      ),
     );
   }
 
