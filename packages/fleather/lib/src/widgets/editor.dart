@@ -1154,7 +1154,6 @@ class RawEditorState extends EditorState
       } else {
         _selectionOverlay?.hideHandles();
       }
-      _selectionOverlay!.showHandles();
     }
 
     // This will show the keyboard for all selection changes on the
