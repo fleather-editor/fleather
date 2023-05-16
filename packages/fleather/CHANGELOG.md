@@ -1,3 +1,9 @@
+## 1.8.0
+
+* Support for Flutter 3.10
+* [Fix] Checkbox alignment
+* [Fix] Assertion error when merging two blocks by removing line between them
+
 ## 1.7.0
 
 * Adaptive selection controls for platforms

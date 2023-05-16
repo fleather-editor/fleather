@@ -1,3 +1,7 @@
+## 1.8.0
+
+* Upgrade to intl 0.18.0
+
 ## 1.7.0
 
 * [Breaking Change] Change codecs to accept ParchmentDocument instead of Delta
