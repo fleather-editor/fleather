@@ -47,6 +47,39 @@ void main() {
       expect(editor.focusNode.hasFocus, isFalse);
     });
 
+    testWidgets(
+        'Selection is correct after merging two blocks by deleting'
+        'new line character between them', (tester) async {
+      final document = ParchmentDocument.fromJson([
+        {'insert': 'Test'},
+        {
+          'insert': '\n',
+          'attributes': {'block': 'code'}
+        },
+        {'insert': 'Test'},
+        {
+          'insert': '\n',
+          'attributes': {'block': 'quote'}
+        },
+      ]);
+      final editor =
+          EditorSandBox(tester: tester, document: document, autofocus: true);
+      await editor.pump();
+      // Tapping of editor ensure selectionOverlay is set in EditorState
+      await editor.tap();
+      await editor.updateSelection(base: 5, extent: 5);
+      getInputClient().updateEditingValueWithDeltas([
+        TextEditingDeltaDeletion(
+          oldText: document.toPlainText(),
+          deletedRange: const TextRange(start: 4, end: 5),
+          selection: const TextSelection.collapsed(offset: 4),
+          composing: TextRange.empty,
+        )
+      ]);
+      await editor.pump();
+      await tester.pumpAndSettle(throttleDuration);
+    });
+
     group('lists', () {
       testWidgets('check list', (tester) async {
         final delta = Delta()
