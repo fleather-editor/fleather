@@ -37,6 +37,9 @@ abstract class ParchmentAttributeKey<T> {
 ///   * [LinkAttributeBuilder]
 ///   * [BlockAttributeBuilder]
 ///   * [HeadingAttributeBuilder]
+///   * [IndentAttributeBuilder
+///   * [BackgroundColorAttributeBuilder]
+///   * [DirectionAttributeBuilder]
 abstract class ParchmentAttributeBuilder<T>
     implements ParchmentAttributeKey<T> {
   const ParchmentAttributeBuilder._(this.key, this.scope);
@@ -74,11 +77,15 @@ abstract class ParchmentAttributeBuilder<T>
 ///   * [ParchmentAttribute.italic]
 ///   * [ParchmentAttribute.underline]
 ///   * [ParchmentAttribute.strikethrough]
+///   * [ParchmentAttribute.inlineCode]
 ///   * [ParchmentAttribute.link]
 ///   * [ParchmentAttribute.heading]
+///   * [ParchmentAttribute.backgroundColor]
+///   * [ParchmentAttribute.checked]
 ///   * [ParchmentAttribute.block]
 ///   * [ParchmentAttribute.direction]
 ///   * [ParchmentAttribute.alignment]
+///   * [ParchmentAttribute.indent]
 class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
   static final Map<String, ParchmentAttributeBuilder> _registry = {
     ParchmentAttribute.bold.key: ParchmentAttribute.bold,
