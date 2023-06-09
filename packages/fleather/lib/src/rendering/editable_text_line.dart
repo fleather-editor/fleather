@@ -741,9 +741,8 @@ class RenderEditableTextLine extends RenderEditableBox {
         hasBackground ? (Paint()..color = backgroundColor) : null;
 
     for (final box in rects) {
-      final rect = box.toRect().translate(0, 1).shift(effectiveOffset);
-
       if (isInlineCode && _inlineCodeTheme.backgroundColor != null) {
+        final rect = box.toRect().translate(0, 1).shift(effectiveOffset);
         if (_inlineCodeTheme.radius == null) {
           final paintRect = Rect.fromLTRB(
               rect.left - 2, rect.top, rect.right + 2, rect.bottom);
@@ -754,8 +753,9 @@ class RenderEditableTextLine extends RenderEditableBox {
           context.canvas.drawRRect(paintRect, inlinePaint);
         }
       } else if (hasBackground && backgroundColor != Colors.transparent) {
+        final rect = box.toRect().shift(effectiveOffset);
         final paintRect =
-            Rect.fromLTRB(rect.left - 2, rect.top, rect.right + 2, rect.bottom);
+            Rect.fromLTRB(rect.left, rect.top, rect.right, rect.bottom);
         context.canvas.drawRect(paintRect, backgroundPaint!);
       }
     }
