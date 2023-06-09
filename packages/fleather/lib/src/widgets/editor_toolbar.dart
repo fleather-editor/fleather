@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:parchment/parchment.dart';
+import 'dart:io';
 
-import 'controller.dart';
+import 'package:fleather/fleather.dart';
+import 'package:flutter/material.dart';
 
 const double kToolbarHeight = 56.0;
 
@@ -350,6 +350,205 @@ Widget defaultToggleStyleButtonBuilder(
   );
 }
 
+/// Toolbar button which allows to apply background colr style to a portion of text.
+///
+/// Works as a dropdown menu button.
+class BackgroundColorButton extends StatefulWidget {
+  final FleatherController controller;
+  final Future<Color?> Function(BuildContext)? colorPicker;
+
+  const BackgroundColorButton(
+      {Key? key, required this.controller, this.colorPicker})
+      : super(key: key);
+
+  @override
+  State<BackgroundColorButton> createState() => _BackgroundColorButtonState();
+}
+
+class _BackgroundColorButtonState extends State<BackgroundColorButton> {
+  static Color defaultColor = Colors.transparent;
+  static double buttonSize = 32;
+
+  late Color _value;
+
+  ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
+
+  void _selectAttribute(Color? color) {
+    widget.controller.formatSelection(color == null
+        ? ParchmentAttribute.backgroundColor.unset
+        : ParchmentAttribute.backgroundColor.withColor(color.value));
+  }
+
+  void _didChangeEditingValue() {
+    setState(() {
+      _value = Color(
+          _selectionStyle.get(ParchmentAttribute.backgroundColor)?.value ??
+              defaultColor.value);
+    });
+  }
+
+  Future<Color?> _defaultSelectColor(BuildContext context) async {
+    final isMobile = Platform.isAndroid || Platform.isIOS;
+    final maxWidth = isMobile ? 200.0 : 100.0;
+
+    final renderBox = context.findRenderObject() as RenderBox;
+    final offset = renderBox.localToGlobal(Offset.zero) + Offset(0, buttonSize);
+
+    final selector = Material(
+      elevation: 4.0,
+      color: Theme.of(context).canvasColor,
+      child: Container(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          padding: const EdgeInsets.all(8.0),
+          child: _ColorPalette()),
+    );
+
+    return Navigator.of(context).push<Color>(
+      RawDialogRoute(
+        barrierColor: Colors.transparent,
+        pageBuilder: (context, _, __) {
+          return Stack(
+            children: [
+              Positioned(
+                top: offset.dy,
+                left: offset.dx,
+                child: selector,
+              )
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _value = Color(
+        _selectionStyle.get(ParchmentAttribute.backgroundColor)?.value ??
+            defaultColor.value);
+    widget.controller.addListener(_didChangeEditingValue);
+  }
+
+  @override
+  void didUpdateWidget(covariant BackgroundColorButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_didChangeEditingValue);
+      widget.controller.addListener(_didChangeEditingValue);
+      _value = Color(
+          _selectionStyle.get(ParchmentAttribute.backgroundColor)?.value ??
+              defaultColor.value);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_didChangeEditingValue);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints.tightFor(
+        width: buttonSize,
+        height: buttonSize,
+      ),
+      child: RawMaterialButton(
+        visualDensity: VisualDensity.compact,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        padding: EdgeInsets.zero,
+        elevation: 0,
+        hoverElevation: 1,
+        highlightElevation: 1,
+        onPressed: () async {
+          final selectedColor =
+              await (widget.colorPicker ?? _defaultSelectColor)(context);
+          _selectAttribute(selectedColor);
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.mode_edit_outline_outlined,
+              size: 16,
+            ),
+            Container(
+              width: 18,
+              height: 6,
+              decoration: BoxDecoration(
+                color: _value,
+                border: _value == Colors.transparent
+                    ? Border.all(
+                        color:
+                            Theme.of(context).iconTheme.color ?? Colors.black)
+                    : null,
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ColorPalette extends StatelessWidget {
+  static const colors = [
+    Colors.transparent,
+    Colors.indigo,
+    Colors.blue,
+    Colors.cyan,
+    Colors.teal,
+    Colors.green,
+    Colors.lime,
+    Colors.yellow,
+    Colors.amber,
+    Colors.orange,
+    Colors.red,
+    Colors.pink,
+    Colors.purple,
+    Colors.brown,
+    Colors.grey,
+    Colors.blueGrey
+  ];
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      runAlignment: WrapAlignment.spaceBetween,
+      alignment: WrapAlignment.start,
+      runSpacing: 4,
+      spacing: 4,
+      children: colors.map((e) => _ColorPaletteElement(color: e)).toList(),
+    );
+  }
+}
+
+class _ColorPaletteElement extends StatelessWidget {
+  const _ColorPaletteElement({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = Platform.isAndroid || Platform.isIOS ? 32.0 : 16.0;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        border: color == Colors.transparent
+            ? Border.all(
+                color: Colors.black,
+                strokeAlign: BorderSide.strokeAlignInside,
+              )
+            : null,
+      ),
+      child: RawMaterialButton(onPressed: () => Navigator.pop(context, color)),
+    );
+  }
+}
+
 /// Toolbar button which allows to apply heading style to a line of text in
 /// Fleather editor.
 ///
@@ -550,6 +749,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
     bool hideItalicButton = false,
     bool hideUnderLineButton = false,
     bool hideStrikeThrough = false,
+    bool hideBackgroundColor = false,
     bool hideInlineCode = false,
     bool hideHeadingStyle = false,
     bool hideIndentation = false,
@@ -602,6 +802,11 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
           icon: Icons.format_strikethrough,
           controller: controller,
         ),
+      ),
+      const SizedBox(width: 1),
+      Visibility(
+        visible: !hideBackgroundColor,
+        child: BackgroundColorButton(controller: controller),
       ),
       const SizedBox(width: 1),
       Visibility(
