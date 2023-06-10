@@ -410,6 +410,7 @@ class _BackgroundColorButtonState extends State<BackgroundColorButton> {
           return Stack(
             children: [
               Positioned(
+                key: const Key('color_palette'),
                 top: offset.dy,
                 left: offset.dx,
                 child: selector,

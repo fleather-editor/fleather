@@ -18,4 +18,14 @@ void main() {
       expect(attr, ParchmentAttribute.bold.unset);
     });
   });
+
+  group('$ParchmentAttribute', () {
+    test('create background attribute with color', () {
+      final attribute =
+          ParchmentAttribute.backgroundColor.withColor(0xFFFF0000);
+      expect(attribute.key, ParchmentAttribute.backgroundColor.key);
+      expect(attribute.scope, ParchmentAttribute.backgroundColor.scope);
+      expect(attribute.value, 0xFFFF0000);
+    });
+  });
 }
