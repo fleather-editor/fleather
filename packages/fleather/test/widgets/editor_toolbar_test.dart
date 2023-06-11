@@ -3,46 +3,50 @@ import 'package:fleather/fleather.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
 
-Widget widget(FleatherController controller) {
+Widget widget(FleatherController controller, {bool withBasic = false}) {
   FlutterError.onError = onErrorIgnoreOverflowErrors;
   return MaterialApp(
       home: Column(children: [
-    FleatherToolbar(
-      children: [
-        ToggleStyleButton(
-          attribute: ParchmentAttribute.bold,
-          icon: Icons.format_bold,
-          controller: controller,
-        ),
-        ToggleStyleButton(
-          attribute: ParchmentAttribute.italic,
-          icon: Icons.format_italic,
-          controller: controller,
-        ),
-        ToggleStyleButton(
-          attribute: ParchmentAttribute.underline,
-          icon: Icons.format_underline,
-          controller: controller,
-        ),
-        ToggleStyleButton(
-          attribute: ParchmentAttribute.strikethrough,
-          icon: Icons.format_strikethrough,
-          controller: controller,
-        ),
-        ToggleStyleButton(
-          attribute: ParchmentAttribute.inlineCode,
-          icon: Icons.code,
-          controller: controller,
-        ),
-        IndentationButton(controller: controller),
-        IndentationButton(controller: controller, increase: false),
-        SelectHeadingStyleButton(controller: controller),
-        LinkStyleButton(controller: controller),
-        InsertEmbedButton(controller: controller, icon: Icons.horizontal_rule),
-        UndoRedoButton.undo(controller: controller),
-        UndoRedoButton.redo(controller: controller),
-      ],
-    ),
+    if (withBasic)
+      FleatherToolbar.basic(controller: controller)
+    else
+      FleatherToolbar(
+        children: [
+          ToggleStyleButton(
+            attribute: ParchmentAttribute.bold,
+            icon: Icons.format_bold,
+            controller: controller,
+          ),
+          ToggleStyleButton(
+            attribute: ParchmentAttribute.italic,
+            icon: Icons.format_italic,
+            controller: controller,
+          ),
+          ToggleStyleButton(
+            attribute: ParchmentAttribute.underline,
+            icon: Icons.format_underline,
+            controller: controller,
+          ),
+          ToggleStyleButton(
+            attribute: ParchmentAttribute.strikethrough,
+            icon: Icons.format_strikethrough,
+            controller: controller,
+          ),
+          ToggleStyleButton(
+            attribute: ParchmentAttribute.inlineCode,
+            icon: Icons.code,
+            controller: controller,
+          ),
+          IndentationButton(controller: controller),
+          IndentationButton(controller: controller, increase: false),
+          SelectHeadingStyleButton(controller: controller),
+          LinkStyleButton(controller: controller),
+          InsertEmbedButton(
+              controller: controller, icon: Icons.horizontal_rule),
+          UndoRedoButton.undo(controller: controller),
+          UndoRedoButton.redo(controller: controller),
+        ],
+      ),
     Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
     Expanded(
         child: FleatherEditor(
@@ -214,6 +218,34 @@ void main() {
 
       expect(controller.document.toDelta().elementAt(1),
           Operation.insert({'_type': 'hr', '_inline': false}));
+    });
+
+    testWidgets('Basic toolbar', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller, withBasic: true));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.format_bold), findsOneWidget);
+      expect(find.byIcon(Icons.format_italic), findsOneWidget);
+      expect(find.byIcon(Icons.format_underline), findsOneWidget);
+      expect(find.byIcon(Icons.format_strikethrough), findsOneWidget);
+      // Inline + block
+      expect(find.byIcon(Icons.code), findsNWidgets(2));
+      expect(find.byIcon(Icons.format_textdirection_r_to_l), findsOneWidget);
+      expect(find.byIcon(Icons.format_align_center), findsOneWidget);
+      expect(find.byIcon(Icons.format_align_left), findsOneWidget);
+      expect(find.byIcon(Icons.format_align_right), findsOneWidget);
+      expect(find.byIcon(Icons.format_align_justify), findsOneWidget);
+      expect(find.byType(SelectHeadingStyleButton), findsOneWidget);
+      // Increase + decrease
+      expect(find.byType(IndentationButton), findsNWidgets(2));
+      expect(find.byIcon(Icons.format_list_bulleted), findsOneWidget);
+      expect(find.byIcon(Icons.format_list_numbered), findsOneWidget);
+      expect(find.byIcon(Icons.checklist), findsOneWidget);
+      expect(find.byIcon(Icons.format_quote), findsOneWidget);
+      expect(find.byType(InsertEmbedButton), findsOneWidget);
+      expect(find.byType(LinkStyleButton), findsOneWidget);
+      // Undo + redo
+      expect(find.byType(UndoRedoButton), findsNWidgets(2));
     });
   });
 }
