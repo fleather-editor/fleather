@@ -186,4 +186,9 @@ Future<void> performToggle(WidgetTester tester, FleatherController controller,
   await tester.pumpAndSettle(throttleDuration);
   expect(controller.document.toDelta().first,
       Operation.insert('Hello', expectedAttribute));
+
+  await tester.tap(button);
+  await tester.pumpAndSettle(throttleDuration);
+  expect(
+      controller.document.toDelta().first, Operation.insert('Hello world\n'));
 }
