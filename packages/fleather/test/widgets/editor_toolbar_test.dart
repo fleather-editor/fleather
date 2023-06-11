@@ -34,6 +34,7 @@ Widget widget(FleatherController controller) {
           controller: controller,
         ),
         LinkStyleButton(controller: controller),
+        InsertEmbedButton(controller: controller, icon: Icons.horizontal_rule),
         UndoRedoButton.undo(controller: controller),
         UndoRedoButton.redo(controller: controller)
       ],
@@ -152,6 +153,24 @@ void main() {
           controller.document.toDelta().first,
           Operation.insert(
               'Hello', {'a': 'https://fleather-editor.github.io'}));
+    });
+
+    testWidgets('Horizontal rule', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final insertButton = find.byType(InsertEmbedButton);
+      controller.compose(Delta()..insert('Hello world'));
+      await tester.pumpAndSettle(throttleDuration);
+
+      const textSelection = TextSelection.collapsed(offset: 11);
+      controller.updateSelection(textSelection);
+      await tester.pumpAndSettle(throttleDuration);
+      await tester.tap(insertButton);
+      await tester.pumpAndSettle(throttleDuration);
+
+      expect(controller.document.toDelta().elementAt(1),
+          Operation.insert({'_type': 'hr', '_inline': false}));
     });
   });
 }
