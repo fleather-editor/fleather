@@ -6,6 +6,8 @@ import 'package:html/parser.dart';
 import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 
+import 'html_utils.dart';
+
 final _inlineAttributesParchmentToHtml = {
   ParchmentAttribute.bold.key: 'strong',
   ParchmentAttribute.italic.key: 'em',
@@ -17,41 +19,6 @@ final _inlineAttributesParchmentToHtml = {
 };
 
 const _indentWidthInPx = 32;
-
-// TODO: Use tuple once Parchment is ported to Dart 3
-int _toRGBA(int colorValue, String component) {
-  switch (component) {
-    case 'a':
-      return (0xff000000 & colorValue) >> 24;
-    case 'r':
-      return (0x00ff0000 & colorValue) >> 16;
-    case 'g':
-      return (0x0000ff00 & colorValue) >> 8;
-    case 'b':
-      return (0x000000ff & colorValue) >> 0;
-    default:
-      throw ArgumentError('Unrecognized color component $component');
-  }
-}
-
-int _colorValueFromRGBA(String rgba) {
-  if (!rgba.startsWith('rgba(')) return 0 /* transparent */;
-
-  final split = rgba.split(',');
-  assert(split.length == 4, 'rgba is expected to have 4 components');
-  final components = <int>[];
-  for (var s in split) {
-    s = s.trim();
-    s = s.replaceFirst('rgba(', '');
-    s = s.replaceFirst(')', '');
-    components.add(int.parse(s));
-  }
-  return (((components[3] & 0xff) << 24) |
-          ((components[0] & 0xff) << 16) |
-          ((components[1] & 0xff) << 8) |
-          ((components[2] & 0xff) << 0)) &
-      0xFFFFFFFF;
-}
 
 /// HTML conversion of Parchment
 ///
@@ -553,11 +520,10 @@ class _HtmlInlineTag extends _HtmlTag {
       return '<${_inlineAttributesParchmentToHtml[key]} href="$value">';
     }
     if (key == ParchmentAttribute.backgroundColor.key) {
-      final a = _toRGBA(value, 'a');
-      final r = _toRGBA(value, 'r');
-      final g = _toRGBA(value, 'g');
-      final b = _toRGBA(value, 'b');
-      return '<${_inlineAttributesParchmentToHtml[key]} style="background-color: rgba($r,$g,$b,$a)">';
+      final argb = toRGBA(value);
+      return '<${_inlineAttributesParchmentToHtml[key]} '
+          'style="background-color: '
+          'rgba(${argb[1]},${argb[2]},${argb[3]},${argb[0]})">';
     }
     return '<${_inlineAttributesParchmentToHtml[key]}>';
   }
@@ -942,7 +908,7 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
       for (final style in styles) {
         if (style.startsWith('background-color')) {
           final sValue = style.split(':')[1].trim();
-          final color = _colorValueFromRGBA(sValue);
+          final color = colorValueFromCSS(sValue);
           updated =
               updated.put(ParchmentAttribute.backgroundColor.withColor(color));
         }

@@ -1063,8 +1063,8 @@ void main() {
       });
 
       test('Background color', () {
-        final html =
-            '<span style="background-color: rgba(255,0,0,255)">Hello</span> world!';
+        final htmlRGBA =
+            '<span style="background-color: rgba(255,0,0,1)">Hello</span> world!';
         final doc = ParchmentDocument.fromJson([
           {
             'insert': 'Hello',
@@ -1073,7 +1073,7 @@ void main() {
           {'insert': ' world!\n'}
         ]);
 
-        expect(codec.decode(html).toDelta(), doc.toDelta());
+        expect(codec.decode(htmlRGBA).toDelta(), doc.toDelta());
       });
 
       test('Bold paragraph', () {
