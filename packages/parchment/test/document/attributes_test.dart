@@ -27,5 +27,25 @@ void main() {
       expect(attribute.scope, ParchmentAttribute.backgroundColor.scope);
       expect(attribute.value, 0xFFFF0000);
     });
+
+    test('create background attribute with transparent color', () {
+      final attribute =
+          ParchmentAttribute.backgroundColor.withColor(0x00000000);
+      expect(attribute, ParchmentAttribute.backgroundColor.unset);
+    });
+
+    test('create foreground attribute with color', () {
+      final attribute =
+          ParchmentAttribute.foregroundColor.withColor(0x00FF0000);
+      expect(attribute.key, ParchmentAttribute.foregroundColor.key);
+      expect(attribute.scope, ParchmentAttribute.foregroundColor.scope);
+      expect(attribute.value, 0x00FF0000);
+    });
+
+    test('create foreground attribute with black color', () {
+      final attribute =
+          ParchmentAttribute.foregroundColor.withColor(0x00000000);
+      expect(attribute, ParchmentAttribute.foregroundColor.unset);
+    });
   });
 }
