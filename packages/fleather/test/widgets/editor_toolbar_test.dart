@@ -33,6 +33,7 @@ Widget widget(FleatherController controller) {
           icon: Icons.code,
           controller: controller,
         ),
+        LinkStyleButton(controller: controller),
         UndoRedoButton.undo(controller: controller),
         UndoRedoButton.redo(controller: controller)
       ],
@@ -58,18 +59,24 @@ void main() {
       final redoButton = find.byType(UndoRedoButton).last;
       final rawRedoButton =
           find.descendant(of: redoButton, matching: find.byType(FLIconButton));
+
       expect(tester.widget<FLIconButton>(rawUndoButton).onPressed, isNull);
+
       controller.compose(Delta()..insert('Hello world'));
       await tester.pumpAndSettle(throttleDuration);
+
       expect(tester.widget<FLIconButton>(rawUndoButton).onPressed, isNotNull);
+
       await tester.tap(undoButton);
       await tester.pumpAndSettle();
+
       expect(tester.widget<FLIconButton>(rawUndoButton).onPressed, isNull);
       expect(controller.document.toDelta(), Delta()..insert('\n'));
-
       expect(tester.widget<FLIconButton>(rawRedoButton).onPressed, isNotNull);
+
       await tester.tap(redoButton);
       await tester.pumpAndSettle();
+
       expect(tester.widget<FLIconButton>(rawRedoButton).onPressed, isNull);
       expect(controller.document.toDelta(), Delta()..insert('Hello world\n'));
     });
@@ -112,6 +119,39 @@ void main() {
       await tester.pumpAndSettle();
       final boldButton = find.byIcon(Icons.code);
       await performToggle(tester, controller, boldButton, {'c': true});
+    });
+
+    testWidgets('Link', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final linkButton = find.byType(LinkStyleButton);
+      final rawLinkButton = find.descendant(
+          of: linkButton, matching: find.byType(RawMaterialButton));
+      controller.compose(Delta()..insert('Hello world'));
+      await tester.pumpAndSettle(throttleDuration);
+
+      expect(tester.widget<RawMaterialButton>(rawLinkButton).onPressed, isNull,
+          reason: 'Button should be inactive when selection is collapsed');
+
+      const textSelection = TextSelection(baseOffset: 0, extentOffset: 5);
+      controller.updateSelection(textSelection);
+      await tester.pumpAndSettle(throttleDuration);
+      await tester.tap(linkButton);
+      await tester.pumpAndSettle(throttleDuration);
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+
+      await tester.enterText(
+          find.byType(TextField), 'https://fleather-editor.github.io');
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Apply'));
+      await tester.pumpAndSettle(throttleDuration);
+
+      expect(
+          controller.document.toDelta().first,
+          Operation.insert(
+              'Hello', {'a': 'https://fleather-editor.github.io'}));
     });
   });
 }
