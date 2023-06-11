@@ -350,12 +350,15 @@ Widget defaultToggleStyleButtonBuilder(
   );
 }
 
+/// Signature of callbacks that return a [Color] picked from a [BuildContext].
+typedef ColorPicker = Future<Color?> Function(BuildContext context);
+
 /// Toolbar button which allows to apply background colr style to a portion of text.
 ///
 /// Works as a dropdown menu button.
 class BackgroundColorButton extends StatefulWidget {
   final FleatherController controller;
-  final Future<Color?> Function(BuildContext)? colorPicker;
+  final ColorPicker? colorPicker;
 
   const BackgroundColorButton(
       {Key? key, required this.controller, this.colorPicker})
