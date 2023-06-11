@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
 
 Widget widget(FleatherController controller) {
+  FlutterError.onError = onErrorIgnoreOverflowErrors;
   return MaterialApp(
       home: Column(children: [
     FleatherToolbar(
@@ -33,10 +34,11 @@ Widget widget(FleatherController controller) {
           icon: Icons.code,
           controller: controller,
         ),
+        SelectHeadingStyleButton(controller: controller),
         LinkStyleButton(controller: controller),
         InsertEmbedButton(controller: controller, icon: Icons.horizontal_rule),
         UndoRedoButton.undo(controller: controller),
-        UndoRedoButton.redo(controller: controller)
+        UndoRedoButton.redo(controller: controller),
       ],
     ),
     Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
@@ -155,6 +157,22 @@ void main() {
               'Hello', {'a': 'https://fleather-editor.github.io'}));
     });
 
+    testWidgets('Headings', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final selectHeadings = find.byType(SelectHeadingStyleButton);
+      controller.compose(Delta()..insert('Hello world'));
+      await tester.pumpAndSettle(throttleDuration);
+      await tester.tap(selectHeadings);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(PopupMenuItem<ParchmentAttribute?>).last);
+      await tester.pumpAndSettle(throttleDuration);
+
+      expect(controller.document.toDelta().last,
+          Operation.insert('\n', {'heading': 3}));
+    });
+
     testWidgets('Horizontal rule', (tester) async {
       final controller = FleatherController();
       await tester.pumpWidget(widget(controller));
@@ -191,4 +209,23 @@ Future<void> performToggle(WidgetTester tester, FleatherController controller,
   await tester.pumpAndSettle(throttleDuration);
   expect(
       controller.document.toDelta().first, Operation.insert('Hello world\n'));
+}
+
+void onErrorIgnoreOverflowErrors(
+  FlutterErrorDetails details, {
+  bool forceReport = false,
+}) {
+  bool ifIsOverflowError = false;
+
+  // Detect overflow error.
+  var exception = details.exception;
+  if (exception is FlutterError) {
+    ifIsOverflowError = !exception.diagnostics.any(
+        (e) => e.value.toString().startsWith('A RenderFlex overflowed by'));
+  }
+
+  // Ignore if is overflow error.
+  if (!ifIsOverflowError) {
+    FlutterError.dumpErrorToConsole(details, forceReport: forceReport);
+  }
 }
