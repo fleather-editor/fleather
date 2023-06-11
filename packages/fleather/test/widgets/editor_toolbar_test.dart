@@ -34,6 +34,8 @@ Widget widget(FleatherController controller) {
           icon: Icons.code,
           controller: controller,
         ),
+        IndentationButton(controller: controller),
+        IndentationButton(controller: controller, increase: false),
         SelectHeadingStyleButton(controller: controller),
         LinkStyleButton(controller: controller),
         InsertEmbedButton(controller: controller, icon: Icons.horizontal_rule),
@@ -124,6 +126,45 @@ void main() {
       await performToggle(tester, controller, boldButton, {'c': true});
     });
 
+    testWidgets('Headings', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final selectHeadings = find.byType(SelectHeadingStyleButton);
+      controller.compose(Delta()..insert('Hello world'));
+      await tester.pumpAndSettle(throttleDuration);
+      await tester.tap(selectHeadings);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(PopupMenuItem<ParchmentAttribute?>).last);
+      await tester.pumpAndSettle(throttleDuration);
+
+      expect(controller.document.toDelta().last,
+          Operation.insert('\n', {'heading': 3}));
+    });
+
+    testWidgets('Indentation', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final indent = find.byType(IndentationButton).first;
+      final unindent = find.byType(IndentationButton).last;
+      controller.compose(Delta()..insert('Hello world'));
+      await tester.pumpAndSettle(throttleDuration);
+      const textSelection = TextSelection.collapsed(offset: 0);
+      controller.updateSelection(textSelection);
+      await tester.pumpAndSettle(throttleDuration);
+
+      await tester.tap(indent);
+      await tester.pumpAndSettle(throttleDuration);
+      expect(controller.document.toDelta().last,
+          Operation.insert('\n', {'indent': 1}));
+
+      await tester.tap(unindent);
+      await tester.pumpAndSettle(throttleDuration);
+      expect(controller.document.toDelta().last,
+          Operation.insert('Hello world\n'));
+    });
+
     testWidgets('Link', (tester) async {
       final controller = FleatherController();
       await tester.pumpWidget(widget(controller));
@@ -155,22 +196,6 @@ void main() {
           controller.document.toDelta().first,
           Operation.insert(
               'Hello', {'a': 'https://fleather-editor.github.io'}));
-    });
-
-    testWidgets('Headings', (tester) async {
-      final controller = FleatherController();
-      await tester.pumpWidget(widget(controller));
-      await tester.pumpAndSettle();
-      final selectHeadings = find.byType(SelectHeadingStyleButton);
-      controller.compose(Delta()..insert('Hello world'));
-      await tester.pumpAndSettle(throttleDuration);
-      await tester.tap(selectHeadings);
-      await tester.pumpAndSettle();
-      await tester.tap(find.byType(PopupMenuItem<ParchmentAttribute?>).last);
-      await tester.pumpAndSettle(throttleDuration);
-
-      expect(controller.document.toDelta().last,
-          Operation.insert('\n', {'heading': 3}));
     });
 
     testWidgets('Horizontal rule', (tester) async {
