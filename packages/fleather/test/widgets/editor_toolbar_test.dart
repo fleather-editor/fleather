@@ -8,6 +8,31 @@ Widget widget(FleatherController controller) {
       home: Column(children: [
     FleatherToolbar(
       children: [
+        ToggleStyleButton(
+          attribute: ParchmentAttribute.bold,
+          icon: Icons.format_bold,
+          controller: controller,
+        ),
+        ToggleStyleButton(
+          attribute: ParchmentAttribute.italic,
+          icon: Icons.format_italic,
+          controller: controller,
+        ),
+        ToggleStyleButton(
+          attribute: ParchmentAttribute.underline,
+          icon: Icons.format_underline,
+          controller: controller,
+        ),
+        ToggleStyleButton(
+          attribute: ParchmentAttribute.strikethrough,
+          icon: Icons.format_strikethrough,
+          controller: controller,
+        ),
+        ToggleStyleButton(
+          attribute: ParchmentAttribute.inlineCode,
+          icon: Icons.code,
+          controller: controller,
+        ),
         UndoRedoButton.undo(controller: controller),
         UndoRedoButton.redo(controller: controller)
       ],
@@ -35,8 +60,7 @@ void main() {
           find.descendant(of: redoButton, matching: find.byType(FLIconButton));
       expect(tester.widget<FLIconButton>(rawUndoButton).onPressed, isNull);
       controller.compose(Delta()..insert('Hello world'));
-      await tester.pump(throttleDuration);
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(throttleDuration);
       expect(tester.widget<FLIconButton>(rawUndoButton).onPressed, isNotNull);
       await tester.tap(undoButton);
       await tester.pumpAndSettle();
@@ -49,5 +73,58 @@ void main() {
       expect(tester.widget<FLIconButton>(rawRedoButton).onPressed, isNull);
       expect(controller.document.toDelta(), Delta()..insert('Hello world\n'));
     });
+
+    testWidgets('Bold', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final boldButton = find.byIcon(Icons.format_bold);
+      await performToggle(tester, controller, boldButton, {'b': true});
+    });
+
+    testWidgets('Italic', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final boldButton = find.byIcon(Icons.format_italic);
+      await performToggle(tester, controller, boldButton, {'i': true});
+    });
+
+    testWidgets('Underlined', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final boldButton = find.byIcon(Icons.format_underline);
+      await performToggle(tester, controller, boldButton, {'u': true});
+    });
+
+    testWidgets('Strikethrough', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final boldButton = find.byIcon(Icons.format_strikethrough);
+      await performToggle(tester, controller, boldButton, {'s': true});
+    });
+
+    testWidgets('Inline code', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final boldButton = find.byIcon(Icons.code);
+      await performToggle(tester, controller, boldButton, {'c': true});
+    });
   });
+}
+
+Future<void> performToggle(WidgetTester tester, FleatherController controller,
+    Finder button, Map<String, dynamic> expectedAttribute) async {
+  controller.compose(Delta()..insert('Hello world'));
+  await tester.pumpAndSettle(throttleDuration);
+  const textSelection = TextSelection(baseOffset: 0, extentOffset: 5);
+  controller.updateSelection(textSelection);
+  await tester.pumpAndSettle(throttleDuration);
+  await tester.tap(button);
+  await tester.pumpAndSettle(throttleDuration);
+  expect(controller.document.toDelta().first,
+      Operation.insert('Hello', expectedAttribute));
 }
