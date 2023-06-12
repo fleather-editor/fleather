@@ -438,7 +438,6 @@ class _InlineCodeAttribute extends ParchmentAttribute<bool> {
 /// [ParchmentAttribute.backgroundColor] instead.
 class BackgroundColorAttributeBuilder extends ParchmentAttributeBuilder<int> {
   static const _kBgColor = 'bg';
-  static const _transparentColor = 0;
 
   const BackgroundColorAttributeBuilder._()
       : super._(_kBgColor, ParchmentAttributeScope.inline);
@@ -447,7 +446,7 @@ class BackgroundColorAttributeBuilder extends ParchmentAttributeBuilder<int> {
       ParchmentAttribute<int>._(key, scope, int.tryParse(value) ?? 0);
 
   ParchmentAttribute<int> withColor(int color) {
-    if (color == _transparentColor) {
+    if (color == 0 /* transparent */) {
       return unset;
     }
     return ParchmentAttribute<int>._(key, scope, color);
