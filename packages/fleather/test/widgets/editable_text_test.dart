@@ -89,6 +89,11 @@ void main() {
             tester: tester, document: ParchmentDocument.fromDelta(delta));
         await editor.pump();
         expect(find.byType(FleatherCheckbox), findsOneWidget);
+
+        await tester.tap(find.byType(FleatherCheckbox));
+        await tester.pumpAndSettle(throttleDuration);
+        expect(editor.document.toDelta().last,
+            Operation.insert('\n', {'block': 'cl', 'checked': true}));
       });
 
       testWidgets('bullet list', (tester) async {

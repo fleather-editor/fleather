@@ -409,58 +409,53 @@ class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
 
   @override
   Widget build(BuildContext context) {
-    return _selectHeadingStyleButtonBuilder(context, _value, _selectAttribute);
+    const style = TextStyle(fontSize: 12);
+
+    final valueToText = {
+      ParchmentAttribute.heading.unset: 'Normal text',
+      ParchmentAttribute.heading.level1: 'Heading 1',
+      ParchmentAttribute.heading.level2: 'Heading 2',
+      ParchmentAttribute.heading.level3: 'Heading 3',
+    };
+
+    return FLDropdownButton<ParchmentAttribute?>(
+      highlightElevation: 0,
+      hoverElevation: 0,
+      height: 32,
+      initialValue: _value,
+      items: [
+        PopupMenuItem(
+          value: ParchmentAttribute.heading.unset,
+          height: 32,
+          child: Text(valueToText[ParchmentAttribute.heading.unset]!,
+              style: style),
+        ),
+        PopupMenuItem(
+          value: ParchmentAttribute.heading.level1,
+          height: 32,
+          child: Text(valueToText[ParchmentAttribute.heading.level1]!,
+              style: style),
+        ),
+        PopupMenuItem(
+          value: ParchmentAttribute.heading.level2,
+          height: 32,
+          child: Text(valueToText[ParchmentAttribute.heading.level2]!,
+              style: style),
+        ),
+        PopupMenuItem(
+          value: ParchmentAttribute.heading.level3,
+          height: 32,
+          child: Text(valueToText[ParchmentAttribute.heading.level3]!,
+              style: style),
+        ),
+      ],
+      onSelected: _selectAttribute,
+      child: Text(
+        valueToText[_value as ParchmentAttribute<int>]!,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+      ),
+    );
   }
-}
-
-Widget _selectHeadingStyleButtonBuilder(BuildContext context,
-    ParchmentAttribute? value, ValueChanged<ParchmentAttribute?> onSelected) {
-  const style = TextStyle(fontSize: 12);
-
-  final valueToText = {
-    ParchmentAttribute.heading.unset: 'Normal text',
-    ParchmentAttribute.heading.level1: 'Heading 1',
-    ParchmentAttribute.heading.level2: 'Heading 2',
-    ParchmentAttribute.heading.level3: 'Heading 3',
-  };
-
-  return FLDropdownButton<ParchmentAttribute?>(
-    highlightElevation: 0,
-    hoverElevation: 0,
-    height: 32,
-    initialValue: value,
-    items: [
-      PopupMenuItem(
-        value: ParchmentAttribute.heading.unset,
-        height: 32,
-        child:
-            Text(valueToText[ParchmentAttribute.heading.unset]!, style: style),
-      ),
-      PopupMenuItem(
-        value: ParchmentAttribute.heading.level1,
-        height: 32,
-        child:
-            Text(valueToText[ParchmentAttribute.heading.level1]!, style: style),
-      ),
-      PopupMenuItem(
-        value: ParchmentAttribute.heading.level2,
-        height: 32,
-        child:
-            Text(valueToText[ParchmentAttribute.heading.level2]!, style: style),
-      ),
-      PopupMenuItem(
-        value: ParchmentAttribute.heading.level3,
-        height: 32,
-        child:
-            Text(valueToText[ParchmentAttribute.heading.level3]!, style: style),
-      ),
-    ],
-    onSelected: onSelected,
-    child: Text(
-      valueToText[value as ParchmentAttribute<int>]!,
-      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-    ),
-  );
 }
 
 class IndentationButton extends StatefulWidget {
