@@ -62,6 +62,15 @@
     }
   },
   {
+    "insert": ", "
+  },
+  {
+    "insert": "background color",
+    "attributes": {
+      "bg": 4294901760
+    }
+  },
+  {
     "insert": " but also features line and block attributes too. The image at the beginning of this document is a block embed easily integrated into Fleather.\n"
   },
   {

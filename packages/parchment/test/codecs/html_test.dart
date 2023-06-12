@@ -35,6 +35,19 @@ void main() {
             codec.encode(doc), 'Something <strong>in the way</strong> mmmm...');
       });
 
+      test('background color', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Something '},
+          {
+            'insert': 'in the way',
+            'attributes': {'bg': 0xFFFF0000}
+          },
+          {'insert': ' mmmm...\n'}
+        ]);
+        expect(codec.encode(doc),
+            'Something <span style="background-color: rgba(255,0,0,255)">in the way</span> mmmm...');
+      });
+
       test('italic + code + underlined + strikethrough text', () {
         final doc = ParchmentDocument.fromJson([
           {
@@ -1047,6 +1060,20 @@ void main() {
         ]);
 
         expect(codec.decode(html).toDelta(), doc.toDelta());
+      });
+
+      test('Background color', () {
+        final htmlRGBA =
+            '<span style="background-color: rgba(255,0,0,1)">Hello</span> world!';
+        final doc = ParchmentDocument.fromJson([
+          {
+            'insert': 'Hello',
+            'attributes': {'bg': 0xffff0000}
+          },
+          {'insert': ' world!\n'}
+        ]);
+
+        expect(codec.decode(htmlRGBA).toDelta(), doc.toDelta());
       });
 
       test('Bold paragraph', () {

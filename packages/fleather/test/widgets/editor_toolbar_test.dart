@@ -37,6 +37,7 @@ Widget widget(FleatherController controller, {bool withBasic = false}) {
             icon: Icons.code,
             controller: controller,
           ),
+          BackgroundColorButton(controller: controller),
           IndentationButton(controller: controller),
           IndentationButton(controller: controller, increase: false),
           SelectHeadingStyleButton(controller: controller),
@@ -247,6 +248,37 @@ void main() {
       // Undo + redo
       expect(find.byType(UndoRedoButton), findsNWidgets(2));
     });
+  });
+
+  testWidgets('Background color', (tester) async {
+    final controller = FleatherController();
+    await tester.pumpWidget(widget(controller));
+    await tester.pumpAndSettle();
+    final backgroundButton = find.byType(BackgroundColorButton);
+    controller.compose(Delta()..insert('Hello world'));
+    await tester.pump(throttleDuration);
+    controller
+        .updateSelection(const TextSelection(baseOffset: 0, extentOffset: 5));
+
+    await tester.pumpAndSettle();
+    await tester.tap(backgroundButton);
+    await tester.pumpAndSettle();
+    final colorElement = find.descendant(
+        of: find.byKey(const Key('color_palette')),
+        matching: find.byType(RawMaterialButton));
+    expect(
+      colorElement,
+      findsNWidgets(16),
+    );
+
+    await tester.tap(find
+        .descendant(
+            of: find.byKey(const Key('color_palette')),
+            matching: find.byType(RawMaterialButton))
+        .last);
+    await tester.pumpAndSettle(throttleDuration);
+    expect(controller.document.toDelta().first,
+        Operation.insert('Hello', {'bg': Colors.blueGrey.value}));
   });
 }
 

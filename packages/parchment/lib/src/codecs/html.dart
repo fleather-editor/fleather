@@ -6,6 +6,8 @@ import 'package:html/parser.dart';
 import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 
+import 'html_utils.dart';
+
 final _inlineAttributesParchmentToHtml = {
   ParchmentAttribute.bold.key: 'strong',
   ParchmentAttribute.italic.key: 'em',
@@ -13,6 +15,7 @@ final _inlineAttributesParchmentToHtml = {
   ParchmentAttribute.strikethrough.key: 'del',
   ParchmentAttribute.inlineCode.key: 'code',
   ParchmentAttribute.link.key: 'a',
+  ParchmentAttribute.backgroundColor.key: 'span',
 };
 
 const _indentWidthInPx = 32;
@@ -20,31 +23,33 @@ const _indentWidthInPx = 32;
 /// HTML conversion of Parchment
 ///
 /// ## Inline attributes mapping
-/// - b -> <strong>
-/// - i -> <em>
-/// - u -> <u>
-/// - s -> <del>
-/// - c -> <code>
-/// - a -> <a>
+/// - `b` -> `<strong>`
+/// - `i` -> `<em>`
+/// - `u` -> `<u>`
+/// - `s` -> `<del>`
+/// - `c` -> `<code>`
+/// - `a` -> `<a>`
+/// - `fg` -> `<span style="background-color: rgba(r,g,b,a)">`
 ///
 /// ## Line attributes mapping
-/// - default -> <p>
-/// - heading X -> <hX>
-/// - bq -> <blockquote>
-/// - code -> <pre><code>
-/// - ol -> <ol><li>
-/// - ul -> <ul><li>
-/// - cl -> <div class="checklist">
-///           <div class"checklist-item><input type="checklist" checked><label>
-/// - alignment -> <xxx align="left | right | center | justify">
-/// - direction -> <xxx dir="rtl">
+/// - default -> `<p>`
+/// - heading X -> `<hX>`
+/// - `bq` -> `<blockquote>`
+/// - `code` -> `<pre><code>`
+/// - `ol` -> `<ol><li>`
+/// - `ul` -> `<ul><li>`
+/// - `cl` -> `<div class="checklist">`<br>
+///           `<div class"checklist-item><input type="checklist" checked><label>`
+/// - alignment -> `<xxx align="left | right | center | justify">`
+/// - direction -> `<xxx dir="rtl">`
 ///
 /// ## Embed mapping
-/// - [BlockEmbed.image] -> <img src="...">
-/// - [BlockEmbed.horizontalRule] -> <hr>
+/// - [BlockEmbed.image] -> `<img src="...">`
+/// - [BlockEmbed.horizontalRule] -> `<hr>`
 ///
-/// *note: `<br>` are not recognized as new lines and will be ignored*
-/// *note2: a single line of text with only inline attributes will not be surrounded with `<p>`
+/// *NB: `<br>` are not recognized as new lines and will be ignored*
+/// <br>
+/// *NB2: a single line of text with only inline attributes will not be surrounded with `<p>`*
 class ParchmentHtmlCodec extends Codec<ParchmentDocument, String> {
   const ParchmentHtmlCodec();
 
@@ -514,6 +519,12 @@ class _HtmlInlineTag extends _HtmlTag {
     if (key == ParchmentAttribute.link.key) {
       return '<${_inlineAttributesParchmentToHtml[key]} href="$value">';
     }
+    if (key == ParchmentAttribute.backgroundColor.key) {
+      final argb = toRGBA(value);
+      return '<${_inlineAttributesParchmentToHtml[key]} '
+          'style="background-color: '
+          'rgba(${argb[1]},${argb[2]},${argb[3]},${argb[0]})">';
+    }
     return '<${_inlineAttributesParchmentToHtml[key]}>';
   }
 
@@ -880,17 +891,28 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
       html.Element element, ParchmentStyle inlineStyle) {
     ParchmentStyle updated = inlineStyle;
     if (element.localName == 'strong') {
-      updated = inlineStyle.put(ParchmentAttribute.bold);
+      updated = updated.put(ParchmentAttribute.bold);
     } else if (element.localName == 'u') {
-      updated = inlineStyle.put(ParchmentAttribute.underline);
+      updated = updated.put(ParchmentAttribute.underline);
     } else if (element.localName == 'del') {
-      updated = inlineStyle.put(ParchmentAttribute.strikethrough);
+      updated = updated.put(ParchmentAttribute.strikethrough);
     } else if (element.localName == 'em') {
-      updated = inlineStyle.put(ParchmentAttribute.italic);
+      updated = updated.put(ParchmentAttribute.italic);
     } else if (element.localName == 'a') {
       final link =
           ParchmentAttribute.link.withValue(element.attributes['href']);
       updated = inlineStyle.put(link);
+    } else if (element.localName == 'span') {
+      final css = element.attributes['style'];
+      final styles = css?.split(';') ?? [];
+      for (final style in styles) {
+        if (style.startsWith('background-color')) {
+          final sValue = style.split(':')[1].trim();
+          final color = colorValueFromCSS(sValue);
+          updated =
+              updated.put(ParchmentAttribute.backgroundColor.withColor(color));
+        }
+      }
     }
     return updated;
   }
