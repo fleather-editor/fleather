@@ -37,6 +37,7 @@ Widget widget(FleatherController controller, {bool withBasic = false}) {
             icon: Icons.code,
             controller: controller,
           ),
+          BackgroundColorButton(controller: controller),
           IndentationButton(controller: controller),
           IndentationButton(controller: controller, increase: false),
           SelectHeadingStyleButton(controller: controller),
