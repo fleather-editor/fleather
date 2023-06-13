@@ -436,6 +436,23 @@ class _InlineCodeAttribute extends ParchmentAttribute<bool> {
       : super._('c', ParchmentAttributeScope.inline, true);
 }
 
+/// Builder for color-based style attributes.
+///
+/// Useful in scenarios when a color attribute value is not known upfront.
+///
+/// See also:
+///   * [BackgroundColorAttributeBuilder]
+///   * [ForegroundColorAttributeBuilder]
+abstract class ColorParchmentAttributeBuilder
+    extends ParchmentAttributeBuilder<int> {
+  const ColorParchmentAttributeBuilder._(
+      String key, ParchmentAttributeScope scope)
+      : super._(key, scope);
+
+  /// Creates the color attribute with [color] value
+  ParchmentAttribute<int> withColor(int color);
+}
+
 /// Builder for background color value.
 /// Color is interpreted from the lower 32 bits of an [int].
 ///
@@ -449,13 +466,17 @@ class _InlineCodeAttribute extends ParchmentAttribute<bool> {
 ///
 /// There is no need to use this class directly, consider using
 /// [ParchmentAttribute.backgroundColor] instead.
-class BackgroundColorAttributeBuilder extends ParchmentAttributeBuilder<int> {
+class BackgroundColorAttributeBuilder extends ColorParchmentAttributeBuilder {
   static const _bgColor = 'bg';
   static const _transparentColor = 0;
 
   const BackgroundColorAttributeBuilder._()
       : super._(_bgColor, ParchmentAttributeScope.inline);
 
+  /// Creates foreground color attribute with [color] value
+  ///
+  /// If color is transparent, [unset] is returned
+  @override
   ParchmentAttribute<int> withColor(int color) {
     if (color == _transparentColor) {
       return unset;
@@ -477,7 +498,7 @@ class BackgroundColorAttributeBuilder extends ParchmentAttributeBuilder<int> {
 ///
 /// There is no need to use this class directly, consider using
 /// [ParchmentAttribute.foregroundColor] instead.
-class ForegroundColorAttributeBuilder extends ParchmentAttributeBuilder<int> {
+class ForegroundColorAttributeBuilder extends ColorParchmentAttributeBuilder {
   static const _fgColor = 'fg';
   static const _black = 0x00000000;
 
@@ -487,6 +508,7 @@ class ForegroundColorAttributeBuilder extends ParchmentAttributeBuilder<int> {
   /// Creates foreground color attribute with [color] value
   ///
   /// If color is black, [unset] is returned
+  @override
   ParchmentAttribute<int> withColor(int color) {
     if (color == _black) {
       return unset;

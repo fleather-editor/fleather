@@ -5,6 +5,49 @@ import 'package:quill_delta/quill_delta.dart';
 
 Widget widget(FleatherController controller, {bool withBasic = false}) {
   FlutterError.onError = onErrorIgnoreOverflowErrors;
+  Widget backgroundColorBuilder(context, value) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.mode_edit_outline_outlined,
+            size: 16,
+          ),
+          Container(
+            width: 18,
+            height: 4,
+            decoration: BoxDecoration(
+              color: value,
+              border: value == Colors.transparent
+                  ? Border.all(
+                      color: Theme.of(context).iconTheme.color ?? Colors.black)
+                  : null,
+            ),
+          )
+        ],
+      );
+  Widget textColorBuilder(context, value) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.text_fields_sharp,
+            size: 16,
+          ),
+          Container(
+            width: 18,
+            height: 4,
+            decoration: BoxDecoration(
+              color: value,
+              border: value == Colors.transparent
+                  ? Border.all(
+                      color: Theme.of(context).iconTheme.color ?? Colors.black)
+                  : null,
+            ),
+          )
+        ],
+      );
   return MaterialApp(
     home: Material(
       child: Column(children: [
@@ -38,7 +81,18 @@ Widget widget(FleatherController controller, {bool withBasic = false}) {
                 icon: Icons.code,
                 controller: controller,
               ),
-              BackgroundColorButton(controller: controller),
+              ColorButton(
+            controller: controller,
+            attributeKey: ParchmentAttribute.backgroundColor,
+            defaultColor: Colors.transparent,
+            builder: backgroundColorBuilder,
+          ),
+          ColorButton(
+            controller: controller,
+            attributeKey: ParchmentAttribute.foregroundColor,
+            defaultColor: Colors.black,
+            builder: textColorBuilder,
+          ),
               IndentationButton(controller: controller),
               IndentationButton(controller: controller, increase: false),
               SelectHeadingStyleButton(controller: controller),
@@ -258,7 +312,7 @@ void main() {
     final controller = FleatherController();
     await tester.pumpWidget(widget(controller));
     await tester.pumpAndSettle();
-    final backgroundButton = find.byType(BackgroundColorButton);
+    final backgroundButton = find.byType(ColorButton).first;
     controller.compose(Delta()..insert('Hello world'));
     await tester.pump(throttleDuration);
     controller
@@ -282,7 +336,38 @@ void main() {
         .last);
     await tester.pumpAndSettle(throttleDuration);
     expect(controller.document.toDelta().first,
-        Operation.insert('Hello', {'bg': Colors.blueGrey.value}));
+        Operation.insert('Hello', {'bg': Colors.white.value}));
+  });
+
+  testWidgets('Text color', (tester) async {
+    final controller = FleatherController();
+    await tester.pumpWidget(widget(controller));
+    await tester.pumpAndSettle();
+    final backgroundButton = find.byType(ColorButton).last;
+    controller.compose(Delta()..insert('Hello world'));
+    await tester.pump(throttleDuration);
+    controller
+        .updateSelection(const TextSelection(baseOffset: 0, extentOffset: 5));
+
+    await tester.pumpAndSettle();
+    await tester.tap(backgroundButton);
+    await tester.pumpAndSettle();
+    final colorElement = find.descendant(
+        of: find.byKey(const Key('color_palette')),
+        matching: find.byType(RawMaterialButton));
+    expect(
+      colorElement,
+      findsNWidgets(16),
+    );
+
+    await tester.tap(find
+        .descendant(
+            of: find.byKey(const Key('color_palette')),
+            matching: find.byType(RawMaterialButton))
+        .last);
+    await tester.pumpAndSettle(throttleDuration);
+    expect(controller.document.toDelta().first,
+        Operation.insert('Hello', {'fg': Colors.white.value}));
   });
 }
 
