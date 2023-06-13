@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fleather/fleather.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 const double kToolbarHeight = 56.0;
@@ -391,7 +392,8 @@ class _BackgroundColorButtonState extends State<BackgroundColorButton> {
   }
 
   Future<Color?> _defaultSelectColor(BuildContext context) async {
-    final isMobile = Platform.isAndroid || Platform.isIOS;
+    // kIsWeb important here as Platform.xxx will cause a crash en web
+    final isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
     final maxWidth = isMobile ? 200.0 : 100.0;
 
     final renderBox = context.findRenderObject() as RenderBox;
@@ -535,7 +537,9 @@ class _ColorPaletteElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = Platform.isAndroid || Platform.isIOS ? 32.0 : 16.0;
+    // kIsWeb important here as Platform.xxx will cause a crash en web
+    final isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+    final size = isMobile ? 32.0 : 16.0;
     return Container(
       width: size,
       height: size,
