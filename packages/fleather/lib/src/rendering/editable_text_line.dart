@@ -567,12 +567,9 @@ class RenderEditableTextLine extends RenderEditableBox {
     _resolvePadding();
     final horizontalPadding = _resolvedPadding!.left + _resolvedPadding!.right;
     final verticalPadding = _resolvedPadding!.top + _resolvedPadding!.bottom;
-    final leadingWidth = leading == null
-        ? 0
-        : leading!.getMinIntrinsicWidth(height - verticalPadding);
-    final bodyWidth = body == null
-        ? 0
-        : body!.getMinIntrinsicWidth(math.max(0.0, height - verticalPadding));
+    final effectiveHeight = math.max(0.0, height - verticalPadding);
+    final leadingWidth = leading?.getMinIntrinsicWidth(effectiveHeight) ?? 0;
+    final bodyWidth = body?.getMinIntrinsicWidth(effectiveHeight) ?? 0;
     return horizontalPadding + leadingWidth + bodyWidth;
   }
 
@@ -581,12 +578,9 @@ class RenderEditableTextLine extends RenderEditableBox {
     _resolvePadding();
     final horizontalPadding = _resolvedPadding!.left + _resolvedPadding!.right;
     final verticalPadding = _resolvedPadding!.top + _resolvedPadding!.bottom;
-    final leadingWidth = leading == null
-        ? 0
-        : leading!.getMaxIntrinsicWidth(height - verticalPadding);
-    final bodyWidth = body == null
-        ? 0
-        : body!.getMaxIntrinsicWidth(math.max(0.0, height - verticalPadding));
+    final effectiveHeight = math.max(0.0, height - verticalPadding);
+    final leadingWidth = leading?.getMaxIntrinsicWidth(effectiveHeight) ?? 0;
+    final bodyWidth = body?.getMaxIntrinsicWidth(effectiveHeight) ?? 0;
     return horizontalPadding + leadingWidth + bodyWidth;
   }
 
@@ -724,39 +718,35 @@ class RenderEditableTextLine extends RenderEditableBox {
   void _paintTextBackground(
       PaintingContext context, TextNode node, Offset effectiveOffset) {
     final isInlineCode = node.style.containsSame(ParchmentAttribute.inlineCode);
-    final hasBackground =
-        node.style.contains(ParchmentAttribute.backgroundColor);
-    if (!isInlineCode && !hasBackground) return;
+    final background = node.style.get(ParchmentAttribute.backgroundColor);
+    if (!isInlineCode && background == null) return;
+
+    final Color color;
+    if (isInlineCode) {
+      color = _inlineCodeTheme.backgroundColor ?? Colors.transparent;
+    } else {
+      color = Color(background?.value ?? Colors.transparent.value);
+    }
+    if (color == Colors.transparent) return;
 
     final textRange = TextSelection(
         baseOffset: node.offset, extentOffset: node.offset + node.length);
     final rects = body!.getBoxesForSelection(textRange);
-
-    final inlinePaint = Paint()
-      ..color = _inlineCodeTheme.backgroundColor ?? Colors.transparent;
-    final backgroundColor = Color(
-        node.style.get(ParchmentAttribute.backgroundColor)?.value ??
-            Colors.transparent.value);
-    final backgroundPaint =
-        hasBackground ? (Paint()..color = backgroundColor) : null;
+    final paint = Paint()..color = color;
 
     for (final box in rects) {
-      if (isInlineCode && _inlineCodeTheme.backgroundColor != null) {
-        final rect = box.toRect().translate(0, 1).shift(effectiveOffset);
+      Rect rect = box.toRect().shift(effectiveOffset);
+      if (isInlineCode) {
+        rect = Rect.fromLTRB(
+            rect.left - 2, rect.top + 1, rect.right + 2, rect.bottom + 1);
         if (_inlineCodeTheme.radius == null) {
-          final paintRect = Rect.fromLTRB(
-              rect.left - 2, rect.top, rect.right + 2, rect.bottom);
-          context.canvas.drawRect(paintRect, inlinePaint);
+          context.canvas.drawRect(rect, paint);
         } else {
-          final paintRect = RRect.fromLTRBR(rect.left - 2, rect.top,
-              rect.right + 2, rect.bottom, _inlineCodeTheme.radius!);
-          context.canvas.drawRRect(paintRect, inlinePaint);
+          context.canvas.drawRRect(
+              RRect.fromRectAndRadius(rect, _inlineCodeTheme.radius!), paint);
         }
-      } else if (hasBackground && backgroundColor != Colors.transparent) {
-        final rect = box.toRect().shift(effectiveOffset);
-        final paintRect =
-            Rect.fromLTRB(rect.left, rect.top, rect.right, rect.bottom);
-        context.canvas.drawRect(paintRect, backgroundPaint!);
+      } else {
+        context.canvas.drawRect(rect, paint);
       }
     }
   }
