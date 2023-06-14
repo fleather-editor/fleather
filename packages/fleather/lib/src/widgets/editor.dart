@@ -1448,6 +1448,10 @@ class RawEditorState extends EditorState
       return theme.heading2.spacing;
     } else if (style == ParchmentAttribute.heading.level3) {
       return theme.heading3.spacing;
+    } else if (style == ParchmentAttribute.heading.level4) {
+      return theme.heading4.spacing;
+    } else if (style == ParchmentAttribute.heading.level5) {
+      return theme.heading5.spacing;
     }
 
     return theme.paragraph.spacing;

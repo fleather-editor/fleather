@@ -296,6 +296,9 @@ void main() {
       runFor('# This is an H1\n\n', 1);
       runFor('## This is an H2\n\n', 2);
       runFor('### This is an H3\n\n', 3);
+      runFor('#### This is an H4\n\n', 4);
+      runFor('##### This is an H5\n\n', 5);
+      runFor('###### This is an H6\n\n', 6);
     });
 
     test('ul', () {
@@ -490,6 +493,9 @@ void main() {
       runFor(ParchmentAttribute.h1, 'Title', '# Title\n\n');
       runFor(ParchmentAttribute.h2, 'Title', '## Title\n\n');
       runFor(ParchmentAttribute.h3, 'Title', '### Title\n\n');
+      runFor(ParchmentAttribute.h4, 'Title', '#### Title\n\n');
+      runFor(ParchmentAttribute.h5, 'Title', '##### Title\n\n');
+      runFor(ParchmentAttribute.h6, 'Title', '###### Title\n\n');
     });
 
     test('block styles', () {

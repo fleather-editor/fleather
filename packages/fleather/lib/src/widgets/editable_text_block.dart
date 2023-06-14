@@ -203,6 +203,15 @@ class EditableTextBlock extends StatelessWidget {
     } else if (heading == ParchmentAttribute.heading.level3) {
       top = theme.heading3.spacing.top;
       bottom = theme.heading3.spacing.bottom;
+    } else if (heading == ParchmentAttribute.heading.level4) {
+      top = theme.heading4.spacing.top;
+      bottom = theme.heading4.spacing.bottom;
+    } else if (heading == ParchmentAttribute.heading.level5) {
+      top = theme.heading5.spacing.top;
+      bottom = theme.heading5.spacing.bottom;
+    } else if (heading == ParchmentAttribute.heading.level6) {
+      top = theme.heading6.spacing.top;
+      bottom = theme.heading6.spacing.bottom;
     } else {
       final block = this.node.style.get(ParchmentAttribute.block);
       VerticalSpacing? lineSpacing;

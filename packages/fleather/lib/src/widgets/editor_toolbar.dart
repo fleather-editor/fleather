@@ -203,7 +203,6 @@ class _LinkDialogState extends State<_LinkDialog> {
         onChanged: _linkChanged,
       ),
       actions: [
-        //TODO: Update to use TextButton
         TextButton(
           onPressed: _link.isNotEmpty ? _applyLink : null,
           child: const Text('Apply'),
@@ -354,7 +353,7 @@ Widget defaultToggleStyleButtonBuilder(
 /// Signature of callbacks that return a [Color] picked from a [BuildContext].
 typedef ColorPicker = Future<Color?> Function(BuildContext context);
 
-/// Toolbar button which allows to apply background colr style to a portion of text.
+/// Toolbar button which allows to apply background color style to a portion of text.
 ///
 /// Works as a dropdown menu button.
 class BackgroundColorButton extends StatefulWidget {
@@ -519,6 +518,7 @@ class _ColorPalette extends StatelessWidget {
     Colors.grey,
     Colors.blueGrey
   ];
+
   @override
   Widget build(BuildContext context) {
     return Wrap(
@@ -533,6 +533,7 @@ class _ColorPalette extends StatelessWidget {
 
 class _ColorPaletteElement extends StatelessWidget {
   const _ColorPaletteElement({required this.color});
+
   final Color color;
 
   @override
@@ -574,7 +575,7 @@ class SelectHeadingStyleButton extends StatefulWidget {
 }
 
 class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
-  ParchmentAttribute? _value;
+  ParchmentAttribute<int>? _value;
 
   ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
 
@@ -623,44 +624,53 @@ class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
       ParchmentAttribute.heading.level1: 'Heading 1',
       ParchmentAttribute.heading.level2: 'Heading 2',
       ParchmentAttribute.heading.level3: 'Heading 3',
+      ParchmentAttribute.heading.level4: 'Heading 4',
+      ParchmentAttribute.heading.level5: 'Heading 5',
+      ParchmentAttribute.heading.level6: 'Heading 6',
     };
 
-    return FLDropdownButton<ParchmentAttribute?>(
-      highlightElevation: 0,
-      hoverElevation: 0,
-      height: 32,
-      initialValue: _value,
+    return DropdownButton<ParchmentAttribute<int>?>(
+      underline: Container(),
+      borderRadius: BorderRadius.circular(2),
       items: [
-        PopupMenuItem(
+        DropdownMenuItem(
           value: ParchmentAttribute.heading.unset,
-          height: 32,
           child: Text(valueToText[ParchmentAttribute.heading.unset]!,
               style: style),
         ),
-        PopupMenuItem(
+        DropdownMenuItem(
           value: ParchmentAttribute.heading.level1,
-          height: 32,
           child: Text(valueToText[ParchmentAttribute.heading.level1]!,
               style: style),
         ),
-        PopupMenuItem(
+        DropdownMenuItem(
           value: ParchmentAttribute.heading.level2,
-          height: 32,
           child: Text(valueToText[ParchmentAttribute.heading.level2]!,
               style: style),
         ),
-        PopupMenuItem(
+        DropdownMenuItem(
           value: ParchmentAttribute.heading.level3,
-          height: 32,
           child: Text(valueToText[ParchmentAttribute.heading.level3]!,
               style: style),
         ),
+        DropdownMenuItem(
+          value: ParchmentAttribute.heading.level4,
+          child: Text(valueToText[ParchmentAttribute.heading.level4]!,
+              style: style),
+        ),
+        DropdownMenuItem(
+          value: ParchmentAttribute.heading.level5,
+          child: Text(valueToText[ParchmentAttribute.heading.level5]!,
+              style: style),
+        ),
+        DropdownMenuItem(
+          value: ParchmentAttribute.heading.level6,
+          child: Text(valueToText[ParchmentAttribute.heading.level6]!,
+              style: style),
+        ),
       ],
-      onSelected: _selectAttribute,
-      child: Text(
-        valueToText[_value as ParchmentAttribute<int>]!,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-      ),
+      onChanged: _selectAttribute,
+      value: _value,
     );
   }
 }
@@ -1070,101 +1080,6 @@ class FLIconButton extends StatelessWidget {
         highlightElevation: hoverElevation,
         onPressed: onPressed,
         child: icon,
-      ),
-    );
-  }
-}
-
-class FLDropdownButton<T> extends StatefulWidget {
-  final double height;
-  final Color? fillColor;
-  final double hoverElevation;
-  final double highlightElevation;
-  final Widget child;
-  final T initialValue;
-  final List<PopupMenuEntry<T>> items;
-  final ValueChanged<T> onSelected;
-
-  const FLDropdownButton({
-    Key? key,
-    this.height = 40,
-    this.fillColor,
-    this.hoverElevation = 1,
-    this.highlightElevation = 1,
-    required this.child,
-    required this.initialValue,
-    required this.items,
-    required this.onSelected,
-  }) : super(key: key);
-
-  @override
-  State<FLDropdownButton<T>> createState() => _FLDropdownButtonState<T>();
-}
-
-class _FLDropdownButtonState<T> extends State<FLDropdownButton<T>> {
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints.tightFor(height: widget.height),
-      child: RawMaterialButton(
-        visualDensity: VisualDensity.compact,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-        padding: EdgeInsets.zero,
-        fillColor: widget.fillColor,
-        elevation: 0,
-        hoverElevation: widget.hoverElevation,
-        highlightElevation: widget.hoverElevation,
-        onPressed: _showMenu,
-        child: _buildContent(context),
-      ),
-    );
-  }
-
-  void _showMenu() {
-    final popupMenuTheme = PopupMenuTheme.of(context);
-    final button = context.findRenderObject() as RenderBox;
-    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        button.localToGlobal(Offset.zero, ancestor: overlay),
-        button.localToGlobal(button.size.bottomLeft(Offset.zero),
-            ancestor: overlay),
-      ),
-      Offset.zero & overlay.size,
-    );
-    showMenu<T>(
-      context: context,
-      elevation: 4,
-      // widget.elevation ?? popupMenuTheme.elevation,
-      initialValue: widget.initialValue,
-      items: widget.items,
-      position: position,
-      shape: popupMenuTheme.shape,
-      // widget.shape ?? popupMenuTheme.shape,
-      color: popupMenuTheme.color, // widget.color ?? popupMenuTheme.color,
-      // captureInheritedThemes: widget.captureInheritedThemes,
-    ).then((T? newValue) {
-      if (!mounted) return null;
-      if (newValue == null) {
-        // if (widget.onCanceled != null) widget.onCanceled();
-        return null;
-      }
-      widget.onSelected(newValue);
-    });
-  }
-
-  Widget _buildContent(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints.tightFor(width: 110),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: Row(
-          children: [
-            widget.child,
-            Expanded(child: Container()),
-            const Icon(Icons.arrow_drop_down, size: 14)
-          ],
-        ),
       ),
     );
   }

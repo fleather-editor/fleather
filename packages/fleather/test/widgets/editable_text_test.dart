@@ -1,6 +1,7 @@
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/widgets/checkbox.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
 
@@ -115,6 +116,62 @@ void main() {
         await editor.pump();
         expect(find.text('1.', findRichText: true), findsOneWidget);
       });
+    });
+
+    testWidgets('headings', (tester) async {
+      TextStyle levelToStyle(FleatherThemeData themeData, int level) {
+        switch (level) {
+          case 1:
+            return themeData.heading1.style;
+          case 2:
+            return themeData.heading2.style;
+          case 3:
+            return themeData.heading3.style;
+          case 4:
+            return themeData.heading4.style;
+          case 5:
+            return themeData.heading5.style;
+          case 6:
+            return themeData.heading6.style;
+          default:
+            throw ArgumentError('Level must be lower or equal than 6');
+        }
+      }
+
+      Future<void> runHeading(WidgetTester tester, int level,
+          {bool inBlock = false}) async {
+        // heading in block to account for spacing
+        final delta = Delta()
+          ..insert('a heading')
+          ..insert('\n', {'heading': level, if (inBlock) 'block': 'quote'})
+          ..insert('a paragraph')
+          ..insert('\n', {if (inBlock) 'block': 'quote'});
+        final editor = EditorSandBox(
+            tester: tester, document: ParchmentDocument.fromDelta(delta));
+        await editor.pump();
+        final context = tester.element(find.byType(TextLine).first);
+        final line = tester.widget<RichText>(find.byType(RichText).first);
+        final theme = FleatherTheme.of(context)!;
+        final expStyle = inBlock
+            ? levelToStyle(theme, level).merge(theme.quote.style)
+            : levelToStyle(theme, level);
+        expect((line.text as TextSpan).style, expStyle,
+            reason: 'Failed on heading $level ${inBlock ? 'in block' : ''}');
+      }
+
+      await runHeading(tester, 1, inBlock: true);
+      await runHeading(tester, 2, inBlock: true);
+      await runHeading(tester, 3, inBlock: true);
+      await runHeading(tester, 4, inBlock: true);
+      await runHeading(tester, 5, inBlock: true);
+      await runHeading(tester, 6, inBlock: true);
+
+      await runHeading(tester, 1);
+      await runHeading(tester, 2);
+      await runHeading(tester, 3);
+      await runHeading(tester, 4);
+      await runHeading(tester, 5);
+      await runHeading(tester, 6);
     });
   });
 }

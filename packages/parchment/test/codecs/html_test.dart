@@ -216,6 +216,42 @@ void main() {
 
         expect(codec.encode(doc), '<h3>Hello World!</h3>');
       });
+
+      test('4', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Hello World!'},
+          {
+            'insert': '\n',
+            'attributes': {'heading': 4}
+          }
+        ]);
+
+        expect(codec.encode(doc), '<h4>Hello World!</h4>');
+      });
+
+      test('5', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Hello World!'},
+          {
+            'insert': '\n',
+            'attributes': {'heading': 5}
+          }
+        ]);
+
+        expect(codec.encode(doc), '<h5>Hello World!</h5>');
+      });
+
+      test('6', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Hello World!'},
+          {
+            'insert': '\n',
+            'attributes': {'heading': 6}
+          }
+        ]);
+
+        expect(codec.encode(doc), '<h6>Hello World!</h6>');
+      });
     });
 
     group('Blocks', () {
@@ -1197,6 +1233,45 @@ void main() {
           {
             'insert': '\n',
             'attributes': {'heading': 3}
+          }
+        ]);
+
+        expect(codec.decode(html).toDelta(), doc.toDelta());
+      });
+
+      test('4', () {
+        final html = '<h4>Hello World!</h4>';
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Hello World!'},
+          {
+            'insert': '\n',
+            'attributes': {'heading': 4}
+          }
+        ]);
+
+        expect(codec.decode(html).toDelta(), doc.toDelta());
+      });
+
+      test('5', () {
+        final html = '<h5>Hello World!</h5>';
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Hello World!'},
+          {
+            'insert': '\n',
+            'attributes': {'heading': 5}
+          }
+        ]);
+
+        expect(codec.decode(html).toDelta(), doc.toDelta());
+      });
+
+      test('6', () {
+        final html = '<h6>Hello World!</h6>';
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Hello World!'},
+          {
+            'insert': '\n',
+            'attributes': {'heading': 6}
           }
         ]);
 

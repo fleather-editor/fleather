@@ -6,55 +6,58 @@ import 'package:quill_delta/quill_delta.dart';
 Widget widget(FleatherController controller, {bool withBasic = false}) {
   FlutterError.onError = onErrorIgnoreOverflowErrors;
   return MaterialApp(
-      home: Column(children: [
-    if (withBasic)
-      FleatherToolbar.basic(controller: controller)
-    else
-      FleatherToolbar(
-        children: [
-          ToggleStyleButton(
-            attribute: ParchmentAttribute.bold,
-            icon: Icons.format_bold,
-            controller: controller,
+    home: Material(
+      child: Column(children: [
+        if (withBasic)
+          FleatherToolbar.basic(controller: controller)
+        else
+          FleatherToolbar(
+            children: [
+              ToggleStyleButton(
+                attribute: ParchmentAttribute.bold,
+                icon: Icons.format_bold,
+                controller: controller,
+              ),
+              ToggleStyleButton(
+                attribute: ParchmentAttribute.italic,
+                icon: Icons.format_italic,
+                controller: controller,
+              ),
+              ToggleStyleButton(
+                attribute: ParchmentAttribute.underline,
+                icon: Icons.format_underline,
+                controller: controller,
+              ),
+              ToggleStyleButton(
+                attribute: ParchmentAttribute.strikethrough,
+                icon: Icons.format_strikethrough,
+                controller: controller,
+              ),
+              ToggleStyleButton(
+                attribute: ParchmentAttribute.inlineCode,
+                icon: Icons.code,
+                controller: controller,
+              ),
+              BackgroundColorButton(controller: controller),
+              IndentationButton(controller: controller),
+              IndentationButton(controller: controller, increase: false),
+              SelectHeadingStyleButton(controller: controller),
+              LinkStyleButton(controller: controller),
+              InsertEmbedButton(
+                  controller: controller, icon: Icons.horizontal_rule),
+              UndoRedoButton.undo(controller: controller),
+              UndoRedoButton.redo(controller: controller),
+            ],
           ),
-          ToggleStyleButton(
-            attribute: ParchmentAttribute.italic,
-            icon: Icons.format_italic,
-            controller: controller,
-          ),
-          ToggleStyleButton(
-            attribute: ParchmentAttribute.underline,
-            icon: Icons.format_underline,
-            controller: controller,
-          ),
-          ToggleStyleButton(
-            attribute: ParchmentAttribute.strikethrough,
-            icon: Icons.format_strikethrough,
-            controller: controller,
-          ),
-          ToggleStyleButton(
-            attribute: ParchmentAttribute.inlineCode,
-            icon: Icons.code,
-            controller: controller,
-          ),
-          BackgroundColorButton(controller: controller),
-          IndentationButton(controller: controller),
-          IndentationButton(controller: controller, increase: false),
-          SelectHeadingStyleButton(controller: controller),
-          LinkStyleButton(controller: controller),
-          InsertEmbedButton(
-              controller: controller, icon: Icons.horizontal_rule),
-          UndoRedoButton.undo(controller: controller),
-          UndoRedoButton.redo(controller: controller),
-        ],
-      ),
-    Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
-    Expanded(
-        child: FleatherEditor(
-      controller: controller,
-      maxContentWidth: 800,
-    ))
-  ]));
+        Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+        Expanded(
+            child: FleatherEditor(
+          controller: controller,
+          maxContentWidth: 800,
+        ))
+      ]),
+    ),
+  );
 }
 
 void main() {
@@ -140,11 +143,12 @@ void main() {
       await tester.pumpAndSettle(throttleDuration);
       await tester.tap(selectHeadings);
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(PopupMenuItem<ParchmentAttribute?>).last);
+      await tester
+          .tap(find.byType(DropdownMenuItem<ParchmentAttribute<int>?>).last);
       await tester.pumpAndSettle(throttleDuration);
 
       expect(controller.document.toDelta().last,
-          Operation.insert('\n', {'heading': 3}));
+          Operation.insert('\n', {'heading': 6}));
     });
 
     testWidgets('Indentation', (tester) async {

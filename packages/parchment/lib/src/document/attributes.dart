@@ -142,6 +142,15 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
   /// Alias for [ParchmentAttribute.heading.level3].
   static ParchmentAttribute<int> get h3 => heading.level3;
 
+  /// Alias for [ParchmentAttribute.heading.level4].
+  static ParchmentAttribute<int> get h4 => heading.level4;
+
+  /// Alias for [ParchmentAttribute.heading.level5].
+  static ParchmentAttribute<int> get h5 => heading.level5;
+
+  /// Alias for [ParchmentAttribute.heading.level5].
+  static ParchmentAttribute<int> get h6 => heading.level6;
+
   /// Indent attribute
   static const indent = IndentAttributeBuilder._();
 
@@ -487,6 +496,18 @@ class HeadingAttributeBuilder extends ParchmentAttributeBuilder<int> {
   /// Level 3 heading, equivalent of `H3` in HTML.
   ParchmentAttribute<int> get level3 =>
       ParchmentAttribute<int>._(key, scope, 3);
+
+  /// Level 4 heading, equivalent of `H4` in HTML.
+  ParchmentAttribute<int> get level4 =>
+      ParchmentAttribute<int>._(key, scope, 4);
+
+  /// Level 5 heading, equivalent of `H5` in HTML.
+  ParchmentAttribute<int> get level5 =>
+      ParchmentAttribute<int>._(key, scope, 5);
+
+  /// Level 6 heading, equivalent of `H6` in HTML.
+  ParchmentAttribute<int> get level6 =>
+      ParchmentAttribute<int>._(key, scope, 6);
 }
 
 /// Applies checked style to a line in a checklist block.
