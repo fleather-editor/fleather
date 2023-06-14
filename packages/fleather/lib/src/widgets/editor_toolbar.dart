@@ -203,7 +203,6 @@ class _LinkDialogState extends State<_LinkDialog> {
         onChanged: _linkChanged,
       ),
       actions: [
-        //TODO: Update to use TextButton
         TextButton(
           onPressed: _link.isNotEmpty ? _applyLink : null,
           child: const Text('Apply'),
@@ -574,7 +573,7 @@ class SelectHeadingStyleButton extends StatefulWidget {
 }
 
 class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
-  ParchmentAttribute? _value;
+  ParchmentAttribute<int>? _value;
 
   ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
 
@@ -625,42 +624,33 @@ class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
       ParchmentAttribute.heading.level3: 'Heading 3',
     };
 
-    return FLDropdownButton<ParchmentAttribute?>(
-      highlightElevation: 0,
-      hoverElevation: 0,
-      height: 32,
-      initialValue: _value,
+    return DropdownButton<ParchmentAttribute<int>?>(
+      underline: Container(),
+      borderRadius: BorderRadius.circular(2),
       items: [
-        PopupMenuItem(
+        DropdownMenuItem(
           value: ParchmentAttribute.heading.unset,
-          height: 32,
           child: Text(valueToText[ParchmentAttribute.heading.unset]!,
               style: style),
         ),
-        PopupMenuItem(
+        DropdownMenuItem(
           value: ParchmentAttribute.heading.level1,
-          height: 32,
           child: Text(valueToText[ParchmentAttribute.heading.level1]!,
               style: style),
         ),
-        PopupMenuItem(
+        DropdownMenuItem(
           value: ParchmentAttribute.heading.level2,
-          height: 32,
           child: Text(valueToText[ParchmentAttribute.heading.level2]!,
               style: style),
         ),
-        PopupMenuItem(
+        DropdownMenuItem(
           value: ParchmentAttribute.heading.level3,
-          height: 32,
           child: Text(valueToText[ParchmentAttribute.heading.level3]!,
               style: style),
         ),
       ],
-      onSelected: _selectAttribute,
-      child: Text(
-        valueToText[_value as ParchmentAttribute<int>]!,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-      ),
+      onChanged: _selectAttribute,
+      value: _value,
     );
   }
 }
