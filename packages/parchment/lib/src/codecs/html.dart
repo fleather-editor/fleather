@@ -851,7 +851,10 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
             node.localName == 'li' ||
             node.localName == 'h1' ||
             node.localName == 'h2' ||
-            node.localName == 'h3');
+            node.localName == 'h3' ||
+            node.localName == 'h4' ||
+            node.localName == 'h5' ||
+            node.localName == 'h6');
   }
 
   Delta _parseNode(html.Node node,
@@ -926,6 +929,12 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
       updated = updated.put(ParchmentAttribute.h2);
     } else if (element.localName == 'h3') {
       updated = updated.put(ParchmentAttribute.h3);
+    } else if (element.localName == 'h4') {
+      updated = updated.put(ParchmentAttribute.h4);
+    } else if (element.localName == 'h5') {
+      updated = updated.put(ParchmentAttribute.h5);
+    } else if (element.localName == 'h6') {
+      updated = updated.put(ParchmentAttribute.h6);
     } else if (element.localName == 'blockquote') {
       updated = updated.put(ParchmentAttribute.bq);
     } else if (element.localName == 'pre') {
