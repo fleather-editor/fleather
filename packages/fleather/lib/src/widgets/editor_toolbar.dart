@@ -353,7 +353,7 @@ Widget defaultToggleStyleButtonBuilder(
 /// Signature of callbacks that return a [Color] picked from a [BuildContext].
 typedef ColorPicker = Future<Color?> Function(BuildContext context);
 
-/// Toolbar button which allows to apply background colr style to a portion of text.
+/// Toolbar button which allows to apply background color style to a portion of text.
 ///
 /// Works as a dropdown menu button.
 class BackgroundColorButton extends StatefulWidget {
@@ -518,6 +518,7 @@ class _ColorPalette extends StatelessWidget {
     Colors.grey,
     Colors.blueGrey
   ];
+
   @override
   Widget build(BuildContext context) {
     return Wrap(
@@ -532,6 +533,7 @@ class _ColorPalette extends StatelessWidget {
 
 class _ColorPaletteElement extends StatelessWidget {
   const _ColorPaletteElement({required this.color});
+
   final Color color;
 
   @override
@@ -1078,101 +1080,6 @@ class FLIconButton extends StatelessWidget {
         highlightElevation: hoverElevation,
         onPressed: onPressed,
         child: icon,
-      ),
-    );
-  }
-}
-
-class FLDropdownButton<T> extends StatefulWidget {
-  final double height;
-  final Color? fillColor;
-  final double hoverElevation;
-  final double highlightElevation;
-  final Widget child;
-  final T initialValue;
-  final List<PopupMenuEntry<T>> items;
-  final ValueChanged<T> onSelected;
-
-  const FLDropdownButton({
-    Key? key,
-    this.height = 40,
-    this.fillColor,
-    this.hoverElevation = 1,
-    this.highlightElevation = 1,
-    required this.child,
-    required this.initialValue,
-    required this.items,
-    required this.onSelected,
-  }) : super(key: key);
-
-  @override
-  State<FLDropdownButton<T>> createState() => _FLDropdownButtonState<T>();
-}
-
-class _FLDropdownButtonState<T> extends State<FLDropdownButton<T>> {
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints.tightFor(height: widget.height),
-      child: RawMaterialButton(
-        visualDensity: VisualDensity.compact,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-        padding: EdgeInsets.zero,
-        fillColor: widget.fillColor,
-        elevation: 0,
-        hoverElevation: widget.hoverElevation,
-        highlightElevation: widget.hoverElevation,
-        onPressed: _showMenu,
-        child: _buildContent(context),
-      ),
-    );
-  }
-
-  void _showMenu() {
-    final popupMenuTheme = PopupMenuTheme.of(context);
-    final button = context.findRenderObject() as RenderBox;
-    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        button.localToGlobal(Offset.zero, ancestor: overlay),
-        button.localToGlobal(button.size.bottomLeft(Offset.zero),
-            ancestor: overlay),
-      ),
-      Offset.zero & overlay.size,
-    );
-    showMenu<T>(
-      context: context,
-      elevation: 4,
-      // widget.elevation ?? popupMenuTheme.elevation,
-      initialValue: widget.initialValue,
-      items: widget.items,
-      position: position,
-      shape: popupMenuTheme.shape,
-      // widget.shape ?? popupMenuTheme.shape,
-      color: popupMenuTheme.color, // widget.color ?? popupMenuTheme.color,
-      // captureInheritedThemes: widget.captureInheritedThemes,
-    ).then((T? newValue) {
-      if (!mounted) return null;
-      if (newValue == null) {
-        // if (widget.onCanceled != null) widget.onCanceled();
-        return null;
-      }
-      widget.onSelected(newValue);
-    });
-  }
-
-  Widget _buildContent(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints.tightFor(width: 110),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: Row(
-          children: [
-            widget.child,
-            Expanded(child: Container()),
-            const Icon(Icons.arrow_drop_down, size: 14)
-          ],
-        ),
       ),
     );
   }
