@@ -261,6 +261,12 @@ class _TextLineState extends State<TextLine> {
       textStyle = textStyle.merge(theme.heading2.style);
     } else if (heading == ParchmentAttribute.heading.level3) {
       textStyle = textStyle.merge(theme.heading3.style);
+    } else if (heading == ParchmentAttribute.heading.level4) {
+      textStyle = textStyle.merge(theme.heading4.style);
+    } else if (heading == ParchmentAttribute.heading.level5) {
+      textStyle = textStyle.merge(theme.heading5.style);
+    } else if (heading == ParchmentAttribute.heading.level6) {
+      textStyle = textStyle.merge(theme.heading6.style);
     } else {
       textStyle = textStyle.merge(theme.paragraph.style);
     }

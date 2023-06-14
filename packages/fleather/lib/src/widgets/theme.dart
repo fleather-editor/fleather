@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 
@@ -80,6 +81,7 @@ class FleatherThemeData {
 
   /// Default style theme for regular paragraphs of text.
   final TextBlockTheme paragraph; // spacing: top: 6, bottom: 10
+
   /// Style theme for level 1 headings.
   final TextBlockTheme heading1;
 
@@ -88,6 +90,15 @@ class FleatherThemeData {
 
   /// Style theme for level 3 headings.
   final TextBlockTheme heading3;
+
+  /// Style theme for level 4 headings.
+  final TextBlockTheme heading4;
+
+  /// Style theme for level 5 headings.
+  final TextBlockTheme heading5;
+
+  /// Style theme for level 6 headings.
+  final TextBlockTheme heading6;
 
   /// Style theme for bullet and number lists.
   final TextBlockTheme lists;
@@ -109,6 +120,9 @@ class FleatherThemeData {
     required this.heading1,
     required this.heading2,
     required this.heading3,
+    required this.heading4,
+    required this.heading5,
+    required this.heading6,
     required this.lists,
     required this.quote,
     required this.code,
@@ -198,6 +212,33 @@ class FleatherThemeData {
         ),
         spacing: const VerticalSpacing(bottom: 0.0, top: 8.0),
       ),
+      heading4: TextBlockTheme(
+        style: TextStyle(
+          fontSize: 18,
+          color: defaultStyle.style.color?.withOpacity(0.50),
+          height: 1.25,
+          fontWeight: FontWeight.w500,
+        ),
+        spacing: const VerticalSpacing(bottom: 0.0, top: 8.0),
+      ),
+      heading5: TextBlockTheme(
+        style: TextStyle(
+          fontSize: 16.0,
+          color: defaultStyle.style.color?.withOpacity(0.70),
+          height: 1.25,
+          fontWeight: FontWeight.w500,
+          decoration: TextDecoration.underline,
+        ),
+        spacing: const VerticalSpacing(bottom: 0.0, top: 8.0),
+      ),
+      heading6: TextBlockTheme(
+        style: TextStyle(
+            fontSize: 16.0,
+            color: defaultStyle.style.color?.withOpacity(0.50),
+            height: 1.25,
+            fontWeight: FontWeight.w500),
+        spacing: const VerticalSpacing(bottom: 0.0, top: 8.0),
+      ),
       lists: TextBlockTheme(
         style: baseStyle,
         spacing: baseSpacing,
@@ -240,6 +281,9 @@ class FleatherThemeData {
     TextBlockTheme? heading1,
     TextBlockTheme? heading2,
     TextBlockTheme? heading3,
+    TextBlockTheme? heading4,
+    TextBlockTheme? heading5,
+    TextBlockTheme? heading6,
     TextBlockTheme? lists,
     TextBlockTheme? quote,
     TextBlockTheme? code,
@@ -255,6 +299,9 @@ class FleatherThemeData {
       heading1: heading1 ?? this.heading1,
       heading2: heading2 ?? this.heading2,
       heading3: heading3 ?? this.heading3,
+      heading4: heading4 ?? this.heading4,
+      heading5: heading5 ?? this.heading5,
+      heading6: heading6 ?? this.heading6,
       lists: lists ?? this.lists,
       quote: quote ?? this.quote,
       code: code ?? this.code,
@@ -273,6 +320,8 @@ class FleatherThemeData {
       heading1: other.heading1,
       heading2: other.heading2,
       heading3: other.heading3,
+      heading4: other.heading4,
+      heading5: other.heading5,
       lists: other.lists,
       quote: other.quote,
       code: other.code,

@@ -622,6 +622,9 @@ class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
       ParchmentAttribute.heading.level1: 'Heading 1',
       ParchmentAttribute.heading.level2: 'Heading 2',
       ParchmentAttribute.heading.level3: 'Heading 3',
+      ParchmentAttribute.heading.level4: 'Heading 4',
+      ParchmentAttribute.heading.level5: 'Heading 5',
+      ParchmentAttribute.heading.level6: 'Heading 6',
     };
 
     return DropdownButton<ParchmentAttribute<int>?>(
@@ -646,6 +649,21 @@ class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
         DropdownMenuItem(
           value: ParchmentAttribute.heading.level3,
           child: Text(valueToText[ParchmentAttribute.heading.level3]!,
+              style: style),
+        ),
+        DropdownMenuItem(
+          value: ParchmentAttribute.heading.level4,
+          child: Text(valueToText[ParchmentAttribute.heading.level4]!,
+              style: style),
+        ),
+        DropdownMenuItem(
+          value: ParchmentAttribute.heading.level5,
+          child: Text(valueToText[ParchmentAttribute.heading.level5]!,
+              style: style),
+        ),
+        DropdownMenuItem(
+          value: ParchmentAttribute.heading.level6,
+          child: Text(valueToText[ParchmentAttribute.heading.level6]!,
               style: style),
         ),
       ],
