@@ -306,6 +306,13 @@ class _TextLineState extends State<TextLine> {
       result = _mergeTextStyleWithDecoration(
           result, theme.inlineCode.styleFor(lineStyle));
     }
+    if (nodeStyle.contains(ParchmentAttribute.foregroundColor)) {
+      final foregroundColor =
+          nodeStyle.get(ParchmentAttribute.foregroundColor)!;
+      if (foregroundColor != ParchmentAttribute.foregroundColor.unset) {
+        result = result.copyWith(color: Color(foregroundColor.value!));
+      }
+    }
     return result;
   }
 

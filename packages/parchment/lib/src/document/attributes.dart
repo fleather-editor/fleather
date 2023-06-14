@@ -95,6 +95,7 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
     ParchmentAttribute.inlineCode.key: ParchmentAttribute.inlineCode,
     ParchmentAttribute.link.key: ParchmentAttribute.link,
     ParchmentAttribute.heading.key: ParchmentAttribute.heading,
+    ParchmentAttribute.foregroundColor.key: ParchmentAttribute.foregroundColor,
     ParchmentAttribute.backgroundColor.key: ParchmentAttribute.backgroundColor,
     ParchmentAttribute.checked.key: ParchmentAttribute.checked,
     ParchmentAttribute.block.key: ParchmentAttribute.block,
@@ -119,6 +120,9 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
 
   /// Inline code style attribute.
   static const inlineCode = _InlineCodeAttribute();
+
+  /// Foreground color attribute.
+  static const foregroundColor = ForegroundColorAttributeBuilder._();
 
   /// Background color attribute.
   static const backgroundColor = BackgroundColorAttributeBuilder._();
@@ -432,6 +436,23 @@ class _InlineCodeAttribute extends ParchmentAttribute<bool> {
       : super._('c', ParchmentAttributeScope.inline, true);
 }
 
+/// Builder for color-based style attributes.
+///
+/// Useful in scenarios when a color attribute value is not known upfront.
+///
+/// See also:
+///   * [BackgroundColorAttributeBuilder]
+///   * [ForegroundColorAttributeBuilder]
+abstract class ColorParchmentAttributeBuilder
+    extends ParchmentAttributeBuilder<int> {
+  const ColorParchmentAttributeBuilder._(
+      String key, ParchmentAttributeScope scope)
+      : super._(key, scope);
+
+  /// Creates the color attribute with [color] value
+  ParchmentAttribute<int> withColor(int color);
+}
+
 /// Builder for background color value.
 /// Color is interpreted from the lower 32 bits of an [int].
 ///
@@ -445,18 +466,54 @@ class _InlineCodeAttribute extends ParchmentAttribute<bool> {
 ///
 /// There is no need to use this class directly, consider using
 /// [ParchmentAttribute.backgroundColor] instead.
-class BackgroundColorAttributeBuilder extends ParchmentAttributeBuilder<int> {
-  static const _kBgColor = 'bg';
+class BackgroundColorAttributeBuilder extends ColorParchmentAttributeBuilder {
+  static const _bgColor = 'bg';
   static const _transparentColor = 0;
 
   const BackgroundColorAttributeBuilder._()
-      : super._(_kBgColor, ParchmentAttributeScope.inline);
+      : super._(_bgColor, ParchmentAttributeScope.inline);
 
+  /// Creates foreground color attribute with [color] value
+  ///
+  /// If color is transparent, [unset] is returned
+  @override
   ParchmentAttribute<int> withColor(int color) {
     if (color == _transparentColor) {
       return unset;
     }
     return ParchmentAttribute<int>._(key, scope, color);
+  }
+}
+
+/// Builder for text color value.
+/// Color is interpreted from the lower 32 bits of an [int].
+///
+/// The bits are interpreted as follows:
+///
+/// * Bits 24-31 are the alpha value.
+/// * Bits 16-23 are the red value.
+/// * Bits 8-15 are the green value.
+/// * Bits 0-7 are the blue value.
+/// (see [Color] documentation for more details
+///
+/// There is no need to use this class directly, consider using
+/// [ParchmentAttribute.foregroundColor] instead.
+class ForegroundColorAttributeBuilder extends ColorParchmentAttributeBuilder {
+  static const _fgColor = 'fg';
+  static const _black = 0x00000000;
+
+  const ForegroundColorAttributeBuilder._()
+      : super._(_fgColor, ParchmentAttributeScope.inline);
+
+  /// Creates foreground color attribute with [color] value
+  ///
+  /// If color is black, [unset] is returned
+  @override
+  ParchmentAttribute<int> withColor(int color) {
+    if (color == _black) {
+      return unset;
+    }
+    return ParchmentAttribute._(key, scope, color);
   }
 }
 

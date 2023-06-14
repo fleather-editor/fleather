@@ -351,42 +351,46 @@ Widget defaultToggleStyleButtonBuilder(
 }
 
 /// Signature of callbacks that return a [Color] picked from a [BuildContext].
-typedef ColorPicker = Future<Color?> Function(BuildContext context);
+typedef PickColor = Future<Color?> Function(BuildContext);
+
+/// Signature of callbacks the return a [Widget] from a [BuildContext]
+/// and a [Color].
+typedef ColorButtonBuilder = Widget Function(BuildContext, Color);
 
 /// Toolbar button which allows to apply background color style to a portion of text.
 ///
 /// Works as a dropdown menu button.
-class BackgroundColorButton extends StatefulWidget {
-  final FleatherController controller;
-  final ColorPicker? colorPicker;
-
-  const BackgroundColorButton(
-      {Key? key, required this.controller, this.colorPicker})
+class ColorButton extends StatefulWidget {
+  const ColorButton(
+      {Key? key,
+      required this.controller,
+      required this.attributeKey,
+      required this.defaultColor,
+      required this.builder,
+      this.colorPicker})
       : super(key: key);
 
+  final FleatherController controller;
+  final ColorParchmentAttributeBuilder attributeKey;
+  final Color defaultColor;
+  final ColorButtonBuilder builder;
+  final PickColor? colorPicker;
+
   @override
-  State<BackgroundColorButton> createState() => _BackgroundColorButtonState();
+  State<ColorButton> createState() => _ColorButtonState();
 }
 
-class _BackgroundColorButtonState extends State<BackgroundColorButton> {
-  static Color defaultColor = Colors.transparent;
+class _ColorButtonState extends State<ColorButton> {
   static double buttonSize = 32;
 
   late Color _value;
 
   ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
 
-  void _selectAttribute(Color? color) {
-    widget.controller.formatSelection(color == null
-        ? ParchmentAttribute.backgroundColor.unset
-        : ParchmentAttribute.backgroundColor.withColor(color.value));
-  }
-
   void _didChangeEditingValue() {
     setState(() {
-      _value = Color(
-          _selectionStyle.get(ParchmentAttribute.backgroundColor)?.value ??
-              defaultColor.value);
+      _value = Color(_selectionStyle.get(widget.attributeKey)?.value ??
+          widget.defaultColor.value);
     });
   }
 
@@ -404,7 +408,7 @@ class _BackgroundColorButtonState extends State<BackgroundColorButton> {
       child: Container(
           constraints: BoxConstraints(maxWidth: maxWidth),
           padding: const EdgeInsets.all(8.0),
-          child: _ColorPalette()),
+          child: _ColorPalette(defaultColor: widget.defaultColor)),
     );
 
     return Navigator.of(context).push<Color>(
@@ -429,21 +433,19 @@ class _BackgroundColorButtonState extends State<BackgroundColorButton> {
   @override
   void initState() {
     super.initState();
-    _value = Color(
-        _selectionStyle.get(ParchmentAttribute.backgroundColor)?.value ??
-            defaultColor.value);
+    _value = Color(_selectionStyle.get(widget.attributeKey)?.value ??
+        widget.defaultColor.value);
     widget.controller.addListener(_didChangeEditingValue);
   }
 
   @override
-  void didUpdateWidget(covariant BackgroundColorButton oldWidget) {
+  void didUpdateWidget(covariant ColorButton oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_didChangeEditingValue);
       widget.controller.addListener(_didChangeEditingValue);
-      _value = Color(
-          _selectionStyle.get(ParchmentAttribute.backgroundColor)?.value ??
-              defaultColor.value);
+      _value = Color(_selectionStyle.get(widget.attributeKey)?.value ??
+          widget.defaultColor.value);
     }
   }
 
@@ -470,30 +472,10 @@ class _BackgroundColorButtonState extends State<BackgroundColorButton> {
         onPressed: () async {
           final selectedColor =
               await (widget.colorPicker ?? _defaultSelectColor)(context);
-          _selectAttribute(selectedColor);
+          widget.controller.formatSelection(widget.attributeKey
+              .withColor(selectedColor?.value ?? widget.defaultColor.value));
         },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.mode_edit_outline_outlined,
-              size: 16,
-            ),
-            Container(
-              width: 18,
-              height: 6,
-              decoration: BoxDecoration(
-                color: _value,
-                border: _value == Colors.transparent
-                    ? Border.all(
-                        color:
-                            Theme.of(context).iconTheme.color ?? Colors.black)
-                    : null,
-              ),
-            )
-          ],
-        ),
+        child: Builder(builder: (context) => widget.builder(context, _value)),
       ),
     );
   }
@@ -501,7 +483,6 @@ class _BackgroundColorButtonState extends State<BackgroundColorButton> {
 
 class _ColorPalette extends StatelessWidget {
   static const colors = [
-    Colors.transparent,
     Colors.indigo,
     Colors.blue,
     Colors.cyan,
@@ -516,8 +497,12 @@ class _ColorPalette extends StatelessWidget {
     Colors.purple,
     Colors.brown,
     Colors.grey,
-    Colors.blueGrey
+    Colors.white
   ];
+
+  const _ColorPalette({required this.defaultColor});
+
+  final Color defaultColor;
 
   @override
   Widget build(BuildContext context) {
@@ -526,7 +511,9 @@ class _ColorPalette extends StatelessWidget {
       alignment: WrapAlignment.start,
       runSpacing: 4,
       spacing: 4,
-      children: colors.map((e) => _ColorPaletteElement(color: e)).toList(),
+      children: [defaultColor, ...colors]
+          .map((e) => _ColorPaletteElement(color: e))
+          .toList(),
     );
   }
 }
@@ -768,6 +755,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
     bool hideUnderLineButton = false,
     bool hideStrikeThrough = false,
     bool hideBackgroundColor = false,
+    bool hideForegroundColor = false,
     bool hideInlineCode = false,
     bool hideHeadingStyle = false,
     bool hideIndentation = false,
@@ -784,6 +772,51 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
     List<Widget> trailing = const <Widget>[],
     bool hideAlignment = false,
   }) {
+    Widget backgroundColorBuilder(context, value) => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.mode_edit_outline_outlined,
+              size: 16,
+            ),
+            Container(
+              width: 18,
+              height: 4,
+              decoration: BoxDecoration(
+                color: value,
+                border: value == Colors.transparent
+                    ? Border.all(
+                        color:
+                            Theme.of(context).iconTheme.color ?? Colors.black)
+                    : null,
+              ),
+            )
+          ],
+        );
+    Widget textColorBuilder(context, value) => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.text_fields_sharp,
+              size: 16,
+            ),
+            Container(
+              width: 18,
+              height: 4,
+              decoration: BoxDecoration(
+                color: value,
+                border: value == Colors.transparent
+                    ? Border.all(
+                        color:
+                            Theme.of(context).iconTheme.color ?? Colors.black)
+                    : null,
+              ),
+            )
+          ],
+        );
     return FleatherToolbar(key: key, padding: padding, children: [
       ...leading,
       Visibility(
@@ -823,8 +856,22 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
       ),
       const SizedBox(width: 1),
       Visibility(
+        visible: !hideForegroundColor,
+        child: ColorButton(
+          controller: controller,
+          attributeKey: ParchmentAttribute.foregroundColor,
+          defaultColor: Colors.black,
+          builder: textColorBuilder,
+        ),
+      ),
+      Visibility(
         visible: !hideBackgroundColor,
-        child: BackgroundColorButton(controller: controller),
+        child: ColorButton(
+          controller: controller,
+          attributeKey: ParchmentAttribute.backgroundColor,
+          defaultColor: Colors.transparent,
+          builder: backgroundColorBuilder,
+        ),
       ),
       const SizedBox(width: 1),
       Visibility(

@@ -174,6 +174,20 @@ void main() {
       await runHeading(tester, 6);
     });
   });
+
+  group('Inline format', () {
+    testWidgets('Text color', (tester) async {
+      final delta = Delta()
+        ..insert('colore text', {'fg': 4278237952})
+        ..insert('\n');
+      final editor = EditorSandBox(
+          tester: tester, document: ParchmentDocument.fromDelta(delta));
+      await editor.pump();
+      final widget = tester.widget<RichText>(find.byType(RichText));
+      expect((widget.text as TextSpan).children?[0].style?.color?.value,
+          4278237952);
+    });
+  });
 }
 
 Future<void> insertText(WidgetTester tester, String textInserted,

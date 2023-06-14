@@ -71,6 +71,15 @@
     }
   },
   {
+    "insert": ", "
+  },
+  {
+    "insert": "text color",
+    "attributes": {
+      "fg": 4278237952
+    }
+  },
+  {
     "insert": " but also features line and block attributes too. The image at the beginning of this document is a block embed easily integrated into Fleather.\n"
   },
   {

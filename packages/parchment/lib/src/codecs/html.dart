@@ -16,6 +16,7 @@ final _inlineAttributesParchmentToHtml = {
   ParchmentAttribute.inlineCode.key: 'code',
   ParchmentAttribute.link.key: 'a',
   ParchmentAttribute.backgroundColor.key: 'span',
+  ParchmentAttribute.foregroundColor.key: 'span',
 };
 
 const _indentWidthInPx = 32;
@@ -519,11 +520,17 @@ class _HtmlInlineTag extends _HtmlTag {
     if (key == ParchmentAttribute.link.key) {
       return '<${_inlineAttributesParchmentToHtml[key]} href="$value">';
     }
+    if (key == ParchmentAttribute.foregroundColor.key) {
+      final argb = toRGBA(value);
+      return '<${_inlineAttributesParchmentToHtml[key]} '
+          'style="color: '
+          'rgba(${argb[1]},${argb[2]},${argb[3]},${argb[0] / 255})">';
+    }
     if (key == ParchmentAttribute.backgroundColor.key) {
       final argb = toRGBA(value);
       return '<${_inlineAttributesParchmentToHtml[key]} '
           'style="background-color: '
-          'rgba(${argb[1]},${argb[2]},${argb[3]},${argb[0]})">';
+          'rgba(${argb[1]},${argb[2]},${argb[3]},${argb[0] / 255})">';
     }
     return '<${_inlineAttributesParchmentToHtml[key]}>';
   }
@@ -914,6 +921,12 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
           final color = colorValueFromCSS(sValue);
           updated =
               updated.put(ParchmentAttribute.backgroundColor.withColor(color));
+        }
+        if (style.startsWith('color')) {
+          final sValue = style.split(':')[1].trim();
+          final color = colorValueFromCSS(sValue);
+          updated =
+              updated.put(ParchmentAttribute.foregroundColor.withColor(color));
         }
       }
     }
