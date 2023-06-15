@@ -95,7 +95,7 @@ Widget widget(FleatherController controller, {bool withBasic = false}) {
               ),
               IndentationButton(controller: controller),
               IndentationButton(controller: controller, increase: false),
-              SelectHeadingStyleButton(controller: controller),
+              SelectHeadingButton(controller: controller),
               LinkStyleButton(controller: controller),
               InsertEmbedButton(
                   controller: controller, icon: Icons.horizontal_rule),
@@ -192,13 +192,12 @@ void main() {
       final controller = FleatherController();
       await tester.pumpWidget(widget(controller));
       await tester.pumpAndSettle();
-      final selectHeadings = find.byType(SelectHeadingStyleButton);
+      final selectHeadings = find.byType(SelectHeadingButton);
       controller.compose(Delta()..insert('Hello world'));
       await tester.pumpAndSettle(throttleDuration);
       await tester.tap(selectHeadings);
       await tester.pumpAndSettle();
-      await tester
-          .tap(find.byType(DropdownMenuItem<ParchmentAttribute<int>?>).last);
+      await tester.tap(find.byKey(const Key('heading_entry6')));
       await tester.pumpAndSettle(throttleDuration);
 
       expect(controller.document.toDelta().last,
@@ -294,7 +293,7 @@ void main() {
       expect(find.byIcon(Icons.format_align_left), findsOneWidget);
       expect(find.byIcon(Icons.format_align_right), findsOneWidget);
       expect(find.byIcon(Icons.format_align_justify), findsOneWidget);
-      expect(find.byType(SelectHeadingStyleButton), findsOneWidget);
+      expect(find.byType(SelectHeadingButton), findsOneWidget);
       // Increase + decrease
       expect(find.byType(IndentationButton), findsNWidgets(2));
       expect(find.byIcon(Icons.format_list_bulleted), findsOneWidget);
