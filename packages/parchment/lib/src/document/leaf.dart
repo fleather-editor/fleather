@@ -11,9 +11,7 @@ import 'line.dart';
 import 'node.dart';
 
 /// A leaf node in Parchment document tree.
-abstract class LeafNode extends Node
-    with StyledNodeMixin
-    implements StyledNode {
+abstract base class LeafNode extends Node with StyledNode {
   /// Creates a new [LeafNode] with specified [data].
   LeafNode._(Object data) : _value = data;
 
@@ -238,7 +236,7 @@ abstract class LeafNode extends Node
 ///   * [EmbedNode], a leaf node representing an embeddable object.
 ///   * [LineNode], a node representing a line of text.
 ///   * [BlockNode], a node representing a group of lines.
-class TextNode extends LeafNode {
+final class TextNode extends LeafNode {
   TextNode([String text = ''])
       : assert(!text.contains('\n')),
         super._(text);
@@ -264,7 +262,7 @@ class TextNode extends LeafNode {
 /// necessarily mean the embed will look according to that style. For instance,
 /// applying "bold" style to an image gives no effect, while adding a "link" to
 /// an image actually makes the image react to user's action.
-class EmbedNode extends LeafNode {
+final class EmbedNode extends LeafNode {
   static final kObjectReplacementCharacter = '\uFFFC';
 
   EmbedNode(EmbeddableObject object) : super._(object);

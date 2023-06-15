@@ -18,9 +18,7 @@ import 'node.dart';
 ///
 /// When a line contains an embed, it fully occupies the line, no other embeds
 /// or text nodes are allowed.
-class LineNode extends ContainerNode<LeafNode>
-    with StyledNodeMixin
-    implements StyledNode {
+final class LineNode extends ContainerNode<LeafNode> with StyledNode {
   /// Returns `true` if this line contains a block embedded object.
   bool get hasBlockEmbed {
     if (childCount == 1 && children.single is EmbedNode) {

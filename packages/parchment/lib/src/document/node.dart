@@ -18,7 +18,7 @@ import 'line.dart';
 ///
 /// The current parent node is exposed by the [parent] property. A node is
 /// considered [mounted] when the [parent] property is not `null`.
-abstract class Node extends LinkedListEntry<Node> {
+abstract base class Node extends LinkedListEntry<Node> {
   /// Current parent of this node. May be null if this node is not mounted.
   ContainerNode? get parent => _parent;
   ContainerNode? _parent;
@@ -133,7 +133,7 @@ class LookupResult {
 ///
 /// Most of the operation handling logic is implemented by [LineNode] and
 /// [TextNode].
-abstract class ContainerNode<T extends Node> extends Node {
+abstract base class ContainerNode<T extends Node> extends Node {
   final LinkedList<Node> _children = LinkedList<Node>();
 
   /// List of children.
@@ -263,15 +263,8 @@ abstract class ContainerNode<T extends Node> extends Node {
   String toString() => _children.join('\n');
 }
 
-/// An interface for document nodes with style.
-abstract class StyledNode implements Node {
-  /// Style of this node.
-  ParchmentStyle get style;
-}
-
 /// Mixin used by nodes that wish to implement [StyledNode] interface.
-abstract class StyledNodeMixin implements StyledNode {
-  @override
+base mixin StyledNode on Node {
   ParchmentStyle get style => _style;
   ParchmentStyle _style = ParchmentStyle();
 
@@ -293,7 +286,7 @@ abstract class StyledNodeMixin implements StyledNode {
 }
 
 /// Root node of document tree.
-class RootNode extends ContainerNode<ContainerNode<Node>> {
+base class RootNode extends ContainerNode<ContainerNode<Node>> {
   @override
   ContainerNode<Node> get defaultChild => LineNode();
 

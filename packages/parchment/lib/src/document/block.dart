@@ -11,9 +11,7 @@ import 'node.dart';
 /// style.
 ///
 /// Block examples: lists, quotes, code snippets.
-class BlockNode extends ContainerNode<LineNode>
-    with StyledNodeMixin
-    implements StyledNode {
+final class BlockNode extends ContainerNode<LineNode> with StyledNode {
   /// Creates new unmounted [BlockNode] with the same attributes.
   BlockNode clone() {
     final node = BlockNode();
