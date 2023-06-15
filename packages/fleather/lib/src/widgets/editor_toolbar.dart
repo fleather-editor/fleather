@@ -643,7 +643,6 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
           return Stack(
             children: [
               Positioned(
-                key: const Key('heading_list'),
                 top: offset.dy,
                 left: offset.dx,
                 child: selector,
@@ -706,6 +705,7 @@ class _HeadingListEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
+      key: Key('heading_entry${value.value ?? 0}'),
       clipBehavior: Clip.antiAlias,
       onPressed: () => Navigator.pop(context, value),
       child: Container(
