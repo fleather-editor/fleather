@@ -982,7 +982,7 @@ class RenderEditor extends RenderEditableContainerBox
   }
 }
 
-class FleatherVerticalCaretMovementRun extends Iterator<TextPosition> {
+class FleatherVerticalCaretMovementRun implements Iterator<TextPosition> {
   FleatherVerticalCaretMovementRun._(
     this._editor,
     this._currentTextPosition,
