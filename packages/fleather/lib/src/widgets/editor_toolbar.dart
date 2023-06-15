@@ -367,14 +367,14 @@ class ColorButton extends StatefulWidget {
       required this.attributeKey,
       required this.defaultColor,
       required this.builder,
-      this.colorPicker})
+      this.pickColor})
       : super(key: key);
 
   final FleatherController controller;
   final ColorParchmentAttributeBuilder attributeKey;
   final Color defaultColor;
   final ColorButtonBuilder builder;
-  final PickColor? colorPicker;
+  final PickColor? pickColor;
 
   @override
   State<ColorButton> createState() => _ColorButtonState();
@@ -394,7 +394,7 @@ class _ColorButtonState extends State<ColorButton> {
     });
   }
 
-  Future<Color?> _defaultSelectColor(BuildContext context) async {
+  Future<Color?> _defaultPickColor(BuildContext context) async {
     // kIsWeb important here as Platform.xxx will cause a crash en web
     final isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
     final maxWidth = isMobile ? 200.0 : 100.0;
@@ -471,7 +471,7 @@ class _ColorButtonState extends State<ColorButton> {
         highlightElevation: 1,
         onPressed: () async {
           final selectedColor =
-              await (widget.colorPicker ?? _defaultSelectColor)(context);
+              await (widget.pickColor ?? _defaultPickColor)(context);
           widget.controller.formatSelection(widget.attributeKey
               .withColor(selectedColor?.value ?? widget.defaultColor.value));
         },
@@ -550,48 +550,58 @@ class _ColorPaletteElement extends StatelessWidget {
 ///
 /// Works as a dropdown menu button.
 // TODO: Add "dense" parameter which if set to true changes the button to use an icon instead of text (useful for mobile layouts)
-class SelectHeadingStyleButton extends StatefulWidget {
+class SelectHeadingButton extends StatefulWidget {
+  const SelectHeadingButton({super.key, required this.controller});
+
   final FleatherController controller;
 
-  const SelectHeadingStyleButton({Key? key, required this.controller})
-      : super(key: key);
-
   @override
-  State<SelectHeadingStyleButton> createState() =>
-      _SelectHeadingStyleButtonState();
+  State<SelectHeadingButton> createState() => _SelectHeadingButtonState();
 }
 
-class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
-  ParchmentAttribute<int>? _value;
+final _headingToText = {
+  ParchmentAttribute.heading.unset: 'Normal',
+  ParchmentAttribute.heading.level1: 'Heading 1',
+  ParchmentAttribute.heading.level2: 'Heading 2',
+  ParchmentAttribute.heading.level3: 'Heading 3',
+  ParchmentAttribute.heading.level4: 'Heading 4',
+  ParchmentAttribute.heading.level5: 'Heading 5',
+  ParchmentAttribute.heading.level6: 'Heading 6',
+};
 
-  ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
+class _SelectHeadingButtonState extends State<SelectHeadingButton> {
+  static double buttonHeight = 32;
+
+  ParchmentAttribute<int>? current;
+
+  ParchmentStyle get selectionStyle => widget.controller.getSelectionStyle();
 
   void _didChangeEditingValue() {
     setState(() {
-      _value = _selectionStyle.get(ParchmentAttribute.heading) ??
+      current = selectionStyle.get(ParchmentAttribute.heading) ??
           ParchmentAttribute.heading.unset;
     });
   }
 
-  void _selectAttribute(value) {
+  void _selectAttribute(ParchmentAttribute<int> value) {
     widget.controller.formatSelection(value);
   }
 
   @override
   void initState() {
     super.initState();
-    _value = _selectionStyle.get(ParchmentAttribute.heading) ??
+    current = selectionStyle.get(ParchmentAttribute.heading) ??
         ParchmentAttribute.heading.unset;
     widget.controller.addListener(_didChangeEditingValue);
   }
 
   @override
-  void didUpdateWidget(covariant SelectHeadingStyleButton oldWidget) {
+  void didUpdateWidget(covariant SelectHeadingButton oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_didChangeEditingValue);
       widget.controller.addListener(_didChangeEditingValue);
-      _value = _selectionStyle.get(ParchmentAttribute.heading) ??
+      current = selectionStyle.get(ParchmentAttribute.heading) ??
           ParchmentAttribute.heading.unset;
     }
   }
@@ -604,60 +614,110 @@ class _SelectHeadingStyleButtonState extends State<SelectHeadingStyleButton> {
 
   @override
   Widget build(BuildContext context) {
-    const style = TextStyle(fontSize: 12);
+    return ConstrainedBox(
+      constraints: BoxConstraints.tightFor(height: buttonHeight),
+      child: RawMaterialButton(
+        onPressed: _selectHeading,
+        child: Text(_headingToText[current] ?? ''),
+      ),
+    );
+  }
 
-    final valueToText = {
-      ParchmentAttribute.heading.unset: 'Normal text',
-      ParchmentAttribute.heading.level1: 'Heading 1',
-      ParchmentAttribute.heading.level2: 'Heading 2',
-      ParchmentAttribute.heading.level3: 'Heading 3',
-      ParchmentAttribute.heading.level4: 'Heading 4',
-      ParchmentAttribute.heading.level5: 'Heading 5',
-      ParchmentAttribute.heading.level6: 'Heading 6',
-    };
+  Future<void> _selectHeading() async {
+    final renderBox = context.findRenderObject() as RenderBox;
+    final offset =
+        renderBox.localToGlobal(Offset.zero) + Offset(0, buttonHeight);
+    final themeData = FleatherTheme.of(context)!;
 
-    return DropdownButton<ParchmentAttribute<int>?>(
-      underline: Container(),
+    final selector = Material(
+      elevation: 4.0,
       borderRadius: BorderRadius.circular(2),
-      items: [
-        DropdownMenuItem(
-          value: ParchmentAttribute.heading.unset,
-          child: Text(valueToText[ParchmentAttribute.heading.unset]!,
-              style: style),
+      color: Theme.of(context).canvasColor,
+      child: _HeadingList(theme: themeData),
+    );
+
+    final newValue = await Navigator.of(context).push<ParchmentAttribute<int>>(
+      RawDialogRoute(
+        barrierColor: Colors.transparent,
+        pageBuilder: (context, _, __) {
+          return Stack(
+            children: [
+              Positioned(
+                key: const Key('heading_list'),
+                top: offset.dy,
+                left: offset.dx,
+                child: selector,
+              )
+            ],
+          );
+        },
+      ),
+    );
+
+    if (newValue != null) _selectAttribute(newValue);
+  }
+}
+
+class _HeadingList extends StatelessWidget {
+  final FleatherThemeData theme;
+
+  const _HeadingList({required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 200),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _headingToText.entries
+              .map((entry) => _listItem(theme, entry.key, entry.value))
+              .toList(),
         ),
-        DropdownMenuItem(
-          value: ParchmentAttribute.heading.level1,
-          child: Text(valueToText[ParchmentAttribute.heading.level1]!,
-              style: style),
+      ),
+    );
+  }
+
+  Widget _listItem(
+      FleatherThemeData? theme, ParchmentAttribute<int> value, String text) {
+    final valueToStyle = {
+      ParchmentAttribute.heading.unset: theme?.paragraph.style,
+      ParchmentAttribute.heading.level1: theme?.heading1.style,
+      ParchmentAttribute.heading.level2: theme?.heading2.style,
+      ParchmentAttribute.heading.level3: theme?.heading3.style,
+      ParchmentAttribute.heading.level4: theme?.heading4.style,
+      ParchmentAttribute.heading.level5: theme?.heading5.style,
+      ParchmentAttribute.heading.level6: theme?.heading6.style,
+    };
+    return _HeadingListEntry(
+        value: value, text: text, style: valueToStyle[value]);
+  }
+}
+
+class _HeadingListEntry extends StatelessWidget {
+  final ParchmentAttribute<int> value;
+  final String text;
+  final TextStyle? style;
+
+  const _HeadingListEntry(
+      {required this.value, required this.text, required this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      clipBehavior: Clip.antiAlias,
+      onPressed: () => Navigator.pop(context, value),
+      child: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        child: Text(
+          text,
+          maxLines: 1,
+          style: style,
+          overflow: TextOverflow.ellipsis,
         ),
-        DropdownMenuItem(
-          value: ParchmentAttribute.heading.level2,
-          child: Text(valueToText[ParchmentAttribute.heading.level2]!,
-              style: style),
-        ),
-        DropdownMenuItem(
-          value: ParchmentAttribute.heading.level3,
-          child: Text(valueToText[ParchmentAttribute.heading.level3]!,
-              style: style),
-        ),
-        DropdownMenuItem(
-          value: ParchmentAttribute.heading.level4,
-          child: Text(valueToText[ParchmentAttribute.heading.level4]!,
-              style: style),
-        ),
-        DropdownMenuItem(
-          value: ParchmentAttribute.heading.level5,
-          child: Text(valueToText[ParchmentAttribute.heading.level5]!,
-              style: style),
-        ),
-        DropdownMenuItem(
-          value: ParchmentAttribute.heading.level6,
-          child: Text(valueToText[ParchmentAttribute.heading.level6]!,
-              style: style),
-        ),
-      ],
-      onChanged: _selectAttribute,
-      value: _value,
+      ),
     );
   }
 }
@@ -971,7 +1031,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
 
       Visibility(
           visible: !hideHeadingStyle,
-          child: SelectHeadingStyleButton(controller: controller)),
+          child: SelectHeadingButton(controller: controller)),
       Visibility(
           visible: !hideHeadingStyle,
           child: VerticalDivider(
@@ -1077,15 +1137,31 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _FleatherToolbarState extends State<FleatherToolbar> {
+  late FleatherThemeData theme;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final parentTheme = FleatherTheme.of(context, nullOk: true);
+    final fallbackTheme = FleatherThemeData.fallback(context);
+    theme = (parentTheme != null)
+        ? fallbackTheme.merge(parentTheme)
+        : fallbackTheme;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
-      constraints: BoxConstraints.tightFor(height: widget.preferredSize.height),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: widget.children,
+    return FleatherTheme(
+      data: theme,
+      child: Container(
+        padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
+        constraints:
+            BoxConstraints.tightFor(height: widget.preferredSize.height),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: widget.children,
+          ),
         ),
       ),
     );
