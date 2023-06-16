@@ -48,18 +48,25 @@ class FleatherController extends ChangeNotifier {
 
   /// Returns style of specified text range.
   ///
+  /// If nothing is selected, the selection inline style is the style applied to the
+  /// last character preceding the selection.
+  ///
   /// If nothing is selected but we've toggled an attribute,
   /// we also merge those in our style before returning.
   ParchmentStyle getSelectionStyle() {
     final start = _selection.start;
     final length = _selection.end - start;
+
     final effectiveStart =
         _selection.isCollapsed ? math.max(0, start - 1) : start;
-    var lineStyle = document.collectStyle(effectiveStart, length);
+    final inlineAttributes =
+        document.collectStyle(effectiveStart, length).inlineAttributes;
+    final lineAttributes = document.collectStyle(start, length).lineAttributes;
 
-    lineStyle = lineStyle.mergeAll(toggledStyles);
-
-    return lineStyle;
+    return ParchmentStyle()
+        .putAll(inlineAttributes)
+        .putAll(lineAttributes)
+        .mergeAll(toggledStyles);
   }
 
   bool _shouldApplyToggledStyles(Delta delta) =>

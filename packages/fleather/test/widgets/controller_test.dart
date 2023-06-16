@@ -12,7 +12,7 @@ void main() {
     late FleatherController controller;
 
     setUp(() {
-      var doc = ParchmentDocument();
+      final doc = ParchmentDocument();
       controller = FleatherController(doc);
     });
 
@@ -47,8 +47,8 @@ void main() {
       controller.addListener(() {
         notified = true;
       });
-      var selection = const TextSelection.collapsed(offset: 5);
-      var change = Delta()..insert('Words');
+      const selection = TextSelection.collapsed(offset: 5);
+      final change = Delta()..insert('Words');
       controller.compose(change, selection: selection);
       expect(notified, isTrue);
       expect(controller.selection, selection);
@@ -61,13 +61,13 @@ void main() {
       controller.addListener(() {
         notified = true;
       });
-      var selection = const TextSelection.collapsed(offset: 5);
-      var change = Delta()..insert('Words');
+      const selection = TextSelection.collapsed(offset: 5);
+      final change = Delta()..insert('Words');
       controller.compose(change, selection: selection);
-      var change2 = Delta()..insert('More ');
+      final change2 = Delta()..insert('More ');
       controller.compose(change2);
       expect(notified, isTrue);
-      var expectedSelection = const TextSelection.collapsed(offset: 10);
+      const expectedSelection = TextSelection.collapsed(offset: 10);
       expect(controller.selection, expectedSelection);
       expect(controller.document.toDelta(), Delta()..insert('More Words\n'));
       // expect(controller.lastChangeSource, ChangeSource.remote);
@@ -78,7 +78,7 @@ void main() {
       controller.addListener(() {
         notified = true;
       });
-      var selection = const TextSelection.collapsed(offset: 5);
+      const selection = TextSelection.collapsed(offset: 5);
       controller.replaceText(0, 0, 'Words', selection: selection);
       expect(notified, isTrue);
       expect(controller.selection, selection);
@@ -156,7 +156,7 @@ void main() {
       controller.addListener(() {
         notified = true;
       });
-      var selection = const TextSelection(baseOffset: 0, extentOffset: 5);
+      const selection = TextSelection(baseOffset: 0, extentOffset: 5);
       controller.replaceText(0, 0, 'Words', selection: selection);
       controller.formatSelection(ParchmentAttribute.bold);
       expect(notified, isTrue);
@@ -170,27 +170,39 @@ void main() {
     });
 
     test('getSelectionStyle', () {
-      var selection = const TextSelection.collapsed(offset: 3);
+      const selection = TextSelection.collapsed(offset: 3);
       controller.replaceText(0, 0, 'Words', selection: selection);
       controller.formatText(0, 5, ParchmentAttribute.bold);
-      var result = controller.getSelectionStyle();
+      final result = controller.getSelectionStyle();
       expect(result.values, [ParchmentAttribute.bold]);
     });
 
     test('getSelectionStyle at end of formatted word', () {
-      var selection = const TextSelection.collapsed(offset: 5);
+      const selection = TextSelection.collapsed(offset: 5);
       controller.replaceText(0, 0, 'Words in bold', selection: selection);
       controller.formatText(0, 5, ParchmentAttribute.bold);
-      var result = controller.getSelectionStyle();
+      final result = controller.getSelectionStyle();
       expect(result.values, [ParchmentAttribute.bold]);
     });
 
+    test('getSelectionStyle at start of formatted line', () {
+      const selection = TextSelection.collapsed(offset: 8);
+      controller.replaceText(0, 0, 'Heading', selection: selection);
+      controller.formatText(7, 0, ParchmentAttribute.heading.level1);
+      controller.replaceText(7, 0, '\n');
+      controller.formatText(8, 0, ParchmentAttribute.heading.unset);
+      controller.replaceText(8, 0, 'normal');
+      controller.updateSelection(selection);
+      final result = controller.getSelectionStyle();
+      expect(result.values, []);
+    });
+
     test('getSelectionStyle with toggled style', () {
-      var selection = const TextSelection.collapsed(offset: 3);
+      const selection = TextSelection.collapsed(offset: 3);
       controller.replaceText(0, 0, 'Words', selection: selection);
       controller.formatText(3, 0, ParchmentAttribute.bold);
 
-      var result = controller.getSelectionStyle();
+      final result = controller.getSelectionStyle();
       expect(result.values, [ParchmentAttribute.bold]);
     });
 
