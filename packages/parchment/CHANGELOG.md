@@ -1,3 +1,10 @@
+## 1.9.0
+
+* Migrated to Dart 3
+* New foreground color attribute - `fg`
+* HTML codec handles backgound color & foreground color
+* Added eading attribute levels 3 to 6
+
 ## 1.8.0
 
 * Upgrade to intl 0.18.0
