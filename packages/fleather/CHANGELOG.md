@@ -1,3 +1,9 @@
+## 1.9.0
+
+* Migrated to Dart 3
+* Support for foreground color & heading levels 1 to 6
+* [Fix] Incorrect `ParchmentStyle` returned by controller at start of line
+
 ## 1.8.0
 
 * Support for Flutter 3.10
