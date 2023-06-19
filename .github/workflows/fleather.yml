@@ -58,28 +58,6 @@ jobs:
         working-directory: ./packages/fleather
         run: flutter test --coverage
 
-      - name: Cache - Save coverage
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ./packages/parchment/coverage/lcov.info
-            ./packages/fleather/coverage/lcov.info
-          key: cov-files
-
-  upload-codecov:
-    runs-on: ubuntu-latest
-
-    needs: build
-
-    steps:
-      - name: Cache - Restore coverage
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            ./packages/parchment/coverage/lcov.info
-            ./packages/fleather/coverage/lcov.info
-          key: cov-files
-
       - name: Codecov
         uses: codecov/codecov-action@v3
         with:
