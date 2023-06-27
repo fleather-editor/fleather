@@ -8,6 +8,8 @@ Soft and gentle rich text editing for Flutter applications based on [Zefyr](http
 
 <img src="https://github.com/fleather-editor/fleather/assets/17318211/baa4f4ba-be20-4f60-becb-53070d632617" width="600">
 
+**👉 Live demo [here](https://fleather-editor.github.io/demo).**
+
 ## Features
 * Works on Android, iOS, Web, macOS, Linux and Windows
 * Inline attributes like **bold**, *italic*, ~~strikethrough~~ and etc.
@@ -17,6 +19,8 @@ Soft and gentle rich text editing for Flutter applications based on [Zefyr](http
 * Markdown-inspired semantics
 * Supports markdown shortcuts
 * Using [Quill.js Delta](https://quilljs.com/docs/delta) as underlying data format by [Parchment](packages/parchment/README.md), Fleather is ready for collaborative editing using [OT](https://en.wikipedia.org/wiki/Operational_transformation) (Not provided as a built-in functionality)
+
+**Full documentation can be found [here](https://fleather-editor.github.io/docs).**
 
 ## Get started
 Add Fleather to your dependencies.
