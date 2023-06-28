@@ -20,7 +20,7 @@ Soft and gentle rich text editing for Flutter applications based on [Zefyr](http
 * Supports markdown shortcuts
 * Using [Quill.js Delta](https://quilljs.com/docs/delta) as underlying data format by [Parchment](packages/parchment/README.md), Fleather is ready for collaborative editing using [OT](https://en.wikipedia.org/wiki/Operational_transformation) (Not provided as a built-in functionality)
 
-**Full documentation can be found [here](https://fleather-editor.github.io/docs).**
+**Full documentation can be found [here](https://fleather-editor.github.io/docs/getting-started/quick-start/).**
 
 ## Get started
 Add Fleather to your dependencies.
@@ -32,7 +32,8 @@ dependencies:
 ```
 
 ## Usage
-**For a complete working project using Fleather, check our [example](./example/lib/main.dart).**
+**For a complete working project using Fleather, check our [example](https://github.com/fleather-editor/fleather/blob/master/packages/fleather/example/lib/main.dart).**
+
 1. Create a `FleatherController`
 ```dart
 document = ParchmentDocument.fromJson(json);
