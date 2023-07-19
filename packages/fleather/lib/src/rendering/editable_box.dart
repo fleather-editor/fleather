@@ -313,8 +313,7 @@ class RenderEditableContainerBox extends RenderBox
 
     var mainAxisExtent = _resolvedPadding!.top;
     var child = firstChild;
-    final innerConstraints = BoxConstraints(maxWidth: constraints.maxWidth)
-        .deflate(_resolvedPadding!);
+    final innerConstraints = constraints.deflate(_resolvedPadding!);
     while (child != null) {
       child.layout(innerConstraints, parentUsesSize: true);
       final childParentData = child.parentData as EditableContainerParentData;

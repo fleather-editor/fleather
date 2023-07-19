@@ -13,14 +13,55 @@ import 'package:flutter_test/flutter_test.dart';
 import 'rendering_tools.dart';
 
 void main() {
-  TestRenderingFlutterBinding.ensureInitialized();
+  late final CursorController cursorController;
+
+  setUpAll(() {
+    cursorController = CursorController(
+      showCursor: ValueNotifier(false),
+      style:
+          const CursorStyle(color: Colors.blue, backgroundColor: Colors.blue),
+      tickerProvider: FakeTickerProvider(),
+    );
+    TestRenderingFlutterBinding.ensureInitialized();
+  });
+
   group('$RenderEditableTextLine', () {
+    test('Does not hit test body when tap is outside of text boxes', () {
+      final lineNode = LineNode();
+      final rootNode = RootNode();
+      rootNode.addFirst(lineNode);
+      final renderBox = RenderEditableTextLine(
+          node: lineNode,
+          padding: EdgeInsets.zero,
+          textDirection: TextDirection.ltr,
+          cursorController: cursorController,
+          selection: const TextSelection.collapsed(offset: 0),
+          selectionColor: Colors.blue,
+          enableInteractiveSelection: false,
+          hasFocus: false,
+          inlineCodeTheme: InlineCodeThemeData(style: const TextStyle()));
+      renderBox.body = RenderParagraphProxy(
+          textStyle: const TextStyle(),
+          textScaleFactor: 1,
+          child: RenderParagraph(
+            const TextSpan(
+                text: 'A text with that will be broken into multiple lines'),
+            textDirection: TextDirection.ltr,
+          ),
+          textDirection: TextDirection.ltr,
+          textWidthBasis: TextWidthBasis.parent);
+      layout(renderBox, constraints: const BoxConstraints(maxWidth: 100));
+      expect(
+          renderBox.hitTestChildren(BoxHitTestResult(),
+              position: const Offset(10, 2)),
+          equals(true));
+      expect(
+          renderBox.hitTestChildren(BoxHitTestResult(),
+              position: const Offset(80, 100)),
+          equals(false));
+    });
+
     test('Background color', () {
-      final cursorController = CursorController(
-          showCursor: ValueNotifier(false),
-          style: const CursorStyle(
-              color: Colors.blue, backgroundColor: Colors.blue),
-          tickerProvider: FakeTickerProvider());
       final lineNode = LineNode()
         ..insert(0, 'some text', ParchmentStyle.fromJson({'bg': 0xffff0000}));
       final rootNode = RootNode();
@@ -55,11 +96,6 @@ void main() {
     });
 
     test('inline code', () {
-      final cursorController = CursorController(
-          showCursor: ValueNotifier(false),
-          style: const CursorStyle(
-              color: Colors.blue, backgroundColor: Colors.blue),
-          tickerProvider: FakeTickerProvider());
       final lineNode = LineNode()
         ..insert(0, 'some text', ParchmentStyle.fromJson({'c': true}));
       final rootNode = RootNode();
