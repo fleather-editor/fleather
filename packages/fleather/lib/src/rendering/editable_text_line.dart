@@ -782,22 +782,29 @@ class RenderEditableTextLine extends RenderEditableBox {
     if (leading != null) {
       final childParentData = leading!.parentData as BoxParentData;
       final isHit = result.addWithPaintOffset(
-          offset: childParentData.offset,
-          position: position,
-          hitTest: (BoxHitTestResult result, Offset transformed) {
-            assert(transformed == position - childParentData.offset);
-            return leading!.hitTest(result, position: transformed);
-          });
+        offset: childParentData.offset,
+        position: position,
+        hitTest: (result, transformed) =>
+            leading!.hitTest(result, position: transformed),
+      );
       if (isHit) return true;
     }
     if (body == null) return false;
     final parentData = body!.parentData as BoxParentData;
-    return result.addWithPaintOffset(
+    final offset = position - parentData.offset;
+    final textBoxes = body!.getBoxesForSelection(
+        TextSelection(baseOffset: 0, extentOffset: node.toPlainText().length));
+    final isInTextBoxes = textBoxes.any((e) =>
+        Rect.fromLTRB(e.left, e.top, e.right, e.bottom).contains(offset));
+    if (isInTextBoxes) {
+      return result.addWithPaintOffset(
         offset: parentData.offset,
         position: position,
-        hitTest: (BoxHitTestResult result, Offset position) {
-          return body!.hitTest(result, position: position);
-        });
+        hitTest: (result, position) =>
+            body!.hitTest(result, position: position),
+      );
+    }
+    return false;
   }
 
 // End render box overrides
