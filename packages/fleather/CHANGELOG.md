@@ -1,3 +1,9 @@
+## 1.9.1
+
+* Fix light theme inline code background color for Material 3
+* Fix wrong bounding box for text lines in block
+* Fix alignment and direction in blocks
+
 ## 1.9.0
 
 * Migrated to Dart 3
