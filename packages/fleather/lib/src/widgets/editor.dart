@@ -1624,19 +1624,24 @@ class RawEditorState extends EditorState
   @override
   List<ContextMenuButtonItem> get contextMenuButtonItems {
     return EditableText.getEditableButtonItems(
-      clipboardStatus: clipboardStatus?.value,
-      onCopy: copyEnabled
-          ? () => copySelection(SelectionChangedCause.toolbar)
-          : null,
-      onCut:
-          cutEnabled ? () => cutSelection(SelectionChangedCause.toolbar) : null,
-      onPaste:
-          pasteEnabled ? () => pasteText(SelectionChangedCause.toolbar) : null,
-      onSelectAll: selectAllEnabled
-          ? () => selectAll(SelectionChangedCause.toolbar)
-          : null,
-    );
+        clipboardStatus: clipboardStatus?.value,
+        onCopy: copyEnabled
+            ? () => copySelection(SelectionChangedCause.toolbar)
+            : null,
+        onCut: cutEnabled
+            ? () => cutSelection(SelectionChangedCause.toolbar)
+            : null,
+        onPaste: pasteEnabled
+            ? () => pasteText(SelectionChangedCause.toolbar)
+            : null,
+        onSelectAll: selectAllEnabled
+            ? () => selectAll(SelectionChangedCause.toolbar)
+            : null,
+        onLiveTextInput: null);
   }
+
+  @override
+  bool liveTextInputEnabled = false;
 }
 
 class _Editor extends MultiChildRenderObjectWidget {
