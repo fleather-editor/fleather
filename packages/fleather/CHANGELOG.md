@@ -1,3 +1,7 @@
+## 1.10.0 
+
+* Support for Flutter 3.13
+  
 ## 1.9.1
 
 * Fix light theme inline code background color for Material 3
