@@ -43,3 +43,8 @@ bool isBlockEmbed(Object data) {
   }
   return false;
 }
+
+bool isOnlyNewLines(Object data) {
+  if (data is! String) return false;
+  return data.replaceAll('\n', '').isEmpty;
+}

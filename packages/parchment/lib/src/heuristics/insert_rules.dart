@@ -64,6 +64,25 @@ class CatchAllInsertRule extends InsertRule {
   }
 }
 
+/// Fallback rule for new line which retains line styles
+class PreserveLineStyleOnNewLineInsertRule extends InsertRule {
+  const PreserveLineStyleOnNewLineInsertRule();
+
+  @override
+  Delta? apply(Delta document, int index, Object data) {
+    if (!isOnlyNewLines(data)) return null;
+
+    final iter = DeltaIterator(document);
+    iter.skip(index);
+    final nextNewline = _findNextNewline(iter);
+    if (nextNewline.isEmpty) return null;
+
+    return Delta()
+      ..retain(index)
+      ..insert(data, nextNewline.op?.attributes);
+  }
+}
+
 /// Preserves line format when user splits the line into two.
 ///
 /// This rule ignores scenarios when the line is split on its edge, meaning
@@ -113,13 +132,13 @@ class PreserveLineStyleOnSplitRule extends InsertRule {
   }
 }
 
-/// Resets format for a newly inserted line when insert occurred at the end
-/// of a line (right before a newline).
+/// Resets heading format for a newly inserted line when insert occurred at
+/// the end of a line (right before a newline).
 ///
 /// This handles scenarios when a new line is added when at the end of a
 /// heading line. The newly added line should be a regular paragraph.
-class ResetLineFormatOnNewLineRule extends InsertRule {
-  const ResetLineFormatOnNewLineRule();
+class ResetHeadingFormatOnNewLineRule extends InsertRule {
+  const ResetHeadingFormatOnNewLineRule();
 
   @override
   Delta? apply(Delta document, int index, Object data) {
@@ -144,8 +163,7 @@ class ResetLineFormatOnNewLineRule extends InsertRule {
         return Delta()
           ..retain(index)
           ..insert('\n', target.attributes)
-          ..retain(1, resetStyle)
-          ..trim();
+          ..retain(1, resetStyle);
       }
     }
     return null;

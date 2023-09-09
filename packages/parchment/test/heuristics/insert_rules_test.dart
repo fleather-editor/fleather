@@ -22,6 +22,27 @@ void main() {
     });
   });
 
+  group('$PreserveLineStyleOnNewLineInsertRule', () {
+    final rule = PreserveLineStyleOnNewLineInsertRule();
+
+    test('data is not new line only', () {
+      final doc = Delta()..insert('Test\n');
+      final actual = rule.apply(doc, 0, '\nOne\n');
+      expect(actual, isNull);
+    });
+
+    test('preserves line styles', () {
+      final doc = Delta()
+        ..insert('Test')
+        ..insert('\n', ParchmentAttribute.right.toJson());
+      final actual = rule.apply(doc, 4, '\n');
+      final expected = Delta()
+        ..retain(4)
+        ..insert('\n', ParchmentAttribute.right.toJson());
+      expect(actual, expected);
+    });
+  });
+
   group('$PreserveLineStyleOnSplitRule', () {
     final rule = PreserveLineStyleOnSplitRule();
 
@@ -59,8 +80,8 @@ void main() {
     });
   });
 
-  group('$ResetLineFormatOnNewLineRule', () {
-    final rule = const ResetLineFormatOnNewLineRule();
+  group('$ResetHeadingFormatOnNewLineRule', () {
+    final rule = const ResetHeadingFormatOnNewLineRule();
 
     test('applies when line-break is inserted at the end of line', () {
       final doc = Delta()

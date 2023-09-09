@@ -34,11 +34,13 @@ class ParchmentHeuristics {
       MarkdownBlockShortcutsInsertRule(),
       // Lines
       PreserveLineStyleOnSplitRule(),
-      ResetLineFormatOnNewLineRule(),
+      ResetHeadingFormatOnNewLineRule(),
       AutoTextDirectionRule(),
       // Inlines
       AutoFormatLinksRule(),
       PreserveInlineStylesRule(),
+      // Catch new line
+      PreserveLineStyleOnNewLineInsertRule(),
       // Catch-all
       CatchAllInsertRule(),
     ],
