@@ -128,6 +128,22 @@ void main() {
       // expect(controller.lastChangeSource, ChangeSource.local);
     });
 
+    test('replaceText only applies toggled styles to non new line parts', () {
+      controller.replaceText(0, 0, 'Words');
+      controller.formatText(2, 0, ParchmentAttribute.bold);
+      controller.replaceText(2, 0, '\nTest\n');
+
+      expect(
+        controller.document.toDelta(),
+        Delta()
+          ..insert('Wo\n')
+          ..insert('Test', ParchmentAttribute.bold.toJson())
+          ..insert('\n')
+          ..insert('rds')
+          ..insert('\n'),
+      );
+    });
+
     test('insert text with toggled style unset', () {
       var notified = false;
       controller.addListener(() {
