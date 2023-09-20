@@ -40,4 +40,14 @@ void main() {
       expect(result, 1);
     });
   });
+
+  test('isDataOnlyNewLines', () {
+    expect(isDataOnlyNewLines(123), false);
+    expect(isDataOnlyNewLines(Object()), false);
+    expect(isDataOnlyNewLines(''), false);
+    expect(isDataOnlyNewLines('\nTest\nTest\n'), false);
+    expect(isDataOnlyNewLines('\n \n\n'), false);
+    expect(isDataOnlyNewLines('\n\t\n\n'), false);
+    expect(isDataOnlyNewLines('\n\n\n'), true);
+  });
 }

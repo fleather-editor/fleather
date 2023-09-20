@@ -55,6 +55,6 @@ TextDirection getDirectionOfNode(StyledNode node) {
 }
 
 bool isDataOnlyNewLines(Object data) {
-  if (data is! String) return false;
-  return data.replaceAll('\n', '').isEmpty;
+  if (data is! String || data.isEmpty) return false;
+  return RegExp('^(\n)+\$').hasMatch(data);
 }
