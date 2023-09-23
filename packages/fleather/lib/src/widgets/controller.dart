@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:collection/collection.dart';
 import 'package:fleather/src/widgets/history.dart';
 import 'package:fleather/util.dart';
 import 'package:flutter/cupertino.dart';
@@ -69,14 +70,39 @@ class FleatherController extends ChangeNotifier {
         .mergeAll(toggledStyles);
   }
 
-  bool _shouldApplyToggledStyles(Delta delta) =>
-      toggledStyles.isNotEmpty &&
-      delta.isNotEmpty &&
-      ((delta.length <= 2 && // covers single insert and a retain+insert
-              delta.last.isInsert) ||
-          (delta.length <= 3 &&
-              delta.last.isRetain // special case for AutoTextDirectionRule
-          ));
+  bool _shouldApplyToggledStyles(Delta delta) {
+    if (toggledStyles.isNotEmpty && delta.isNotEmpty) {
+      // covers single insert and a retain+insert
+      if (delta.length <= 2 && delta.last.isInsert) {
+        return true;
+      }
+      // special case for AutoTextDirectionRule
+      if (delta.length <= 3 && delta.last.isRetain) {
+        return delta.last.attributes != null &&
+            delta.last.attributes!
+                .containsKey(ParchmentAttribute.direction.key) &&
+            delta.last.attributes!
+                .containsKey(ParchmentAttribute.alignment.key);
+      }
+    }
+    return false;
+  }
+
+  void _applyToggledStyles(int index, Object data) {
+    if (data is String && !isDataOnlyNewLines(data)) {
+      var retainDelta = Delta()..retain(index);
+      final segments = data.split('\n');
+      segments.forEachIndexed((index, segment) {
+        if (segment.isNotEmpty) {
+          retainDelta.retain(segment.length, toggledStyles.toJson());
+        }
+        if (index != segments.length - 1) {
+          retainDelta.retain(1);
+        }
+      });
+      document.compose(retainDelta, ChangeSource.local);
+    }
+  }
 
   /// Replaces [length] characters in the document starting at [index] with
   /// provided [text].
@@ -96,14 +122,8 @@ class FleatherController extends ChangeNotifier {
     final isDataNotEmpty = data is String ? data.isNotEmpty : true;
     if (length > 0 || isDataNotEmpty) {
       delta = document.replace(index, length, data);
-      // If the delta is an insert operation and we have toggled
-      // some styles, then apply those styles to the inserted text.
       if (_shouldApplyToggledStyles(delta)) {
-        final dataLength = data is String ? data.length : 1;
-        final retainDelta = Delta()
-          ..retain(index)
-          ..retain(dataLength, toggledStyles.toJson());
-        document.compose(retainDelta, ChangeSource.local);
+        _applyToggledStyles(index, data);
       }
     }
 

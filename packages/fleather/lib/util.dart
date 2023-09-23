@@ -53,3 +53,8 @@ TextDirection getDirectionOfNode(StyledNode node) {
   }
   return TextDirection.ltr;
 }
+
+bool isDataOnlyNewLines(Object data) {
+  if (data is! String || data.isEmpty) return false;
+  return RegExp('^(\n)+\$').hasMatch(data);
+}
