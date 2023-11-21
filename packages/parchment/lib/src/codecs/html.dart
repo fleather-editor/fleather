@@ -273,12 +273,22 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
     // Closing tags effectively adds the opening tag at the appropriate position
     // AND adds the closing tag
     final attributesToRemove = <_HtmlInlineTag>{};
-    for (final attr in openInlineTags) {
+    for (var i = 0; i < openInlineTags.length; i++) {
+      final attr = openInlineTags[i];
       if (!inlineAttributes.contains(attr.attribute)) {
+        // remove any tag that was opened later as they must be closed
+        for (var j = 0; j <= i; j++) {
+          final prevAttr = openInlineTags[j];
+          if (prevAttr.openingPosition > attr.openingPosition) {
+            _writeTag(buffer, prevAttr);
+            attributesToRemove.add(prevAttr);
+          }
+        }
         _writeTag(buffer, attr);
         attributesToRemove.add(attr);
       }
     }
+
     for (final attr in attributesToRemove) {
       openInlineTags.remove(attr);
     }
