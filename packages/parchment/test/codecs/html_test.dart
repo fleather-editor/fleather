@@ -101,6 +101,27 @@ void main() {
             '<u><a href="https://wikipedia.org">Something </a><em>in the way</em> mmmm...</u>');
       });
 
+      test('tangled inline tags', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'AAA'},
+          {
+            'insert': 'BB',
+            'attributes': {'b': true}
+          },
+          {
+            'insert': 'B',
+            'attributes': {'b': true, 's': true}
+          },
+          {
+            'insert': 'CCC',
+            'attributes': {'s': true}
+          },
+          {'insert': '\n'}
+        ]);
+        expect(codec.encode(doc),
+            'AAA<strong>BB<del>B</del></strong><del>CCC</del>');
+      });
+
       test('html escaping', () {
         final doc = ParchmentDocument.fromJson([
           {
@@ -1201,6 +1222,27 @@ void main() {
           {'insert': '\n'},
         ]);
 
+        expect(codec.decode(html).toDelta(), doc.toDelta());
+      });
+
+      test('tangled inline tags', () {
+        final html = 'AAA<strong>BB<del>B</del></strong><del>CCC</del>';
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'AAA'},
+          {
+            'insert': 'BB',
+            'attributes': {'b': true}
+          },
+          {
+            'insert': 'B',
+            'attributes': {'b': true, 's': true}
+          },
+          {
+            'insert': 'CCC',
+            'attributes': {'s': true}
+          },
+          {'insert': '\n'}
+        ]);
         expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
