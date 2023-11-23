@@ -33,6 +33,8 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
     r'((\*{2}|_{2})([*_])(?<bold_italic_text>.*?[^ \7\6])\7\6)|'
     // italic or bold
     r'(((\*{1,2})|(_{1,2}))(?<bold_or_italic_text>.*?[^ \10])\10)|'
+    // strike through
+    r'(~~(?<strike_through_text>.+?)~~)|'
     // inline code
     r'(`(?<inline_code_text>.+?)`)',
   );
@@ -247,6 +249,9 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
       } else if (match.namedGroup('bold_or_italic_text') != null) {
         text = match.namedGroup('bold_or_italic_text')!;
         styleTag = match.group(10)!;
+      } else if (match.namedGroup('strike_through_text') != null) {
+        text = match.namedGroup('strike_through_text')!;
+        styleTag = '~~';
       } else {
         assert(match.namedGroup('inline_code_text') != null);
         text = match.namedGroup('inline_code_text')!;
@@ -268,6 +273,7 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
   ParchmentStyle _fromStyleTag(String styleTag) {
     assert(
         (styleTag == '`') |
+            (styleTag == '~~') |
             (styleTag == '_') |
             (styleTag == '*') |
             (styleTag == '__') |
@@ -282,6 +288,9 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
     assert(styleTag.isNotEmpty, 'Style tag must not be empty');
     if (styleTag == '`') {
       return ParchmentStyle().put(ParchmentAttribute.inlineCode);
+    }
+    if (styleTag == '~~') {
+      return ParchmentStyle().put(ParchmentAttribute.strikethrough);
     }
     if (styleTag.length == 3) {
       return ParchmentStyle()
@@ -439,6 +448,8 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
       _writeItalicTag(buffer);
     } else if (attribute == ParchmentAttribute.inlineCode) {
       _writeInlineCodeTag(buffer);
+    } else if (attribute == ParchmentAttribute.strikethrough) {
+      _writeStrikeThoughTag(buffer);
     } else if (attribute?.key == ParchmentAttribute.link.key) {
       _writeLinkTag(buffer, attribute as ParchmentAttribute<String>,
           close: close);
@@ -462,6 +473,10 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
 
   void _writeInlineCodeTag(StringBuffer buffer) {
     buffer.write('`');
+  }
+
+  void _writeStrikeThoughTag(StringBuffer buffer) {
+    buffer.write('~~');
   }
 
   void _writeLinkTag(StringBuffer buffer, ParchmentAttribute<String> link,
