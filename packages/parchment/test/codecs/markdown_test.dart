@@ -9,7 +9,7 @@ import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('$ParchmentMarkdownCodec.decode', () {
+  group('ParchmentMarkdownCodec.decode', () {
     test('should convert empty markdown to valid empty document', () {
       final markdown = '';
       final newParchment = ParchmentDocument();
@@ -131,6 +131,21 @@ void main() {
       runFor(
           'Okay, __this is bold__ and __so is all of __ this__ but this is not\n\n',
           false);
+    });
+
+    test('strike through', () {
+      void runFor(String markdown, bool testEncode) {
+        final document = parchmentMarkdown.decode(markdown);
+        final delta = document.toDelta();
+        expect(delta.elementAt(0).data, 'strike through');
+        expect(delta.elementAt(0).attributes?['s'], true);
+        if (testEncode) {
+          final andBack = parchmentMarkdown.encode(document);
+          expect(andBack, markdown);
+        }
+      }
+
+      runFor('~~strike through~~\n\n', true);
     });
 
     test('intersecting inline styles', () {
@@ -390,7 +405,7 @@ void main() {
     });
   });
 
-  group('$ParchmentMarkdownCodec.encode', () {
+  group('ParchmentMarkdownCodec.encode', () {
     test('split adjacent paragraphs', () {
       final delta = Delta()..insert('First line\nSecond line\n');
       final result =
@@ -398,7 +413,7 @@ void main() {
       expect(result, 'First line\n\nSecond line\n\n');
     });
 
-    test('bold italic', () {
+    test('bold italic strike though', () {
       void runFor(ParchmentAttribute<bool> attribute, String expected) {
         final delta = Delta()
           ..insert('This ')
@@ -414,6 +429,8 @@ void main() {
 
       runFor(ParchmentAttribute.bold, 'This **house** is a **circus**\n\n');
       runFor(ParchmentAttribute.italic, 'This _house_ is a _circus_\n\n');
+      runFor(ParchmentAttribute.strikethrough,
+          'This ~~house~~ is a ~~circus~~\n\n');
     });
 
     test('intersecting inline styles', () {
