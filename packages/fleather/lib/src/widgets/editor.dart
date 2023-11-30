@@ -748,13 +748,13 @@ class RawEditor extends StatefulWidget {
 abstract class EditorState extends State<RawEditor>
     implements TextSelectionDelegate {
   @override
-  bool lookUpEnabled = true;
+  bool lookUpEnabled = false;
 
   @override
-  bool shareEnabled = true;
+  bool shareEnabled = false;
 
   @override
-  bool searchWebEnabled = true;
+  bool searchWebEnabled = false;
 
   ClipboardStatusNotifier? get clipboardStatus;
 
