@@ -136,6 +136,7 @@ class _TextLineState extends State<TextLine> {
         text: text,
         textAlign: textAlign,
         strutStyle: strutStyle,
+        // ignore: deprecated_member_use
         textScaleFactor: MediaQuery.textScaleFactorOf(context),
       ),
     );
