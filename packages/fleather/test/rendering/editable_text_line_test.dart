@@ -42,7 +42,7 @@ void main() {
           inlineCodeTheme: InlineCodeThemeData(style: const TextStyle()));
       renderBox.body = RenderParagraphProxy(
           textStyle: const TextStyle(),
-          textScaleFactor: 1,
+          textScaler: TextScaler.noScaling,
           child: RenderParagraph(
             const TextSpan(
                 text: 'A text with that will be broken into multiple lines'),
@@ -82,7 +82,7 @@ void main() {
       renderBox.body = RenderParagraphProxy(
           child: renderParagraph,
           textStyle: const TextStyle(),
-          textScaleFactor: 1,
+          textScaler: TextScaler.noScaling,
           textDirection: TextDirection.ltr,
           textWidthBasis: TextWidthBasis.parent);
       layout(renderBox);
@@ -118,7 +118,7 @@ void main() {
       renderBox.body = RenderParagraphProxy(
           child: renderParagraph,
           textStyle: const TextStyle(),
-          textScaleFactor: 1,
+          textScaler: TextScaler.noScaling,
           textDirection: TextDirection.ltr,
           textWidthBasis: TextWidthBasis.parent);
       layout(renderBox);
