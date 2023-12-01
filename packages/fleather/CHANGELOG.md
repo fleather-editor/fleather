@@ -1,12 +1,17 @@
+## 1.11.0 
+
+* Support for Flutter 3.16
+* [Fix] exception thrown when inserting new line with toggles inline styles
+
 ## 1.10.0 
 
 * Support for Flutter 3.13
   
 ## 1.9.1
 
-* Fix light theme inline code background color for Material 3
-* Fix wrong bounding box for text lines in block
-* Fix alignment and direction in blocks
+* [Fix] light theme inline code background color for Material 3
+* [Fix] wrong bounding box for text lines in block
+* [Fix] alignment and direction in blocks
 
 ## 1.9.0
 

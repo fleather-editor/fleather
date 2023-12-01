@@ -1,3 +1,8 @@
+## 1.11.0
+
+* Add support for strike-through in Markdown codec
+* [Fix] HTML encoder for tangled inline tags
+
 ## 1.9.0
 
 * Migrated to Dart 3
