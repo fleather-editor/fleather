@@ -747,6 +747,15 @@ class RawEditor extends StatefulWidget {
 ///
 abstract class EditorState extends State<RawEditor>
     implements TextSelectionDelegate {
+  @override
+  bool lookUpEnabled = false;
+
+  @override
+  bool shareEnabled = false;
+
+  @override
+  bool searchWebEnabled = false;
+
   ClipboardStatusNotifier? get clipboardStatus;
 
   ScrollController get scrollController;
@@ -1637,6 +1646,9 @@ class RawEditorState extends EditorState
         onSelectAll: selectAllEnabled
             ? () => selectAll(SelectionChangedCause.toolbar)
             : null,
+        onLookUp: null,
+        onSearchWeb: null,
+        onShare: null,
         onLiveTextInput: null);
   }
 

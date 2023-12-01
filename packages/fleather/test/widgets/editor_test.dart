@@ -181,7 +181,7 @@ void main() {
         expect(
             editor.selection,
             const TextSelection.collapsed(
-                offset: 3, affinity: TextAffinity.downstream));
+                offset: 3, affinity: TextAffinity.upstream));
       });
 
       testWidgets(

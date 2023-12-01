@@ -1,12 +1,21 @@
+// Copyright 2014 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:async';
+import 'dart:ui' show SemanticsUpdate;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart'
+    show EnginePhase, TestDefaultBinaryMessengerBinding, fail;
+
+export 'package:flutter/foundation.dart' show FlutterError, FlutterErrorDetails;
+export 'package:flutter_test/flutter_test.dart'
+    show EnginePhase, TestDefaultBinaryMessengerBinding;
 
 class TestRenderingFlutterBinding extends BindingBase
     with
@@ -47,6 +56,44 @@ class TestRenderingFlutterBinding extends BindingBase
   void initInstances() {
     super.initInstances();
     _instance = this;
+    // TODO(goderbauer): Create (fake) window if embedder doesn't provide an implicit view.
+    assert(platformDispatcher.implicitView != null);
+    _renderView = initRenderView(platformDispatcher.implicitView!);
+  }
+
+  @override
+  RenderView get renderView => _renderView;
+  late RenderView _renderView;
+
+  @override
+  PipelineOwner get pipelineOwner => rootPipelineOwner;
+
+  /// Creates a [RenderView] object to be the root of the
+  /// [RenderObject] rendering tree, and initializes it so that it
+  /// will be rendered when the next frame is requested.
+  ///
+  /// Called automatically when the binding is created.
+  RenderView initRenderView(FlutterView view) {
+    final RenderView renderView = RenderView(view: view);
+    rootPipelineOwner.rootNode = renderView;
+    addRenderView(renderView);
+    renderView.prepareInitialFrame();
+    return renderView;
+  }
+
+  @override
+  PipelineOwner createRootPipelineOwner() {
+    return PipelineOwner(
+      onSemanticsOwnerCreated: () {
+        renderView.scheduleInitialSemantics();
+      },
+      onSemanticsUpdate: (SemanticsUpdate update) {
+        renderView.updateSemantics(update);
+      },
+      onSemanticsOwnerDisposed: () {
+        renderView.clearSemantics();
+      },
+    );
   }
 
   /// Creates and initializes the binding. This function is
@@ -147,23 +194,25 @@ class TestRenderingFlutterBinding extends BindingBase
     final FlutterExceptionHandler? oldErrorHandler = FlutterError.onError;
     FlutterError.onError = _errors.add;
     try {
-      pipelineOwner.flushLayout();
+      rootPipelineOwner.flushLayout();
       if (phase == EnginePhase.layout) {
         return;
       }
-      pipelineOwner.flushCompositingBits();
+      rootPipelineOwner.flushCompositingBits();
       if (phase == EnginePhase.compositingBits) {
         return;
       }
-      pipelineOwner.flushPaint();
+      rootPipelineOwner.flushPaint();
       if (phase == EnginePhase.paint) {
         return;
       }
-      renderView.compositeFrame();
+      for (final RenderView renderView in renderViews) {
+        renderView.compositeFrame();
+      }
       if (phase == EnginePhase.composite) {
         return;
       }
-      pipelineOwner.flushSemantics();
+      rootPipelineOwner.flushSemantics();
       if (phase == EnginePhase.flushSemantics) {
         return;
       }
@@ -189,6 +238,20 @@ class TestRenderingFlutterBinding extends BindingBase
   }
 }
 
+/// Place the box in the render tree, at the given size and with the given
+/// alignment on the screen.
+///
+/// If you've updated `box` and want to lay it out again, use [pumpFrame].
+///
+/// Once a particular [RenderBox] has been passed to [layout], it cannot easily
+/// be put in a different place in the tree or passed to [layout] again, because
+/// [layout] places the given object into another [RenderBox] which you would
+/// need to unparent it from (but that box isn't itself made available).
+///
+/// The EnginePhase must not be [EnginePhase.build], since the rendering layer
+/// has no build phase.
+///
+/// If `onErrors` is not null, it is set as [TestRenderingFlutterBinding.onError].
 void layout(
   RenderBox box, {
   // If you want to just repump the last box, call pumpFrame().
@@ -230,3 +293,181 @@ void pumpFrame(
   TestRenderingFlutterBinding.instance.phase = phase;
   TestRenderingFlutterBinding.instance.drawFrame();
 }
+
+class TestCallbackPainter extends CustomPainter {
+  const TestCallbackPainter({required this.onPaint});
+
+  final VoidCallback onPaint;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    onPaint();
+  }
+
+  @override
+  bool shouldRepaint(TestCallbackPainter oldPainter) => true;
+}
+
+class RenderSizedBox extends RenderBox {
+  RenderSizedBox(this._size);
+
+  final Size _size;
+
+  @override
+  double computeMinIntrinsicWidth(double height) {
+    return _size.width;
+  }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    return _size.width;
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) {
+    return _size.height;
+  }
+
+  @override
+  double computeMaxIntrinsicHeight(double width) {
+    return _size.height;
+  }
+
+  @override
+  bool get sizedByParent => true;
+
+  @override
+  void performResize() {
+    size = constraints.constrain(_size);
+  }
+
+  @override
+  void performLayout() {}
+
+  @override
+  bool hitTestSelf(Offset position) => true;
+}
+
+class FakeTickerProvider implements TickerProvider {
+  @override
+  Ticker createTicker(TickerCallback onTick, [bool disableAnimations = false]) {
+    return FakeTicker();
+  }
+}
+
+class FakeTicker implements Ticker {
+  @override
+  bool muted = false;
+
+  @override
+  void absorbTicker(Ticker originalTicker) {}
+
+  @override
+  String? get debugLabel => null;
+
+  @override
+  bool get isActive => throw UnimplementedError();
+
+  @override
+  bool get isTicking => throw UnimplementedError();
+
+  @override
+  bool get scheduled => throw UnimplementedError();
+
+  @override
+  bool get shouldScheduleTick => throw UnimplementedError();
+
+  @override
+  void dispose() {}
+
+  @override
+  void scheduleTick({bool rescheduling = false}) {}
+
+  @override
+  TickerFuture start() {
+    throw UnimplementedError();
+  }
+
+  @override
+  void stop({bool canceled = false}) {}
+
+  @override
+  void unscheduleTick() {}
+
+  @override
+  String toString({bool debugIncludeStack = false}) => super.toString();
+
+  @override
+  DiagnosticsNode describeForError(String name) {
+    return DiagnosticsProperty<Ticker>(name, this,
+        style: DiagnosticsTreeStyle.errorProperty);
+  }
+}
+
+class TestClipPaintingContext extends PaintingContext {
+  TestClipPaintingContext() : this._(ContainerLayer());
+
+  TestClipPaintingContext._(this._containerLayer)
+      : super(_containerLayer, Rect.zero);
+
+  final ContainerLayer _containerLayer;
+
+  @override
+  ClipRectLayer? pushClipRect(
+    bool needsCompositing,
+    Offset offset,
+    Rect clipRect,
+    PaintingContextCallback painter, {
+    Clip clipBehavior = Clip.hardEdge,
+    ClipRectLayer? oldLayer,
+  }) {
+    this.clipBehavior = clipBehavior;
+    return null;
+  }
+
+  Clip clipBehavior = Clip.none;
+
+  @mustCallSuper
+  void dispose() {
+    _containerLayer.dispose();
+  }
+}
+
+class TestPushLayerPaintingContext extends PaintingContext {
+  TestPushLayerPaintingContext() : super(ContainerLayer(), Rect.zero);
+
+  final List<ContainerLayer> pushedLayers = <ContainerLayer>[];
+
+  @override
+  void pushLayer(
+      ContainerLayer childLayer, PaintingContextCallback painter, Offset offset,
+      {Rect? childPaintBounds}) {
+    pushedLayers.add(childLayer);
+    super.pushLayer(childLayer, painter, offset,
+        childPaintBounds: childPaintBounds);
+  }
+}
+
+// Absorbs errors that don't have "overflowed" in their error details.
+void absorbOverflowedErrors() {
+  final Iterable<FlutterErrorDetails> errorDetails =
+      TestRenderingFlutterBinding.instance.takeAllFlutterErrorDetails();
+  final Iterable<FlutterErrorDetails> filtered =
+      errorDetails.where((FlutterErrorDetails details) {
+    return !details.toString().contains('overflowed');
+  });
+  if (filtered.isNotEmpty) {
+    filtered.forEach(FlutterError.reportError);
+  }
+}
+
+// Reports any FlutterErrors.
+void expectNoFlutterErrors() {
+  final Iterable<FlutterErrorDetails> errorDetails =
+      TestRenderingFlutterBinding.instance.takeAllFlutterErrorDetails();
+  errorDetails.forEach(FlutterError.reportError);
+}
+
+RenderConstrainedBox get box200x200 => RenderConstrainedBox(
+    additionalConstraints:
+        const BoxConstraints.tightFor(height: 200.0, width: 200.0));
