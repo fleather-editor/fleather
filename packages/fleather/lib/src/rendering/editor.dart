@@ -425,7 +425,7 @@ class RenderEditor extends RenderEditableContainerBox
 
   bool _isDragging = false;
 
-  void handleDragStart(DragStartDetails details) {
+  void handleDragStart(TapDragStartDetails details) {
     _isDragging = true;
 
     final newSelection = selectPositionAt(
@@ -438,7 +438,7 @@ class RenderEditor extends RenderEditableContainerBox
     _extendSelectionOrigin = newSelection;
   }
 
-  void handleDragEnd(DragEndDetails details) {
+  void handleDragEnd(TapDragEndDetails details) {
     _isDragging = false;
   }
 

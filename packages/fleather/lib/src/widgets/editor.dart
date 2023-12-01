@@ -426,7 +426,7 @@ class _FleatherEditorSelectionGestureDetectorBuilder
   void onForcePressStart(ForcePressDetails details) {
     super.onForcePressStart(details);
     if (delegate.selectionEnabled && shouldShowSelectionToolbar) {
-      editor!.showToolbar();
+      editor.showToolbar();
     }
   }
 
@@ -441,7 +441,7 @@ class _FleatherEditorSelectionGestureDetectorBuilder
       switch (Theme.of(_state.context).platform) {
         case TargetPlatform.iOS:
         case TargetPlatform.macOS:
-          renderEditor!.selectPositionAt(
+          renderEditor.selectPositionAt(
             from: details.globalPosition,
             cause: SelectionChangedCause.longPress,
           );
@@ -450,7 +450,7 @@ class _FleatherEditorSelectionGestureDetectorBuilder
         case TargetPlatform.fuchsia:
         case TargetPlatform.linux:
         case TargetPlatform.windows:
-          renderEditor!.selectWordsInRange(
+          renderEditor.selectWordsInRange(
             from: details.globalPosition - details.offsetFromOrigin,
             to: details.globalPosition,
             cause: SelectionChangedCause.longPress,
@@ -468,8 +468,8 @@ class _FleatherEditorSelectionGestureDetectorBuilder
   }
 
   @override
-  void onSingleTapUp(TapUpDetails details) {
-    editor!.hideToolbar();
+  void onSingleTapUp(TapDragUpDetails details) {
+    editor.hideToolbar();
 
     if (delegate.selectionEnabled) {
       switch (Theme.of(_state.context).platform) {
@@ -482,10 +482,10 @@ class _FleatherEditorSelectionGestureDetectorBuilder
               // Precise devices should place the cursor at a precise position.
               // If `Shift` key is pressed then extend current selection instead.
               if (isShiftClick(details.kind)) {
-                renderEditor!.extendSelection(details.globalPosition,
+                renderEditor.extendSelection(details.globalPosition,
                     cause: SelectionChangedCause.tap);
               } else {
-                renderEditor!.selectPosition(cause: SelectionChangedCause.tap);
+                renderEditor.selectPosition(cause: SelectionChangedCause.tap);
               }
               break;
             case PointerDeviceKind.touch:
@@ -493,7 +493,7 @@ class _FleatherEditorSelectionGestureDetectorBuilder
             case PointerDeviceKind.unknown:
               // On macOS/iOS/iPadOS a touch tap places the cursor at the edge
               // of the word.
-              renderEditor!.selectWordEdge(cause: SelectionChangedCause.tap);
+              renderEditor.selectWordEdge(cause: SelectionChangedCause.tap);
               break;
           }
           break;
@@ -501,7 +501,7 @@ class _FleatherEditorSelectionGestureDetectorBuilder
         case TargetPlatform.fuchsia:
         case TargetPlatform.linux:
         case TargetPlatform.windows:
-          renderEditor!.selectPosition(cause: SelectionChangedCause.tap);
+          renderEditor.selectPosition(cause: SelectionChangedCause.tap);
           break;
       }
     }
@@ -516,7 +516,7 @@ class _FleatherEditorSelectionGestureDetectorBuilder
       switch (Theme.of(_state.context).platform) {
         case TargetPlatform.iOS:
         case TargetPlatform.macOS:
-          renderEditor!.selectPositionAt(
+          renderEditor.selectPositionAt(
             from: details.globalPosition,
             cause: SelectionChangedCause.longPress,
           );
@@ -525,7 +525,7 @@ class _FleatherEditorSelectionGestureDetectorBuilder
         case TargetPlatform.fuchsia:
         case TargetPlatform.linux:
         case TargetPlatform.windows:
-          renderEditor!.selectWord(cause: SelectionChangedCause.longPress);
+          renderEditor.selectWord(cause: SelectionChangedCause.longPress);
           Feedback.forLongPress(_state.context);
           break;
       }
@@ -770,6 +770,8 @@ abstract class EditorState extends State<RawEditor>
 
   bool showToolbar();
 
+  void toggleToolbar([bool hideHandles = true]);
+
   void requestKeyboard();
 
   FocusNode get effectiveFocusNode;
@@ -881,6 +883,17 @@ class RawEditorState extends EditorState
 
     _selectionOverlay!.showToolbar();
     return true;
+  }
+
+  @override
+  void toggleToolbar([bool hideHandles = true]) {
+    final selectionOverlay = _selectionOverlay ??= _createSelectionOverlay();
+
+    if (selectionOverlay.toolbarIsVisible) {
+      hideToolbar(hideHandles);
+    } else {
+      showToolbar();
+    }
   }
 
   /// Copy current selection to [Clipboard].
@@ -1139,21 +1152,7 @@ class RawEditorState extends EditorState
       _selectionOverlay = null;
     } else {
       if (_selectionOverlay == null) {
-        _selectionOverlay = EditorTextSelectionOverlay(
-          clipboardStatus: clipboardStatus,
-          context: context,
-          value: textEditingValue,
-          debugRequiredFor: widget,
-          toolbarLayerLink: _toolbarLayerLink,
-          startHandleLayerLink: _startHandleLayerLink,
-          endHandleLayerLink: _endHandleLayerLink,
-          renderObject: renderEditor,
-          selectionControls: widget.selectionControls,
-          selectionDelegate: this,
-          dragStartBehavior: DragStartBehavior.start,
-          contextMenuBuilder: (context) =>
-              widget.contextMenuBuilder(context, this),
-        );
+        _selectionOverlay = _createSelectionOverlay();
       } else {
         _selectionOverlay!.update(textEditingValue);
       }
@@ -1178,6 +1177,23 @@ class RawEditorState extends EditorState
         bringIntoView(selection.extent);
       }
     }
+  }
+
+  EditorTextSelectionOverlay _createSelectionOverlay() {
+    return EditorTextSelectionOverlay(
+      clipboardStatus: clipboardStatus,
+      context: context,
+      value: textEditingValue,
+      debugRequiredFor: widget,
+      toolbarLayerLink: _toolbarLayerLink,
+      startHandleLayerLink: _startHandleLayerLink,
+      endHandleLayerLink: _endHandleLayerLink,
+      renderObject: renderEditor,
+      selectionControls: widget.selectionControls,
+      selectionDelegate: this,
+      dragStartBehavior: DragStartBehavior.start,
+      contextMenuBuilder: (context) => widget.contextMenuBuilder(context, this),
+    );
   }
 
   void _handleFocusChanged() {
