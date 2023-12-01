@@ -1,7 +1,7 @@
 ## 1.11.0 
 
 * Support for Flutter 3.16
-* [Fix] exception thrown when inserting new line with toggles inline styles
+* [Fix] exception thrown when inserting new line with toggled inline styles
 
 ## 1.10.0 
 
