@@ -277,61 +277,6 @@ class PreserveInlineStylesRule extends InsertRule {
   }
 }
 
-/// Applies link format to text segment (which looks like a link) when user
-/// inserts space character after it.
-class AutoFormatLinksRule extends InsertRule {
-  const AutoFormatLinksRule();
-
-  static Delta? formatLink(Delta document, int index, Object data) {
-    if (data is! String) return null;
-
-    // This rule applies to a space or newline inserted after a link, so we can ignore
-    // everything else.
-    if (data != ' ' && data != '\n') return null;
-
-    final iter = DeltaIterator(document);
-    final previous = iter.skip(index);
-    // No previous operation means nothing to analyze.
-    if (previous == null || previous.data is! String) return null;
-    final previousText = previous.data as String;
-
-    // Split text of previous operation in lines and words and take the last
-    // word to test.
-    final candidate = previousText.split('\n').last.split(' ').last;
-    try {
-      final link = Uri.parse(candidate);
-      if (!['https', 'http'].contains(link.scheme)) {
-        // TODO: might need a more robust way of validating links here.
-        return null;
-      }
-      final attributes = previous.attributes ?? <String, dynamic>{};
-
-      // Do nothing if already formatted as link.
-      if (attributes.containsKey(ParchmentAttribute.link.key)) return null;
-
-      attributes
-          .addAll(ParchmentAttribute.link.fromString(link.toString()).toJson());
-      return Delta()
-        ..retain(index - candidate.length)
-        ..retain(candidate.length, attributes);
-    } on FormatException {
-      return null; // Our candidate is not a link.
-    }
-  }
-
-  @override
-  Delta? apply(Delta document, int index, Object data) {
-    final delta = formatLink(document, index, data);
-    if (delta == null) {
-      return null;
-    }
-
-    final iter = DeltaIterator(document);
-    final previous = iter.skip(index);
-    return delta..insert(data, previous?.attributes);
-  }
-}
-
 /// Forces text inserted on the same line with a block embed (before or after it)
 /// to be moved to a new line adjacent to the original line.
 ///
@@ -426,9 +371,7 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
     // Go over each inserted line and ensure block style is applied.
     final lines = data.split('\n');
 
-    // Try to format link after hitting newline
-    final linkDelta = AutoFormatLinksRule.formatLink(document, index, data);
-    final result = linkDelta ?? (Delta()..retain(index));
+    final result = Delta()..retain(index);
 
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];

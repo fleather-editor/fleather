@@ -1,6 +1,7 @@
 import 'package:fleather/fleather.dart';
 import 'package:flutter/widgets.dart';
 import 'package:quill_delta/quill_delta.dart';
+import '../util.dart';
 
 /// Provides undo/redo capabilities for text editing.
 ///
@@ -199,18 +200,4 @@ class _Change {
 
   final Delta undoDelta;
   final Delta redoDelta;
-}
-
-extension on Delta {
-  int get textLength {
-    int length = 0;
-    toList().forEach((op) {
-      if (op.isDelete) {
-        length -= op.length;
-      } else {
-        length += op.length;
-      }
-    });
-    return length;
-  }
 }

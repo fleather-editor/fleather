@@ -31,13 +31,10 @@ class ParchmentHeuristics {
       // Blocks
       AutoExitBlockRule(), // must go first
       PreserveBlockStyleOnInsertRule(),
-      MarkdownBlockShortcutsInsertRule(),
       // Lines
       PreserveLineStyleOnSplitRule(),
       ResetLineFormatOnNewLineRule(),
-      AutoTextDirectionRule(),
       // Inlines
-      AutoFormatLinksRule(),
       PreserveInlineStylesRule(),
       // Catch-all
       CatchAllInsertRule(),

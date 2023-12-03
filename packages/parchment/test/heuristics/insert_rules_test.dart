@@ -198,56 +198,6 @@ void main() {
     });
   });
 
-  group('$AutoFormatLinksRule', () {
-    final rule = AutoFormatLinksRule();
-    final link =
-        ParchmentAttribute.link.fromString('https://example.com').toJson();
-
-    test('apply simple', () {
-      final doc = Delta()..insert('Doc with link https://example.com');
-      final actual = rule.apply(doc, 33, ' ');
-      final expected = Delta()
-        ..retain(14)
-        ..retain(19, link)
-        ..insert(' ');
-      expect(expected, actual);
-    });
-
-    test('apply simple newline', () {
-      final doc = Delta()..insert('Doc with link https://example.com');
-      final actual = rule.apply(doc, 33, '\n');
-      final expected = Delta()
-        ..retain(14)
-        ..retain(19, link)
-        ..insert('\n');
-      expect(expected, actual);
-    });
-
-    test('applies only to insert of single space', () {
-      final doc = Delta()..insert('Doc with link https://example.com');
-      final actual = rule.apply(doc, 33, '/');
-      expect(actual, isNull);
-    });
-
-    test('applies for links at the beginning of line', () {
-      final doc = Delta()..insert('Doc with link\nhttps://example.com');
-      final actual = rule.apply(doc, 33, ' ');
-      final expected = Delta()
-        ..retain(14)
-        ..retain(19, link)
-        ..insert(' ');
-      expect(expected, actual);
-    });
-
-    test('ignores if already formatted as link', () {
-      final doc = Delta()
-        ..insert('Doc with link\n')
-        ..insert('https://example.com', link);
-      final actual = rule.apply(doc, 33, ' ');
-      expect(actual, isNull);
-    });
-  });
-
   group('$PreserveBlockStyleOnInsertRule', () {
     final rule = PreserveBlockStyleOnInsertRule();
 
@@ -263,18 +213,6 @@ void main() {
         ..insert('also ')
         ..insert('\n', ul);
       expect(actual, isNotNull);
-      expect(actual, expected);
-    });
-
-    test('formats a link in a block', () {
-      final link = ParchmentAttribute.link.fromString('http://a.com').toJson();
-      final doc = Delta()
-        ..insert('http://a.com')
-        ..insert('\n', ul);
-      final actual = rule.apply(doc, 12, '\n');
-      final expected = Delta()
-        ..retain(12, link)
-        ..insert('\n', ul);
       expect(actual, expected);
     });
 
