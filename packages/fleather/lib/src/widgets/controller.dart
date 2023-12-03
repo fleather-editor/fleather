@@ -7,9 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
 
-import '../util.dart';
-import 'history.dart';
 import 'autoformats.dart';
+import 'history.dart';
 
 /// List of style keys which can be toggled for insertion
 List<String> _insertionToggleableStyleKeys = [
@@ -128,7 +127,10 @@ class FleatherController extends ChangeNotifier {
 
     final isDataNotEmpty = data is String ? data.isNotEmpty : true;
 
-    captureAutoFormatCancelationOrUndo(document, index, length, data);
+    if (!_captureAutoFormatCancellationOrUndo(document, index, length, data)) {
+      notifyListeners();
+      return;
+    }
 
     if (length > 0 || isDataNotEmpty) {
       delta = document.replace(index, length, data);
@@ -161,28 +163,37 @@ class FleatherController extends ChangeNotifier {
         // Only update history when text is being updated
         // We do not want to update it when selection is changed
         _updateHistory();
-        _autoFormats.run(document, index, data);
+        final autoFormatSelection = _autoFormats.run(document, index, data);
+        if (autoFormatSelection != null) {
+          _updateSelectionSilent(autoFormatSelection,
+              source: ChangeSource.local);
+        }
       }
     }
     notifyListeners();
   }
 
-  // Capture auto format cancelation
-  // Returns `true` is auto format undo is performed
-  void captureAutoFormatCancelationOrUndo(
+  // Capture auto format cancellation
+  // Returns `true` is auto format undo should let deletion propagate to
+  // document; `false` otherwise
+  bool _captureAutoFormatCancellationOrUndo(
       ParchmentDocument document, int position, int length, Object data) {
-    if (!_autoFormats.hasActiveSuggestion) return;
+    if (!_autoFormats.hasActiveSuggestion) return true;
 
+    final keepTriggerCharacter =
+        _autoFormats.activeSuggestionKeepTriggerCharacter;
     final isDeletionOfOneChar = data is String && data.isEmpty && length == 1;
     if (isDeletionOfOneChar) {
       // Undo if deleting 1 character after retain of autoformat
-      if (position == _autoFormats.activeSuggestion!.textLength) {
-        _autoFormats.undoActive(document);
-        return;
+      if (position == _autoFormats.undoPosition) {
+        final undoSelection = _autoFormats.undoActive(document);
+        _updateSelectionSilent(undoSelection, source: ChangeSource.local);
+        return keepTriggerCharacter;
       }
     }
     // Cancel active nevertheless
     _autoFormats.cancelActive();
+    return true;
   }
 
   void formatText(int index, int length, ParchmentAttribute attribute) {
@@ -324,7 +335,12 @@ extension HistoryHandler on FleatherController {
         source: ChangeSource.history);
   }
 
-  void _updateHistory() {
+  void _updateHistory({bool forceNewEntry = false}) {
+    if (forceNewEntry) {
+      _history.push(document.toDelta());
+      return;
+    }
+
     if (plainTextEditingValue == TextEditingValue.empty) {
       return;
     }
