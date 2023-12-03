@@ -1628,6 +1628,10 @@ class RawEditorState extends EditorState
   /// Returns the anchor points for the default context menu.
   @override
   TextSelectionToolbarAnchors get contextMenuAnchors {
+    if (renderEditor.lastSecondaryTapDownPosition != null) {
+      return TextSelectionToolbarAnchors(
+          primaryAnchor: renderEditor.lastSecondaryTapDownPosition!);
+    }
     final selection = textEditingValue.selection;
     // Find the horizontal midpoint, just above the selected text.
     final List<TextSelectionPoint> endpoints =

@@ -60,6 +60,12 @@ abstract class RenderAbstractEditor implements TextLayoutMetrics {
       Offset lastBoundedOffset, TextPosition lastTextPosition,
       {double? resetLerpValue});
 
+  /// Tracks the position of a secondary tap event.
+  ///
+  /// Should be called before attempting to change the selection based on the
+  /// position of a secondary tap.
+  void handleSecondaryTapDown(TapDownDetails details);
+
   /// If [ignorePointer] is false (the default) then this method is called by
   /// the internal gesture recognizer's [TapGestureRecognizer.onTapDown]
   /// callback.
@@ -186,6 +192,9 @@ class RenderEditor extends RenderEditableContainerBox
     if (attached) _offset?.addListener(markNeedsPaint);
     markNeedsLayout();
   }
+
+  Offset? _lastSecondaryTapDownPosition;
+  Offset? get lastSecondaryTapDownPosition => _lastSecondaryTapDownPosition;
 
   /// The region of text that is selected, if any.
   ///
@@ -417,6 +426,12 @@ class RenderEditor extends RenderEditableContainerBox
   // for extending selection, either with combination of `Shift` + Click or
   // by dragging
   TextSelection? _extendSelectionOrigin;
+
+  @override
+  void handleSecondaryTapDown(TapDownDetails details) {
+    _lastTapDownPosition = details.globalPosition;
+    _lastSecondaryTapDownPosition = details.globalPosition;
+  }
 
   @override
   void handleTapDown(TapDownDetails details) {

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -599,14 +598,12 @@ class EditorTextSelectionGestureDetectorBuilder {
   @protected
   final EditorTextSelectionGestureDetectorBuilderDelegate delegate;
 
-  Offset? _lastSecondaryTapDownPosition;
-
   /// Returns true if lastSecondaryTapDownPosition was on selection.
   bool get _lastSecondaryTapWasOnSelection {
-    assert(_lastSecondaryTapDownPosition != null);
+    assert(renderEditor.lastSecondaryTapDownPosition != null);
 
-    final TextPosition textPosition =
-        renderEditor.getPositionForOffset(_lastSecondaryTapDownPosition!);
+    final TextPosition textPosition = renderEditor
+        .getPositionForOffset(renderEditor.lastSecondaryTapDownPosition!);
 
     return renderEditor.selection.start <= textPosition.offset &&
         renderEditor.selection.end >= textPosition.offset;
@@ -1159,7 +1156,8 @@ class EditorTextSelectionGestureDetectorBuilder {
     // vs [TapGestureRecognizer.onSecondaryTapUp] instead of having to track state in
     // renderEditor. When this migration is complete we should remove this hack.
     // See https://github.com/flutter/flutter/issues/115130.
-    _lastSecondaryTapDownPosition = details.globalPosition;
+    renderEditor.handleSecondaryTapDown(
+        TapDownDetails(globalPosition: details.globalPosition));
     _shouldShowSelectionToolbar = true;
   }
 
