@@ -72,7 +72,7 @@ class AutoFormats {
 
   /// Remove auto format from [document] and de-activate current suggestion
   /// It will throw if [_activeSuggestion] is null.
-  TextSelection undoActive(ParchmentDocument document) {
+  TextSelection? undoActive(ParchmentDocument document) {
     final undoSelection = _activeSuggestion!.undoSelection;
     document.compose(_activeSuggestion!.undo, ChangeSource.local);
     _activeSuggestion = null;
@@ -88,22 +88,24 @@ class AutoFormats {
 /// An auto format result
 class AutoFormatResult {
   AutoFormatResult({
-    required this.selection,
+    this.selection,
     required this.change,
-    required this.undoSelection,
+    this.undoSelection,
     required this.undo,
     required this.undoPositionCandidate,
     required this.keepTriggerCharacter,
   });
 
   /// The selection after applying the auto format
-  final TextSelection selection;
+  /// Optional
+  final TextSelection? selection;
 
   /// The change that was applied
   final Delta change;
 
   /// The selection after undoing the formatting
-  final TextSelection undoSelection;
+  /// Optional
+  final TextSelection? undoSelection;
 
   /// The changes to undo the formatting
   final Delta undo;
@@ -162,10 +164,8 @@ class _AutoFormatLinks extends AutoFormat {
       final undo = change.invert(documentDelta);
       document.compose(change, ChangeSource.local);
       return AutoFormatResult(
-          selection: TextSelection.collapsed(offset: position + 1),
           change: change,
           undo: undo,
-          undoSelection: TextSelection.collapsed(offset: position),
           keepTriggerCharacter: keepTriggerCharacter,
           undoPositionCandidate: position);
     } on FormatException {
@@ -391,9 +391,7 @@ class _AutoTextDirection extends AutoFormat {
     final undo = change.invert(documentDelta);
     document.compose(change, ChangeSource.local);
     return AutoFormatResult(
-        selection: TextSelection.collapsed(offset: position + data.length),
         change: change,
-        undoSelection: TextSelection.collapsed(offset: position),
         undo: undo,
         keepTriggerCharacter: keepTriggerCharacter,
         undoPositionCandidate: position);

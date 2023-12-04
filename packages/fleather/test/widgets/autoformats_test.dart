@@ -15,7 +15,7 @@ void main() {
         {'insert': 'Some long text and a https://fleather-editor.github.io\n'}
       ]);
       final selection = autoformats.run(document, 54, ' ');
-      expect(selection, const TextSelection.collapsed(offset: 55));
+      expect(selection, isNull);
       final attributes = document.toDelta().toList()[1].attributes;
       expect(attributes, isNotNull);
       expect(attributes!.containsKey(ParchmentAttribute.link.key), isTrue);
@@ -28,7 +28,7 @@ void main() {
         {'insert': 'Some long text and a www.github.com\n'}
       ]);
       final selection = autoformats.run(document, 35, ' ');
-      expect(selection, const TextSelection.collapsed(offset: 36));
+      expect(selection, isNull);
       final attributes = document.toDelta().toList()[1].attributes;
       expect(attributes, isNotNull);
       expect(attributes!.containsKey(ParchmentAttribute.link.key), isTrue);
@@ -53,7 +53,7 @@ void main() {
       ]);
       autoformats.run(document, 54, ' ');
       final undoSelection = autoformats.undoActive(document);
-      expect(undoSelection, const TextSelection.collapsed(offset: 54));
+      expect(undoSelection, isNull);
       expect(document.toDelta().length, 1);
       expect(document.toDelta().first.isInsert, isTrue);
       expect(document.toDelta().first.data, text);
@@ -147,7 +147,7 @@ void main() {
         {'insert': 'some ltr text\nש\n'}
       ]);
       final selection = autoformats.run(document, 14, 'ש');
-      expect(selection, const TextSelection.collapsed(offset: 15));
+      expect(selection, isNull);
       final attributes = document.toDelta().toList()[1].attributes;
       expect(attributes, isNotNull);
       expect(attributes!.containsKey(ParchmentAttribute.direction.key), isTrue);

@@ -187,7 +187,9 @@ class FleatherController extends ChangeNotifier {
       // Undo if deleting 1 character after retain of autoformat
       if (position == _autoFormats.undoPosition) {
         final undoSelection = _autoFormats.undoActive(document);
-        _updateSelectionSilent(undoSelection, source: ChangeSource.local);
+        if (undoSelection != null) {
+          _updateSelectionSilent(undoSelection, source: ChangeSource.local);
+        }
         return keepTriggerCharacter;
       }
     }
