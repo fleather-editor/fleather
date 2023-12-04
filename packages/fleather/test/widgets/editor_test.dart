@@ -11,6 +11,7 @@ import '../testing.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
   group('$RawEditor', () {
     testWidgets('allows merging attribute theme data', (tester) async {
       var delta = Delta()
@@ -123,17 +124,95 @@ void main() {
         expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
       });
 
-      testWidgets('Secondary tap opens context menu', (tester) async {
+      testWidgetsWithPlatform(
+          'Secondary tap opens toolbar and selects the word on mac/iOS when not focused or tap was different than selection',
+          (tester) async {
         final document = ParchmentDocument.fromJson([
           {'insert': 'Test\n'}
         ]);
         final editor = EditorSandBox(tester: tester, document: document);
         await editor.pump();
-        await tester.tapAt(tester.getCenter(find.byType(FleatherEditor)),
+        await tester.tapAt(
+            tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
         await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection(
+                baseOffset: 0,
+                extentOffset: 4,
+                affinity: TextAffinity.upstream));
         expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
-      });
+        await tester.tapAt(
+            tester.getTopLeft(find.byType(FleatherEditor)) +
+                const Offset(10, 1),
+            buttons: kSecondaryMouseButton);
+        await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection(
+                baseOffset: 0,
+                extentOffset: 4,
+                affinity: TextAffinity.upstream));
+        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+      }, TargetPlatform.iOS);
+
+      testWidgetsWithPlatform(
+          'Secondary tap opens toolbar and selection is collapsed on mac/iOS when focused or tap position was the same as selection',
+          (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Test\n'}
+        ]);
+        final editor = EditorSandBox(tester: tester, document: document);
+        await editor.pump();
+        await tester.tapAt(
+            tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
+            buttons: kSecondaryMouseButton);
+        await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection(
+                baseOffset: 0,
+                extentOffset: 4,
+                affinity: TextAffinity.upstream));
+        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await editor.pump();
+        await tester.tapAt(
+            tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
+            buttons: kSecondaryMouseButton);
+        await editor.pump();
+        expect(
+            editor.selection,
+            const TextSelection.collapsed(
+                offset: 0, affinity: TextAffinity.downstream));
+      }, TargetPlatform.iOS);
+
+      testWidgetsWithPlatform(
+          'Secondary tap toggles toolbar on platforms other than mac/iOS',
+          (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Test\n'}
+        ]);
+        final editor = EditorSandBox(tester: tester, document: document);
+        await editor.pump();
+        await tester.tapAt(
+            tester.getTopLeft(find.byType(FleatherEditor)) +
+                const Offset(10, 1),
+            buttons: kSecondaryMouseButton);
+        await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection.collapsed(
+                offset: 1, affinity: TextAffinity.upstream));
+        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        await tester.tapAt(
+            tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(5, 1),
+            buttons: kSecondaryMouseButton);
+        await tester.pump();
+        expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
+      }, TargetPlatform.windows);
     });
 
     group('Text selection', () {
@@ -217,8 +296,7 @@ void main() {
                 offset: 1, affinity: TextAffinity.upstream));
       });
 
-      testWidgets('selection handles for iOS', (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      testWidgetsWithPlatform('selection handles for iOS', (tester) async {
         final document = ParchmentDocument();
         final editor =
             EditorSandBox(tester: tester, document: document, autofocus: true);
@@ -226,11 +304,9 @@ void main() {
         final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
         expect(rawEditor.selectionControls,
             const TypeMatcher<CupertinoTextSelectionControls>());
-        debugDefaultTargetPlatformOverride = null;
-      });
+      }, TargetPlatform.iOS);
 
-      testWidgets('selection handles for macOS', (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      testWidgetsWithPlatform('selection handles for macOS', (tester) async {
         final document = ParchmentDocument();
         final editor =
             EditorSandBox(tester: tester, document: document, autofocus: true);
@@ -238,11 +314,9 @@ void main() {
         final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
         expect(rawEditor.selectionControls,
             const TypeMatcher<CupertinoDesktopTextSelectionControls>());
-        debugDefaultTargetPlatformOverride = null;
-      });
+      }, TargetPlatform.macOS);
 
-      testWidgets('selection handles for Android', (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      testWidgetsWithPlatform('selection handles for Android', (tester) async {
         final document = ParchmentDocument();
         final editor =
             EditorSandBox(tester: tester, document: document, autofocus: true);
@@ -250,11 +324,9 @@ void main() {
         final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
         expect(rawEditor.selectionControls,
             const TypeMatcher<MaterialTextSelectionControls>());
-        debugDefaultTargetPlatformOverride = null;
-      });
+      }, TargetPlatform.android);
 
-      testWidgets('selection handles for Windows', (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+      testWidgetsWithPlatform('selection handles for Windows', (tester) async {
         final document = ParchmentDocument();
         final editor =
             EditorSandBox(tester: tester, document: document, autofocus: true);
@@ -262,11 +334,9 @@ void main() {
         final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
         expect(rawEditor.selectionControls,
             const TypeMatcher<DesktopTextSelectionControls>());
-        debugDefaultTargetPlatformOverride = null;
-      });
+      }, TargetPlatform.windows);
 
-      testWidgets('selection handles for Linux', (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+      testWidgetsWithPlatform('selection handles for Linux', (tester) async {
         final document = ParchmentDocument();
         final editor =
             EditorSandBox(tester: tester, document: document, autofocus: true);
@@ -274,12 +344,11 @@ void main() {
         final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
         expect(rawEditor.selectionControls,
             const TypeMatcher<DesktopTextSelectionControls>());
-        debugDefaultTargetPlatformOverride = null;
-      });
+      }, TargetPlatform.linux);
 
-      testWidgets('Triple tap selects paragraph on platforms other than Linux',
+      testWidgetsWithPlatform(
+          'Triple tap selects paragraph on platforms other than Linux',
           (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
         const text =
             'This is a relatively long paragraph with multiple lines that'
             ' we are going to triple tap on it in order to select it.';
@@ -307,11 +376,10 @@ void main() {
                 baseOffset: 0,
                 extentOffset: 117,
                 affinity: TextAffinity.upstream));
-        debugDefaultTargetPlatformOverride = null;
-      });
+      }, TargetPlatform.macOS);
 
-      testWidgets('Triple tap selects a line on Linux', (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+      testWidgetsWithPlatform('Triple tap selects a line on Linux',
+          (tester) async {
         const text =
             'This is a relatively long paragraph with multiple lines that'
             ' we are going to triple tap on it in order to select it.';
@@ -339,8 +407,7 @@ void main() {
                 baseOffset: 0,
                 extentOffset: 50,
                 affinity: TextAffinity.upstream));
-        debugDefaultTargetPlatformOverride = null;
-      });
+      }, TargetPlatform.linux);
     });
 
     group('didUpdateWidget', () {
@@ -411,5 +478,14 @@ void prepareClipboard() {
       return Future.value(<String, dynamic>{'value': true});
     }
     return null;
+  });
+}
+
+Future<void> testWidgetsWithPlatform(String description,
+    WidgetTesterCallback callback, TargetPlatform platform) async {
+  testWidgets(description, (tester) async {
+    debugDefaultTargetPlatformOverride = platform;
+    await callback(tester);
+    debugDefaultTargetPlatformOverride = null;
   });
 }
