@@ -83,6 +83,40 @@ void main() {
           ParchmentAttribute.block.bulletList.value);
     });
 
+    test('Detects single character shortcuts before embed', () {
+      final document = ParchmentDocument.fromJson([
+        {'insert': 'Some long text\n* '},
+        {
+          'insert': SpanEmbed('some', data: {'ok': 'ok'}).toJson()
+        },
+        {'insert': '\nthat continues\n'}
+      ]);
+      final selection = autoformats.run(document, 16, ' ');
+      expect(selection, const TextSelection.collapsed(offset: 16));
+      final attributes = document.toDelta().toList()[2].attributes;
+      expect(attributes, isNotNull);
+      expect(attributes!.containsKey(ParchmentAttribute.block.key), isTrue);
+      expect(attributes[ParchmentAttribute.block.key],
+          ParchmentAttribute.block.bulletList.value);
+    });
+
+    test('Ignore if in ', () {
+      final document = ParchmentDocument.fromJson([
+        {'insert': 'Some long text\n* '},
+        {
+          'insert': SpanEmbed('some', data: {'ok': 'ok'}).toJson()
+        },
+        {'insert': '\nthat continues\n'}
+      ]);
+      final selection = autoformats.run(document, 16, ' ');
+      expect(selection, const TextSelection.collapsed(offset: 16));
+      final attributes = document.toDelta().toList()[2].attributes;
+      expect(attributes, isNotNull);
+      expect(attributes!.containsKey(ParchmentAttribute.block.key), isTrue);
+      expect(attributes[ParchmentAttribute.block.key],
+          ParchmentAttribute.block.bulletList.value);
+    });
+
     test('Detects 2 character shortcuts', () {
       final document = ParchmentDocument.fromJson([
         {'insert': 'Some long text\n1. \nthat continues\n'}

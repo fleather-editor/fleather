@@ -46,8 +46,6 @@ class AutoFormats {
 
   int get undoPosition => _activeSuggestion!.undoPositionCandidate;
 
-  Delta get activeSuggestionChange => _activeSuggestion!.change;
-
   bool get activeSuggestionKeepTriggerCharacter =>
       _activeSuggestion!.keepTriggerCharacter;
 
@@ -144,33 +142,29 @@ class _AutoFormatLinks extends AutoFormat {
     // Split text of previous operation in lines and words and take the last
     // word to test.
     final candidate = previousText.split('\n').last.split(' ').last;
-    try {
-      final match = _urlRegex.firstMatch(candidate);
-      if (match == null) return null;
+    final match = _urlRegex.firstMatch(candidate);
+    if (match == null) return null;
 
-      final attributes = previous.attributes ?? <String, dynamic>{};
+    final attributes = previous.attributes ?? <String, dynamic>{};
 
-      // Do nothing if already formatted as link.
-      if (attributes.containsKey(ParchmentAttribute.link.key)) return null;
+    // Do nothing if already formatted as link.
+    if (attributes.containsKey(ParchmentAttribute.link.key)) return null;
 
-      String url = candidate;
-      if (!url.startsWith('http')) url = 'https://$url';
-      attributes
-          .addAll(ParchmentAttribute.link.fromString(url.toString()).toJson());
+    String url = candidate;
+    if (!url.startsWith('http')) url = 'https://$url';
+    attributes
+        .addAll(ParchmentAttribute.link.fromString(url.toString()).toJson());
 
-      final change = Delta()
-        ..retain(position - candidate.length)
-        ..retain(candidate.length, attributes);
-      final undo = change.invert(documentDelta);
-      document.compose(change, ChangeSource.local);
-      return AutoFormatResult(
-          change: change,
-          undo: undo,
-          keepTriggerCharacter: keepTriggerCharacter,
-          undoPositionCandidate: position);
-    } on FormatException {
-      return null; // Our candidate is not a link.
-    }
+    final change = Delta()
+      ..retain(position - candidate.length)
+      ..retain(candidate.length, attributes);
+    final undo = change.invert(documentDelta);
+    document.compose(change, ChangeSource.local);
+    return AutoFormatResult(
+        change: change,
+        undo: undo,
+        keepTriggerCharacter: keepTriggerCharacter,
+        undoPositionCandidate: position);
   }
 }
 
@@ -207,6 +201,8 @@ class _MarkdownShortCuts extends AutoFormat {
     final result = Delta()
       ..retain(index - prefix.length)
       ..delete(prefix.length + 1 /* '[space]' has been added */);
+    // Go after added [space] that triggers shortcut detection
+    iter.skip(1);
 
     int cursorPosition = index - prefix.length;
 
@@ -220,10 +216,9 @@ class _MarkdownShortCuts extends AutoFormat {
       }
 
       final text = op.data as String;
-      // text starts with the inserted '[space]' that trigger the shortcut
-      final pos = text.indexOf('\n') - 1;
+      final pos = text.indexOf('\n');
 
-      if (pos == -1) {
+      if (pos <= -1) {
         result.retain(op.length);
         cursorPosition += op.length;
         continue;

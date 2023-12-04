@@ -82,14 +82,6 @@ class FleatherController extends ChangeNotifier {
       if (delta.length <= 2 && delta.last.isInsert) {
         return true;
       }
-      // special case for AutoTextDirectionRule
-      if (delta.length <= 3 && delta.last.isRetain) {
-        return delta.last.attributes != null &&
-            delta.last.attributes!
-                .containsKey(ParchmentAttribute.direction.key) &&
-            delta.last.attributes!
-                .containsKey(ParchmentAttribute.alignment.key);
-      }
     }
     return false;
   }
