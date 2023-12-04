@@ -353,13 +353,13 @@ class _AutoTextDirection extends AutoFormat {
     return data == null || (data is String ? data.endsWith('\n') : false);
   }
 
-  bool _isBeforeEmptyLine(Operation next) {
-    final data = next.data;
-    return data is String ? data.startsWith('\n') : false;
+  bool _isBeforeEmptyLine(Operation next, String data) {
+    final nextData = next.data;
+    return nextData is String ? nextData.startsWith('$data\n') : false;
   }
 
-  bool _isInEmptyLine(Operation? previous, Operation next) =>
-      _isAfterEmptyLine(previous) && _isBeforeEmptyLine(next);
+  bool _isInEmptyLine(Operation? previous, Operation next, String data) =>
+      _isAfterEmptyLine(previous) && _isBeforeEmptyLine(next, data);
 
   @override
   AutoFormatResult? apply(
@@ -370,7 +370,7 @@ class _AutoTextDirection extends AutoFormat {
     final previous = iter.skip(position);
     final next = iter.next();
 
-    if (!_isInEmptyLine(previous, next)) return null;
+    if (!_isInEmptyLine(previous, next, data)) return null;
 
     final Map<String, dynamic> attributes;
     if (_isRTL(data)) {
@@ -386,10 +386,10 @@ class _AutoTextDirection extends AutoFormat {
     }
 
     final change = Delta()
-      ..retain(position)
-      ..insert(data)
+      ..retain(position + data.length) //
       ..retain(1, attributes);
     final undo = change.invert(documentDelta);
+    document.compose(change, ChangeSource.local);
     return AutoFormatResult(
         selection: TextSelection.collapsed(offset: position + data.length),
         change: change,

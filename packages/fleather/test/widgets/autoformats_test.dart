@@ -140,4 +140,19 @@ void main() {
       expect(autoformats.hasActiveSuggestion, isFalse);
     });
   });
+
+  group('RTL detection', () {
+    test('Detection of RTL', () {
+      final document = ParchmentDocument.fromJson([
+        {'insert': 'some ltr text\nש\n'}
+      ]);
+      final selection = autoformats.run(document, 14, 'ש');
+      expect(selection, const TextSelection.collapsed(offset: 15));
+      final attributes = document.toDelta().toList()[1].attributes;
+      expect(attributes, isNotNull);
+      expect(attributes!.containsKey(ParchmentAttribute.direction.key), isTrue);
+      expect(attributes[ParchmentAttribute.direction.key],
+          ParchmentAttribute.direction.rtl.value);
+    });
+  });
 }
