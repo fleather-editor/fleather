@@ -40,7 +40,7 @@ class FleatherController extends ChangeNotifier {
   late final _Throttled<Delta> _throttledPush;
   Timer? _throttleTimer;
 
-  // The autoformat handler
+  // The auto format handler
   final AutoFormats _autoFormats;
 
   /// Currently selected text within the [document].
@@ -120,6 +120,7 @@ class FleatherController extends ChangeNotifier {
     final isDataNotEmpty = data is String ? data.isNotEmpty : true;
 
     if (!_captureAutoFormatCancellationOrUndo(document, index, length, data)) {
+      _updateHistory();
       notifyListeners();
       return;
     }
@@ -152,12 +153,12 @@ class FleatherController extends ChangeNotifier {
           ),
           source: ChangeSource.local,
         );
+        final autoFormatPerformed = _autoFormats.run(document, index, data);
         // Only update history when text is being updated
         // We do not want to update it when selection is changed
         _updateHistory();
-        final autoFormatSelection = _autoFormats.run(document, index, data);
-        if (autoFormatSelection != null) {
-          _updateSelectionSilent(autoFormatSelection,
+        if (autoFormatPerformed && _autoFormats.selection != null) {
+          _updateSelectionSilent(_autoFormats.selection!,
               source: ChangeSource.local);
         }
       }
@@ -329,12 +330,7 @@ extension HistoryHandler on FleatherController {
         source: ChangeSource.history);
   }
 
-  void _updateHistory({bool forceNewEntry = false}) {
-    if (forceNewEntry) {
-      _history.push(document.toDelta());
-      return;
-    }
-
+  void _updateHistory() {
     if (plainTextEditingValue == TextEditingValue.empty) {
       return;
     }

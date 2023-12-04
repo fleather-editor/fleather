@@ -14,8 +14,9 @@ void main() {
       final document = ParchmentDocument.fromJson([
         {'insert': 'Some long text and a https://fleather-editor.github.io\n'}
       ]);
-      final selection = autoformats.run(document, 54, ' ');
-      expect(selection, isNull);
+      final performed = autoformats.run(document, 54, ' ');
+      expect(performed, true);
+      expect(autoformats.selection, isNull);
       final attributes = document.toDelta().toList()[1].attributes;
       expect(attributes, isNotNull);
       expect(attributes!.containsKey(ParchmentAttribute.link.key), isTrue);
@@ -27,8 +28,9 @@ void main() {
       final document = ParchmentDocument.fromJson([
         {'insert': 'Some long text and a www.github.com\n'}
       ]);
-      final selection = autoformats.run(document, 35, ' ');
-      expect(selection, isNull);
+      final performed = autoformats.run(document, 35, ' ');
+      expect(performed, isTrue);
+      expect(autoformats.selection, isNull);
       final attributes = document.toDelta().toList()[1].attributes;
       expect(attributes, isNotNull);
       expect(attributes!.containsKey(ParchmentAttribute.link.key), isTrue);
@@ -41,8 +43,8 @@ void main() {
       final document = ParchmentDocument.fromJson([
         {'insert': 'Some long text and a https://fleather-editor.github.io\n'}
       ]);
-      final selection = autoformats.run(document, 54, 'p');
-      expect(selection, null);
+      final performed = autoformats.run(document, 54, 'p');
+      expect(performed, false);
       expect(autoformats.hasActiveSuggestion, isFalse);
     });
 
@@ -74,8 +76,9 @@ void main() {
       final document = ParchmentDocument.fromJson([
         {'insert': 'Some long text\n* \nthat continues\n'}
       ]);
-      final selection = autoformats.run(document, 16, ' ');
-      expect(selection, const TextSelection.collapsed(offset: 15));
+      final performed = autoformats.run(document, 16, ' ');
+      expect(performed, true);
+      expect(autoformats.selection, const TextSelection.collapsed(offset: 15));
       final attributes = document.toDelta().toList()[1].attributes;
       expect(attributes, isNotNull);
       expect(attributes!.containsKey(ParchmentAttribute.block.key), isTrue);
@@ -91,25 +94,9 @@ void main() {
         },
         {'insert': '\nthat continues\n'}
       ]);
-      final selection = autoformats.run(document, 16, ' ');
-      expect(selection, const TextSelection.collapsed(offset: 16));
-      final attributes = document.toDelta().toList()[2].attributes;
-      expect(attributes, isNotNull);
-      expect(attributes!.containsKey(ParchmentAttribute.block.key), isTrue);
-      expect(attributes[ParchmentAttribute.block.key],
-          ParchmentAttribute.block.bulletList.value);
-    });
-
-    test('Ignore if in ', () {
-      final document = ParchmentDocument.fromJson([
-        {'insert': 'Some long text\n* '},
-        {
-          'insert': SpanEmbed('some', data: {'ok': 'ok'}).toJson()
-        },
-        {'insert': '\nthat continues\n'}
-      ]);
-      final selection = autoformats.run(document, 16, ' ');
-      expect(selection, const TextSelection.collapsed(offset: 16));
+      final performed = autoformats.run(document, 16, ' ');
+      expect(performed, true);
+      expect(autoformats.selection, const TextSelection.collapsed(offset: 16));
       final attributes = document.toDelta().toList()[2].attributes;
       expect(attributes, isNotNull);
       expect(attributes!.containsKey(ParchmentAttribute.block.key), isTrue);
@@ -121,8 +108,9 @@ void main() {
       final document = ParchmentDocument.fromJson([
         {'insert': 'Some long text\n1. \nthat continues\n'}
       ]);
-      final selection = autoformats.run(document, 17, ' ');
-      expect(selection, const TextSelection.collapsed(offset: 15));
+      final performed = autoformats.run(document, 17, ' ');
+      expect(performed, true);
+      expect(autoformats.selection, const TextSelection.collapsed(offset: 15));
       final attributes = document.toDelta().toList()[1].attributes;
       expect(attributes, isNotNull);
       expect(attributes!.containsKey(ParchmentAttribute.block.key), isTrue);
@@ -134,8 +122,9 @@ void main() {
       final document = ParchmentDocument.fromJson([
         {'insert': 'Some long text\n```\nthat continues\n'}
       ]);
-      final selection = autoformats.run(document, 17, '`');
-      expect(selection, const TextSelection.collapsed(offset: 15));
+      final performed = autoformats.run(document, 17, '`');
+      expect(performed, true);
+      expect(autoformats.selection, const TextSelection.collapsed(offset: 15));
       final attributes = document.toDelta().toList()[1].attributes;
       expect(attributes, isNotNull);
       expect(attributes!.containsKey(ParchmentAttribute.block.key), isTrue);
@@ -147,8 +136,8 @@ void main() {
       final document = ParchmentDocument.fromJson([
         {'insert': 'Some long text\n* \nthat continues\n'}
       ]);
-      final selection = autoformats.run(document, 16, 'p');
-      expect(selection, null);
+      final performed = autoformats.run(document, 16, 'p');
+      expect(performed, false);
       expect(autoformats.hasActiveSuggestion, isFalse);
     });
 
@@ -180,8 +169,9 @@ void main() {
       final document = ParchmentDocument.fromJson([
         {'insert': 'some ltr text\nש\n'}
       ]);
-      final selection = autoformats.run(document, 14, 'ש');
-      expect(selection, isNull);
+      final performed = autoformats.run(document, 14, 'ש');
+      expect(performed, true);
+      expect(autoformats.selection, isNull);
       final attributes = document.toDelta().toList()[1].attributes;
       expect(attributes, isNotNull);
       expect(attributes!.containsKey(ParchmentAttribute.direction.key), isTrue);

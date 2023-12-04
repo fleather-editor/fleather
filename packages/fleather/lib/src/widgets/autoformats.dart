@@ -16,10 +16,11 @@ abstract class AutoFormat {
   /// Indicates whether character trigger auto format is kept in document
   ///
   /// E.g: for link detections, '[space]' is kept whereas for Markdown block
-  /// shortcuts, the '[space]' is not added to document
+  /// shortcuts, the '[space]' is not added to document, it only serves to
+  /// trigger the block formatting
   bool get keepTriggerCharacter;
 
-  /// Upon upon insertion of a space or new line run format detection and appy
+  /// Upon upon insertion of a space or new line run format detection and apply
   /// formatting to document
   /// Returns a [ActiveFormatResult].
   AutoFormatResult? apply(
@@ -44,28 +45,36 @@ class AutoFormats {
 
   AutoFormatResult? _activeSuggestion;
 
+  /// The selection override of the active formatting suggestion
+  TextSelection? get selection => _activeSuggestion!.selection;
+
+  /// The position at with the active suggestion can be deactivated
   int get undoPosition => _activeSuggestion!.undoPositionCandidate;
 
+  /// `true` if the active suggestion auto format keeps trigger character in
+  /// document; `false` otherwise
   bool get activeSuggestionKeepTriggerCharacter =>
       _activeSuggestion!.keepTriggerCharacter;
 
+  /// `true` if there is an active auto format suggestion; `false` otherwise
   bool get hasActiveSuggestion => _activeSuggestion != null;
 
   /// Perform detection of auto formats and apply changes to [document]
   ///
   /// Inserted data must be of type [String]
-  TextSelection? run(ParchmentDocument document, int position, Object data) {
+  /// Returns `true` if auto format was activated
+  bool run(ParchmentDocument document, int position, Object data) {
     if (data is! String || data.isEmpty) {
-      return null;
+      return false;
     }
 
     for (final autoFormat in _autoFormats) {
       _activeSuggestion = autoFormat.apply(document, position, data);
       if (_activeSuggestion != null) {
-        return _activeSuggestion!.selection;
+        return true;
       }
     }
-    return null;
+    return false;
   }
 
   /// Remove auto format from [document] and de-activate current suggestion
@@ -168,7 +177,7 @@ class _AutoFormatLinks extends AutoFormat {
   }
 }
 
-/// Replaces certain Markdown shortcuts with actual line or block styles.
+// Replaces certain Markdown shortcuts with actual line or block styles.
 class _MarkdownShortCuts extends AutoFormat {
   static final rules = <String, ParchmentAttribute>{
     '-': ParchmentAttribute.block.bulletList,
@@ -302,8 +311,8 @@ class _MarkdownShortCuts extends AutoFormat {
   }
 }
 
-/// Skips to the beginning of line containing position at specified [length]
-/// and returns contents of the line skipped so far.
+// Skips to the beginning of line containing position at specified [length]
+// and returns contents of the line skipped so far.
 List<Operation> skipToLineAt(DeltaIterator iter, int length) {
   if (length == 0) {
     return List.empty(growable: false);
@@ -333,8 +342,8 @@ List<Operation> skipToLineAt(DeltaIterator iter, int length) {
   return prefix;
 }
 
-/// Infers text direction from the input when happens in the beginning of a line.
-/// This rule also removes alignment and sets it based on inferred direction.
+// Infers text direction from the input when happens in the beginning of a line.
+// This rule also removes alignment and sets it based on inferred direction.
 class _AutoTextDirection extends AutoFormat {
   const _AutoTextDirection();
 

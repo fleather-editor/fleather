@@ -305,6 +305,24 @@ void main() {
         expect(controller.selection, selection);
       });
 
+      test('History undo of link detection', () {
+        fakeAsync((async) {
+          const text = 'Some link https://fleather-editor.github.io';
+          const selection = TextSelection.collapsed(offset: text.length);
+          controller.replaceText(0, 0, text,
+              selection:
+                  const TextSelection.collapsed(offset: text.length - 1));
+          async.flushTimers();
+          controller.replaceText(text.length, 0, ' ', selection: selection);
+          async.flushTimers();
+          controller.undo();
+          expect(controller.document.toDelta().length, 1);
+          expect(controller.document.toDelta()[0].data,
+              'Some link https://fleather-editor.github.io\n');
+          expect(controller.document.toDelta()[0].attributes, isNull);
+        });
+      });
+
       test('Undo link detection', () {
         const text = 'Some link https://fleather-editor.github.io';
         const selection = TextSelection.collapsed(offset: text.length);
