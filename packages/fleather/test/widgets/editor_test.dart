@@ -1,6 +1,7 @@
 import 'package:fleather/fleather.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,28 +30,6 @@ void main() {
       final p = tester.widget(find.byType(RichText).first) as RichText;
       final text = p.text as TextSpan;
       expect(text.children!.first.style!.color, Colors.red);
-    });
-
-    testWidgets('Hides toolbar and selection handles when text changed',
-        (tester) async {
-      const delta = TextEditingDeltaInsertion(
-        oldText: 'Add ',
-        textInserted: 'Test',
-        insertionOffset: 0,
-        selection: TextSelection.collapsed(offset: 0),
-        composing: TextRange.empty,
-      );
-      final editor = EditorSandBox(tester: tester);
-      await editor.pump();
-      await tester.longPressAt(const Offset(20, 20));
-      await tester.pump();
-      expect(editor.findSelectionHandles(), findsNWidgets(2));
-      expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
-      final state = tester.state(find.byType(RawEditor)) as RawEditorState;
-      state.updateEditingValueWithDeltas([delta]);
-      await tester.pump(throttleDuration);
-      expect(editor.findSelectionHandles(), findsNothing);
-      expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
     });
 
     testWidgets('collapses selection when unfocused', (tester) async {
@@ -119,6 +98,42 @@ void main() {
           MaterialApp(home: FleatherEditor(controller: FleatherController()));
       await tester.pumpWidget(widget);
       // Fails if thrown
+    });
+
+    group('Context menu', () {
+      testWidgets('Hides toolbar and selection handles when text changed',
+          (tester) async {
+        const delta = TextEditingDeltaInsertion(
+          oldText: 'Add ',
+          textInserted: 'Test',
+          insertionOffset: 0,
+          selection: TextSelection.collapsed(offset: 0),
+          composing: TextRange.empty,
+        );
+        final editor = EditorSandBox(tester: tester);
+        await editor.pump();
+        await tester.longPressAt(const Offset(20, 20));
+        await tester.pump();
+        expect(editor.findSelectionHandles(), findsNWidgets(2));
+        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        final state = tester.state(find.byType(RawEditor)) as RawEditorState;
+        state.updateEditingValueWithDeltas([delta]);
+        await tester.pump(throttleDuration);
+        expect(editor.findSelectionHandles(), findsNothing);
+        expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
+      });
+
+      testWidgets('Secondary tap opens context menu', (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Test\n'}
+        ]);
+        final editor = EditorSandBox(tester: tester, document: document);
+        await editor.pump();
+        await tester.tapAt(tester.getCenter(find.byType(FleatherEditor)),
+            buttons: kSecondaryMouseButton);
+        await tester.pump();
+        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+      });
     });
 
     group('Text selection', () {
@@ -259,6 +274,71 @@ void main() {
         final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
         expect(rawEditor.selectionControls,
             const TypeMatcher<DesktopTextSelectionControls>());
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      testWidgets('Triple tap selects paragraph on platforms other than Linux',
+          (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        const text =
+            'This is a relatively long paragraph with multiple lines that'
+            ' we are going to triple tap on it in order to select it.';
+        final document = ParchmentDocument.fromJson([
+          {'insert': '$text\n'},
+          {'insert': 'Some other text in another paragraph\n'},
+        ]);
+        final editor = EditorSandBox(
+          tester: tester,
+          document: document,
+          autofocus: true,
+          theme: ThemeData(platform: TargetPlatform.iOS),
+        );
+        await editor.pump();
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection(
+                baseOffset: 0,
+                extentOffset: 117,
+                affinity: TextAffinity.upstream));
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      testWidgets('Triple tap selects a line on Linux', (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+        const text =
+            'This is a relatively long paragraph with multiple lines that'
+            ' we are going to triple tap on it in order to select it.';
+        final document = ParchmentDocument.fromJson([
+          {'insert': '$text\n'},
+          {'insert': 'Some other text in another paragraph\n'},
+        ]);
+        final editor = EditorSandBox(
+          tester: tester,
+          document: document,
+          autofocus: true,
+          theme: ThemeData(platform: TargetPlatform.iOS),
+        );
+        await editor.pump();
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection(
+                baseOffset: 0,
+                extentOffset: 50,
+                affinity: TextAffinity.upstream));
         debugDefaultTargetPlatformOverride = null;
       });
     });
