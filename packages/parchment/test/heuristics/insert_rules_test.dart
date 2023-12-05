@@ -191,6 +191,32 @@ void main() {
       expect(expected, actual);
     });
 
+    test('apply preserve link formatting within link', () {
+      final doc = Delta()
+        ..insert('Doc with link')
+        ..insert('http://fleather-editor.github.io',
+            {'a': 'http://fleather-editor.github.io'})
+        ..insert(' link');
+      final actual = rule.apply(doc, 17, 's');
+      final expected = Delta()
+        ..retain(17)
+        ..insert('s', {'a': 'http://fleather-editor.github.io'});
+      expect(expected, actual);
+    });
+
+    test('apply remove link formatting on link boundaries', () {
+      final doc = Delta()
+        ..insert('Doc with link')
+        ..insert('http://fleather-editor.github.io',
+            {'a': 'http://fleather-editor.github.io'})
+        ..insert(' link');
+      final actual = rule.apply(doc, 13, 'like this ');
+      final expected = Delta()
+        ..retain(13)
+        ..insert('like this ');
+      expect(expected, actual);
+    });
+
     test('apply at the beginning of a document', () {
       final doc = Delta()..insert('Doc with ');
       final actual = rule.apply(doc, 0, 'A ');
