@@ -5,24 +5,26 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:quill_delta/quill_delta.dart';
 
-/// An [AutoFormat] is responsible for looking back for a pattern and apply a
-/// formatting suggestion.
+/// An [AutoFormat] is responsible for looking backwards for a pattern and
+/// applying a formatting suggestion to a document.
 ///
-/// For example, identify a link a automatically wrap it with a link attribute or
-/// apply formatting using Markdown shortcuts
+/// For example, identifying a link and automatically wrapping it with a link
+/// attribute or applying block formats using Markdown shortcuts
 abstract class AutoFormat {
   const AutoFormat();
 
-  /// Indicates whether character trigger auto format is kept in document
+  /// Indicates whether the character triggering the auto format is kept in
+  /// document
   ///
-  /// E.g: for link detections, '[space]' is kept whereas for Markdown block
-  /// shortcuts, the '[space]' is not added to document, it only serves to
+  /// E.g: for link detections, [space] is kept whereas for Markdown block
+  /// shortcuts, the [space] is not added to document, it only serves to
   /// trigger the block formatting
   bool get keepTriggerCharacter;
 
-  /// Upon upon insertion of a space or new line run format detection and apply
+  /// Upon insertion of a trigger character, run format detection and apply
   /// formatting to document
-  /// Returns a [ActiveFormatResult].
+  ///
+  /// Returns a [AutoFormatResult].
   AutoFormatResult? apply(
       ParchmentDocument document, int position, String data);
 }
@@ -48,21 +50,22 @@ class AutoFormats {
   /// The selection override of the active formatting suggestion
   TextSelection? get selection => _activeSuggestion!.selection;
 
-  /// The position at with the active suggestion can be deactivated
+  /// The position at which the active suggestion can be deactivated
   int get undoPosition => _activeSuggestion!.undoPositionCandidate;
 
-  /// `true` if the active suggestion auto format keeps trigger character in
+  /// `true` if the active suggestion [AutoFormat] keeps trigger character in
   /// document; `false` otherwise
   bool get activeSuggestionKeepTriggerCharacter =>
       _activeSuggestion!.keepTriggerCharacter;
 
-  /// `true` if there is an active auto format suggestion; `false` otherwise
+  /// `true` if there is an active suggestion; `false` otherwise
   bool get hasActiveSuggestion => _activeSuggestion != null;
 
-  /// Perform detection of auto formats and apply changes to [document]
+  /// Perform detection of auto formats and apply changes to [document].
   ///
-  /// Inserted data must be of type [String]
-  /// Returns `true` if auto format was activated
+  /// Inserted data must be of type [String].
+  ///
+  /// Returns `true` if auto format was activated; `false` otherwise
   bool run(ParchmentDocument document, int position, Object data) {
     if (data is! String || data.isEmpty) {
       return false;
@@ -77,8 +80,9 @@ class AutoFormats {
     return false;
   }
 
-  /// Remove auto format from [document] and de-activate current suggestion
-  /// It will throw if [_activeSuggestion] is null.
+  /// Remove auto format from [document] and de-activate current suggestion.
+  ///
+  /// This will throw if [_activeSuggestion] is null.
   TextSelection? undoActive(ParchmentDocument document) {
     final undoSelection = _activeSuggestion!.undoSelection;
     document.compose(_activeSuggestion!.undo, ChangeSource.local);
@@ -86,13 +90,13 @@ class AutoFormats {
     return undoSelection;
   }
 
-  /// Cancel active auto format
+  /// Cancel active suggestion
   void cancelActive() {
     _activeSuggestion = null;
   }
 }
 
-/// An auto format result
+/// The result of a [AutoFormat.apply] that has detected a pattern
 class AutoFormatResult {
   AutoFormatResult({
     this.selection,
@@ -103,15 +107,17 @@ class AutoFormatResult {
     required this.keepTriggerCharacter,
   });
 
-  /// The selection after applying the auto format
-  /// Optional
+  /// *Optional* [TextSelection] after applying the auto format.
+  ///
+  /// Useful for Markdown shortcuts for example
   final TextSelection? selection;
 
   /// The change that was applied
   final Delta change;
 
-  /// The selection after undoing the formatting
-  /// Optional
+  /// *Optional* [TextSelection] after undoing the formatting
+  ///
+  /// Useful for Markdown shortcuts for example
   final TextSelection? undoSelection;
 
   /// The changes to undo the formatting
@@ -202,6 +208,37 @@ class _MarkdownShortCuts extends AutoFormat {
     if (prefixOps.any((element) => element.data is! String)) return null;
 
     return prefixOps.map((e) => e.data).cast<String>().join();
+  }
+
+  // Skips to the beginning of line containing position at specified [length]
+  // and returns contents of the line skipped so far.
+  List<Operation> skipToLineAt(DeltaIterator iter, int length) {
+    if (length == 0) {
+      return List.empty(growable: false);
+    }
+
+    final prefix = <Operation>[];
+
+    var skipped = 0;
+    while (skipped < length && iter.hasNext) {
+      final opLength = iter.peekLength();
+      final skip = math.min(length - skipped, opLength);
+      final op = iter.next(skip);
+      if (op.data is! String) {
+        prefix.add(op);
+      } else {
+        var text = op.data as String;
+        var pos = text.lastIndexOf('\n');
+        if (pos == -1) {
+          prefix.add(op);
+        } else {
+          prefix.clear();
+          prefix.add(Operation.insert(text.substring(pos + 1), op.attributes));
+        }
+      }
+      skipped += op.length;
+    }
+    return prefix;
   }
 
   (TextSelection, Delta)? _formatLine(
@@ -309,37 +346,6 @@ class _MarkdownShortCuts extends AutoFormat {
         keepTriggerCharacter: keepTriggerCharacter,
         undoPositionCandidate: position - prefix.length - 1);
   }
-}
-
-// Skips to the beginning of line containing position at specified [length]
-// and returns contents of the line skipped so far.
-List<Operation> skipToLineAt(DeltaIterator iter, int length) {
-  if (length == 0) {
-    return List.empty(growable: false);
-  }
-
-  final prefix = <Operation>[];
-
-  var skipped = 0;
-  while (skipped < length && iter.hasNext) {
-    final opLength = iter.peekLength();
-    final skip = math.min(length - skipped, opLength);
-    final op = iter.next(skip);
-    if (op.data is! String) {
-      prefix.add(op);
-    } else {
-      var text = op.data as String;
-      var pos = text.lastIndexOf('\n');
-      if (pos == -1) {
-        prefix.add(op);
-      } else {
-        prefix.clear();
-        prefix.add(Operation.insert(text.substring(pos + 1), op.attributes));
-      }
-    }
-    skipped += op.length;
-  }
-  return prefix;
 }
 
 // Infers text direction from the input when happens in the beginning of a line.
