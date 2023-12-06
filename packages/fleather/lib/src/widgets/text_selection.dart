@@ -526,17 +526,11 @@ class _TextSelectionHandleOverlayState extends State<TextSelectionHandleOverlay>
 /// Delegate interface for the [EditorTextSelectionGestureDetectorBuilder].
 ///
 /// The interface is usually implemented by textfield implementations wrapping
-/// [EditableText], that use a [EditorTextSelectionGestureDetectorBuilder] to build a
-/// [EditorTextSelectionGestureDetector] for their [editor]. The delegate provides
+/// [RawEditor], that use a [EditorTextSelectionGestureDetectorBuilder] to build a
+/// [EditorTextSelectionGestureDetector] for their [RawEditor]. The delegate provides
 /// the builder with information about the current state of the textfield.
 /// Based on these information, the builder adds the correct gesture handlers
 /// to the gesture detector.
-///
-/// See also:
-///
-///  * [TextField], which implements this delegate for the Material textfield.
-///  * [CupertinoTextField], which implements this delegate for the Cupertino
-///    textfield.
 abstract class EditorTextSelectionGestureDetectorBuilderDelegate {
   /// [GlobalKey] to the [EditableText] for which the
   /// [EditorTextSelectionGestureDetectorBuilder] will build a [EditorTextSelectionGestureDetector].
@@ -549,7 +543,23 @@ abstract class EditorTextSelectionGestureDetectorBuilderDelegate {
   bool get selectionEnabled;
 }
 
-//TODO: Implement magnifier
+/// Builds a [TextSelectionGestureDetector] to wrap an [RawEditor].
+///
+/// The class implements sensible defaults for many user interactions
+/// with an [RawEditor] (see the documentation of the various gesture handler
+/// methods, e.g. [onTapDown], [onForcePressStart], etc.). Subclasses of
+/// [EditorTextSelectionGestureDetectorBuilder] can change the behavior performed in
+/// responds to these gesture events by overriding the corresponding handler
+/// methods of this class.
+///
+/// The resulting [TextSelectionGestureDetector] to wrap an [RawEditor] is
+/// obtained by calling [buildGestureDetector].
+///
+/// A [EditorTextSelectionGestureDetectorBuilder] must be provided a
+/// [EditorTextSelectionGestureDetectorBuilderDelegate], from which information about
+/// the [RawEditor] may be obtained. Typically, the [State] of the widget
+/// that builds the [RawEditor] implements this interface, and then passes
+/// itself as the [delegate].
 class EditorTextSelectionGestureDetectorBuilder {
   /// Creates a [EditorTextSelectionGestureDetectorBuilder].
   EditorTextSelectionGestureDetectorBuilder({
