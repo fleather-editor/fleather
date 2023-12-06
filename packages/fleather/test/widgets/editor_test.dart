@@ -156,7 +156,7 @@ void main() {
                 extentOffset: 4,
                 affinity: TextAffinity.upstream));
         expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
-      }, TargetPlatform.iOS);
+      }, [TargetPlatform.iOS]);
 
       testWidgetsWithPlatform(
           'Secondary tap opens toolbar and selection is collapsed on mac/iOS when focused or tap position was the same as selection',
@@ -188,7 +188,7 @@ void main() {
             editor.selection,
             const TextSelection.collapsed(
                 offset: 0, affinity: TextAffinity.downstream));
-      }, TargetPlatform.iOS);
+      }, [TargetPlatform.iOS]);
 
       testWidgetsWithPlatform(
           'Secondary tap toggles toolbar on platforms other than mac/iOS',
@@ -213,10 +213,10 @@ void main() {
             buttons: kSecondaryMouseButton);
         await tester.pump();
         expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
-      }, TargetPlatform.windows);
+      }, [TargetPlatform.windows]);
 
       testWidgetsWithPlatform(
-          'Shift tap selects from beginning when unfocused on mac',
+          'Shift tap selects from beginning when unfocused on macOS/iOS',
           (tester) async {
         final document = ParchmentDocument.fromJson([
           {'insert': 'Test\n'}
@@ -237,10 +237,10 @@ void main() {
                 baseOffset: 0,
                 extentOffset: 4,
                 affinity: TextAffinity.upstream));
-      }, TargetPlatform.macOS);
+      }, [TargetPlatform.macOS, TargetPlatform.iOS]);
 
       testWidgetsWithPlatform(
-          'Shift tap selects from current selection when focused on mac',
+          'Shift tap selects from current selection when focused on macOS/iOS',
           (tester) async {
         final document = ParchmentDocument.fromJson([
           {'insert': 'Test\n'}
@@ -250,8 +250,8 @@ void main() {
         await editor.pump();
         await editor.updateSelection(base: 1, extent: 1);
         await tester.sendKeyDownEvent(LogicalKeyboardKey.shift);
-        await tester.tapAt(tester.getTopRight(find.byType(FleatherEditor)) +
-            const Offset(-1, 1));
+        await tester.tapAt(tester.getBottomRight(find.byType(FleatherEditor)) -
+            const Offset(1, 1));
         await tester.pump();
         expect(
             editor.selection,
@@ -259,7 +259,7 @@ void main() {
                 baseOffset: 1,
                 extentOffset: 4,
                 affinity: TextAffinity.upstream));
-      }, TargetPlatform.macOS);
+      }, [TargetPlatform.macOS, TargetPlatform.iOS]);
 
       testWidgetsWithPlatform('Mouse drag updates selection', (tester) async {
         final document = ParchmentDocument.fromJson([
@@ -287,7 +287,7 @@ void main() {
                 baseOffset: 1,
                 extentOffset: 2,
                 affinity: TextAffinity.upstream));
-      }, TargetPlatform.macOS);
+      }, [TargetPlatform.macOS]);
 
       testWidgetsWithPlatform('Mouse drag with shift extends selection',
           (tester) async {
@@ -320,7 +320,7 @@ void main() {
                 baseOffset: 1,
                 extentOffset: 5,
                 affinity: TextAffinity.upstream));
-      }, TargetPlatform.macOS);
+      }, [TargetPlatform.macOS]);
 
       testWidgetsWithPlatform(
           'Can select last separated character in paragraph on iOS',
@@ -342,7 +342,7 @@ void main() {
             editor.selection,
             const TextSelection.collapsed(
                 offset: text.length, affinity: TextAffinity.upstream));
-      }, TargetPlatform.iOS);
+      }, [TargetPlatform.iOS]);
 
       testWidgetsWithPlatform(
           'Tapping after the beginning of a word moves cursor after word on iOS',
@@ -356,7 +356,7 @@ void main() {
             editor.selection,
             const TextSelection.collapsed(
                 offset: 4, affinity: TextAffinity.upstream));
-      }, TargetPlatform.iOS);
+      }, [TargetPlatform.iOS]);
 
       testWidgetsWithPlatform(
           'Tapping before the beginning of a word moves cursor at the end of previous word on iOS',
@@ -377,7 +377,7 @@ void main() {
             editor.selection,
             const TextSelection.collapsed(
                 offset: 3, affinity: TextAffinity.upstream));
-      }, TargetPlatform.iOS);
+      }, [TargetPlatform.iOS]);
 
       testWidgets(
           'Tapping moves the cursor right where user tapped on other platforms',
@@ -405,7 +405,7 @@ void main() {
         final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
         expect(rawEditor.selectionControls,
             const TypeMatcher<CupertinoTextSelectionControls>());
-      }, TargetPlatform.iOS);
+      }, [TargetPlatform.iOS]);
 
       testWidgetsWithPlatform('selection handles for macOS', (tester) async {
         final document = ParchmentDocument();
@@ -415,7 +415,7 @@ void main() {
         final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
         expect(rawEditor.selectionControls,
             const TypeMatcher<CupertinoDesktopTextSelectionControls>());
-      }, TargetPlatform.macOS);
+      }, [TargetPlatform.macOS]);
 
       testWidgetsWithPlatform('selection handles for Android', (tester) async {
         final document = ParchmentDocument();
@@ -425,7 +425,7 @@ void main() {
         final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
         expect(rawEditor.selectionControls,
             const TypeMatcher<MaterialTextSelectionControls>());
-      }, TargetPlatform.android);
+      }, [TargetPlatform.android]);
 
       testWidgetsWithPlatform('selection handles for Windows', (tester) async {
         final document = ParchmentDocument();
@@ -435,7 +435,7 @@ void main() {
         final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
         expect(rawEditor.selectionControls,
             const TypeMatcher<DesktopTextSelectionControls>());
-      }, TargetPlatform.windows);
+      }, [TargetPlatform.windows]);
 
       testWidgetsWithPlatform('selection handles for Linux', (tester) async {
         final document = ParchmentDocument();
@@ -445,7 +445,7 @@ void main() {
         final rawEditor = tester.widget<RawEditor>(find.byType(RawEditor));
         expect(rawEditor.selectionControls,
             const TypeMatcher<DesktopTextSelectionControls>());
-      }, TargetPlatform.linux);
+      }, [TargetPlatform.linux]);
 
       testWidgetsWithPlatform(
           'Triple tap selects paragraph on platforms other than Linux',
@@ -473,7 +473,7 @@ void main() {
                 baseOffset: 0,
                 extentOffset: 117,
                 affinity: TextAffinity.upstream));
-      }, TargetPlatform.macOS);
+      }, [TargetPlatform.macOS]);
 
       testWidgetsWithPlatform('Triple tap selects a line on Linux',
           (tester) async {
@@ -500,7 +500,7 @@ void main() {
                 baseOffset: 0,
                 extentOffset: 50,
                 affinity: TextAffinity.upstream));
-      }, TargetPlatform.linux);
+      }, [TargetPlatform.linux]);
     });
 
     group('didUpdateWidget', () {
@@ -576,10 +576,12 @@ void prepareClipboard() {
 
 @isTest
 Future<void> testWidgetsWithPlatform(String description,
-    WidgetTesterCallback callback, TargetPlatform platform) async {
+    WidgetTesterCallback callback, List<TargetPlatform> platforms) async {
   testWidgets(description, (tester) async {
-    debugDefaultTargetPlatformOverride = platform;
-    await callback(tester);
+    for (final platform in platforms) {
+      debugDefaultTargetPlatformOverride = platform;
+      await callback(tester);
+    }
     debugDefaultTargetPlatformOverride = null;
   });
 }
