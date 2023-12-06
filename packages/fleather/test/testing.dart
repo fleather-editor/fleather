@@ -23,7 +23,6 @@ class EditorSandBox {
     FocusNode? focusNode,
     ParchmentDocument? document,
     FleatherThemeData? fleatherTheme,
-    ThemeData? theme,
     bool autofocus = false,
   }) {
     focusNode ??= FocusNode();
@@ -39,10 +38,7 @@ class EditorSandBox {
     if (fleatherTheme != null) {
       widget = FleatherTheme(data: fleatherTheme, child: widget);
     }
-    widget = MaterialApp(
-      home: widget,
-      theme: theme,
-    );
+    widget = MaterialApp(home: widget);
 
     return EditorSandBox._(tester, focusNode, document, controller, widget);
   }
