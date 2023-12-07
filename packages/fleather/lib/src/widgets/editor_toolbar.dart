@@ -847,14 +847,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
             Container(
               width: 18,
               height: 4,
-              decoration: BoxDecoration(
-                color: value,
-                border: value == Colors.transparent
-                    ? Border.all(
-                        color:
-                            Theme.of(context).iconTheme.color ?? Colors.black)
-                    : null,
-              ),
+              decoration: BoxDecoration(color: value),
             )
           ],
         );
