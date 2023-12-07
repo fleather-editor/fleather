@@ -353,9 +353,9 @@ Widget defaultToggleStyleButtonBuilder(
 /// Signature of callbacks that return a [Color] picked from a [BuildContext].
 typedef PickColor = Future<Color?> Function(BuildContext);
 
-/// Signature of callbacks the return a [Widget] from a [BuildContext]
-/// and a [Color].
-typedef ColorButtonBuilder = Widget Function(BuildContext, Color);
+/// Signature of callbacks the returns a [Widget] from a [BuildContext]
+/// and a [Color] (`null` color to use the default color of the text - copes with dark mode).
+typedef ColorButtonBuilder = Widget Function(BuildContext, Color?);
 
 /// Toolbar button which allows to apply background color style to a portion of text.
 ///
@@ -365,14 +365,12 @@ class ColorButton extends StatefulWidget {
       {Key? key,
       required this.controller,
       required this.attributeKey,
-      required this.defaultColor,
       required this.builder,
       this.pickColor})
       : super(key: key);
 
   final FleatherController controller;
   final ColorParchmentAttributeBuilder attributeKey;
-  final Color defaultColor;
   final ColorButtonBuilder builder;
   final PickColor? pickColor;
 
@@ -383,14 +381,15 @@ class ColorButton extends StatefulWidget {
 class _ColorButtonState extends State<ColorButton> {
   static double buttonSize = 32;
 
-  late Color _value;
+  late Color? _value;
 
   ParchmentStyle get _selectionStyle => widget.controller.getSelectionStyle();
 
   void _didChangeEditingValue() {
     setState(() {
-      _value = Color(_selectionStyle.get(widget.attributeKey)?.value ??
-          widget.defaultColor.value);
+      final selectionColor = _selectionStyle.get(widget.attributeKey);
+      _value =
+          selectionColor?.value != null ? Color(selectionColor!.value!) : null;
     });
   }
 
@@ -408,7 +407,7 @@ class _ColorButtonState extends State<ColorButton> {
       child: Container(
           constraints: BoxConstraints(maxWidth: maxWidth),
           padding: const EdgeInsets.all(8.0),
-          child: _ColorPalette(defaultColor: widget.defaultColor)),
+          child: const _ColorPalette()),
     );
 
     return Navigator.of(context).push<Color>(
@@ -433,8 +432,9 @@ class _ColorButtonState extends State<ColorButton> {
   @override
   void initState() {
     super.initState();
-    _value = Color(_selectionStyle.get(widget.attributeKey)?.value ??
-        widget.defaultColor.value);
+    final selectionColor = _selectionStyle.get(widget.attributeKey);
+    _value =
+        selectionColor?.value != null ? Color(selectionColor!.value!) : null;
     widget.controller.addListener(_didChangeEditingValue);
   }
 
@@ -444,8 +444,9 @@ class _ColorButtonState extends State<ColorButton> {
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_didChangeEditingValue);
       widget.controller.addListener(_didChangeEditingValue);
-      _value = Color(_selectionStyle.get(widget.attributeKey)?.value ??
-          widget.defaultColor.value);
+      final selectionColor = _selectionStyle.get(widget.attributeKey);
+      _value =
+          selectionColor?.value != null ? Color(selectionColor!.value!) : null;
     }
   }
 
@@ -472,8 +473,10 @@ class _ColorButtonState extends State<ColorButton> {
         onPressed: () async {
           final selectedColor =
               await (widget.pickColor ?? _defaultPickColor)(context);
-          widget.controller.formatSelection(widget.attributeKey
-              .withColor(selectedColor?.value ?? widget.defaultColor.value));
+          final attribute = selectedColor != null
+              ? widget.attributeKey.withColor(selectedColor.value)
+              : widget.attributeKey.unset;
+          widget.controller.formatSelection(attribute);
         },
         child: Builder(builder: (context) => widget.builder(context, _value)),
       ),
@@ -483,6 +486,7 @@ class _ColorButtonState extends State<ColorButton> {
 
 class _ColorPalette extends StatelessWidget {
   static const colors = [
+    null,
     Colors.indigo,
     Colors.blue,
     Colors.cyan,
@@ -497,12 +501,11 @@ class _ColorPalette extends StatelessWidget {
     Colors.purple,
     Colors.brown,
     Colors.grey,
-    Colors.white
+    Colors.white,
+    Colors.black,
   ];
 
-  const _ColorPalette({required this.defaultColor});
-
-  final Color defaultColor;
+  const _ColorPalette();
 
   @override
   Widget build(BuildContext context) {
@@ -511,9 +514,7 @@ class _ColorPalette extends StatelessWidget {
       alignment: WrapAlignment.start,
       runSpacing: 4,
       spacing: 4,
-      children: [defaultColor, ...colors]
-          .map((e) => _ColorPaletteElement(color: e))
-          .toList(),
+      children: [...colors].map((e) => _ColorPaletteElement(color: e)).toList(),
     );
   }
 }
@@ -521,7 +522,7 @@ class _ColorPalette extends StatelessWidget {
 class _ColorPaletteElement extends StatelessWidget {
   const _ColorPaletteElement({required this.color});
 
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -529,18 +530,20 @@ class _ColorPaletteElement extends StatelessWidget {
     final isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
     final size = isMobile ? 32.0 : 16.0;
     return Container(
-      width: size,
+      width: (color == null ? 4 : 1) * size + (color == null ? 3 * 4 : 0),
       height: size,
       decoration: BoxDecoration(
         color: color,
-        border: color == Colors.transparent
-            ? Border.all(
-                color: Colors.black,
-                strokeAlign: BorderSide.strokeAlignInside,
+      ),
+      child: RawMaterialButton(
+        onPressed: () => Navigator.pop(context, color),
+        child: color == null
+            ? Text(
+                'Automatic',
+                style: Theme.of(context).textTheme.bodySmall,
               )
             : null,
       ),
-      child: RawMaterialButton(onPressed: () => Navigator.pop(context, color)),
     );
   }
 }
@@ -855,28 +858,26 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
             )
           ],
         );
-    Widget textColorBuilder(context, value) => Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.text_fields_sharp,
-              size: 16,
-            ),
-            Container(
-              width: 18,
-              height: 4,
-              decoration: BoxDecoration(
-                color: value,
-                border: value == Colors.transparent
-                    ? Border.all(
-                        color:
-                            Theme.of(context).iconTheme.color ?? Colors.black)
-                    : null,
-              ),
-            )
-          ],
-        );
+    Widget textColorBuilder(context, value) {
+      Color effectiveColor =
+          value ?? DefaultTextStyle.of(context).style.color ?? Colors.black;
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.text_fields_sharp,
+            size: 16,
+          ),
+          Container(
+            width: 18,
+            height: 4,
+            decoration: BoxDecoration(color: effectiveColor),
+          )
+        ],
+      );
+    }
+
     return FleatherToolbar(key: key, padding: padding, children: [
       ...leading,
       Visibility(
@@ -920,7 +921,6 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
         child: ColorButton(
           controller: controller,
           attributeKey: ParchmentAttribute.foregroundColor,
-          defaultColor: Colors.black,
           builder: textColorBuilder,
         ),
       ),
@@ -929,7 +929,6 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
         child: ColorButton(
           controller: controller,
           attributeKey: ParchmentAttribute.backgroundColor,
-          defaultColor: Colors.transparent,
           builder: backgroundColorBuilder,
         ),
       ),

@@ -84,13 +84,11 @@ Widget widget(FleatherController controller, {bool withBasic = false}) {
               ColorButton(
                 controller: controller,
                 attributeKey: ParchmentAttribute.backgroundColor,
-                defaultColor: Colors.transparent,
                 builder: backgroundColorBuilder,
               ),
               ColorButton(
                 controller: controller,
                 attributeKey: ParchmentAttribute.foregroundColor,
-                defaultColor: Colors.black,
                 builder: textColorBuilder,
               ),
               IndentationButton(controller: controller),
@@ -325,7 +323,7 @@ void main() {
         matching: find.byType(RawMaterialButton));
     expect(
       colorElement,
-      findsNWidgets(16),
+      findsNWidgets(17),
     );
 
     await tester.tap(find
@@ -335,7 +333,7 @@ void main() {
         .last);
     await tester.pumpAndSettle(throttleDuration);
     expect(controller.document.toDelta().first,
-        Operation.insert('Hello', {'bg': Colors.white.value}));
+        Operation.insert('Hello', {'bg': Colors.black.value}));
   });
 
   testWidgets('Text color', (tester) async {
@@ -356,7 +354,7 @@ void main() {
         matching: find.byType(RawMaterialButton));
     expect(
       colorElement,
-      findsNWidgets(16),
+      findsNWidgets(17),
     );
 
     await tester.tap(find
@@ -366,7 +364,7 @@ void main() {
         .last);
     await tester.pumpAndSettle(throttleDuration);
     expect(controller.document.toDelta().first,
-        Operation.insert('Hello', {'fg': Colors.white.value}));
+        Operation.insert('Hello', {'fg': Colors.black.value}));
   });
 }
 
