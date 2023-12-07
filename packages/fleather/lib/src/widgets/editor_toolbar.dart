@@ -458,17 +458,16 @@ class _ColorButtonState extends State<ColorButton> {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints.tightFor(
-        width: buttonSize,
-        height: buttonSize,
-      ),
+      constraints:
+          BoxConstraints.tightFor(width: buttonSize, height: buttonSize),
       child: RawMaterialButton(
         visualDensity: VisualDensity.compact,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
         padding: EdgeInsets.zero,
         elevation: 0,
-        hoverElevation: 1,
-        highlightElevation: 1,
+        fillColor: Theme.of(context).canvasColor,
+        highlightElevation: 0,
+        hoverElevation: 0,
         onPressed: () async {
           final selectedColor =
               await (widget.pickColor ?? _defaultPickColor)(context);
@@ -617,6 +616,12 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
     return ConstrainedBox(
       constraints: BoxConstraints.tightFor(height: buttonHeight),
       child: RawMaterialButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        padding: EdgeInsets.zero,
+        fillColor: Theme.of(context).canvasColor,
+        elevation: 0,
+        hoverElevation: 0,
+        highlightElevation: 0,
         onPressed: _selectHeading,
         child: Text(_headingToText[current] ?? ''),
       ),
