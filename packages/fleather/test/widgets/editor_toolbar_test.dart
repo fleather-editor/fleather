@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:fleather/fleather.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
 
@@ -84,11 +84,13 @@ Widget widget(FleatherController controller, {bool withBasic = false}) {
               ColorButton(
                 controller: controller,
                 attributeKey: ParchmentAttribute.backgroundColor,
+                nullColorLabel: 'No color',
                 builder: backgroundColorBuilder,
               ),
               ColorButton(
                 controller: controller,
                 attributeKey: ParchmentAttribute.foregroundColor,
+                nullColorLabel: 'Automatic',
                 builder: textColorBuilder,
               ),
               IndentationButton(controller: controller),

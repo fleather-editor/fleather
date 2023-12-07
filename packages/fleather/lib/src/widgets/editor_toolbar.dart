@@ -350,8 +350,10 @@ Widget defaultToggleStyleButtonBuilder(
   );
 }
 
-/// Signature of callbacks that return a [Color] picked from a [BuildContext].
-typedef PickColor = Future<Color?> Function(BuildContext);
+/// Signature of callbacks that return a [Color] picked from a palette built in
+/// a [BuildContext] with a [String] specifying the label of the `null` selection
+/// option
+typedef PickColor = Future<Color?> Function(BuildContext, String);
 
 /// Signature of callbacks the returns a [Widget] from a [BuildContext]
 /// and a [Color] (`null` color to use the default color of the text - copes with dark mode).
@@ -365,12 +367,14 @@ class ColorButton extends StatefulWidget {
       {Key? key,
       required this.controller,
       required this.attributeKey,
+      required this.nullColorLabel,
       required this.builder,
       this.pickColor})
       : super(key: key);
 
   final FleatherController controller;
   final ColorParchmentAttributeBuilder attributeKey;
+  final String nullColorLabel;
   final ColorButtonBuilder builder;
   final PickColor? pickColor;
 
@@ -393,7 +397,8 @@ class _ColorButtonState extends State<ColorButton> {
     });
   }
 
-  Future<Color?> _defaultPickColor(BuildContext context) async {
+  Future<Color?> _defaultPickColor(
+      BuildContext context, String nullColorLabel) async {
     // kIsWeb important here as Platform.xxx will cause a crash en web
     final isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
     final maxWidth = isMobile ? 200.0 : 100.0;
@@ -407,7 +412,7 @@ class _ColorButtonState extends State<ColorButton> {
       child: Container(
           constraints: BoxConstraints(maxWidth: maxWidth),
           padding: const EdgeInsets.all(8.0),
-          child: const _ColorPalette()),
+          child: _ColorPalette(nullColorLabel)),
     );
 
     return Navigator.of(context).push<Color>(
@@ -471,8 +476,8 @@ class _ColorButtonState extends State<ColorButton> {
         hoverElevation: 1,
         highlightElevation: 1,
         onPressed: () async {
-          final selectedColor =
-              await (widget.pickColor ?? _defaultPickColor)(context);
+          final selectedColor = await (widget.pickColor ?? _defaultPickColor)(
+              context, widget.nullColorLabel);
           final attribute = selectedColor != null
               ? widget.attributeKey.withColor(selectedColor.value)
               : widget.attributeKey.unset;
@@ -505,7 +510,9 @@ class _ColorPalette extends StatelessWidget {
     Colors.black,
   ];
 
-  const _ColorPalette();
+  const _ColorPalette(this.nullColorLabel);
+
+  final String nullColorLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -514,15 +521,18 @@ class _ColorPalette extends StatelessWidget {
       alignment: WrapAlignment.start,
       runSpacing: 4,
       spacing: 4,
-      children: [...colors].map((e) => _ColorPaletteElement(color: e)).toList(),
+      children: [...colors]
+          .map((e) => _ColorPaletteElement(e, nullColorLabel))
+          .toList(),
     );
   }
 }
 
 class _ColorPaletteElement extends StatelessWidget {
-  const _ColorPaletteElement({required this.color});
+  const _ColorPaletteElement(this.color, this.nullColorLabel);
 
   final Color? color;
+  final String nullColorLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -539,7 +549,7 @@ class _ColorPaletteElement extends StatelessWidget {
         onPressed: () => Navigator.pop(context, color),
         child: color == null
             ? Text(
-                'Automatic',
+                nullColorLabel,
                 style: Theme.of(context).textTheme.bodySmall,
               )
             : null,
@@ -914,6 +924,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
         child: ColorButton(
           controller: controller,
           attributeKey: ParchmentAttribute.foregroundColor,
+          nullColorLabel: 'Automatic',
           builder: textColorBuilder,
         ),
       ),
@@ -922,6 +933,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
         child: ColorButton(
           controller: controller,
           attributeKey: ParchmentAttribute.backgroundColor,
+          nullColorLabel: 'No color',
           builder: backgroundColorBuilder,
         ),
       ),
