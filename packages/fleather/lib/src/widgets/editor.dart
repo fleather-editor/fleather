@@ -260,9 +260,8 @@ class _FleatherEditorState extends State<FleatherEditor>
   @override
   GlobalKey<EditorState> get editableTextKey => widget.editorKey ?? _editorKey!;
 
-  // TODO: Add support for forcePress on iOS.
   @override
-  bool get forcePressEnabled => false;
+  bool get forcePressEnabled => true;
 
   @override
   bool get selectionEnabled => widget.enableInteractiveSelection;
@@ -426,106 +425,28 @@ class _FleatherEditorSelectionGestureDetectorBuilder
   void onForcePressStart(ForcePressDetails details) {
     super.onForcePressStart(details);
     if (delegate.selectionEnabled && shouldShowSelectionToolbar) {
-      editor!.showToolbar();
+      editor.showToolbar();
     }
   }
 
   @override
-  void onForcePressEnd(ForcePressDetails details) {
-    // Not required.
-  }
-
-  @override
-  void onSingleLongTapMoveUpdate(LongPressMoveUpdateDetails details) {
-    if (delegate.selectionEnabled) {
-      switch (Theme.of(_state.context).platform) {
-        case TargetPlatform.iOS:
-        case TargetPlatform.macOS:
-          renderEditor!.selectPositionAt(
-            from: details.globalPosition,
-            cause: SelectionChangedCause.longPress,
-          );
-          break;
-        case TargetPlatform.android:
-        case TargetPlatform.fuchsia:
-        case TargetPlatform.linux:
-        case TargetPlatform.windows:
-          renderEditor!.selectWordsInRange(
-            from: details.globalPosition - details.offsetFromOrigin,
-            to: details.globalPosition,
-            cause: SelectionChangedCause.longPress,
-          );
-          break;
-      }
-    }
-  }
-
-  bool isShiftClick(PointerDeviceKind deviceKind) {
-    final pressed = RawKeyboard.instance.keysPressed;
-    return deviceKind == PointerDeviceKind.mouse &&
-        (pressed.contains(LogicalKeyboardKey.shiftLeft) ||
-            pressed.contains(LogicalKeyboardKey.shiftRight));
-  }
-
-  @override
-  void onSingleTapUp(TapUpDetails details) {
-    editor!.hideToolbar();
-
-    if (delegate.selectionEnabled) {
-      switch (Theme.of(_state.context).platform) {
-        case TargetPlatform.iOS:
-        case TargetPlatform.macOS:
-          switch (details.kind) {
-            case PointerDeviceKind.mouse:
-            case PointerDeviceKind.stylus:
-            case PointerDeviceKind.invertedStylus:
-              // Precise devices should place the cursor at a precise position.
-              // If `Shift` key is pressed then extend current selection instead.
-              if (isShiftClick(details.kind)) {
-                renderEditor!.extendSelection(details.globalPosition,
-                    cause: SelectionChangedCause.tap);
-              } else {
-                renderEditor!.selectPosition(cause: SelectionChangedCause.tap);
-              }
-              break;
-            case PointerDeviceKind.touch:
-            case PointerDeviceKind.trackpad:
-            case PointerDeviceKind.unknown:
-              // On macOS/iOS/iPadOS a touch tap places the cursor at the edge
-              // of the word.
-              renderEditor!.selectWordEdge(cause: SelectionChangedCause.tap);
-              break;
-          }
-          break;
-        case TargetPlatform.android:
-        case TargetPlatform.fuchsia:
-        case TargetPlatform.linux:
-        case TargetPlatform.windows:
-          renderEditor!.selectPosition(cause: SelectionChangedCause.tap);
-          break;
-      }
-    }
+  void onSingleTapUp(TapDragUpDetails details) {
+    super.onSingleTapUp(details);
     _state._requestKeyboard();
-    // if (_state.widget.onTap != null)
-    //   _state.widget.onTap();
   }
 
   @override
   void onSingleLongTapStart(LongPressStartDetails details) {
+    super.onSingleLongTapStart(details);
     if (delegate.selectionEnabled) {
       switch (Theme.of(_state.context).platform) {
         case TargetPlatform.iOS:
         case TargetPlatform.macOS:
-          renderEditor!.selectPositionAt(
-            from: details.globalPosition,
-            cause: SelectionChangedCause.longPress,
-          );
           break;
         case TargetPlatform.android:
         case TargetPlatform.fuchsia:
         case TargetPlatform.linux:
         case TargetPlatform.windows:
-          renderEditor!.selectWord(cause: SelectionChangedCause.longPress);
           Feedback.forLongPress(_state.context);
           break;
       }
@@ -770,6 +691,8 @@ abstract class EditorState extends State<RawEditor>
 
   bool showToolbar();
 
+  void toggleToolbar([bool hideHandles = true]);
+
   void requestKeyboard();
 
   FocusNode get effectiveFocusNode;
@@ -881,6 +804,17 @@ class RawEditorState extends EditorState
 
     _selectionOverlay!.showToolbar();
     return true;
+  }
+
+  @override
+  void toggleToolbar([bool hideHandles = true]) {
+    final selectionOverlay = _selectionOverlay ??= _createSelectionOverlay();
+
+    if (selectionOverlay.toolbarIsVisible) {
+      hideToolbar(hideHandles);
+    } else {
+      showToolbar();
+    }
   }
 
   /// Copy current selection to [Clipboard].
@@ -1139,21 +1073,7 @@ class RawEditorState extends EditorState
       _selectionOverlay = null;
     } else {
       if (_selectionOverlay == null) {
-        _selectionOverlay = EditorTextSelectionOverlay(
-          clipboardStatus: clipboardStatus,
-          context: context,
-          value: textEditingValue,
-          debugRequiredFor: widget,
-          toolbarLayerLink: _toolbarLayerLink,
-          startHandleLayerLink: _startHandleLayerLink,
-          endHandleLayerLink: _endHandleLayerLink,
-          renderObject: renderEditor,
-          selectionControls: widget.selectionControls,
-          selectionDelegate: this,
-          dragStartBehavior: DragStartBehavior.start,
-          contextMenuBuilder: (context) =>
-              widget.contextMenuBuilder(context, this),
-        );
+        _selectionOverlay = _createSelectionOverlay();
       } else {
         _selectionOverlay!.update(textEditingValue);
       }
@@ -1178,6 +1098,23 @@ class RawEditorState extends EditorState
         bringIntoView(selection.extent);
       }
     }
+  }
+
+  EditorTextSelectionOverlay _createSelectionOverlay() {
+    return EditorTextSelectionOverlay(
+      clipboardStatus: clipboardStatus,
+      context: context,
+      value: textEditingValue,
+      debugRequiredFor: widget,
+      toolbarLayerLink: _toolbarLayerLink,
+      startHandleLayerLink: _startHandleLayerLink,
+      endHandleLayerLink: _endHandleLayerLink,
+      renderObject: renderEditor,
+      selectionControls: widget.selectionControls,
+      selectionDelegate: this,
+      dragStartBehavior: DragStartBehavior.start,
+      contextMenuBuilder: (context) => widget.contextMenuBuilder(context, this),
+    );
   }
 
   void _handleFocusChanged() {
@@ -1612,6 +1549,10 @@ class RawEditorState extends EditorState
   /// Returns the anchor points for the default context menu.
   @override
   TextSelectionToolbarAnchors get contextMenuAnchors {
+    if (renderEditor.lastSecondaryTapDownPosition != null) {
+      return TextSelectionToolbarAnchors(
+          primaryAnchor: renderEditor.lastSecondaryTapDownPosition!);
+    }
     final selection = textEditingValue.selection;
     // Find the horizontal midpoint, just above the selected text.
     final List<TextSelectionPoint> endpoints =

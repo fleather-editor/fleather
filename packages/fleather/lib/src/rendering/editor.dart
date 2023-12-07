@@ -60,6 +60,12 @@ abstract class RenderAbstractEditor implements TextLayoutMetrics {
       Offset lastBoundedOffset, TextPosition lastTextPosition,
       {double? resetLerpValue});
 
+  /// Tracks the position of a secondary tap event.
+  ///
+  /// Should be called before attempting to change the selection based on the
+  /// position of a secondary tap.
+  void handleSecondaryTapDown(TapDownDetails details);
+
   /// If [ignorePointer] is false (the default) then this method is called by
   /// the internal gesture recognizer's [TapGestureRecognizer.onTapDown]
   /// callback.
@@ -140,7 +146,6 @@ class RenderEditor extends RenderEditableContainerBox
   })  : _document = document,
         _hasFocus = hasFocus,
         _selection = selection,
-        _extendSelectionOrigin = selection,
         _startHandleLayerLink = startHandleLayerLink,
         _endHandleLayerLink = endHandleLayerLink,
         _cursorController = cursorController,
@@ -187,6 +192,9 @@ class RenderEditor extends RenderEditableContainerBox
     markNeedsLayout();
   }
 
+  Offset? _lastSecondaryTapDownPosition;
+  Offset? get lastSecondaryTapDownPosition => _lastSecondaryTapDownPosition;
+
   /// The region of text that is selected, if any.
   ///
   /// The caret position is represented by a collapsed selection.
@@ -200,17 +208,7 @@ class RenderEditor extends RenderEditableContainerBox
     if (_selection == value) return;
     _selection = value;
     markNeedsPaint();
-
-    if (!_shiftPressed && !_isDragging) {
-      // Only update extend selection origin if Shift key is not pressed and
-      // user is not dragging selection.
-      _extendSelectionOrigin = _selection;
-    }
   }
-
-  bool get _shiftPressed =>
-      RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.shiftLeft) ||
-      RawKeyboard.instance.keysPressed.contains(LogicalKeyboardKey.shiftLeft);
 
   /// The [LayerLink] of start selection handle.
   ///
@@ -413,33 +411,15 @@ class RenderEditor extends RenderEditableContainerBox
 
   Offset? _lastTapDownPosition;
 
-  // Used on Desktop (mouse and keyboard enabled platforms) as base offset
-  // for extending selection, either with combination of `Shift` + Click or
-  // by dragging
-  TextSelection? _extendSelectionOrigin;
+  @override
+  void handleSecondaryTapDown(TapDownDetails details) {
+    _lastTapDownPosition = details.globalPosition;
+    _lastSecondaryTapDownPosition = details.globalPosition;
+  }
 
   @override
   void handleTapDown(TapDownDetails details) {
     _lastTapDownPosition = details.globalPosition;
-  }
-
-  bool _isDragging = false;
-
-  void handleDragStart(DragStartDetails details) {
-    _isDragging = true;
-
-    final newSelection = selectPositionAt(
-      from: details.globalPosition,
-      cause: SelectionChangedCause.drag,
-    );
-
-    if (newSelection == null) return;
-    // Make sure to remember the origin for extend selection.
-    _extendSelectionOrigin = newSelection;
-  }
-
-  void handleDragEnd(DragEndDetails details) {
-    _isDragging = false;
   }
 
   /// Called when the selection changes.
@@ -470,34 +450,6 @@ class RenderEditor extends RenderEditableContainerBox
       ),
       cause,
     );
-  }
-
-  /// Extends current selection to the position closest to specified offset.
-  void extendSelection(Offset to, {required SelectionChangedCause cause}) {
-    /// The below logic does not exactly match the native version because
-    /// we do not allow swapping of base and extent positions.
-    assert(_extendSelectionOrigin != null);
-    final position = getPositionForOffset(to);
-
-    if (position.offset < _extendSelectionOrigin!.baseOffset) {
-      _handleSelectionChange(
-        TextSelection(
-          baseOffset: position.offset,
-          extentOffset: _extendSelectionOrigin!.extentOffset,
-          affinity: selection.affinity,
-        ),
-        cause,
-      );
-    } else if (position.offset > _extendSelectionOrigin!.extentOffset) {
-      _handleSelectionChange(
-        TextSelection(
-          baseOffset: _extendSelectionOrigin!.baseOffset,
-          extentOffset: position.offset,
-          affinity: selection.affinity,
-        ),
-        cause,
-      );
-    }
   }
 
   @override
