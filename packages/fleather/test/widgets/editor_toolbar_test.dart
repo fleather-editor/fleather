@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:fleather/fleather.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
 
@@ -84,13 +84,13 @@ Widget widget(FleatherController controller, {bool withBasic = false}) {
               ColorButton(
                 controller: controller,
                 attributeKey: ParchmentAttribute.backgroundColor,
-                defaultColor: Colors.transparent,
+                nullColorLabel: 'No color',
                 builder: backgroundColorBuilder,
               ),
               ColorButton(
                 controller: controller,
                 attributeKey: ParchmentAttribute.foregroundColor,
-                defaultColor: Colors.black,
+                nullColorLabel: 'Automatic',
                 builder: textColorBuilder,
               ),
               IndentationButton(controller: controller),
@@ -325,7 +325,7 @@ void main() {
         matching: find.byType(RawMaterialButton));
     expect(
       colorElement,
-      findsNWidgets(16),
+      findsNWidgets(17),
     );
 
     await tester.tap(find
@@ -335,7 +335,7 @@ void main() {
         .last);
     await tester.pumpAndSettle(throttleDuration);
     expect(controller.document.toDelta().first,
-        Operation.insert('Hello', {'bg': Colors.white.value}));
+        Operation.insert('Hello', {'bg': Colors.black.value}));
   });
 
   testWidgets('Text color', (tester) async {
@@ -356,7 +356,7 @@ void main() {
         matching: find.byType(RawMaterialButton));
     expect(
       colorElement,
-      findsNWidgets(16),
+      findsNWidgets(17),
     );
 
     await tester.tap(find
@@ -366,7 +366,7 @@ void main() {
         .last);
     await tester.pumpAndSettle(throttleDuration);
     expect(controller.document.toDelta().first,
-        Operation.insert('Hello', {'fg': Colors.white.value}));
+        Operation.insert('Hello', {'fg': Colors.black.value}));
   });
 }
 
