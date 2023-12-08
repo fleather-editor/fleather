@@ -22,6 +22,7 @@ class FleatherSingleChildScrollView extends StatelessWidget {
     required this.controller,
     required this.viewportBuilder,
     this.restorationId,
+    this.scrollableKey,
   }) : super(key: key);
 
   /// An object that can be used to control the position to which this scroll
@@ -51,6 +52,8 @@ class FleatherSingleChildScrollView extends StatelessWidget {
 
   final ViewportBuilder viewportBuilder;
 
+  final Key? scrollableKey;
+
   AxisDirection _getDirection(BuildContext context) {
     return getAxisDirectionFromAxisReverseAndDirectionality(
         context, Axis.vertical, false);
@@ -61,6 +64,7 @@ class FleatherSingleChildScrollView extends StatelessWidget {
     final axisDirection = _getDirection(context);
     final scrollController = controller;
     final scrollable = Scrollable(
+      key: scrollableKey,
       dragStartBehavior: DragStartBehavior.start,
       axisDirection: axisDirection,
       controller: scrollController,
