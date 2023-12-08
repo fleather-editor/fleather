@@ -126,8 +126,7 @@ class AutoFormatResult {
   /// The position at which an auto format can be canceled
   final int undoPositionCandidate;
 
-  /// Whether the trigger character will be added to the document after applying
-  /// the auto format
+  /// Whether the trigger character will be removed from the document after undoing the auto format
   final bool keepTriggerCharacter;
 }
 
@@ -138,7 +137,7 @@ class _AutoFormatLinks extends AutoFormat {
   const _AutoFormatLinks();
 
   @override
-  final bool keepTriggerCharacter = true;
+  final bool keepTriggerCharacter = false;
 
   @override
   AutoFormatResult? apply(
