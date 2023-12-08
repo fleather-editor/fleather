@@ -447,6 +447,52 @@ void main() {
             const TypeMatcher<DesktopTextSelectionControls>());
       }, [TargetPlatform.linux]);
 
+      testWidgetsWithPlatform('selectAll for macOS', (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Test\nAnother line\n'}
+        ]);
+        final editor = EditorSandBox(tester: tester, document: document);
+        await editor.pump();
+        await tester.tapAt(
+            tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
+            buttons: kSecondaryMouseButton);
+        await tester.pump();
+        expect(
+            find.byType(CupertinoDesktopTextSelectionToolbar), findsOneWidget);
+        await tester.tap(find.text('Select All')); // Select All in macOS
+        await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection(
+                baseOffset: 0,
+                extentOffset: 17,
+                affinity: TextAffinity.upstream));
+        expect(find.byType(CupertinoDesktopTextSelectionToolbar), findsNothing);
+      }, [TargetPlatform.macOS]);
+
+      testWidgetsWithPlatform('selectAll for Windows/Linux', (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Test\nAnother line\n'}
+        ]);
+        final editor = EditorSandBox(tester: tester, document: document);
+        await editor.pump();
+        await tester.tapAt(
+            tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
+            buttons: kSecondaryMouseButton);
+        await tester.pump();
+        expect(find.byType(DesktopTextSelectionToolbar), findsOneWidget);
+        await tester
+            .tap(find.text('Select all')); // Select all in other than macOS
+        await tester.pump();
+        expect(
+            editor.selection,
+            const TextSelection(
+                baseOffset: 0,
+                extentOffset: 17,
+                affinity: TextAffinity.upstream));
+        expect(find.byType(DesktopTextSelectionToolbar), findsNothing);
+      }, [TargetPlatform.linux, TargetPlatform.windows]);
+
       testWidgetsWithPlatform(
           'Triple tap selects paragraph on platforms other than Linux',
           (tester) async {
