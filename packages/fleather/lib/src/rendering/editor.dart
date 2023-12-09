@@ -119,6 +119,14 @@ abstract class RenderAbstractEditor implements TextLayoutMetrics {
   /// programmatically manipulate its `value` or `selection` directly.
   /// {@endtemplate}
   void selectPosition({required SelectionChangedCause cause});
+
+  /// Starts a [FleatherVerticalCaretMovementRun] at the given location in the text, for
+  /// handling consecutive vertical caret movements.
+  ///
+  /// This can be used to handle consecutive upward/downward arrow key movements
+  /// in an editor.
+  FleatherVerticalCaretMovementRun startVerticalCaretMovement(
+      TextPosition startPosition);
 }
 
 /// Displays a Fleather document as a vertical list of document segments (lines
@@ -193,6 +201,7 @@ class RenderEditor extends RenderEditableContainerBox
   }
 
   Offset? _lastSecondaryTapDownPosition;
+
   Offset? get lastSecondaryTapDownPosition => _lastSecondaryTapDownPosition;
 
   /// The region of text that is selected, if any.
@@ -866,6 +875,9 @@ class RenderEditor extends RenderEditableContainerBox
         // first character
         newPosition = const TextPosition(offset: 0);
       } else {
+        // TODO: in the case of a SpanEmbed, caret is drawn with "normal" line height
+        // As the caret offset is used to get the position of the above line, when the embed is much higher than the
+        // caret height the "above" position doesn't change
         final caretOffset = child.getOffsetForCaret(localPosition);
         final testPosition = TextPosition(offset: sibling.node.length - 1);
         final testOffset = sibling.getOffsetForCaret(testPosition);
@@ -903,9 +915,9 @@ class RenderEditor extends RenderEditableContainerBox
         newPosition = TextPosition(offset: _document.length - 1);
       } else {
         final caretOffset = child.getOffsetForCaret(localPosition);
-        const testPosition = TextPosition(offset: 0);
-        final testOffset = sibling.getOffsetForCaret(testPosition);
-        final finalOffset = Offset(caretOffset.dx, testOffset.dy);
+        const textPosition = TextPosition(offset: 0);
+        final textOffset = sibling.getOffsetForCaret(textPosition);
+        final finalOffset = Offset(caretOffset.dx, textOffset.dy);
         final siblingPosition = sibling.getPositionForOffset(finalOffset);
         newPosition = TextPosition(
             offset: sibling.node.documentOffset + siblingPosition.offset);
@@ -919,6 +931,7 @@ class RenderEditor extends RenderEditableContainerBox
 
   // End TextLayoutMetrics implementation
 
+  @override
   FleatherVerticalCaretMovementRun startVerticalCaretMovement(
       TextPosition startPosition) {
     return FleatherVerticalCaretMovementRun._(
@@ -951,16 +964,50 @@ class FleatherVerticalCaretMovementRun implements Iterator<TextPosition> {
 
   @override
   bool moveNext() {
-    _currentTextPosition = _editor.getTextPositionBelow(_currentTextPosition);
+    final newCurrentTextPosition =
+        _editor.getTextPositionBelow(_currentTextPosition);
+    if (newCurrentTextPosition == _currentTextPosition) return false;
+    _currentTextPosition = newCurrentTextPosition;
     return true;
   }
 
   /// Move back to the previous element.
   ///
-  /// Returns true and updates [current] if successful.
+  /// Returns `true` if previous exists and updates [current] if successful.
   bool movePrevious() {
-    _currentTextPosition = _editor.getTextPositionAbove(_currentTextPosition);
+    final newCurrentTextPosition =
+        _editor.getTextPositionAbove(_currentTextPosition);
+    if (newCurrentTextPosition == _currentTextPosition) return false;
+    _currentTextPosition = newCurrentTextPosition;
     return true;
+  }
+
+  bool moveByOffset(double offset) {
+    RenderEditableBox child = _editor.childAtPosition(_currentTextPosition);
+    Offset currentOffset = child.localToGlobal(Offset.zero);
+    final initialOffset = currentOffset;
+    if (offset >= 0.0) {
+      while (currentOffset.dy < initialOffset.dy + offset) {
+        final didMove = moveNext();
+        child = _editor.childAtPosition(_currentTextPosition);
+        final lineHeight =
+            child.preferredLineHeight(const TextPosition(offset: 0));
+        currentOffset = child.localToGlobal(Offset(0, lineHeight));
+        if (!didMove) {
+          break;
+        }
+      }
+    } else {
+      while (currentOffset.dy > initialOffset.dy + offset) {
+        final didMove = movePrevious();
+        child = _editor.childAtPosition(_currentTextPosition);
+        currentOffset = child.localToGlobal(Offset.zero);
+        if (!didMove) {
+          break;
+        }
+      }
+    }
+    return initialOffset != currentOffset;
   }
 }
 
