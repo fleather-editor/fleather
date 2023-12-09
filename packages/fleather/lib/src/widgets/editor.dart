@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -1481,6 +1482,9 @@ class RawEditorState extends EditorState
             boundary, _CollapsedSelectionBoundary(atomicTextBoundary, false));
   }
 
+  _TextBoundary _paragraphBoundary(DirectionalTextEditingIntent intent) =>
+      _ParagraphBoundary(textEditingValue);
+
   _TextBoundary _documentBoundary(DirectionalTextEditingIntent intent) =>
       _DocumentBoundary(textEditingValue);
 
@@ -1591,6 +1595,10 @@ class RawEditorState extends EditorState
     ExtendSelectionToDocumentBoundaryIntent: _makeOverridable(
         _UpdateTextSelectionAction<ExtendSelectionToDocumentBoundaryIntent>(
             this, false, _documentBoundary)),
+    ExtendSelectionToNextParagraphBoundaryOrCaretLocationIntent:
+        _makeOverridable(_UpdateTextSelectionAction<
+                ExtendSelectionToNextParagraphBoundaryOrCaretLocationIntent>(
+            this, true, _paragraphBoundary)),
     ExpandSelectionToDocumentBoundaryIntent: _makeOverridable(
         _UpdateTextSelectionAction<ExpandSelectionToDocumentBoundaryIntent>(
             this, true, _documentBoundary)),
@@ -1732,7 +1740,7 @@ class _Editor extends MultiChildRenderObjectWidget {
   }
 }
 
-/// An interface for retriving the logical text boundary (left-closed-right-open)
+/// An interface for retrieving the logical text boundary (left-closed-right-open)
 /// at a given location in a document.
 ///
 /// Depending on the implementation of the [_TextBoundary], the input
@@ -1896,7 +1904,7 @@ class _WordBoundary extends _TextBoundary {
   }
 }
 
-// The linebreaks of the current text layout. The input [TextPosition]s are
+// The line breaks of the current text layout. The input [TextPosition]s are
 // interpreted as caret locations because [TextPainter.getLineAtOffset] is
 // text-affinity-aware.
 class _LineBreak extends _TextBoundary {
@@ -1920,6 +1928,79 @@ class _LineBreak extends _TextBoundary {
       offset: textLayout.getLineAtOffset(position).end,
       affinity: TextAffinity.upstream,
     );
+  }
+}
+
+// A text boundary that uses paragraphs as logical boundaries.
+// A paragraph is defined as the range between line terminators. If no
+// line terminators exist then the paragraph boundary is the entire document.
+class _ParagraphBoundary extends _TextBoundary {
+  const _ParagraphBoundary(this.textEditingValue);
+
+  @override
+  final TextEditingValue textEditingValue;
+
+  String get _text => textEditingValue.text;
+
+  @override
+  TextPosition getLeadingTextBoundaryAt(TextPosition position) {
+    assert(position.offset >= 0);
+
+    if (position.offset >= _text.length) {
+      return TextPosition(offset: _text.length);
+    }
+
+    if (position.offset == 0) {
+      return const TextPosition(offset: 0);
+    }
+
+    int index = position.offset;
+
+    if (index > 1 &&
+        _text.codeUnitAt(index) == 0x0A &&
+        _text.codeUnitAt(index - 1) == 0x0D) {
+      index -= 2;
+    } else if (TextLayoutMetrics.isLineTerminator(_text.codeUnitAt(index))) {
+      index -= 1;
+    }
+
+    while (index > 0) {
+      if (TextLayoutMetrics.isLineTerminator(_text.codeUnitAt(index))) {
+        return TextPosition(offset: index + 1);
+      }
+      index -= 1;
+    }
+
+    return TextPosition(offset: max(index, 0));
+  }
+
+  @override
+  TextPosition getTrailingTextBoundaryAt(TextPosition position) {
+    assert(position.offset < _text.length);
+
+    if (_text.isEmpty) {
+      return position;
+    }
+
+    if (position.offset < 0) {
+      return const TextPosition(offset: 0);
+    }
+
+    int index = position.offset;
+
+    while (!TextLayoutMetrics.isLineTerminator(_text.codeUnitAt(index))) {
+      index += 1;
+      if (index == _text.length) {
+        return TextPosition(offset: index);
+      }
+    }
+
+    return TextPosition(
+        offset: index < _text.length - 1 &&
+                _text.codeUnitAt(index) == 0x0D &&
+                _text.codeUnitAt(index + 1) == 0x0A
+            ? index + 2
+            : index + 1);
   }
 }
 

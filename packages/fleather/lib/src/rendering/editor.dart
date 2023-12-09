@@ -875,6 +875,9 @@ class RenderEditor extends RenderEditableContainerBox
         // first character
         newPosition = const TextPosition(offset: 0);
       } else {
+        // TODO: in the case of a SpanEmbed, caret is drawn with "normal" line height
+        // As the caret offset is used to get the position of the above line, when the embed is much higher than the
+        // caret height the "above" position doesn't change
         final caretOffset = child.getOffsetForCaret(localPosition);
         final testPosition = TextPosition(offset: sibling.node.length - 1);
         final testOffset = sibling.getOffsetForCaret(testPosition);
