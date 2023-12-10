@@ -63,6 +63,7 @@ class CatchAllInsertRule extends InsertRule {
   }
 }
 
+//TODO: Investigate if PreserveLineStyleOnSplitRule and PreserveLineFormatOnNewLineRule can be combined into a single heuristic
 /// Preserves line format when user splits the line into two.
 ///
 /// This rule ignores scenarios when the line is split on its edge, meaning
@@ -112,13 +113,13 @@ class PreserveLineStyleOnSplitRule extends InsertRule {
   }
 }
 
-/// Resets format for a newly inserted line when insert occurred at the end
-/// of a line (right before a newline).
+/// Preserves line format when insert occurred
+/// at the end of a line (right before a newline).
 ///
-/// This handles scenarios when a new line is added when at the end of a
+/// This also handles scenarios when a new line is added when at the end of a
 /// heading line. The newly added line should be a regular paragraph.
-class ResetLineFormatOnNewLineRule extends InsertRule {
-  const ResetLineFormatOnNewLineRule();
+class PreserveLineFormatOnNewLineRule extends InsertRule {
+  const PreserveLineFormatOnNewLineRule();
 
   @override
   Delta? apply(Delta document, int index, Object data) {
@@ -135,17 +136,18 @@ class ResetLineFormatOnNewLineRule extends InsertRule {
 
     final targetText = target.data as String;
 
+    Map<String, dynamic>? resetStyle;
     if (targetText.startsWith('\n')) {
       if (target.attributes != null &&
           target.attributes!.containsKey(ParchmentAttribute.heading.key)) {
         // Reset heading style
-        final resetStyle = ParchmentAttribute.heading.unset.toJson();
-        return Delta()
-          ..retain(index)
-          ..insert('\n', target.attributes)
-          ..retain(1, resetStyle)
-          ..trim();
+        resetStyle = ParchmentAttribute.heading.unset.toJson();
       }
+      return Delta()
+        ..retain(index)
+        ..insert('\n', target.attributes)
+        ..retain(1, resetStyle)
+        ..trim();
     }
     return null;
   }
