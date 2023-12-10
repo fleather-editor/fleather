@@ -173,15 +173,17 @@ class FleatherController extends ChangeNotifier {
       ParchmentDocument document, int position, int length, Object data) {
     if (!_autoFormats.hasActiveSuggestion) return true;
 
-    final isDeletionOfOneChar = data is String && data.isEmpty && length == 1;
-    if (isDeletionOfOneChar) {
-      // Undo if deleting 1 character after retain of auto-format
-      if (position == _autoFormats.undoPosition) {
-        final undoSelection = _autoFormats.undoActive(document);
-        if (undoSelection != null) {
-          _updateSelectionSilent(undoSelection, source: ChangeSource.local);
+    if (_autoFormats.canUndo) {
+      final isDeletionOfOneChar = data is String && data.isEmpty && length == 1;
+      if (isDeletionOfOneChar) {
+        // Undo if deleting 1 character after retain of auto-format
+        if (position == _autoFormats.undoPosition) {
+          final undoSelection = _autoFormats.undoActive(document);
+          if (undoSelection != null) {
+            _updateSelectionSilent(undoSelection, source: ChangeSource.local);
+          }
+          return false;
         }
-        return false;
       }
     }
     // Cancel active nevertheless

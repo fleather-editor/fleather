@@ -50,6 +50,10 @@ class AutoFormats {
   /// `true` if there is an active suggestion; `false` otherwise
   bool get hasActiveSuggestion => _activeSuggestion != null;
 
+  /// `true` if hasActiveSuggestion and undo delta is not empty;
+  /// `false` otherwise
+  bool get canUndo => hasActiveSuggestion && _activeSuggestion!.undo.isNotEmpty;
+
   /// Perform detection of auto formats and apply changes to [document].
   ///
   /// Inserted data must be of type [String].
@@ -335,7 +339,7 @@ class _AutoTextDirection extends AutoFormat {
 
   bool _isBeforeEmptyLine(Operation next, String data) {
     final nextData = next.data;
-    return nextData is String ? nextData.startsWith('$data\n') : false;
+    return nextData is String ? nextData.startsWith('\n') : false;
   }
 
   bool _isInEmptyLine(Operation? previous, Operation next, String data) =>
@@ -348,6 +352,7 @@ class _AutoTextDirection extends AutoFormat {
     final documentDelta = document.toDelta();
     final iter = DeltaIterator(document.toDelta());
     final previous = iter.skip(position);
+    iter.skip(data.length);
     final next = iter.next();
 
     if (!_isInEmptyLine(previous, next, data)) return null;

@@ -165,11 +165,11 @@ void main() {
   });
 
   group('RTL detection', () {
-    test('Detection of RTL', () {
+    test('Detects RTL text when applied with no line style', () {
       final document = ParchmentDocument.fromJson([
-        {'insert': 'some ltr text\nש\n'}
+        {'insert': 'some ltr text\nب\n'},
       ]);
-      final performed = autoformats.run(document, 14, 'ש');
+      final performed = autoformats.run(document, 14, 'ب');
       expect(performed, true);
       expect(autoformats.selection, isNull);
       final attributes = document.toDelta().toList()[1].attributes;
@@ -177,6 +177,39 @@ void main() {
       expect(attributes!.containsKey(ParchmentAttribute.direction.key), isTrue);
       expect(attributes[ParchmentAttribute.direction.key],
           ParchmentAttribute.direction.rtl.value);
+    });
+
+    test('Detects RTL text when applied on an already styled line', () {
+      final document = ParchmentDocument.fromJson([
+        {'insert': 'some ltr text\nب'},
+        {
+          'insert': '\n',
+          'attributes': {'checked': true}
+        }
+      ]);
+      final performed = autoformats.run(document, 14, 'ب');
+      expect(performed, true);
+      expect(autoformats.selection, isNull);
+      final attributes = document.toDelta().toList()[1].attributes;
+      expect(attributes, isNotNull);
+      expect(attributes!.containsKey(ParchmentAttribute.direction.key), isTrue);
+      expect(attributes[ParchmentAttribute.direction.key],
+          ParchmentAttribute.direction.rtl.value);
+      expect(autoformats.canUndo, isTrue);
+    });
+
+    test('canUndo is false when line was already correctly styled', () {
+      final document = ParchmentDocument.fromJson([
+        {'insert': 'some ltr text\nب'},
+        {
+          'insert': '\n',
+          'attributes': {'direction': 'rtl', 'alignment': 'right'}
+        }
+      ]);
+      final performed = autoformats.run(document, 14, 'ب');
+      expect(performed, true);
+      expect(autoformats.selection, isNull);
+      expect(autoformats.canUndo, isFalse);
     });
   });
 }
