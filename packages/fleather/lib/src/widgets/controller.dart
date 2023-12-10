@@ -20,10 +20,10 @@ List<String> _insertionToggleableStyleKeys = [
 ];
 
 class FleatherController extends ChangeNotifier {
-  FleatherController([ParchmentDocument? document])
+  FleatherController({ParchmentDocument? document, AutoFormats? autoFormats})
       : document = document ?? ParchmentDocument(),
         _history = HistoryStack.doc(document),
-        _autoFormats = AutoFormats.fallback(),
+        _autoFormats = autoFormats ?? AutoFormats.fallback(),
         _selection = const TextSelection.collapsed(offset: 0) {
     _throttledPush = _throttle(
       duration: throttleDuration,

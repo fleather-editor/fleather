@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
         jsonDecode(result),
         heuristics: heuristics,
       );
-      _controller = FleatherController(doc);
+      _controller = FleatherController(document: doc);
     } catch (err, st) {
       print('Cannot read welcome.json: $err\n$st');
       _controller = FleatherController();

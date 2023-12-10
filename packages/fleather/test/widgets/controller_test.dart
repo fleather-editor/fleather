@@ -13,7 +13,7 @@ void main() {
 
     setUp(() {
       final doc = ParchmentDocument();
-      controller = FleatherController(doc);
+      controller = FleatherController(document: doc);
     });
 
     test('dispose', () {
@@ -33,7 +33,8 @@ void main() {
     });
 
     test('new selection reset toggled styles', () {
-      controller = FleatherController(ParchmentDocument.fromJson([
+      controller = FleatherController(
+          document: ParchmentDocument.fromJson([
         {'insert': 'Some text\n'}
       ]));
       controller.formatText(2, 0, ParchmentAttribute.bold);

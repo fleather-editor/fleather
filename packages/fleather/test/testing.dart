@@ -27,7 +27,7 @@ class EditorSandBox {
   }) {
     focusNode ??= FocusNode();
     document ??= ParchmentDocument.fromDelta(delta);
-    var controller = FleatherController(document);
+    var controller = FleatherController(document: document);
 
     Widget widget = _FleatherSandbox(
       controller: controller,
@@ -195,11 +195,11 @@ class TestUpdateWidgetState extends State<TestUpdateWidget> {
           ),
           widget.testField
               ? FleatherField(
-                  controller: FleatherController(widget.document),
+                  controller: FleatherController(document: widget.document),
                   focusNode: focusNode,
                 )
               : FleatherEditor(
-                  controller: FleatherController(widget.document),
+                  controller: FleatherController(document: widget.document),
                   focusNode: focusNode,
                 ),
         ],
