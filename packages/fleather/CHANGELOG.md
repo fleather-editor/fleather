@@ -1,6 +1,6 @@
 ## 1.12.0
 
-* Introduce AutoFormats to handle automatice text formatting and make Heuristics only responsible for validity of document
+* Introduce AutoFormats to handle automatic text formatting and make Heuristics only responsible for validity of document
 * Show context menu on desktop
 * Add unset background and text color option
 * Handle more text editing intents (See #180 for the list)

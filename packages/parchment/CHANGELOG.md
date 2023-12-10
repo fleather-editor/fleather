@@ -1,5 +1,5 @@
 ## 1.12.0
-* Introduce AutoFormats to handle automatice text formatting and make Heuristics only responsible for validity of document
+* Introduce AutoFormats to handle automatic text formatting and make Heuristics only responsible for validity of document
 * [Fix] preserve line style on new line
 
 ## 1.11.0
