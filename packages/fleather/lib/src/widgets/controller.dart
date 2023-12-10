@@ -173,8 +173,6 @@ class FleatherController extends ChangeNotifier {
       ParchmentDocument document, int position, int length, Object data) {
     if (!_autoFormats.hasActiveSuggestion) return true;
 
-    final keepTriggerCharacter =
-        _autoFormats.activeSuggestionKeepTriggerCharacter;
     final isDeletionOfOneChar = data is String && data.isEmpty && length == 1;
     if (isDeletionOfOneChar) {
       // Undo if deleting 1 character after retain of auto-format
@@ -183,7 +181,7 @@ class FleatherController extends ChangeNotifier {
         if (undoSelection != null) {
           _updateSelectionSilent(undoSelection, source: ChangeSource.local);
         }
-        return keepTriggerCharacter;
+        return false;
       }
     }
     // Cancel active nevertheless

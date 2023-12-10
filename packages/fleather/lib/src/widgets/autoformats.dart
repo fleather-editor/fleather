@@ -10,16 +10,10 @@ import 'package:quill_delta/quill_delta.dart';
 ///
 /// For example, identifying a link and automatically wrapping it with a link
 /// attribute or applying block formats using Markdown shortcuts
+///
+/// TODO: adapt to support changes made by a remote source
 abstract class AutoFormat {
   const AutoFormat();
-
-  /// Indicates whether the character triggering the auto format is kept in
-  /// document
-  ///
-  /// E.g: for link detections, [space] is kept whereas for Markdown block
-  /// shortcuts, the [space] is not added to document, it only serves to
-  /// trigger the block formatting
-  bool get keepTriggerCharacter;
 
   /// Upon insertion of a trigger character, run format detection and apply
   /// formatting to document
@@ -52,11 +46,6 @@ class AutoFormats {
 
   /// The position at which the active suggestion can be deactivated
   int get undoPosition => _activeSuggestion!.undoPositionCandidate;
-
-  /// `true` if the active suggestion [AutoFormat] keeps trigger character in
-  /// document; `false` otherwise
-  bool get activeSuggestionKeepTriggerCharacter =>
-      _activeSuggestion!.keepTriggerCharacter;
 
   /// `true` if there is an active suggestion; `false` otherwise
   bool get hasActiveSuggestion => _activeSuggestion != null;
@@ -104,7 +93,6 @@ class AutoFormatResult {
     this.undoSelection,
     required this.undo,
     required this.undoPositionCandidate,
-    required this.keepTriggerCharacter,
   });
 
   /// *Optional* [TextSelection] after applying the auto format.
@@ -125,9 +113,6 @@ class AutoFormatResult {
 
   /// The position at which an auto format can be canceled
   final int undoPositionCandidate;
-
-  /// Whether the trigger character will be removed from the document after undoing the auto format
-  final bool keepTriggerCharacter;
 }
 
 class _AutoFormatLinks extends AutoFormat {
@@ -135,9 +120,6 @@ class _AutoFormatLinks extends AutoFormat {
       RegExp(r'^(.?)((?:https?://|www\.)[^\s/$.?#].[^\s]*)');
 
   const _AutoFormatLinks();
-
-  @override
-  final bool keepTriggerCharacter = false;
 
   @override
   AutoFormatResult? apply(
@@ -175,10 +157,7 @@ class _AutoFormatLinks extends AutoFormat {
     final undo = change.invert(documentDelta);
     document.compose(change, ChangeSource.local);
     return AutoFormatResult(
-        change: change,
-        undo: undo,
-        keepTriggerCharacter: keepTriggerCharacter,
-        undoPositionCandidate: position);
+        change: change, undo: undo, undoPositionCandidate: position);
   }
 }
 
@@ -198,9 +177,6 @@ class _MarkdownShortCuts extends AutoFormat {
   };
 
   const _MarkdownShortCuts();
-
-  @override
-  final bool keepTriggerCharacter = false;
 
   String? _getLinePrefix(DeltaIterator iter, int index) {
     final prefixOps = skipToLineAt(iter, index);
@@ -314,7 +290,6 @@ class _MarkdownShortCuts extends AutoFormat {
             undoSelection:
                 TextSelection.collapsed(offset: position + data.length),
             undo: undo,
-            keepTriggerCharacter: keepTriggerCharacter,
             undoPositionCandidate: position - prefix.length - 1);
       }
     }
@@ -342,7 +317,6 @@ class _MarkdownShortCuts extends AutoFormat {
         // current position is after prefix, so need to add 1 for space
         undoSelection: TextSelection.collapsed(offset: position + 1),
         undo: undo,
-        keepTriggerCharacter: keepTriggerCharacter,
         undoPositionCandidate: position - prefix.length - 1);
   }
 }
@@ -353,9 +327,6 @@ class _AutoTextDirection extends AutoFormat {
   const _AutoTextDirection();
 
   final _isRTL = intl.Bidi.startsWithRtl;
-
-  @override
-  final bool keepTriggerCharacter = true;
 
   bool _isAfterEmptyLine(Operation? previous) {
     final data = previous?.data;
@@ -400,9 +371,6 @@ class _AutoTextDirection extends AutoFormat {
     final undo = change.invert(documentDelta);
     document.compose(change, ChangeSource.local);
     return AutoFormatResult(
-        change: change,
-        undo: undo,
-        keepTriggerCharacter: keepTriggerCharacter,
-        undoPositionCandidate: position);
+        change: change, undo: undo, undoPositionCandidate: position);
   }
 }
