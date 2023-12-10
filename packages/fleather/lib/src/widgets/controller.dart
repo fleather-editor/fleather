@@ -20,8 +20,7 @@ List<String> _insertionToggleableStyleKeys = [
 ];
 
 class FleatherController extends ChangeNotifier {
-  FleatherController(
-      {ParchmentDocument? document, AutoFormats? autoFormats})
+  FleatherController({ParchmentDocument? document, AutoFormats? autoFormats})
       : document = document ?? ParchmentDocument(),
         _history = HistoryStack.doc(document),
         _autoFormats = autoFormats ?? AutoFormats.fallback(),
