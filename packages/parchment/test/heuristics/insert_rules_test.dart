@@ -191,59 +191,35 @@ void main() {
       expect(expected, actual);
     });
 
+    test('apply preserve link formatting within link', () {
+      final doc = Delta()
+        ..insert('Doc with link')
+        ..insert('http://fleather-editor.github.io',
+            {'a': 'http://fleather-editor.github.io'})
+        ..insert(' link');
+      final actual = rule.apply(doc, 17, 's');
+      final expected = Delta()
+        ..retain(17)
+        ..insert('s', {'a': 'http://fleather-editor.github.io'});
+      expect(expected, actual);
+    });
+
+    test('apply remove link formatting on link boundaries', () {
+      final doc = Delta()
+        ..insert('Doc with link')
+        ..insert('http://fleather-editor.github.io',
+            {'a': 'http://fleather-editor.github.io'})
+        ..insert(' link');
+      final actual = rule.apply(doc, 13, 'like this ');
+      final expected = Delta()
+        ..retain(13)
+        ..insert('like this ');
+      expect(expected, actual);
+    });
+
     test('apply at the beginning of a document', () {
       final doc = Delta()..insert('Doc with ');
       final actual = rule.apply(doc, 0, 'A ');
-      expect(actual, isNull);
-    });
-  });
-
-  group('$AutoFormatLinksRule', () {
-    final rule = AutoFormatLinksRule();
-    final link =
-        ParchmentAttribute.link.fromString('https://example.com').toJson();
-
-    test('apply simple', () {
-      final doc = Delta()..insert('Doc with link https://example.com');
-      final actual = rule.apply(doc, 33, ' ');
-      final expected = Delta()
-        ..retain(14)
-        ..retain(19, link)
-        ..insert(' ');
-      expect(expected, actual);
-    });
-
-    test('apply simple newline', () {
-      final doc = Delta()..insert('Doc with link https://example.com');
-      final actual = rule.apply(doc, 33, '\n');
-      final expected = Delta()
-        ..retain(14)
-        ..retain(19, link)
-        ..insert('\n');
-      expect(expected, actual);
-    });
-
-    test('applies only to insert of single space', () {
-      final doc = Delta()..insert('Doc with link https://example.com');
-      final actual = rule.apply(doc, 33, '/');
-      expect(actual, isNull);
-    });
-
-    test('applies for links at the beginning of line', () {
-      final doc = Delta()..insert('Doc with link\nhttps://example.com');
-      final actual = rule.apply(doc, 33, ' ');
-      final expected = Delta()
-        ..retain(14)
-        ..retain(19, link)
-        ..insert(' ');
-      expect(expected, actual);
-    });
-
-    test('ignores if already formatted as link', () {
-      final doc = Delta()
-        ..insert('Doc with link\n')
-        ..insert('https://example.com', link);
-      final actual = rule.apply(doc, 33, ' ');
       expect(actual, isNull);
     });
   });
@@ -263,18 +239,6 @@ void main() {
         ..insert('also ')
         ..insert('\n', ul);
       expect(actual, isNotNull);
-      expect(actual, expected);
-    });
-
-    test('formats a link in a block', () {
-      final link = ParchmentAttribute.link.fromString('http://a.com').toJson();
-      final doc = Delta()
-        ..insert('http://a.com')
-        ..insert('\n', ul);
-      final actual = rule.apply(doc, 12, '\n');
-      final expected = Delta()
-        ..retain(12, link)
-        ..insert('\n', ul);
       expect(actual, expected);
     });
 
@@ -421,138 +385,6 @@ void main() {
         ..insert('\n');
       expect(rule.apply(doc, 17, 'Some text'), isNull);
       expect(rule.apply(doc, 17, SpanEmbed('span')), isNull);
-    });
-  });
-
-  group('$MarkdownBlockShortcutsInsertRule', () {
-    final rule = MarkdownBlockShortcutsInsertRule();
-
-    test('apply markdown shortcut on single-line document', () {
-      final doc = Delta()..insert('#\n');
-      final actual = rule.apply(doc, 1, ' ');
-      final expected = Delta()
-        ..delete(1)
-        ..retain(1, ParchmentAttribute.h1.toJson());
-      expect(actual, expected);
-    });
-
-    test('ignores if already formatted with the same style', () {
-      final doc = Delta()
-        ..insert('#')
-        ..insert('\n', ParchmentAttribute.h1.toJson());
-      final actual = rule.apply(doc, 1, ' ');
-      expect(actual, isNull);
-    });
-
-    test('changes existing style', () {
-      final doc = Delta()
-        ..insert('##')
-        ..insert('\n', ParchmentAttribute.h1.toJson());
-      final actual = rule.apply(doc, 2, ' ');
-      final expected = Delta()
-        ..delete(2)
-        ..retain(1, ParchmentAttribute.h2.toJson());
-      expect(actual, expected);
-    });
-
-    test('code block format does not require a space after the shortcut', () {
-      final doc = Delta()..insert('``\n');
-      final actual = rule.apply(doc, 2, '`');
-      final expected = Delta()
-        ..delete(2)
-        ..retain(1, ParchmentAttribute.code.toJson());
-      expect(actual, expected);
-    });
-
-    test('first space does not break insertion', () {
-      final doc = Delta()..insert('``\n');
-      final actual = rule.apply(doc, 0, ' ');
-      expect(actual, isNull);
-    });
-
-    test('applies to lines in the middle of an operation', () {
-      final doc = Delta()..insert('line\n###\nzefy\n');
-      final changes = rule.apply(doc, 8, ' ');
-      final actual = doc.compose(changes!)..trim();
-      final expected = Delta()
-        ..insert('line\n')
-        ..insert('\n', ParchmentAttribute.h3.toJson())
-        ..insert('zefy\n');
-
-      expect(actual, expected);
-    });
-
-    test('detect previous line correctly', () {
-      final doc = Delta()
-        ..insert('line\nzefy\n')
-        ..insert('###\n');
-      final changes = rule.apply(doc, 13, ' ');
-      final actual = doc.compose(changes!)..trim();
-      final expected = Delta()
-        ..insert('line\n')
-        ..insert('zefy\n')
-        ..insert('\n', ParchmentAttribute.h3.toJson());
-
-      expect(actual, expected);
-    });
-
-    test('preserve line attributes', () {
-      final doc = Delta()
-        ..insert('-item')
-        ..insert('\n', ParchmentAttribute.h1.toJson());
-      final changes = rule.apply(doc, 1, ' ');
-      final actual = doc.compose(changes!)..trim();
-      final expected = Delta()
-        ..insert('item')
-        ..insert(
-            '\n',
-            ParchmentAttribute.h1.toJson()
-              ..addAll(ParchmentAttribute.block.bulletList.toJson()));
-      expect(actual, expected);
-    });
-
-    test('ignores if already formatted', () {
-      final doc = Delta()
-        ..insert('- item')
-        ..insert('\n', ParchmentAttribute.block.bulletList.toJson());
-      final actual = rule.apply(doc, 1, ' ');
-      expect(actual, isNull);
-    });
-  });
-
-  group('$AutoTextDirectionRule', () {
-    final rule = AutoTextDirectionRule();
-
-    test('ignores if insert is not in an empty line', () {
-      var doc = Delta()..insert('abc\n');
-      expect(rule.apply(doc, 3, 'd'), null);
-      expect(rule.apply(doc, 0, 'd'), null);
-    });
-
-    test('inserted text is rtl', () {
-      var doc = Delta()..insert('abc\n\n');
-      final actual = rule.apply(doc, 4, 'ب');
-      final expected = Delta()
-        ..retain(4)
-        ..insert('ب')
-        ..retain(1, {
-          ...ParchmentAttribute.alignment.right.toJson(),
-          ...ParchmentAttribute.direction.rtl.toJson(),
-        });
-      expect(actual, expected);
-    });
-
-    test('inserted text is ltr', () {
-      var doc = Delta()..insert('abc\n\n');
-      final actual = rule.apply(doc, 4, 'd');
-      final expected = Delta()
-        ..retain(4)
-        ..insert('d')
-        ..retain(1, {
-          ...ParchmentAttribute.alignment.unset.toJson(),
-          ...ParchmentAttribute.direction.unset.toJson(),
-        });
-      expect(actual, expected);
     });
   });
 }

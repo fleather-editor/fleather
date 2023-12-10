@@ -2,7 +2,6 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:intl/intl.dart' as intl;
 import 'package:quill_delta/quill_delta.dart';
 
 import '../document/attributes.dart';
@@ -277,61 +276,6 @@ class PreserveInlineStylesRule extends InsertRule {
   }
 }
 
-/// Applies link format to text segment (which looks like a link) when user
-/// inserts space character after it.
-class AutoFormatLinksRule extends InsertRule {
-  const AutoFormatLinksRule();
-
-  static Delta? formatLink(Delta document, int index, Object data) {
-    if (data is! String) return null;
-
-    // This rule applies to a space or newline inserted after a link, so we can ignore
-    // everything else.
-    if (data != ' ' && data != '\n') return null;
-
-    final iter = DeltaIterator(document);
-    final previous = iter.skip(index);
-    // No previous operation means nothing to analyze.
-    if (previous == null || previous.data is! String) return null;
-    final previousText = previous.data as String;
-
-    // Split text of previous operation in lines and words and take the last
-    // word to test.
-    final candidate = previousText.split('\n').last.split(' ').last;
-    try {
-      final link = Uri.parse(candidate);
-      if (!['https', 'http'].contains(link.scheme)) {
-        // TODO: might need a more robust way of validating links here.
-        return null;
-      }
-      final attributes = previous.attributes ?? <String, dynamic>{};
-
-      // Do nothing if already formatted as link.
-      if (attributes.containsKey(ParchmentAttribute.link.key)) return null;
-
-      attributes
-          .addAll(ParchmentAttribute.link.fromString(link.toString()).toJson());
-      return Delta()
-        ..retain(index - candidate.length)
-        ..retain(candidate.length, attributes);
-    } on FormatException {
-      return null; // Our candidate is not a link.
-    }
-  }
-
-  @override
-  Delta? apply(Delta document, int index, Object data) {
-    final delta = formatLink(document, index, data);
-    if (delta == null) {
-      return null;
-    }
-
-    final iter = DeltaIterator(document);
-    final previous = iter.skip(index);
-    return delta..insert(data, previous?.attributes);
-  }
-}
-
 /// Forces text inserted on the same line with a block embed (before or after it)
 /// to be moved to a new line adjacent to the original line.
 ///
@@ -426,9 +370,7 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
     // Go over each inserted line and ensure block style is applied.
     final lines = data.split('\n');
 
-    // Try to format link after hitting newline
-    final linkDelta = AutoFormatLinksRule.formatLink(document, index, data);
-    final result = linkDelta ?? (Delta()..retain(index));
+    final result = Delta()..retain(index);
 
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
@@ -515,152 +457,5 @@ class InsertBlockEmbedsRule extends InsertRule {
       }
     }
     return attributes;
-  }
-}
-
-/// Replaces certain Markdown shortcuts with actual line or block styles.
-class MarkdownBlockShortcutsInsertRule extends InsertRule {
-  static final rules = <String, ParchmentAttribute>{
-    '-': ParchmentAttribute.block.bulletList,
-    '*': ParchmentAttribute.block.bulletList,
-    '1.': ParchmentAttribute.block.numberList,
-    '[]': ParchmentAttribute.block.checkList,
-    "'''": ParchmentAttribute.block.code,
-    '```': ParchmentAttribute.block.code,
-    '>': ParchmentAttribute.block.quote,
-    '#': ParchmentAttribute.h1,
-    '##': ParchmentAttribute.h2,
-    '###': ParchmentAttribute.h3,
-  };
-
-  const MarkdownBlockShortcutsInsertRule();
-
-  String? _getLinePrefix(DeltaIterator iter, int index) {
-    final prefixOps = skipToLineAt(iter, index);
-    if (prefixOps.any((element) => element.data is! String)) return null;
-
-    return prefixOps.map((e) => e.data).cast<String>().join();
-  }
-
-  Delta? _formatLine(
-      DeltaIterator iter, int index, String prefix, ParchmentAttribute attr) {
-    /// First, delete the shortcut prefix itself.
-    final result = Delta()
-      ..retain(index - prefix.length)
-      ..delete(prefix.length);
-
-    // Scan to the end of line to apply the style attribute.
-    while (iter.hasNext) {
-      final op = iter.next();
-      if (op.data is! String) {
-        result.retain(op.length);
-        continue;
-      }
-
-      final text = op.data as String;
-      final pos = text.indexOf('\n');
-
-      if (pos == -1) {
-        result.retain(op.length);
-        continue;
-      }
-
-      result.retain(pos);
-
-      final attrs = <String, dynamic>{};
-      final currentLineAttrs = op.attributes;
-      if (currentLineAttrs != null) {
-        // the attribute already exists abort
-        if (currentLineAttrs[attr.key] == attr.value) return null;
-        attrs.addAll(currentLineAttrs);
-      }
-      attrs.addAll(attr.toJson());
-
-      result.retain(1, attrs);
-
-      break;
-    }
-
-    return result;
-  }
-
-  @override
-  Delta? apply(Delta document, int index, Object data) {
-    if (data is! String) return null;
-
-    // Special case: code blocks don't need a `space` to get formatted, we can
-    // detect when the user types ``` (or ''') and apply the style immediately.
-    if (data == '`' || data == "'") {
-      final iter = DeltaIterator(document);
-      final prefix = _getLinePrefix(iter, index);
-      if (prefix == null || prefix.isEmpty) return null;
-      final shortcut = '$prefix$data';
-      if (shortcut == '```' || shortcut == "'''") {
-        return _formatLine(iter, index, prefix, ParchmentAttribute.code);
-      }
-    }
-
-    // Standard case: triggered by a space character after the shortcut.
-    if (data != ' ') return null;
-
-    final iter = DeltaIterator(document);
-    final prefix = _getLinePrefix(iter, index);
-
-    if (prefix == null || prefix.isEmpty) return null;
-
-    final attribute = rules[prefix];
-    if (attribute == null) return null;
-
-    return _formatLine(iter, index, prefix, attribute);
-  }
-}
-
-/// Infers text direction from the input when happens in the beginning of a line.
-/// This rule also removes alignment and sets it based on inferred direction.
-class AutoTextDirectionRule extends InsertRule {
-  final _isRTL = intl.Bidi.startsWithRtl;
-
-  const AutoTextDirectionRule();
-
-  bool _isAfterEmptyLine(Operation? previous) {
-    final data = previous?.data;
-    return data == null || (data is String ? data.endsWith('\n') : false);
-  }
-
-  bool _isBeforeEmptyLine(Operation next) {
-    final data = next.data;
-    return data is String ? data.startsWith('\n') : false;
-  }
-
-  bool _isInEmptyLine(Operation? previous, Operation next) =>
-      _isAfterEmptyLine(previous) && _isBeforeEmptyLine(next);
-
-  @override
-  Delta? apply(Delta document, int index, Object data) {
-    if (data is! String || data == '\n') return null;
-
-    final iter = DeltaIterator(document);
-    final previous = iter.skip(index);
-    final next = iter.next();
-
-    if (!_isInEmptyLine(previous, next)) return null;
-
-    final Map<String, dynamic> attributes;
-    if (_isRTL(data)) {
-      attributes = {
-        ...ParchmentAttribute.rtl.toJson(),
-        ...ParchmentAttribute.alignment.right.toJson(),
-      };
-    } else {
-      attributes = {
-        ...ParchmentAttribute.rtl.unset.toJson(),
-        ...ParchmentAttribute.alignment.unset.toJson(),
-      };
-    }
-
-    return Delta()
-      ..retain(index)
-      ..insert(data)
-      ..retain(1, attributes);
   }
 }

@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
-import 'package:fleather/src/widgets/history.dart';
 import 'package:fleather/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:parchment/parchment.dart';
 import 'package:quill_delta/quill_delta.dart';
+
+import 'autoformats.dart';
+import 'history.dart';
 
 /// List of style keys which can be toggled for insertion
 List<String> _insertionToggleableStyleKeys = [
@@ -21,6 +23,7 @@ class FleatherController extends ChangeNotifier {
   FleatherController([ParchmentDocument? document])
       : document = document ?? ParchmentDocument(),
         _history = HistoryStack.doc(document),
+        _autoFormats = AutoFormats.fallback(),
         _selection = const TextSelection.collapsed(offset: 0) {
     _throttledPush = _throttle(
       duration: throttleDuration,
@@ -36,6 +39,9 @@ class FleatherController extends ChangeNotifier {
 
   late final _Throttled<Delta> _throttledPush;
   Timer? _throttleTimer;
+
+  // The auto format handler
+  final AutoFormats _autoFormats;
 
   /// Currently selected text within the [document].
   TextSelection get selection => _selection;
@@ -76,14 +82,6 @@ class FleatherController extends ChangeNotifier {
       if (delta.length <= 2 && delta.last.isInsert) {
         return true;
       }
-      // special case for AutoTextDirectionRule
-      if (delta.length <= 3 && delta.last.isRetain) {
-        return delta.last.attributes != null &&
-            delta.last.attributes!
-                .containsKey(ParchmentAttribute.direction.key) &&
-            delta.last.attributes!
-                .containsKey(ParchmentAttribute.alignment.key);
-      }
     }
     return false;
   }
@@ -105,7 +103,7 @@ class FleatherController extends ChangeNotifier {
   }
 
   /// Replaces [length] characters in the document starting at [index] with
-  /// provided [text].
+  /// provided [data].
   ///
   /// Resulting change is registered as produced by user action, e.g.
   /// using [ChangeSource.local].
@@ -120,6 +118,13 @@ class FleatherController extends ChangeNotifier {
     Delta? delta;
 
     final isDataNotEmpty = data is String ? data.isNotEmpty : true;
+
+    if (!_captureAutoFormatCancellationOrUndo(document, index, length, data)) {
+      _updateHistory();
+      notifyListeners();
+      return;
+    }
+
     if (length > 0 || isDataNotEmpty) {
       delta = document.replace(index, length, data);
       if (_shouldApplyToggledStyles(delta)) {
@@ -148,12 +153,40 @@ class FleatherController extends ChangeNotifier {
           ),
           source: ChangeSource.local,
         );
+        final autoFormatPerformed = _autoFormats.run(document, index, data);
         // Only update history when text is being updated
         // We do not want to update it when selection is changed
         _updateHistory();
+        if (autoFormatPerformed && _autoFormats.selection != null) {
+          _updateSelectionSilent(_autoFormats.selection!,
+              source: ChangeSource.local);
+        }
       }
     }
     notifyListeners();
+  }
+
+  // Capture auto format cancellation
+  // Returns `true` is auto format undo should let deletion propagate to
+  // document; `false` otherwise
+  bool _captureAutoFormatCancellationOrUndo(
+      ParchmentDocument document, int position, int length, Object data) {
+    if (!_autoFormats.hasActiveSuggestion) return true;
+
+    final isDeletionOfOneChar = data is String && data.isEmpty && length == 1;
+    if (isDeletionOfOneChar) {
+      // Undo if deleting 1 character after retain of auto-format
+      if (position == _autoFormats.undoPosition) {
+        final undoSelection = _autoFormats.undoActive(document);
+        if (undoSelection != null) {
+          _updateSelectionSilent(undoSelection, source: ChangeSource.local);
+        }
+        return false;
+      }
+    }
+    // Cancel active nevertheless
+    _autoFormats.cancelActive();
+    return true;
   }
 
   void formatText(int index, int length, ParchmentAttribute attribute) {
