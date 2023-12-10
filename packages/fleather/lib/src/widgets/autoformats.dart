@@ -47,9 +47,12 @@ class AutoFormats {
   /// The position at which the active suggestion can be deactivated
   int get undoPosition => _activeSuggestion!.undoPositionCandidate;
 
-  /// `true` if there is an active suggestion and undo delta is not empty;
+  /// `true` if there is an active suggestion; `false` otherwise
+  bool get hasActiveSuggestion => _activeSuggestion != null;
+
+  /// `true` if hasActiveSuggestion and undo delta is not empty;
   /// `false` otherwise
-  bool get canUndo => _activeSuggestion?.undo.isNotEmpty == true;
+  bool get canUndo => hasActiveSuggestion && _activeSuggestion!.undo.isNotEmpty;
 
   /// Perform detection of auto formats and apply changes to [document].
   ///

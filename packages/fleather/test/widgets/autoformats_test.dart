@@ -45,7 +45,7 @@ void main() {
       ]);
       final performed = autoformats.run(document, 54, 'p');
       expect(performed, false);
-      expect(autoformats.canUndo, isFalse);
+      expect(autoformats.hasActiveSuggestion, isFalse);
     });
 
     test('Deleting at candidate position, undoes link formatting', () {
@@ -67,7 +67,7 @@ void main() {
       ]);
       autoformats.run(document, 54, ' ');
       autoformats.cancelActive();
-      expect(autoformats.canUndo, isFalse);
+      expect(autoformats.hasActiveSuggestion, isFalse);
     });
   });
 
@@ -138,7 +138,7 @@ void main() {
       ]);
       final performed = autoformats.run(document, 16, 'p');
       expect(performed, false);
-      expect(autoformats.canUndo, isFalse);
+      expect(autoformats.hasActiveSuggestion, isFalse);
     });
 
     test('Deleting at candidate position, undoes link formatting', () {
@@ -160,7 +160,7 @@ void main() {
       ]);
       autoformats.run(document, 54, ' ');
       autoformats.cancelActive();
-      expect(autoformats.canUndo, isFalse);
+      expect(autoformats.hasActiveSuggestion, isFalse);
     });
   });
 
