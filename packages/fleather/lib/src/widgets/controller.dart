@@ -172,7 +172,7 @@ class FleatherController extends ChangeNotifier {
   bool _captureAutoFormatCancellationOrUndo(
       ParchmentDocument document, int position, int length, Object data) {
     if (!_autoFormats.hasActiveSuggestion) return true;
-    
+
     if (_autoFormats.canUndo) {
       final isDeletionOfOneChar = data is String && data.isEmpty && length == 1;
       if (isDeletionOfOneChar) {
