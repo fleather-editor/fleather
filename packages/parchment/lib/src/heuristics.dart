@@ -33,7 +33,7 @@ class ParchmentHeuristics {
       PreserveBlockStyleOnInsertRule(),
       // Lines
       PreserveLineStyleOnSplitRule(),
-      ResetLineFormatOnNewLineRule(),
+      PreserveLineFormatOnNewLineRule(),
       // Inlines
       PreserveInlineStylesRule(),
       // Catch-all

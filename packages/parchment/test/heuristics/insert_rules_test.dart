@@ -59,8 +59,8 @@ void main() {
     });
   });
 
-  group('$ResetLineFormatOnNewLineRule', () {
-    final rule = const ResetLineFormatOnNewLineRule();
+  group('$PreserveLineFormatOnNewLineRule', () {
+    final rule = const PreserveLineFormatOnNewLineRule();
 
     test('applies when line-break is inserted at the end of line', () {
       final doc = Delta()
@@ -75,10 +75,14 @@ void main() {
       expect(actual, expected);
     });
 
-    test("doesn't apply without style reset if not needed", () {
+    test('applies without style reset if not needed', () {
       final doc = Delta()..insert('Hello world\n');
       final actual = rule.apply(doc, 11, '\n');
-      expect(actual, isNull);
+      expect(actual, isNotNull);
+      final expected = Delta()
+        ..retain(11)
+        ..insert('\n');
+      expect(actual, expected);
     });
 
     test('applies at the beginning of a document', () {
