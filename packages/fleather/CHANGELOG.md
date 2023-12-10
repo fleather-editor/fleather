@@ -1,3 +1,13 @@
+## 1.12.0
+
+* Introduce AutoFormats to handle automatice text formatting and make Heuristics only responsible for validity of document
+* Show context menu on desktop
+* Add unset background and text color option
+* Handle more text editing intents (See #180 for the list)
+* [Fix] toolbar button design
+* [Fix] preserve line style on new line
+* [Fix] example app build for Android
+
 ## 1.11.0 
 
 * Support for Flutter 3.16
