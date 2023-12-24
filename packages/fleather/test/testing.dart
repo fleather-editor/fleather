@@ -109,7 +109,7 @@ class EditorSandBox {
     return button;
   }
 
-  Finder findSelectionHandles() => find.byType(TextSelectionHandleOverlay);
+  Finder findSelectionHandles() => find.byType(SelectionHandleOverlay);
 
   Future<void> enterText(TextEditingValue text) async {
     return TestAsyncUtils.guard<void>(() async {

@@ -1101,6 +1101,7 @@ class RawEditorState extends EditorState
       }
 
       if (_shouldShowSelectionHandles()) {
+        _selectionOverlay!.handlesVisible = widget.showSelectionHandles;
         _selectionOverlay?.showHandles();
       } else {
         _selectionOverlay?.hideHandles();
@@ -1136,6 +1137,7 @@ class RawEditorState extends EditorState
       selectionDelegate: this,
       dragStartBehavior: DragStartBehavior.start,
       contextMenuBuilder: (context) => widget.contextMenuBuilder(context, this),
+      magnifierConfiguration: TextMagnifier.adaptiveMagnifierConfiguration,
     );
   }
 
