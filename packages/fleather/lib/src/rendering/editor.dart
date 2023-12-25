@@ -368,7 +368,6 @@ class RenderEditor extends RenderEditableContainerBox
   @override
   List<TextSelectionPoint> getEndpointsForSelection(TextSelection selection) {
     // _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
-
     if (selection.isCollapsed) {
       final child = childAtPosition(selection.extent);
       final localPosition =
@@ -425,7 +424,7 @@ class RenderEditor extends RenderEditableContainerBox
   @override
   void handleSecondaryTapDown(TapDownDetails details) {
     _lastTapDownPosition = details.globalPosition;
-    _lastSecondaryTapDownPosition = details.globalPosition;
+    _lastSecondaryTapDownPosition = details.globalPosition - _paintOffset;
   }
 
   @override

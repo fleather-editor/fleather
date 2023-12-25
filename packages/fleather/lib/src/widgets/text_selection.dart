@@ -428,6 +428,7 @@ class EditorTextSelectionOverlay {
 
     final TextPosition position =
         renderObject.getPositionForOffset(adjustedOffset);
+    selectionDelegate.bringIntoView(position);
 
     if (_selection.isCollapsed) {
       _selectionOverlay.updateMagnifier(_buildMagnifier(
@@ -529,6 +530,7 @@ class EditorTextSelectionOverlay {
     );
     final TextPosition position =
         renderObject.getPositionForOffset(adjustedOffset);
+    selectionDelegate.bringIntoView(position);
 
     if (_selection.isCollapsed) {
       _selectionOverlay.updateMagnifier(_buildMagnifier(
@@ -1325,6 +1327,8 @@ class SelectionOverlay {
       // The y-coordinate won't be made use of most likely.
       selectionEndpoints.first.point.dy - lineHeightAtStart,
     );
+
+    // print('midpoint: $midpoint');
 
     return _SelectionToolbarWrapper(
       visibility: toolbarVisible,
