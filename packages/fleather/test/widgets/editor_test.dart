@@ -64,6 +64,7 @@ void main() {
 
       expect(find.text('Paste'), findsNothing);
       await tester.longPress(find.byType(FleatherEditor));
+      tester.binding.scheduleWarmUpFrame();
       await tester.pump();
       // Given current toolbar implementation in Flutter no other choice
       // than to search for "Paste" text
@@ -85,6 +86,7 @@ void main() {
       expect(find.text('Paste'), findsNothing);
       await tester.tap(find.byType(FleatherEditor));
       await tester.tap(find.byType(FleatherEditor));
+      tester.binding.scheduleWarmUpFrame();
       await tester.pump();
       final finder = find.text('Paste');
       expect(finder, findsOneWidget);
@@ -115,14 +117,15 @@ void main() {
         final editor = EditorSandBox(tester: tester);
         await editor.pump();
         await tester.longPressAt(const Offset(20, 20));
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(editor.findSelectionHandles(), findsNWidgets(2));
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        expect(find.byType(TextSelectionToolbar), findsOneWidget);
         final state = tester.state(find.byType(RawEditor)) as RawEditorState;
         state.updateEditingValueWithDeltas([delta]);
         await tester.pump(throttleDuration);
         expect(editor.findSelectionHandles(), findsNothing);
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
+        expect(find.byType(TextSelectionToolbar), findsNothing);
       });
 
       testWidgetsWithPlatform(
@@ -136,6 +139,7 @@ void main() {
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             editor.selection,
@@ -143,11 +147,12 @@ void main() {
                 baseOffset: 0,
                 extentOffset: 4,
                 affinity: TextAffinity.upstream));
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        expect(find.byType(CupertinoTextSelectionToolbar), findsOneWidget);
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) +
                 const Offset(10, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             editor.selection,
@@ -155,7 +160,7 @@ void main() {
                 baseOffset: 0,
                 extentOffset: 4,
                 affinity: TextAffinity.upstream));
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        expect(find.byType(CupertinoTextSelectionToolbar), findsOneWidget);
       }, [TargetPlatform.iOS]);
 
       testWidgetsWithPlatform(
@@ -170,20 +175,23 @@ void main() {
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
         await tester.pump();
+        tester.binding.scheduleWarmUpFrame();
         expect(
             editor.selection,
             const TextSelection(
                 baseOffset: 0,
                 extentOffset: 4,
                 affinity: TextAffinity.upstream));
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        expect(find.byType(CupertinoTextSelectionToolbar), findsOneWidget);
         await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
             const Offset(1, 1));
-        await editor.pump();
+        tester.binding.scheduleWarmUpFrame();
+        await tester.pump();
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
-        await editor.pump();
+        tester.binding.scheduleWarmUpFrame();
+        await tester.pump();
         expect(
             editor.selection,
             const TextSelection.collapsed(
@@ -202,17 +210,19 @@ void main() {
             tester.getTopLeft(find.byType(FleatherEditor)) +
                 const Offset(10, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             editor.selection,
             const TextSelection.collapsed(
                 offset: 1, affinity: TextAffinity.upstream));
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        expect(find.byType(DesktopTextSelectionToolbar), findsOneWidget);
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(5, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
+        expect(find.byType(DesktopTextSelectionToolbar), findsNothing);
       }, [TargetPlatform.windows]);
 
       testWidgetsWithPlatform(

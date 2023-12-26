@@ -1078,16 +1078,17 @@ class SelectionOverlay {
   /// Builds the handles by inserting them into the [context]'s overlay.
   /// {@endtemplate}
   void showHandles() {
-    if (_handles != null) {
-      return;
-    }
-
-    _handles = <OverlayEntry>[
-      OverlayEntry(builder: _buildStartHandle),
-      OverlayEntry(builder: _buildEndHandle),
-    ];
-    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
-        .insertAll(_handles!);
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (_handles != null) {
+        return;
+      }
+      _handles = <OverlayEntry>[
+        OverlayEntry(builder: _buildStartHandle),
+        OverlayEntry(builder: _buildEndHandle),
+      ];
+      Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
+          .insertAll(_handles!);
+    });
   }
 
   /// {@template flutter.widgets.SelectionOverlay.hideHandles}
@@ -1111,13 +1112,15 @@ class SelectionOverlay {
     WidgetBuilder? contextMenuBuilder,
   }) {
     if (contextMenuBuilder == null) {
-      if (_toolbar != null) {
-        return;
-      }
-      _toolbar = OverlayEntry(builder: _buildToolbar);
-      Overlay.of(this.context,
-              rootOverlay: true, debugRequiredFor: debugRequiredFor)
-          .insert(_toolbar!);
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (_toolbar != null) {
+          return;
+        }
+        _toolbar = OverlayEntry(builder: _buildToolbar);
+        Overlay.of(this.context,
+                rootOverlay: true, debugRequiredFor: debugRequiredFor)
+            .insert(_toolbar!);
+      });
       return;
     }
 
@@ -1336,8 +1339,6 @@ class SelectionOverlay {
       selectionEndpoints.first.point.dy - lineHeightAtStart,
     );
 
-    // print('midpoint: $midpoint');
-
     return _SelectionToolbarWrapper(
       visibility: toolbarVisible,
       layerLink: toolbarLayerLink,
@@ -1468,6 +1469,7 @@ class _SelectionToolbarWrapperState extends State<_SelectionToolbarWrapper>
 @visibleForTesting
 class SelectionHandleOverlay extends StatefulWidget {
   const SelectionHandleOverlay({
+    super.key,
     required this.type,
     required this.handleLayerLink,
     this.onSelectionHandleTapped,
@@ -2135,9 +2137,7 @@ class EditorTextSelectionGestureDetectorBuilder {
           renderEditor.selectWord(cause: SelectionChangedCause.longPress);
       }
 
-      //TODO: show magnifier
-
-      _dragStartViewportOffset = renderEditor.offset!.pixels;
+      _dragStartViewportOffset = renderEditor.offset?.pixels ?? 0;
       _dragStartScrollOffset = _scrollPosition;
     }
   }
