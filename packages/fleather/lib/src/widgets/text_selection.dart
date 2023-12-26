@@ -53,6 +53,7 @@ class EditorTextSelectionOverlay {
     _selectionOverlay = SelectionOverlay(
       magnifierConfiguration: magnifierConfiguration,
       context: context,
+      renderEditor: renderObject,
       debugRequiredFor: debugRequiredFor,
       // The metrics will be set when show handles.
       startHandleType: TextSelectionHandleType.collapsed,
@@ -637,6 +638,7 @@ class SelectionOverlay {
   /// The [context] must have an [Overlay] as an ancestor.
   SelectionOverlay({
     required this.context,
+    required this.renderEditor,
     this.debugRequiredFor,
     required TextSelectionHandleType startHandleType,
     required double lineHeightAtStart,
@@ -680,6 +682,8 @@ class SelectionOverlay {
 
   /// {@macro flutter.widgets.SelectionOverlay.context}
   final BuildContext context;
+
+  final RenderEditor renderEditor;
 
   final ValueNotifier<MagnifierInfo> _magnifierInfo =
       ValueNotifier<MagnifierInfo>(MagnifierInfo.empty);
@@ -1306,9 +1310,12 @@ class SelectionOverlay {
 
     final RenderBox renderBox = this.context.findRenderObject()! as RenderBox;
 
+    final viewportOffset = Offset(0, renderEditor.offset?.pixels ?? 0.0);
+
     final Rect editingRegion = Rect.fromPoints(
-      renderBox.localToGlobal(Offset.zero),
-      renderBox.localToGlobal(renderBox.size.bottomRight(Offset.zero)),
+      renderBox.localToGlobal(Offset.zero) - viewportOffset,
+      renderBox.localToGlobal(renderBox.size.bottomRight(Offset.zero)) -
+          viewportOffset,
     );
 
     final bool isMultiline =

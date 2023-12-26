@@ -424,7 +424,7 @@ class RenderEditor extends RenderEditableContainerBox
   @override
   void handleSecondaryTapDown(TapDownDetails details) {
     _lastTapDownPosition = details.globalPosition;
-    _lastSecondaryTapDownPosition = details.globalPosition - _paintOffset;
+    _lastSecondaryTapDownPosition = details.globalPosition;
   }
 
   @override
