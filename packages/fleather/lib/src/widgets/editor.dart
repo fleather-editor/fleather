@@ -1078,9 +1078,12 @@ class RawEditorState extends EditorState
       _cursorController.startCursorTimer();
     }
     _updateOrDisposeSelectionOverlayIfNeeded();
-
     setState(() {
-      /* We use widget.controller.value in build(). */
+      /*
+       * We use widget.controller.value in build().
+       * We need to run this before updating SelectionOverlay to ensure
+       * that renderers are in line with the document.
+       */
     });
     _verticalSelectionUpdateAction.stopCurrentVerticalRunIfSelectionChanges();
   }
