@@ -690,7 +690,11 @@ abstract class EditorState extends State<RawEditor>
   /// The floating cursor is animated to merge with the regular cursor.
   AnimationController get floatingCursorResetController;
 
-  bool showToolbar();
+  /// Shows toolbar
+  ///
+  /// if [createIfNull] is `true`, create the [EditorTextSelectionOverlay]
+  /// if the latter is null
+  bool showToolbar({createIfNull = false});
 
   void toggleToolbar([bool hideHandles = true]);
 
@@ -791,7 +795,7 @@ class RawEditorState extends EditorState
   /// Returns `false` if a toolbar couldn't be shown, such as when the toolbar
   /// is already shown, or when no text selection currently exists.
   @override
-  bool showToolbar() {
+  bool showToolbar({createIfNull = false}) {
     // Web is using native dom elements to enable clipboard functionality of the
     // toolbar: copy, paste, select, cut. It might also provide additional
     // functionality depending on the browser (such as translate). Due to this
@@ -800,7 +804,13 @@ class RawEditorState extends EditorState
       return false;
     }
 
-    if (_selectionOverlay == null || _selectionOverlay!.toolbarIsVisible) {
+    if (_selectionOverlay == null) {
+      if (createIfNull) {
+        _selectionOverlay = _createSelectionOverlay();
+      } else {
+        return false;
+      }
+    } else if (_selectionOverlay!.toolbarIsVisible) {
       return false;
     }
 

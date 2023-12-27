@@ -174,29 +174,30 @@ void main() {
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
-        await tester.pump();
-        tester.binding.scheduleWarmUpFrame();
+        await editor.pump();
         expect(
             editor.selection,
             const TextSelection(
                 baseOffset: 0,
                 extentOffset: 4,
                 affinity: TextAffinity.upstream));
-        expect(find.byType(CupertinoTextSelectionToolbar), findsOneWidget);
-        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
-            const Offset(1, 1));
+        expect(
+            find.byType(CupertinoDesktopTextSelectionToolbar), findsOneWidget);
+        await tester.tapAt(
+            tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
+            buttons: kPrimaryMouseButton);
         tester.binding.scheduleWarmUpFrame();
         await tester.pump();
+        expect(find.byType(CupertinoDesktopTextSelectionToolbar), findsNothing);
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
-        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             editor.selection,
             const TextSelection.collapsed(
                 offset: 0, affinity: TextAffinity.downstream));
-      }, [TargetPlatform.iOS]);
+      }, [TargetPlatform.macOS]);
 
       testWidgetsWithPlatform(
           'Secondary tap toggles toolbar on platforms other than mac/iOS',
@@ -218,7 +219,8 @@ void main() {
                 offset: 1, affinity: TextAffinity.upstream));
         expect(find.byType(DesktopTextSelectionToolbar), findsOneWidget);
         await tester.tapAt(
-            tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(5, 1),
+            tester.getTopLeft(find.byType(FleatherEditor)) +
+                const Offset(10, 1),
             buttons: kSecondaryMouseButton);
         tester.binding.scheduleWarmUpFrame();
         await tester.pump();
@@ -461,11 +463,13 @@ void main() {
         final document = ParchmentDocument.fromJson([
           {'insert': 'Test\nAnother line\n'}
         ]);
-        final editor = EditorSandBox(tester: tester, document: document);
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
         await editor.pump();
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             find.byType(CupertinoDesktopTextSelectionToolbar), findsOneWidget);
@@ -489,6 +493,7 @@ void main() {
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(find.byType(DesktopTextSelectionToolbar), findsOneWidget);
         await tester

@@ -163,18 +163,11 @@ class EditorTextSelectionOverlay {
   /// {@macro flutter.widgets.SelectionOverlay.showToolbar}
   void showToolbar() {
     _updateSelectionOverlay();
-
-    if (selectionControls is! TextSelectionHandleControls) {
-      _selectionOverlay.showToolbar();
-      return;
-    }
-
     assert(context.mounted);
     _selectionOverlay.showToolbar(
       context: context,
       contextMenuBuilder: contextMenuBuilder,
     );
-    return;
   }
 
   /// Shows toolbar with spell check suggestions of misspelled words that are
@@ -593,7 +586,10 @@ class EditorTextSelectionOverlay {
     if (selectionControls is! TextSelectionHandleControls) {
       _selectionOverlay.hideMagnifier();
       if (!_selection.isCollapsed) {
-        _selectionOverlay.showToolbar();
+        _selectionOverlay.showToolbar(
+          context: context,
+          contextMenuBuilder: contextMenuBuilder,
+        );
       }
       return;
     }
@@ -712,9 +708,8 @@ class SelectionOverlay {
   /// Includes both the text selection toolbar and the spell check menu.
   /// {@endtemplate}
   bool get toolbarIsVisible {
-    return selectionControls is TextSelectionHandleControls
-        ? _contextMenuController.isShown || _spellCheckToolbarController.isShown
-        : _toolbar != null || _spellCheckToolbarController.isShown;
+    return _contextMenuController.isShown ||
+        _spellCheckToolbarController.isShown;
   }
 
   /// {@template flutter.widgets.SelectionOverlay.showMagnifier}
@@ -1110,34 +1105,17 @@ class SelectionOverlay {
   /// {@template flutter.widgets.SelectionOverlay.showToolbar}
   /// Shows the toolbar by inserting it into the [context]'s overlay.
   /// {@endtemplate}
-  void showToolbar({
-    BuildContext? context,
-    WidgetBuilder? contextMenuBuilder,
-  }) {
-    if (contextMenuBuilder == null) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (_toolbar != null) {
-          return;
-        }
-        _toolbar = OverlayEntry(builder: _buildToolbar);
-        Overlay.of(this.context,
-                rootOverlay: true, debugRequiredFor: debugRequiredFor)
-            .insert(_toolbar!);
-      });
-      return;
-    }
-
-    if (context == null) {
-      return;
-    }
-
+  void showToolbar(
+      {required BuildContext context,
+      required WidgetBuilder contextMenuBuilder}) {
     final RenderBox renderBox = context.findRenderObject()! as RenderBox;
     _contextMenuController.show(
       context: context,
       contextMenuBuilder: (BuildContext context) {
         return _SelectionToolbarWrapper(
           layerLink: toolbarLayerLink,
-          offset: -renderBox.localToGlobal(Offset.zero),
+          offset: -renderBox.localToGlobal(Offset.zero) +
+              Offset(0, renderEditor.offset?.pixels ?? 0.0),
           child: contextMenuBuilder(context),
         );
       },
@@ -1306,63 +1284,6 @@ class SelectionOverlay {
     );
   }
 
-  // Build the toolbar via TextSelectionControls.
-  Widget _buildToolbar(BuildContext context) {
-    if (selectionControls == null) {
-      return const SizedBox.shrink();
-    }
-    assert(selectionDelegate != null,
-        'If not using contextMenuBuilder, must pass selectionDelegate.');
-
-    final RenderBox renderBox = this.context.findRenderObject()! as RenderBox;
-
-    final viewportOffset = Offset(0, renderEditor.offset?.pixels ?? 0.0);
-
-    final Rect editingRegion = Rect.fromPoints(
-      renderBox.localToGlobal(Offset.zero) - viewportOffset,
-      renderBox.localToGlobal(renderBox.size.bottomRight(Offset.zero)) -
-          viewportOffset,
-    );
-
-    final bool isMultiline =
-        selectionEndpoints.last.point.dy - selectionEndpoints.first.point.dy >
-            lineHeightAtEnd / 2;
-
-    // If the selected text spans more than 1 line, horizontally center the toolbar.
-    // Derived from both iOS and Android.
-    final double midX = isMultiline
-        ? editingRegion.width / 2
-        : (selectionEndpoints.first.point.dx +
-                selectionEndpoints.last.point.dx) /
-            2;
-
-    final Offset midpoint = Offset(
-      midX,
-      // The y-coordinate won't be made use of most likely.
-      selectionEndpoints.first.point.dy - lineHeightAtStart,
-    );
-
-    return _SelectionToolbarWrapper(
-      visibility: toolbarVisible,
-      layerLink: toolbarLayerLink,
-      offset: -editingRegion.topLeft,
-      child: Builder(
-        builder: (BuildContext context) {
-          return selectionControls!.buildToolbar(
-            context,
-            editingRegion,
-            lineHeightAtStart,
-            midpoint,
-            selectionEndpoints,
-            selectionDelegate!,
-            clipboardStatus,
-            toolbarLocation,
-          );
-        },
-      ),
-    );
-  }
-
   /// {@template flutter.widgets.SelectionOverlay.updateMagnifier}
   /// Update the current magnifier with new selection data, so the magnifier
   /// can respond accordingly.
@@ -1390,7 +1311,6 @@ class SelectionOverlay {
 // TextSelectionControls.buildToolbar.
 class _SelectionToolbarWrapper extends StatefulWidget {
   const _SelectionToolbarWrapper({
-    this.visibility,
     required this.layerLink,
     required this.offset,
     required this.child,
@@ -1399,7 +1319,6 @@ class _SelectionToolbarWrapper extends StatefulWidget {
   final Widget child;
   final Offset offset;
   final LayerLink layerLink;
-  final ValueListenable<bool>? visibility;
 
   @override
   State<_SelectionToolbarWrapper> createState() =>
@@ -1420,33 +1339,22 @@ class _SelectionToolbarWrapperState extends State<_SelectionToolbarWrapper>
         duration: SelectionOverlay.fadeDuration, vsync: this);
 
     _toolbarVisibilityChanged();
-    widget.visibility?.addListener(_toolbarVisibilityChanged);
   }
 
   @override
   void didUpdateWidget(_SelectionToolbarWrapper oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.visibility == widget.visibility) {
-      return;
-    }
-    oldWidget.visibility?.removeListener(_toolbarVisibilityChanged);
     _toolbarVisibilityChanged();
-    widget.visibility?.addListener(_toolbarVisibilityChanged);
   }
 
   @override
   void dispose() {
-    widget.visibility?.removeListener(_toolbarVisibilityChanged);
     _controller.dispose();
     super.dispose();
   }
 
   void _toolbarVisibilityChanged() {
-    if (widget.visibility?.value ?? true) {
-      _controller.forward();
-    } else {
-      _controller.reverse();
-    }
+    _controller.forward();
   }
 
   @override
@@ -2236,7 +2144,7 @@ class EditorTextSelectionGestureDetectorBuilder {
         }
         if (shouldShowSelectionToolbar) {
           editor.hideToolbar();
-          editor.showToolbar();
+          editor.showToolbar(createIfNull: true);
         }
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
