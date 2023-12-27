@@ -1,4 +1,5 @@
 import 'package:fleather/fleather.dart';
+import 'package:fleather/src/widgets/text_selection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -438,6 +439,35 @@ void main() {
         expect(rawEditor.selectionControls,
             const TypeMatcher<MaterialTextSelectionControls>());
       }, [TargetPlatform.android]);
+
+      testWidgets('Dragging selection handle shows magnifier', (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Some piece of text\n'}
+        ]);
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(10, -1));
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(10, -1));
+        tester.binding.scheduleWarmUpFrame();
+        await tester.pump();
+        final handleOverlays = find.byType(SelectionHandleOverlay);
+        expect(handleOverlays, findsNWidgets(2));
+        final endHandle = find.descendant(
+            of: handleOverlays.last, matching: find.byType(SizedBox));
+        expect(endHandle, findsOneWidget);
+        final gesture = await tester.startGesture(
+            tester.getBottomRight(endHandle) - const Offset(1, 1));
+        await gesture.moveBy(const Offset(40, 0));
+        await tester.pump();
+        final magnifier = find.byType(TextMagnifier);
+        expect(magnifier, findsOneWidget);
+        await gesture.up();
+        await tester.pump();
+        expect(magnifier, findsNothing);
+      });
 
       testWidgetsWithPlatform('selection handles for Windows', (tester) async {
         final document = ParchmentDocument();
