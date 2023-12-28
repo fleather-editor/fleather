@@ -22,16 +22,6 @@ const int _kMaxSuggestions = 3;
 /// Tries to position itself below the [anchor], but if it doesn't fit, then it
 /// readjusts to fit above bottom view insets.
 class FleatherSpellCheckSuggestionsToolbar extends StatelessWidget {
-  /// Constructs a [FleatherSpellCheckSuggestionsToolbar].
-  ///
-  /// [buttonItems] must not contain more than four items, generally three
-  /// suggestions and one delete button.
-  const FleatherSpellCheckSuggestionsToolbar({
-    super.key,
-    required this.anchor,
-    required this.buttonItems,
-  }) : assert(buttonItems.length <= _kMaxSuggestions + 1);
-
   /// Constructs a [FleatherSpellCheckSuggestionsToolbar] with the default children for
   /// an [EditorState].
   ///
@@ -42,9 +32,7 @@ class FleatherSpellCheckSuggestionsToolbar extends StatelessWidget {
             buildButtonItems(editorState) ?? <ContextMenuButtonItem>[],
         anchor = getToolbarAnchor(editorState.contextMenuAnchors);
 
-  /// {@template flutter.material.SpellCheckSuggestionsToolbar.anchor}
   /// The focal point below which the toolbar attempts to position itself.
-  /// {@endtemplate}
   final Offset anchor;
 
   /// The [ContextMenuButtonItem]s that will be turned into the correct button
@@ -264,15 +252,6 @@ class _SpellCheckSuggestionsToolbarContainer extends StatelessWidget {
 ///  * [FleatherSpellCheckSuggestionsToolbar], which is similar but for both the
 ///    Material and Cupertino libraries.
 class FleatherCupertinoSpellCheckSuggestionsToolbar extends StatelessWidget {
-  /// Constructs a [FleatherCupertinoSpellCheckSuggestionsToolbar].
-  ///
-  /// [buttonItems] must not contain more than three items.
-  const FleatherCupertinoSpellCheckSuggestionsToolbar({
-    super.key,
-    required this.anchors,
-    required this.buttonItems,
-  }) : assert(buttonItems.length <= _kMaxSuggestions);
-
   /// Constructs a [FleatherCupertinoSpellCheckSuggestionsToolbar] with the default
   /// children for an [EditorState].
   FleatherCupertinoSpellCheckSuggestionsToolbar.editor({

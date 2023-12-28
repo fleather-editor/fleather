@@ -1062,9 +1062,7 @@ class SelectionOverlay {
     }
   }
 
-  /// {@template flutter.widgets.SelectionOverlay.showToolbar}
   /// Shows the toolbar by inserting it into the [context]'s overlay.
-  /// {@endtemplate}
   void showToolbar(
       {required BuildContext context,
       required WidgetBuilder contextMenuBuilder}) {
@@ -1093,13 +1091,13 @@ class SelectionOverlay {
     }
 
     final RenderBox renderBox = context.findRenderObject()! as RenderBox;
-    final viewportOffset = Offset(0.0, renderEditor.offset?.pixels ?? 0.0);
     _spellCheckToolbarController.show(
       context: context,
       contextMenuBuilder: (BuildContext context) {
         return _SelectionToolbarWrapper(
           layerLink: toolbarLayerLink,
-          offset: -renderBox.localToGlobal(Offset.zero) + viewportOffset,
+          offset: -renderBox.localToGlobal(Offset.zero) +
+              Offset(0, renderEditor.offset?.pixels ?? 0.0),
           child: builder(context),
         );
       },
@@ -1148,9 +1146,7 @@ class SelectionOverlay {
     }
   }
 
-  /// {@template flutter.widgets.SelectionOverlay.hide}
   /// Hides the entire overlay including the toolbar and the handles.
-  /// {@endtemplate}
   void hide() {
     _magnifierController.hide();
     if (_handles != null) {
@@ -1167,11 +1163,9 @@ class SelectionOverlay {
     }
   }
 
-  /// {@template flutter.widgets.SelectionOverlay.hideToolbar}
   /// Hides the toolbar part of the overlay.
   ///
   /// To hide the whole overlay, see [hide].
-  /// {@endtemplate}
   void hideToolbar() {
     _contextMenuController.remove();
     _spellCheckToolbarController.remove();
@@ -1183,9 +1177,7 @@ class SelectionOverlay {
     _toolbar = null;
   }
 
-  /// {@template flutter.widgets.SelectionOverlay.dispose}
   /// Disposes this object and release resources.
-  /// {@endtemplate}
   void dispose() {
     hide();
     _magnifierInfo.dispose();
@@ -1245,7 +1237,6 @@ class SelectionOverlay {
     );
   }
 
-  /// {@template flutter.widgets.SelectionOverlay.updateMagnifier}
   /// Update the current magnifier with new selection data, so the magnifier
   /// can respond accordingly.
   ///
@@ -1254,7 +1245,6 @@ class SelectionOverlay {
   /// itself.
   ///
   /// If there is no magnifier in the overlay, this does nothing.
-  /// {@endtemplate}
   void updateMagnifier(MagnifierInfo magnifierInfo) {
     if (_magnifierController.overlayEntry == null) {
       return;
