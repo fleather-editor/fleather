@@ -178,39 +178,6 @@ class EditorTextSelectionOverlay {
     hideHandles();
   }
 
-  /// {@macro flutter.widgets.SelectionOverlay.showMagnifier}
-  void showMagnifier(Offset positionToShow) {
-    final TextPosition position =
-        renderObject.getPositionForOffset(positionToShow);
-    _updateSelectionOverlay();
-    _selectionOverlay.showMagnifier(
-      _buildMagnifier(
-        currentTextPosition: position,
-        globalGesturePosition: positionToShow,
-        renderEditor: renderObject,
-      ),
-    );
-  }
-
-  /// {@macro flutter.widgets.SelectionOverlay.updateMagnifier}
-  void updateMagnifier(Offset positionToShow) {
-    final TextPosition position =
-        renderObject.getPositionForOffset(positionToShow);
-    _updateSelectionOverlay();
-    _selectionOverlay.updateMagnifier(
-      _buildMagnifier(
-        currentTextPosition: position,
-        globalGesturePosition: positionToShow,
-        renderEditor: renderObject,
-      ),
-    );
-  }
-
-  /// {@macro flutter.widgets.SelectionOverlay.hideMagnifier}
-  void hideMagnifier() {
-    _selectionOverlay.hideMagnifier();
-  }
-
   /// Updates the overlay after the selection has changed.
   ///
   /// If this method is called while the [SchedulerBinding.schedulerPhase] is
@@ -578,16 +545,7 @@ class EditorTextSelectionOverlay {
     if (!context.mounted) {
       return;
     }
-    if (selectionControls is! TextSelectionHandleControls) {
-      _selectionOverlay.hideMagnifier();
-      if (!_selection.isCollapsed) {
-        _selectionOverlay.showToolbar(
-          context: context,
-          contextMenuBuilder: contextMenuBuilder,
-        );
-      }
-      return;
-    }
+
     _selectionOverlay.hideMagnifier();
     if (!_selection.isCollapsed) {
       _selectionOverlay.showToolbar(
@@ -595,6 +553,7 @@ class EditorTextSelectionOverlay {
         contextMenuBuilder: contextMenuBuilder,
       );
     }
+    return;
   }
 
   void _handleSelectionHandleChanged(TextSelection newSelection) {
