@@ -441,7 +441,7 @@ void main() {
             const TypeMatcher<MaterialTextSelectionControls>());
       }, [TargetPlatform.android]);
 
-      testWidgets('Dragging selection handle shows magnifier', (tester) async {
+      testWidgets('drag selection end handle shows magnifier', (tester) async {
         final document = ParchmentDocument.fromJson([
           {'insert': 'Some piece of text\n'}
         ]);
@@ -462,6 +462,36 @@ void main() {
         final gesture = await tester.startGesture(
             tester.getBottomRight(endHandle) - const Offset(1, 1));
         await gesture.moveBy(const Offset(40, 0));
+        await tester.pump();
+        final magnifier = find.byType(TextMagnifier);
+        expect(magnifier, findsOneWidget);
+        await gesture.up();
+        await tester.pump();
+        expect(magnifier, findsNothing);
+      });
+
+      testWidgets('drag selection start handle shows magnifier',
+          (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Some piece of text\n'}
+        ]);
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(100, -1));
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(100, -1));
+        tester.binding.scheduleWarmUpFrame();
+        await tester.pump();
+        final handleOverlays = find.byType(SelectionHandleOverlay);
+        expect(handleOverlays, findsNWidgets(2));
+        final startHandle = find.descendant(
+            of: handleOverlays.first, matching: find.byType(SizedBox));
+        expect(startHandle, findsOneWidget);
+        final gesture = await tester.startGesture(
+            tester.getBottomRight(startHandle) - const Offset(-1, 1));
+        await gesture.moveBy(const Offset(-15, 0));
         await tester.pump();
         final magnifier = find.byType(TextMagnifier);
         expect(magnifier, findsOneWidget);
