@@ -202,6 +202,10 @@ class EditorTextSelectionOverlay {
   }
 
   void _updateSelectionOverlay() {
+    // Swap occurs when dragging start handle on Apple systems
+    final isAppleSwapped =
+        selectionDelegate.textEditingValue.selection.baseOffset >
+            selectionDelegate.textEditingValue.selection.extentOffset;
     _selectionOverlay
       // Update selection handle metrics.
       ..startHandleType = _chooseType(
@@ -210,16 +214,18 @@ class EditorTextSelectionOverlay {
         TextSelectionHandleType.right,
       )
       // TODO: use _getStartGlyphHeight when adapted from flutter
-      ..lineHeightAtStart = renderObject.preferredLineHeight(
-          selectionDelegate.textEditingValue.selection.base)
+      ..lineHeightAtStart = renderObject.preferredLineHeight(isAppleSwapped
+          ? selectionDelegate.textEditingValue.selection.extent
+          : selectionDelegate.textEditingValue.selection.base)
       ..endHandleType = _chooseType(
         renderObject.textDirection,
         TextSelectionHandleType.right,
         TextSelectionHandleType.left,
       )
       // TODO: use _getEndGlyphHeight when adapted from flutter
-      ..lineHeightAtEnd = renderObject.preferredLineHeight(
-          selectionDelegate.textEditingValue.selection.extent)
+      ..lineHeightAtEnd = renderObject.preferredLineHeight(isAppleSwapped
+          ? selectionDelegate.textEditingValue.selection.base
+          : selectionDelegate.textEditingValue.selection.extent)
       // Update selection toolbar metrics.
       ..selectionEndpoints = renderObject.getEndpointsForSelection(_selection)
       ..toolbarLocation = renderObject.lastSecondaryTapDownPosition;
