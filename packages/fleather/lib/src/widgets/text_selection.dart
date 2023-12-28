@@ -1,9 +1,4 @@
-// Copyright 2014 The Flutter Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 // ignore_for_file: deprecated_member_use_from_same_package
-// ignore_for_file: deprecated_member_use
 
 import 'dart:math' as math;
 
@@ -1133,12 +1128,13 @@ class SelectionOverlay {
     }
 
     final RenderBox renderBox = context.findRenderObject()! as RenderBox;
+    final viewportOffset = Offset(0.0, renderEditor.offset?.pixels ?? 0.0);
     _spellCheckToolbarController.show(
       context: context,
       contextMenuBuilder: (BuildContext context) {
         return _SelectionToolbarWrapper(
           layerLink: toolbarLayerLink,
-          offset: -renderBox.localToGlobal(Offset.zero),
+          offset: -renderBox.localToGlobal(Offset.zero) + viewportOffset,
           child: builder(context),
         );
       },
@@ -1937,7 +1933,7 @@ class EditorTextSelectionGestureDetectorBuilder {
             return;
           }
           renderEditor.selectPosition(cause: SelectionChangedCause.tap);
-        //TODO: show spell check suggestions
+          editor.showSpellCheckSuggestionsToolbar();
         case TargetPlatform.fuchsia:
           if (isShiftPressedValid) {
             _extendSelection(details.globalPosition, SelectionChangedCause.tap);
@@ -1982,8 +1978,17 @@ class EditorTextSelectionGestureDetectorBuilder {
                   renderEditor.getPositionForOffset(details.globalPosition);
               final bool isAffinityTheSame =
                   textPosition.affinity == previousSelection.affinity;
-
-              if (((_positionWasOnSelectionExclusive(textPosition) &&
+              final bool wordAtCursorIndexIsMisspelled =
+                  editor.findSuggestionSpanAtCursorIndex(textPosition.offset) !=
+                      null;
+              if (wordAtCursorIndexIsMisspelled) {
+                renderEditor.selectWord(cause: SelectionChangedCause.tap);
+                if (previousSelection != editor.textEditingValue.selection) {
+                  editor.showSpellCheckSuggestionsToolbar();
+                } else {
+                  editor.toggleToolbar(false);
+                }
+              } else if (((_positionWasOnSelectionExclusive(textPosition) &&
                           !previousSelection.isCollapsed) ||
                       (_positionWasOnSelectionInclusive(textPosition) &&
                           previousSelection.isCollapsed &&

@@ -1,4 +1,5 @@
 import 'package:fleather/fleather.dart';
+import 'package:fleather/src/services/spell_check_suggestions_toolbar.dart';
 import 'package:fleather/src/widgets/text_selection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -592,6 +593,153 @@ void main() {
                 extentOffset: 50,
                 affinity: TextAffinity.upstream));
       }, [TargetPlatform.linux]);
+    });
+
+    group('Spell check', () {
+      final spellCheckService = FakeSpellCheckService();
+
+      Future<EditorSandBox> prepareTest(
+          WidgetTester tester, ParchmentDocument document) async {
+        final editor = EditorSandBox(
+            tester: tester,
+            document: document,
+            autofocus: true,
+            spellCheckService: spellCheckService);
+        await editor.pump();
+        return editor;
+      }
+
+      testWidgets('suggests correction on initial load (Android)',
+          (tester) async {
+        spellCheckService.stub = (_, __) async {
+          return [
+            const SuggestionSpan(
+              TextRange(start: 0, end: 4),
+              ['Same', 'Some', 'Sales'],
+            )
+          ];
+        };
+        await prepareTest(
+            tester,
+            ParchmentDocument.fromJson([
+              {'insert': 'Sole text\n'}
+            ]));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        expect(
+            find.byType(FleatherSpellCheckSuggestionsToolbar), findsOneWidget);
+      });
+
+      testWidgets('suggests correction on initial load (iOS)', (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+        spellCheckService.stub = (_, __) async {
+          return [
+            const SuggestionSpan(
+              TextRange(start: 0, end: 4),
+              ['Same', 'Some', 'Sales'],
+            )
+          ];
+        };
+        await prepareTest(
+            tester,
+            ParchmentDocument.fromJson([
+              {'insert': 'Sole text\n'}
+            ]));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        expect(find.byType(FleatherCupertinoSpellCheckSuggestionsToolbar),
+            findsOneWidget);
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      testWidgets('replaces text with selected suggestion (Android)',
+          (tester) async {
+        spellCheckService.stub = (_, __) async {
+          return [
+            const SuggestionSpan(
+              TextRange(start: 0, end: 4),
+              ['Same', 'Some', 'Sales'],
+            )
+          ];
+        };
+        final editor = await prepareTest(
+            tester,
+            ParchmentDocument.fromJson([
+              {'insert': 'Sole text\n'}
+            ]));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        await tester.tap(find.text('Some'));
+        await tester.pump(throttleDuration);
+        expect(editor.controller.document.toPlainText(), 'Some text\n');
+      });
+
+      testWidgets('deletes erroneous text (Android)', (tester) async {
+        spellCheckService.stub = (_, __) async {
+          return [
+            const SuggestionSpan(
+              TextRange(start: 0, end: 4),
+              ['Same', 'Some', 'Sales'],
+            )
+          ];
+        };
+        final editor = await prepareTest(
+            tester,
+            ParchmentDocument.fromJson([
+              {'insert': 'Sole text\n'}
+            ]));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        await tester.tap(find.text(const DefaultMaterialLocalizations()
+            .deleteButtonTooltip
+            .toUpperCase()));
+        await tester.pump(throttleDuration);
+        expect(editor.controller.document.toPlainText(), 'Sole text\n');
+      });
+
+      testWidgets('replaces text with selected suggestion (iOS)',
+          (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+        spellCheckService.stub = (_, __) async {
+          return [
+            const SuggestionSpan(
+              TextRange(start: 0, end: 4),
+              ['Same', 'Some', 'Sales'],
+            )
+          ];
+        };
+        final editor = await prepareTest(
+            tester,
+            ParchmentDocument.fromJson([
+              {'insert': 'Sole text\n'}
+            ]));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        await tester.tap(find.text('Some'));
+        await tester.pump(throttleDuration);
+        expect(editor.controller.document.toPlainText(), 'Some text\n');
+        debugDefaultTargetPlatformOverride = null;
+      });
     });
 
     group('didUpdateWidget', () {

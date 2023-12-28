@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:math';
 
+import 'package:fleather/src/services/spell_check_suggestions_toolbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -36,11 +37,29 @@ typedef FleatherContextMenuBuilder = Widget Function(
 
 /// Default implementation of a widget builder function for context menu.
 Widget defaultContextMenuBuilder(
-        BuildContext context, EditorState editableTextState) =>
+        BuildContext context, EditorState editorState) =>
     AdaptiveTextSelectionToolbar.buttonItems(
-      buttonItems: editableTextState.contextMenuButtonItems,
-      anchors: editableTextState.contextMenuAnchors,
+      buttonItems: editorState.contextMenuButtonItems,
+      anchors: editorState.contextMenuAnchors,
     );
+
+Widget defaultSpellCheckMenuBuilder(
+    BuildContext context, EditorState editorState) {
+  switch (defaultTargetPlatform) {
+    case TargetPlatform.iOS:
+      return FleatherCupertinoSpellCheckSuggestionsToolbar.editor(
+          editorState: editorState);
+    case TargetPlatform.android:
+      return FleatherSpellCheckSuggestionsToolbar.editor(
+          editorState: editorState);
+    case TargetPlatform.macOS:
+    case TargetPlatform.linux:
+    case TargetPlatform.windows:
+    case TargetPlatform.fuchsia:
+    default:
+      throw UnsupportedError('Only iOS and Android support spell check');
+  }
+}
 
 /// Builder function for embeddable objects in [FleatherEditor].
 typedef FleatherEmbedBuilder = Widget Function(
@@ -203,6 +222,18 @@ class FleatherEditor extends StatefulWidget {
   /// Defaults to [defaultFleatherEmbedBuilder].
   final FleatherEmbedBuilder embedBuilder;
 
+  /// Configuration that details how spell check should be performed.
+  ///
+  /// Specifies the [SpellCheckService] used to spell check text input and the
+  /// [TextStyle] used to style text with misspelled words.
+  ///
+  /// If the [SpellCheckService] is left null, spell check is disabled by
+  /// default unless the [DefaultSpellCheckService] is supported, in which case
+  /// it is used. It is currently supported only on Android and iOS.
+  ///
+  /// If this configuration is left null, then spell check is disabled by default.
+  final SpellCheckConfiguration? spellCheckConfiguration;
+
   /// Builds the text selection toolbar when requested by the user.
   ///
   /// Defaults to [defaultContextMenuBuilder].
@@ -245,6 +276,7 @@ class FleatherEditor extends StatefulWidget {
     this.keyboardAppearance,
     this.scrollPhysics,
     this.onLaunchUrl,
+    this.spellCheckConfiguration,
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
@@ -381,6 +413,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       scrollPhysics: widget.scrollPhysics,
       onLaunchUrl: widget.onLaunchUrl,
       embedBuilder: widget.embedBuilder,
+      spellCheckConfiguration: widget.spellCheckConfiguration,
       linkActionPickerDelegate: widget.linkActionPickerDelegate,
       // encapsulated fields below
       cursorStyle: CursorStyle(
@@ -480,6 +513,7 @@ class RawEditor extends StatefulWidget {
     this.showSelectionHandles = false,
     this.selectionControls,
     this.contextMenuBuilder = defaultContextMenuBuilder,
+    this.spellCheckConfiguration,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
   })  : assert(scrollable || scrollController != null),
@@ -524,6 +558,18 @@ class RawEditor extends StatefulWidget {
   ///
   /// Defaults to [defaultContextMenuBuilder].
   final FleatherContextMenuBuilder contextMenuBuilder;
+
+  /// Configuration that details how spell check should be performed.
+  ///
+  /// Specifies the [SpellCheckService] used to spell check text input and the
+  /// [TextStyle] used to style text with misspelled words.
+  ///
+  /// If the [SpellCheckService] is left null, spell check is disabled by
+  /// default unless the [DefaultSpellCheckService] is supported, in which case
+  /// it is used. It is currently supported only on Android and iOS.
+  ///
+  /// If this configuration is left null, then spell check is disabled by default.
+  final SpellCheckConfiguration? spellCheckConfiguration;
 
   /// Whether to show selection handles.
   ///
@@ -690,23 +736,46 @@ abstract class EditorState extends State<RawEditor>
   /// The floating cursor is animated to merge with the regular cursor.
   AnimationController get floatingCursorResetController;
 
-  /// Shows toolbar
+  /// Whether or not spell check is enabled.
   ///
-  /// if [createIfNull] is `true`, create the [EditorTextSelectionOverlay]
-  /// if the latter is null
-  bool showToolbar({createIfNull = false});
-
-  void toggleToolbar([bool hideHandles = true]);
-
-  void requestKeyboard();
+  /// Spell check is enabled when a [SpellCheckConfiguration] has been specified
+  /// for the widget.
+  bool get spellCheckEnabled;
 
   FocusNode get effectiveFocusNode;
 
   TextSelectionToolbarAnchors get contextMenuAnchors;
 
   List<ContextMenuButtonItem> get contextMenuButtonItems;
+
+  /// Shows toolbar
+  ///
+  /// if [createIfNull] is `true`, create the [EditorTextSelectionOverlay]
+  /// if the latter is null
+  bool showToolbar({createIfNull = false});
+
+  /// Shows toolbar with spell check suggestions of misspelled words that are
+  /// available for click-and-replace.
+  bool showSpellCheckSuggestionsToolbar();
+
+  /// Finds specified [SuggestionSpan] that matches the provided index using
+  /// binary search.
+  ///
+  /// See also:
+  ///
+  ///  * [SpellCheckSuggestionsToolbar], the Material style spell check
+  ///    suggestions toolbar that uses this method to render the correct
+  ///    suggestions in the toolbar for a misspelled word.
+  SuggestionSpan? findSuggestionSpanAtCursorIndex(int cursorIndex);
+
+  Future<void> performSpellCheck(final String text);
+
+  void toggleToolbar([bool hideHandles = true]);
+
+  void requestKeyboard();
 }
 
+// TODO: apply styling and color to spelling suggestion
 class RawEditorState extends EditorState
     with
         AutomaticKeepAliveClientMixin<RawEditor>,
@@ -827,6 +896,167 @@ class RawEditorState extends EditorState
     } else {
       showToolbar();
     }
+  }
+
+  @override
+  bool showSpellCheckSuggestionsToolbar() {
+    // Spell check suggestions toolbars are intended to be shown on non-web
+    // platforms. Additionally, the Cupertino style toolbar can't be drawn on
+    // the web with the HTML renderer due to
+    // https://github.com/flutter/flutter/issues/123560.
+    final bool platformNotSupported = kIsWeb && BrowserContextMenu.enabled;
+    if (!spellCheckEnabled ||
+        platformNotSupported ||
+        widget.readOnly ||
+        _selectionOverlay == null ||
+        !_spellCheckResultsReceived ||
+        findSuggestionSpanAtCursorIndex(
+                textEditingValue.selection.extentOffset) ==
+            null) {
+      // Only attempt to show the spell check suggestions toolbar if there
+      // is a toolbar specified and spell check suggestions available to show.
+      return false;
+    }
+
+    _selectionOverlay!.showSpellCheckSuggestionsToolbar(
+      (BuildContext context) => defaultSpellCheckMenuBuilder(context, this),
+    );
+    return true;
+  }
+
+  late SpellCheckConfiguration _spellCheckConfiguration;
+
+  /// Configuration that determines how spell check will be performed.
+  ///
+  /// If possible, this configuration will contain a default for the
+  /// [SpellCheckService] if it is not otherwise specified.
+  ///
+  /// See also:
+  ///  * [DefaultSpellCheckService], the spell check service used by default.
+  @visibleForTesting
+  SpellCheckConfiguration get spellCheckConfiguration =>
+      _spellCheckConfiguration;
+
+  @override
+  bool get spellCheckEnabled => _spellCheckConfiguration.spellCheckEnabled;
+
+  /// The most up-to-date spell check results for text input.
+  ///
+  /// These results will be updated via calls to spell check through a
+  /// [SpellCheckService] and used by this widget to build the [TextSpan] tree
+  /// for text input and menus for replacement suggestions of misspelled words.
+  SpellCheckResults? spellCheckResults;
+
+  bool get _spellCheckResultsReceived =>
+      spellCheckEnabled &&
+      spellCheckResults != null &&
+      spellCheckResults!.suggestionSpans.isNotEmpty;
+
+  /// Infers the [SpellCheckConfiguration] used to perform spell check.
+  ///
+  /// If spell check is enabled, this will try to infer a value for
+  /// the [SpellCheckService] if left unspecified.
+  static SpellCheckConfiguration _inferSpellCheckConfiguration(
+      SpellCheckConfiguration? configuration) {
+    final SpellCheckService? spellCheckService =
+        configuration?.spellCheckService;
+    final bool spellCheckAutomaticallyDisabled = configuration == null ||
+        configuration == const SpellCheckConfiguration.disabled();
+    final bool spellCheckServiceIsConfigured = spellCheckService != null ||
+        spellCheckService == null &&
+            WidgetsBinding
+                .instance.platformDispatcher.nativeSpellCheckServiceDefined;
+    if (spellCheckAutomaticallyDisabled || !spellCheckServiceIsConfigured) {
+      // Only enable spell check if a non-disabled configuration is provided
+      // and if that configuration does not specify a spell check service,
+      // a native spell checker must be supported.
+      assert(() {
+        if (!spellCheckAutomaticallyDisabled &&
+            !spellCheckServiceIsConfigured) {
+          FlutterError.reportError(
+            FlutterErrorDetails(
+              exception: FlutterError(
+                'Spell check was enabled with spellCheckConfiguration, but the '
+                'current platform does not have a supported spell check '
+                'service, and none was provided. Consider disabling spell '
+                'check for this platform or passing a SpellCheckConfiguration '
+                'with a specified spell check service.',
+              ),
+              library: 'widget library',
+              stack: StackTrace.current,
+            ),
+          );
+        }
+        return true;
+      }());
+      return const SpellCheckConfiguration.disabled();
+    }
+
+    return configuration.copyWith(
+        spellCheckService: spellCheckService ?? DefaultSpellCheckService());
+  }
+
+  @override
+  Future<void> performSpellCheck(final String text) async {
+    try {
+      final Locale? localeForSpellChecking =
+          Localizations.maybeLocaleOf(context);
+
+      assert(
+        localeForSpellChecking != null,
+        'Locale must be specified in widget or Localization widget must be in scope',
+      );
+
+      final List<SuggestionSpan>? suggestions = await _spellCheckConfiguration
+          .spellCheckService
+          ?.fetchSpellCheckSuggestions(localeForSpellChecking!, text);
+
+      if (suggestions == null) {
+        // The request to fetch spell check suggestions was canceled due to ongoing request.
+        return;
+      }
+
+      spellCheckResults = SpellCheckResults(text, suggestions);
+      // TODO : renderEditable.text = buildTextSpan();
+    } catch (exception, stack) {
+      FlutterError.reportError(FlutterErrorDetails(
+        exception: exception,
+        stack: stack,
+        library: 'widgets',
+        context: ErrorDescription('while performing spell check'),
+      ));
+    }
+  }
+
+  @override
+  SuggestionSpan? findSuggestionSpanAtCursorIndex(int cursorIndex) {
+    if (!_spellCheckResultsReceived ||
+        spellCheckResults!.suggestionSpans.last.range.end < cursorIndex) {
+      // No spell check results have been received or the cursor index is out
+      // of range that suggestionSpans covers.
+      return null;
+    }
+
+    final List<SuggestionSpan> suggestionSpans =
+        spellCheckResults!.suggestionSpans;
+    int leftIndex = 0;
+    int rightIndex = suggestionSpans.length - 1;
+    int midIndex = 0;
+
+    while (leftIndex <= rightIndex) {
+      midIndex = ((leftIndex + rightIndex) / 2).floor();
+      final int currentSpanStart = suggestionSpans[midIndex].range.start;
+      final int currentSpanEnd = suggestionSpans[midIndex].range.end;
+
+      if (cursorIndex <= currentSpanEnd && cursorIndex >= currentSpanStart) {
+        return suggestionSpans[midIndex];
+      } else if (cursorIndex <= currentSpanStart) {
+        rightIndex = midIndex - 1;
+      } else {
+        leftIndex = midIndex + 1;
+      }
+    }
+    return null;
   }
 
   /// Copy current selection to [Clipboard].
@@ -959,6 +1189,9 @@ class RawEditorState extends EditorState
 
     clipboardStatus?.addListener(_onChangedClipboardStatus);
 
+    _spellCheckConfiguration =
+        _inferSpellCheckConfiguration(widget.spellCheckConfiguration);
+
     widget.controller.addListener(_didChangeTextEditingValue);
 
     _scrollController = widget.scrollController ?? ScrollController();
@@ -992,6 +1225,7 @@ class RawEditorState extends EditorState
       FocusScope.of(context).autofocus(effectiveFocusNode);
       _didAutoFocus = true;
     }
+    performSpellCheck(widget.controller.plainTextEditingValue.text);
   }
 
   bool _shouldShowSelectionHandles() {
@@ -1002,6 +1236,8 @@ class RawEditorState extends EditorState
   @override
   void didUpdateWidget(RawEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    performSpellCheck(widget.controller.plainTextEditingValue.text);
 
     _cursorController.showCursor.value = widget.showCursor;
     _cursorController.style = widget.cursorStyle;
@@ -1657,11 +1893,57 @@ class RawEditorState extends EditorState
     final extentLineHeight = renderEditor.preferredLineHeight(selection.extent);
     final smallestLineHeight = math.min(baseLineHeight, extentLineHeight);
 
-    return TextSelectionToolbarAnchors.fromSelection(
-        renderBox: renderEditor,
+    return _textSelectionToolbarAnchorsFromSelection(
+        renderEditor: renderEditor,
         startGlyphHeight: smallestLineHeight,
         endGlyphHeight: smallestLineHeight,
         selectionEndpoints: endpoints);
+  }
+
+  TextSelectionToolbarAnchors _textSelectionToolbarAnchorsFromSelection({
+    required RenderEditor renderEditor,
+    required double startGlyphHeight,
+    required double endGlyphHeight,
+    required List<TextSelectionPoint> selectionEndpoints,
+  }) {
+    final Rect editingRegion = Rect.fromPoints(
+      renderEditor.localToGlobal(Offset.zero),
+      renderEditor.localToGlobal(renderEditor.size.bottomRight(Offset.zero)),
+    );
+
+    if (editingRegion.left.isNaN ||
+        editingRegion.top.isNaN ||
+        editingRegion.right.isNaN ||
+        editingRegion.bottom.isNaN) {
+      return const TextSelectionToolbarAnchors(primaryAnchor: Offset.zero);
+    }
+
+    final bool isMultiline =
+        selectionEndpoints.last.point.dy - selectionEndpoints.first.point.dy >
+            endGlyphHeight / 2;
+
+    final Rect selectionRect = Rect.fromLTRB(
+      isMultiline
+          ? editingRegion.left
+          : editingRegion.left + selectionEndpoints.first.point.dx,
+      editingRegion.top + selectionEndpoints.first.point.dy - startGlyphHeight,
+      isMultiline
+          ? editingRegion.right
+          : editingRegion.left + selectionEndpoints.last.point.dx,
+      editingRegion.top + selectionEndpoints.last.point.dy,
+    );
+
+    return TextSelectionToolbarAnchors(
+      primaryAnchor: Offset(
+        selectionRect.left + selectionRect.width / 2,
+        clampDouble(selectionRect.top, editingRegion.top, editingRegion.bottom),
+      ),
+      secondaryAnchor: Offset(
+        selectionRect.left + selectionRect.width / 2,
+        clampDouble(
+            selectionRect.bottom, editingRegion.top, editingRegion.bottom),
+      ),
+    );
   }
 
   /// Returns the [ContextMenuButtonItem]s representing the buttons in this

@@ -95,10 +95,16 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     // It is important to prevent excessive remote updates as it can cause
     // race conditions.
     final actualValue = value.copyWith(
-      composing: _lastKnownRemoteTextEditingValue!.composing,
+      composing: _lastKnownRemoteTextEditingValue?.composing,
     );
 
     if (actualValue == _lastKnownRemoteTextEditingValue) return;
+
+    if (spellCheckEnabled &&
+        actualValue.text.isNotEmpty &&
+        actualValue.text != _lastKnownRemoteTextEditingValue?.text) {
+      performSpellCheck(value.text);
+    }
 
     _lastKnownRemoteTextEditingValue = actualValue;
     _textInputConnection!.setEditingState(actualValue);
