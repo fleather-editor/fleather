@@ -772,6 +772,19 @@ abstract class EditorState extends State<RawEditor>
 
   void toggleToolbar([bool hideHandles = true]);
 
+  /// Shows the magnifier at the position given by `positionToShow`,
+  /// if there is no magnifier visible.
+  ///
+  /// Updates the magnifier to the position given by `positionToShow`,
+  /// if there is a magnifier visible.
+  ///
+  /// Does nothing if a magnifier couldn't be shown, such as when the selection
+  /// overlay does not currently exist.
+  void showMagnifier(Offset positionToShow);
+
+  /// Hides the magnifier if it is visible.
+  void hideMagnifier();
+
   void requestKeyboard();
 }
 
@@ -895,6 +908,30 @@ class RawEditorState extends EditorState
       hideToolbar(hideHandles);
     } else {
       showToolbar();
+    }
+  }
+
+  @override
+  void showMagnifier(Offset positionToShow) {
+    if (_selectionOverlay == null) {
+      return;
+    }
+
+    if (_selectionOverlay!.magnifierIsVisible) {
+      _selectionOverlay!.updateMagnifier(positionToShow);
+    } else {
+      _selectionOverlay!.showMagnifier(positionToShow);
+    }
+  }
+
+  @override
+  void hideMagnifier() {
+    if (_selectionOverlay == null) {
+      return;
+    }
+
+    if (_selectionOverlay!.magnifierIsVisible) {
+      _selectionOverlay!.hideMagnifier();
     }
   }
 

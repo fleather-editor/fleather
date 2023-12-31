@@ -165,6 +165,39 @@ class EditorTextSelectionOverlay {
     );
   }
 
+  /// {@macro flutter.widgets.SelectionOverlay.showMagnifier}
+  void showMagnifier(Offset positionToShow) {
+    final TextPosition position =
+        renderObject.getPositionForOffset(positionToShow);
+    _updateSelectionOverlay();
+    _selectionOverlay.showMagnifier(
+      _buildMagnifier(
+        currentTextPosition: position,
+        globalGesturePosition: positionToShow,
+        renderEditor: renderObject,
+      ),
+    );
+  }
+
+  /// {@macro flutter.widgets.SelectionOverlay.updateMagnifier}
+  void updateMagnifier(Offset positionToShow) {
+    final TextPosition position =
+        renderObject.getPositionForOffset(positionToShow);
+    _updateSelectionOverlay();
+    _selectionOverlay.updateMagnifier(
+      _buildMagnifier(
+        currentTextPosition: position,
+        globalGesturePosition: positionToShow,
+        renderEditor: renderObject,
+      ),
+    );
+  }
+
+  /// {@macro fleather.widgets.SelectionOverlay.hideMagnifier}
+  void hideMagnifier() {
+    _selectionOverlay.hideMagnifier();
+  }
+
   /// Shows toolbar with spell check suggestions of misspelled words that are
   /// available for click-and-replace.
   void showSpellCheckSuggestionsToolbar(
@@ -1567,6 +1600,33 @@ class EditorTextSelectionGestureDetectorBuilder {
   @protected
   final EditorTextSelectionGestureDetectorBuilderDelegate delegate;
 
+  // Shows the magnifier on supported platforms at the given offset, currently
+  // only Android and iOS.
+  void _showMagnifierIfSupportedByPlatform(Offset positionToShow) {
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+      case TargetPlatform.iOS:
+        editor.showMagnifier(positionToShow);
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.macOS:
+      case TargetPlatform.windows:
+    }
+  }
+
+  // Hides the magnifier on supported platforms, currently only Android and iOS.
+  void _hideMagnifierIfSupportedByPlatform() {
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+      case TargetPlatform.iOS:
+        editor.hideMagnifier();
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.macOS:
+      case TargetPlatform.windows:
+    }
+  }
+
   /// Returns true if lastSecondaryTapDownPosition was on selection.
   bool get _lastSecondaryTapWasOnSelection {
     assert(renderEditor.lastSecondaryTapDownPosition != null);
@@ -2008,6 +2068,8 @@ class EditorTextSelectionGestureDetectorBuilder {
           renderEditor.selectWord(cause: SelectionChangedCause.longPress);
       }
 
+      _showMagnifierIfSupportedByPlatform(details.globalPosition);
+
       _dragStartViewportOffset = renderEditor.offset?.pixels ?? 0;
       _dragStartScrollOffset = _scrollPosition;
     }
@@ -2065,7 +2127,7 @@ class EditorTextSelectionGestureDetectorBuilder {
           );
       }
 
-      //TODO: show magnifier
+      _showMagnifierIfSupportedByPlatform(details.globalPosition);
     }
   }
 
@@ -2079,7 +2141,7 @@ class EditorTextSelectionGestureDetectorBuilder {
   ///    callback.
   @protected
   void onSingleLongTapEnd(LongPressEndDetails details) {
-    //TODO: hide magnifier
+    _hideMagnifierIfSupportedByPlatform();
     if (shouldShowSelectionToolbar) {
       editor.showToolbar();
     }
@@ -2322,7 +2384,7 @@ class EditorTextSelectionGestureDetectorBuilder {
                   from: details.globalPosition,
                   cause: SelectionChangedCause.drag,
                 );
-                //TODO: show magnifier
+                _showMagnifierIfSupportedByPlatform(details.globalPosition);
               }
             case null:
           }
@@ -2346,7 +2408,7 @@ class EditorTextSelectionGestureDetectorBuilder {
                   from: details.globalPosition,
                   cause: SelectionChangedCause.drag,
                 );
-                //TODO: show magnifier
+                _showMagnifierIfSupportedByPlatform(details.globalPosition);
               }
             case null:
           }
@@ -2400,7 +2462,7 @@ class EditorTextSelectionGestureDetectorBuilder {
           case PointerDeviceKind.invertedStylus:
           case PointerDeviceKind.touch:
           case PointerDeviceKind.unknown:
-          //TODO: show magnifier
+            return _showMagnifierIfSupportedByPlatform(details.globalPosition);
           case PointerDeviceKind.mouse:
           case PointerDeviceKind.trackpad:
           case null:
@@ -2480,8 +2542,8 @@ class EditorTextSelectionGestureDetectorBuilder {
                   from: details.globalPosition,
                   cause: SelectionChangedCause.drag,
                 );
-                //TODO: show magnifier
-                return;
+                return _showMagnifierIfSupportedByPlatform(
+                    details.globalPosition);
               }
             case null:
               break;
@@ -2511,8 +2573,8 @@ class EditorTextSelectionGestureDetectorBuilder {
                   from: details.globalPosition,
                   cause: SelectionChangedCause.drag,
                 );
-                //TODO: show magnifier
-                return;
+                return _showMagnifierIfSupportedByPlatform(
+                    details.globalPosition);
               }
             case null:
               break;
@@ -2596,7 +2658,7 @@ class EditorTextSelectionGestureDetectorBuilder {
       _dragStartSelection = null;
     }
 
-    //TODO: hide magnifier
+    _hideMagnifierIfSupportedByPlatform();
   }
 
   /// Returns a [TextSelectionGestureDetector] configured with the handlers
