@@ -639,7 +639,7 @@ void main() {
         return editor;
       }
 
-      testWidgets('suggests correction on initial load (Android)',
+      testWidgetsWithPlatform('suggests correction on initial load (Android)',
           (tester) async {
         spellCheckService.stub = (_, __) async {
           return [
@@ -664,10 +664,10 @@ void main() {
         await tester.pump();
         expect(
             find.byType(FleatherSpellCheckSuggestionsToolbar), findsOneWidget);
-      });
+      }, [TargetPlatform.android]);
 
-      testWidgets('suggests correction on initial load (iOS)', (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      testWidgetsWithPlatform('suggests correction on initial load (iOS)',
+          (tester) async {
         spellCheckService.stub = (_, __) async {
           return [
             const SuggestionSpan(
@@ -686,11 +686,10 @@ void main() {
         await tester.pump();
         expect(find.byType(FleatherCupertinoSpellCheckSuggestionsToolbar),
             findsOneWidget);
-        debugDefaultTargetPlatformOverride = null;
-      });
+      }, [TargetPlatform.iOS]);
 
-      testWidgets('replaces text with selected suggestion (Android)',
-          (tester) async {
+      testWidgetsWithPlatform(
+          'replaces text with selected suggestion (Android)', (tester) async {
         spellCheckService.stub = (_, __) async {
           return [
             const SuggestionSpan(
@@ -715,9 +714,10 @@ void main() {
         await tester.tap(find.text('Some'));
         await tester.pump(throttleDuration);
         expect(editor.controller.document.toPlainText(), 'Some text\n');
-      });
+      }, [TargetPlatform.android]);
 
-      testWidgets('deletes erroneous text (Android)', (tester) async {
+      testWidgetsWithPlatform('deletes erroneous text (Android)',
+          (tester) async {
         spellCheckService.stub = (_, __) async {
           return [
             const SuggestionSpan(
@@ -744,11 +744,10 @@ void main() {
             .toUpperCase()));
         await tester.pump(throttleDuration);
         expect(editor.controller.document.toPlainText(), 'Sole text\n');
-      });
+      }, [TargetPlatform.android]);
 
-      testWidgets('replaces text with selected suggestion (iOS)',
+      testWidgetsWithPlatform('replaces text with selected suggestion (iOS)',
           (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
         spellCheckService.stub = (_, __) async {
           return [
             const SuggestionSpan(
@@ -768,8 +767,7 @@ void main() {
         await tester.tap(find.text('Some'));
         await tester.pump(throttleDuration);
         expect(editor.controller.document.toPlainText(), 'Some text\n');
-        debugDefaultTargetPlatformOverride = null;
-      });
+      }, [TargetPlatform.iOS]);
     });
 
     group('didUpdateWidget', () {

@@ -167,8 +167,6 @@ class RenderEditor extends RenderEditableContainerBox
 
   ParchmentDocument _document;
 
-  String get plainText => _document.toPlainText();
-
   set document(ParchmentDocument value) {
     if (_document == value) {
       return;
