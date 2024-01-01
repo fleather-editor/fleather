@@ -31,7 +31,7 @@ jobs:
       - name: Build demo for web
         run: |
           cd packages/fleather/example
-          flutter build web
+          flutter build web --no-tree-shake-icons
       - name: Archive the demo build
         uses: actions/upload-artifact@v3
         with:
