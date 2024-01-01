@@ -107,7 +107,7 @@ void main() {
     });
 
     group('Text selection', () {
-      testWidgets('Hides toolbar and selection handles when text changed',
+      testWidgets('hides toolbar and selection handles when text changed',
           (tester) async {
         const delta = TextEditingDeltaInsertion(
           oldText: 'Add ',
@@ -441,7 +441,32 @@ void main() {
             const TypeMatcher<MaterialTextSelectionControls>());
       }, [TargetPlatform.android]);
 
-      testWidgets('drag selection end handle shows magnifier', (tester) async {
+      testWidgets('dragging collapsed selection shows magnifier',
+          (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Some piece of text\n'}
+        ]);
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        final gesture = await tester.startGesture(
+            tester.getBottomLeft(find.byType(FleatherEditor)) +
+                const Offset(10, -1));
+        await gesture.moveBy(
+            tester.getBottomLeft(find.byType(FleatherEditor)) +
+                const Offset(40, 0),
+            timeStamp: const Duration(seconds: 1));
+        tester.binding.scheduleWarmUpFrame();
+        await tester.pump();
+        final magnifier = find.byType(TextMagnifier);
+        expect(magnifier, findsOneWidget);
+        await gesture.up();
+        await tester.pump();
+        expect(magnifier, findsNothing);
+      });
+
+      testWidgets('dragging selection end handle shows magnifier',
+          (tester) async {
         final document = ParchmentDocument.fromJson([
           {'insert': 'Some piece of text\n'}
         ]);
