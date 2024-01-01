@@ -64,10 +64,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: demo_web_build
+          path: docs/content/en/demo
       - run: ls
-      - run: ls packages/fleather/example/build
-      - name: Copy demo web build
-        run: cp packages/fleather/example/build/web docs/content/en/demo
+      - run: pwd
       - name: Build with Hugo
         env:
           # For maximum backward compatibility with Hugo modules
