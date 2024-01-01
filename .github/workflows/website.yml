@@ -33,7 +33,7 @@ jobs:
           cd packages/fleather/example
           flutter build web --no-tree-shake-icons
       - name: Archive the demo build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: demo_web_build
           path: packages/fleather/example/build/web
@@ -61,18 +61,17 @@ jobs:
       - name: Install Node.js dependencies
         run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
       - name: Download demo web build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: demo_web_build
           path: docs/content/en/demo
-      - run: ls
-      - run: pwd
       - name: Build with Hugo
         env:
           # For maximum backward compatibility with Hugo modules
           HUGO_ENVIRONMENT: production
           HUGO_ENV: production
         run: |
+          cd docs
           hugo \
             --gc \
             --minify \
@@ -80,7 +79,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: ./public
+          path: docs/public
 
   deploy_website:
     environment:
