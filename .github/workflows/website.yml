@@ -64,6 +64,8 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: demo_web_build
+      - run: ls
+      - run: ls packages/fleather/example/build
       - name: Copy demo web build
         run: cp packages/fleather/example/build/web docs/content/en/demo
       - name: Build with Hugo
