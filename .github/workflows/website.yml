@@ -84,7 +84,7 @@ jobs:
   deploy_website:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.base_url }}
     runs-on: ubuntu-latest
     needs: build_website
     steps:
