@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: demo_web_build
-          path: build/web
+          path: packages/fleather/example/build/web
 
   build_website:
     runs-on: ubuntu-latest
