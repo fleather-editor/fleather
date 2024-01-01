@@ -52,6 +52,7 @@ class RenderEditableTextLine extends RenderEditableBox {
   //
 
   InlineCodeThemeData _inlineCodeTheme;
+
   set inlineCodeTheme(InlineCodeThemeData theme) {
     if (_inlineCodeTheme == theme) return;
     _inlineCodeTheme = theme;
@@ -332,6 +333,12 @@ class RenderEditableTextLine extends RenderEditableBox {
     final lineDy = caret.translate(0.0, 0.5 * preferredLineHeight(position)).dy;
     final boxes = getBoxesForSelection(
         TextSelection(baseOffset: 0, extentOffset: node.length - 1));
+
+    // If document is empty, boxes will be empty
+    // TextPainter (RenderParagraphProxy -> RenderParagraph) returns no boxes
+    // when it has not text
+    if (boxes.isEmpty) return const TextRange.collapsed(0);
+
     final lineBoxes = boxes
         .where((element) => element.top < lineDy && element.bottom > lineDy)
         .toList(growable: false);

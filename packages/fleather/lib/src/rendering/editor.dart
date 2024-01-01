@@ -366,7 +366,6 @@ class RenderEditor extends RenderEditableContainerBox
   @override
   List<TextSelectionPoint> getEndpointsForSelection(TextSelection selection) {
     // _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
-
     if (selection.isCollapsed) {
       final child = childAtPosition(selection.extent);
       final localPosition =

@@ -6,24 +6,20 @@ import 'package:fleather/fleather.dart';
 import 'package:fleather/src/widgets/editor_input_client_mixin.dart';
 import 'package:fleather/src/widgets/text_selection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quill_delta/quill_delta.dart';
 
 var delta = Delta()..insert('This House Is A Circus\n');
 
 class EditorSandBox {
-  final WidgetTester tester;
-  final FocusNode focusNode;
-  final ParchmentDocument document;
-  final FleatherController controller;
-  final Widget widget;
-
   factory EditorSandBox({
     required WidgetTester tester,
     FocusNode? focusNode,
     ParchmentDocument? document,
     FleatherThemeData? fleatherTheme,
     bool autofocus = false,
+    FakeSpellCheckService? spellCheckService,
   }) {
     focusNode ??= FocusNode();
     document ??= ParchmentDocument.fromDelta(delta);
@@ -33,6 +29,7 @@ class EditorSandBox {
       controller: controller,
       focusNode: focusNode,
       autofocus: autofocus,
+      spellCheckService: spellCheckService,
     );
 
     if (fleatherTheme != null) {
@@ -40,11 +37,20 @@ class EditorSandBox {
     }
     widget = MaterialApp(home: widget);
 
-    return EditorSandBox._(tester, focusNode, document, controller, widget);
+    return EditorSandBox._(tester, focusNode, document, controller, widget,
+        spellCheckService: spellCheckService);
   }
 
   EditorSandBox._(
-      this.tester, this.focusNode, this.document, this.controller, this.widget);
+      this.tester, this.focusNode, this.document, this.controller, this.widget,
+      {this.spellCheckService});
+
+  final WidgetTester tester;
+  final FocusNode focusNode;
+  final ParchmentDocument document;
+  final FleatherController controller;
+  final Widget widget;
+  final FakeSpellCheckService? spellCheckService;
 
   TextSelection get selection => controller.selection;
 
@@ -109,7 +115,7 @@ class EditorSandBox {
     return button;
   }
 
-  Finder findSelectionHandles() => find.byType(TextSelectionHandleOverlay);
+  Finder findSelectionHandles() => find.byType(SelectionHandleOverlay);
 
   Future<void> enterText(TextEditingValue text) async {
     return TestAsyncUtils.guard<void>(() async {
@@ -134,10 +140,12 @@ class _FleatherSandbox extends StatefulWidget {
     required this.controller,
     required this.focusNode,
     this.autofocus = false,
+    this.spellCheckService,
   }) : super(key: key);
   final FleatherController controller;
   final FocusNode focusNode;
   final bool autofocus;
+  final FakeSpellCheckService? spellCheckService;
 
   @override
   _FleatherSandboxState createState() => _FleatherSandboxState();
@@ -154,6 +162,11 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
         focusNode: widget.focusNode,
         readOnly: !_enabled,
         autofocus: widget.autofocus,
+        spellCheckConfiguration: widget.spellCheckService != null
+            ? SpellCheckConfiguration(
+                spellCheckService: widget.spellCheckService,
+              )
+            : null,
       ),
     );
   }
@@ -209,3 +222,13 @@ class TestUpdateWidgetState extends State<TestUpdateWidget> {
 RawEditorStateTextInputClientMixin getInputClient() =>
     (find.byType(RawEditor).evaluate().single as StatefulElement).state
         as RawEditorStateTextInputClientMixin;
+
+class FakeSpellCheckService implements SpellCheckService {
+  Future<List<SuggestionSpan>?> Function(Locale local, String text)? stub;
+
+  @override
+  Future<List<SuggestionSpan>?> fetchSpellCheckSuggestions(
+      Locale locale, String text) async {
+    return await (stub ?? (() => Future.value(null)))(locale, text);
+  }
+}

@@ -1,4 +1,6 @@
 import 'package:fleather/fleather.dart';
+import 'package:fleather/src/services/spell_check_suggestions_toolbar.dart';
+import 'package:fleather/src/widgets/text_selection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -64,6 +66,7 @@ void main() {
 
       expect(find.text('Paste'), findsNothing);
       await tester.longPress(find.byType(FleatherEditor));
+      tester.binding.scheduleWarmUpFrame();
       await tester.pump();
       // Given current toolbar implementation in Flutter no other choice
       // than to search for "Paste" text
@@ -85,6 +88,7 @@ void main() {
       expect(find.text('Paste'), findsNothing);
       await tester.tap(find.byType(FleatherEditor));
       await tester.tap(find.byType(FleatherEditor));
+      tester.binding.scheduleWarmUpFrame();
       await tester.pump();
       final finder = find.text('Paste');
       expect(finder, findsOneWidget);
@@ -103,7 +107,7 @@ void main() {
     });
 
     group('Text selection', () {
-      testWidgets('Hides toolbar and selection handles when text changed',
+      testWidgets('hides toolbar and selection handles when text changed',
           (tester) async {
         const delta = TextEditingDeltaInsertion(
           oldText: 'Add ',
@@ -115,14 +119,15 @@ void main() {
         final editor = EditorSandBox(tester: tester);
         await editor.pump();
         await tester.longPressAt(const Offset(20, 20));
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(editor.findSelectionHandles(), findsNWidgets(2));
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        expect(find.byType(TextSelectionToolbar), findsOneWidget);
         final state = tester.state(find.byType(RawEditor)) as RawEditorState;
         state.updateEditingValueWithDeltas([delta]);
         await tester.pump(throttleDuration);
         expect(editor.findSelectionHandles(), findsNothing);
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
+        expect(find.byType(TextSelectionToolbar), findsNothing);
       });
 
       testWidgetsWithPlatform(
@@ -136,6 +141,7 @@ void main() {
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             editor.selection,
@@ -143,11 +149,12 @@ void main() {
                 baseOffset: 0,
                 extentOffset: 4,
                 affinity: TextAffinity.upstream));
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        expect(find.byType(CupertinoTextSelectionToolbar), findsOneWidget);
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) +
                 const Offset(10, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             editor.selection,
@@ -155,7 +162,7 @@ void main() {
                 baseOffset: 0,
                 extentOffset: 4,
                 affinity: TextAffinity.upstream));
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        expect(find.byType(CupertinoTextSelectionToolbar), findsOneWidget);
       }, [TargetPlatform.iOS]);
 
       testWidgetsWithPlatform(
@@ -169,26 +176,30 @@ void main() {
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
-        await tester.pump();
+        await editor.pump();
         expect(
             editor.selection,
             const TextSelection(
                 baseOffset: 0,
                 extentOffset: 4,
                 affinity: TextAffinity.upstream));
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
-        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
-            const Offset(1, 1));
-        await editor.pump();
+        expect(
+            find.byType(CupertinoDesktopTextSelectionToolbar), findsOneWidget);
+        await tester.tapAt(
+            tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
+            buttons: kPrimaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
+        await tester.pump();
+        expect(find.byType(CupertinoDesktopTextSelectionToolbar), findsNothing);
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
-        await editor.pump();
+        await tester.pump();
         expect(
             editor.selection,
             const TextSelection.collapsed(
                 offset: 0, affinity: TextAffinity.downstream));
-      }, [TargetPlatform.iOS]);
+      }, [TargetPlatform.macOS]);
 
       testWidgetsWithPlatform(
           'Secondary tap toggles toolbar on platforms other than mac/iOS',
@@ -202,17 +213,20 @@ void main() {
             tester.getTopLeft(find.byType(FleatherEditor)) +
                 const Offset(10, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             editor.selection,
             const TextSelection.collapsed(
                 offset: 1, affinity: TextAffinity.upstream));
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+        expect(find.byType(DesktopTextSelectionToolbar), findsOneWidget);
         await tester.tapAt(
-            tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(5, 1),
+            tester.getTopLeft(find.byType(FleatherEditor)) +
+                const Offset(10, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
-        expect(find.byType(AdaptiveTextSelectionToolbar), findsNothing);
+        expect(find.byType(DesktopTextSelectionToolbar), findsNothing);
       }, [TargetPlatform.windows]);
 
       testWidgetsWithPlatform(
@@ -427,6 +441,90 @@ void main() {
             const TypeMatcher<MaterialTextSelectionControls>());
       }, [TargetPlatform.android]);
 
+      testWidgets('dragging collapsed selection shows magnifier',
+          (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Some piece of text\n'}
+        ]);
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        final gesture = await tester.startGesture(
+            tester.getBottomLeft(find.byType(FleatherEditor)) +
+                const Offset(10, -1));
+        await gesture.moveBy(
+            tester.getBottomLeft(find.byType(FleatherEditor)) +
+                const Offset(40, 0),
+            timeStamp: const Duration(seconds: 1));
+        tester.binding.scheduleWarmUpFrame();
+        await tester.pump();
+        final magnifier = find.byType(TextMagnifier);
+        expect(magnifier, findsOneWidget);
+        await gesture.up();
+        await tester.pump();
+        expect(magnifier, findsNothing);
+      });
+
+      testWidgets('dragging selection end handle shows magnifier',
+          (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Some piece of text\n'}
+        ]);
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(10, -1));
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(10, -1));
+        tester.binding.scheduleWarmUpFrame();
+        await tester.pump();
+        final handleOverlays = find.byType(SelectionHandleOverlay);
+        expect(handleOverlays, findsNWidgets(2));
+        final endHandle = find.descendant(
+            of: handleOverlays.last, matching: find.byType(SizedBox));
+        expect(endHandle, findsOneWidget);
+        final gesture = await tester.startGesture(
+            tester.getBottomRight(endHandle) - const Offset(1, 1));
+        await gesture.moveBy(const Offset(40, 0));
+        await tester.pump();
+        final magnifier = find.byType(TextMagnifier);
+        expect(magnifier, findsOneWidget);
+        await gesture.up();
+        await tester.pump();
+        expect(magnifier, findsNothing);
+      });
+
+      testWidgets('drag selection start handle shows magnifier',
+          (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Some piece of text\n'}
+        ]);
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(100, -1));
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(100, -1));
+        tester.binding.scheduleWarmUpFrame();
+        await tester.pump();
+        final handleOverlays = find.byType(SelectionHandleOverlay);
+        expect(handleOverlays, findsNWidgets(2));
+        final startHandle = find.descendant(
+            of: handleOverlays.first, matching: find.byType(SizedBox));
+        expect(startHandle, findsOneWidget);
+        final gesture = await tester.startGesture(
+            tester.getBottomRight(startHandle) - const Offset(-1, 1));
+        await gesture.moveBy(const Offset(-15, 0));
+        await tester.pump();
+        final magnifier = find.byType(TextMagnifier);
+        expect(magnifier, findsOneWidget);
+        await gesture.up();
+        await tester.pump();
+        expect(magnifier, findsNothing);
+      });
+
       testWidgetsWithPlatform('selection handles for Windows', (tester) async {
         final document = ParchmentDocument();
         final editor =
@@ -451,11 +549,13 @@ void main() {
         final document = ParchmentDocument.fromJson([
           {'insert': 'Test\nAnother line\n'}
         ]);
-        final editor = EditorSandBox(tester: tester, document: document);
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
         await editor.pump();
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             find.byType(CupertinoDesktopTextSelectionToolbar), findsOneWidget);
@@ -479,6 +579,7 @@ void main() {
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
+        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(find.byType(DesktopTextSelectionToolbar), findsOneWidget);
         await tester
@@ -547,6 +648,151 @@ void main() {
                 extentOffset: 50,
                 affinity: TextAffinity.upstream));
       }, [TargetPlatform.linux]);
+    });
+
+    group('Spell check', () {
+      final spellCheckService = FakeSpellCheckService();
+
+      Future<EditorSandBox> prepareTest(
+          WidgetTester tester, ParchmentDocument document) async {
+        final editor = EditorSandBox(
+            tester: tester,
+            document: document,
+            autofocus: true,
+            spellCheckService: spellCheckService);
+        await editor.pump();
+        return editor;
+      }
+
+      testWidgetsWithPlatform('suggests correction on initial load (Android)',
+          (tester) async {
+        spellCheckService.stub = (_, __) async {
+          return [
+            const SuggestionSpan(
+              TextRange(start: 0, end: 4),
+              ['Same', 'Some', 'Sales'],
+            )
+          ];
+        };
+        await prepareTest(
+            tester,
+            ParchmentDocument.fromJson([
+              {'insert': 'Sole text\n'}
+            ]));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        expect(
+            find.byType(FleatherSpellCheckSuggestionsToolbar), findsOneWidget);
+      }, [TargetPlatform.android]);
+
+      testWidgetsWithPlatform('suggests correction on initial load (iOS)',
+          (tester) async {
+        spellCheckService.stub = (_, __) async {
+          return [
+            const SuggestionSpan(
+              TextRange(start: 0, end: 4),
+              ['Same', 'Some', 'Sales'],
+            )
+          ];
+        };
+        await prepareTest(
+            tester,
+            ParchmentDocument.fromJson([
+              {'insert': 'Sole text\n'}
+            ]));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        expect(find.byType(FleatherCupertinoSpellCheckSuggestionsToolbar),
+            findsOneWidget);
+      }, [TargetPlatform.iOS]);
+
+      testWidgetsWithPlatform(
+          'replaces text with selected suggestion (Android)', (tester) async {
+        spellCheckService.stub = (_, __) async {
+          return [
+            const SuggestionSpan(
+              TextRange(start: 0, end: 4),
+              ['Same', 'Some', 'Sales'],
+            )
+          ];
+        };
+        final editor = await prepareTest(
+            tester,
+            ParchmentDocument.fromJson([
+              {'insert': 'Sole text\n'}
+            ]));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        await tester.tap(find.text('Some'));
+        await tester.pump(throttleDuration);
+        expect(editor.controller.document.toPlainText(), 'Some text\n');
+      }, [TargetPlatform.android]);
+
+      testWidgetsWithPlatform('deletes erroneous text (Android)',
+          (tester) async {
+        spellCheckService.stub = (_, __) async {
+          return [
+            const SuggestionSpan(
+              TextRange(start: 0, end: 4),
+              ['Same', 'Some', 'Sales'],
+            )
+          ];
+        };
+        final editor = await prepareTest(
+            tester,
+            ParchmentDocument.fromJson([
+              {'insert': 'Sole text\n'}
+            ]));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        await tester.tap(find.text(const DefaultMaterialLocalizations()
+            .deleteButtonTooltip
+            .toUpperCase()));
+        await tester.pump(throttleDuration);
+        expect(editor.controller.document.toPlainText(), 'Sole text\n');
+      }, [TargetPlatform.android]);
+
+      testWidgetsWithPlatform('replaces text with selected suggestion (iOS)',
+          (tester) async {
+        spellCheckService.stub = (_, __) async {
+          return [
+            const SuggestionSpan(
+              TextRange(start: 0, end: 4),
+              ['Same', 'Some', 'Sales'],
+            )
+          ];
+        };
+        final editor = await prepareTest(
+            tester,
+            ParchmentDocument.fromJson([
+              {'insert': 'Sole text\n'}
+            ]));
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(1, 1));
+        await tester.pump();
+        await tester.tap(find.text('Some'));
+        await tester.pump(throttleDuration);
+        expect(editor.controller.document.toPlainText(), 'Some text\n');
+      }, [TargetPlatform.iOS]);
     });
 
     group('didUpdateWidget', () {

@@ -84,6 +84,11 @@ class _HomePageState extends State<HomePage> {
                     onLaunchUrl: _launchUrl,
                     maxContentWidth: 800,
                     embedBuilder: _embedBuilder,
+                    spellCheckConfiguration: SpellCheckConfiguration(
+                        spellCheckService: DefaultSpellCheckService(),
+                        misspelledSelectionColor: Colors.red,
+                        misspelledTextStyle:
+                            DefaultTextStyle.of(context).style),
                   ),
                 ),
               ],
