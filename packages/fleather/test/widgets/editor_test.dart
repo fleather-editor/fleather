@@ -441,6 +441,23 @@ void main() {
             const TypeMatcher<MaterialTextSelectionControls>());
       }, [TargetPlatform.android]);
 
+      testWidgetsWithPlatform(
+          'show single selection handle when setting cursor position (Android)',
+          (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Some piece of text\n'}
+        ]);
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        await tester.tapAt(tester.getTopLeft(find.byType(FleatherEditor)) +
+            const Offset(30, 1));
+        tester.binding.scheduleWarmUpFrame();
+        await tester.pump();
+        final handleOverlays = find.byType(SelectionHandleOverlay);
+        expect(handleOverlays, findsOneWidget);
+      }, [TargetPlatform.android]);
+
       testWidgets('dragging collapsed selection shows magnifier',
           (tester) async {
         final document = ParchmentDocument.fromJson([
