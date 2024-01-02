@@ -1265,11 +1265,6 @@ class RawEditorState extends EditorState
     performSpellCheck(widget.controller.plainTextEditingValue.text);
   }
 
-  bool _shouldShowSelectionHandles() {
-    return widget.showSelectionHandles &&
-        !widget.controller.selection.isCollapsed;
-  }
-
   @override
   void didUpdateWidget(RawEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -1306,11 +1301,7 @@ class RawEditorState extends EditorState
       _selectionOverlay?.update(textEditingValue);
     }
 
-    if (_shouldShowSelectionHandles()) {
-      _selectionOverlay?.showHandles();
-    } else {
-      _selectionOverlay?.hideHandles();
-    }
+    _selectionOverlay?.handlesVisible = widget.showSelectionHandles;
 
     if (!shouldCreateInputConnection) {
       closeConnectionIfNeeded();
@@ -1385,13 +1376,8 @@ class RawEditorState extends EditorState
       } else {
         _selectionOverlay!.update(textEditingValue);
       }
-
-      if (_shouldShowSelectionHandles()) {
-        _selectionOverlay!.handlesVisible = widget.showSelectionHandles;
-        _selectionOverlay?.showHandles();
-      } else {
-        _selectionOverlay?.hideHandles();
-      }
+      _selectionOverlay!.handlesVisible = widget.showSelectionHandles;
+      _selectionOverlay!.showHandles();
     }
 
     // This will show the keyboard for all selection changes on the
