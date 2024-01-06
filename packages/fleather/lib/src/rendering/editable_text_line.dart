@@ -282,9 +282,7 @@ class RenderEditableTextLine extends RenderEditableBox {
     return body!.getPositionForOffset(shiftedOffset);
   }
 
-  // Computes the box height for the position.
-  // To get the correct box, it extends position backward if position
-  // is bigger than 0 and extends it forward if it's text position is 0.
+  // Computes the line box height for the position.
   double _getLineHeightForPosition(TextPosition position) {
     final lineBoundary = getLineBoundary(position);
     final boxes = body!.getBoxesForSelection(TextSelection(
