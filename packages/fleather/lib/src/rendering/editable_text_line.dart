@@ -289,7 +289,7 @@ class RenderEditableTextLine extends RenderEditableBox {
     final lineBoundary = getLineBoundary(position);
     final boxes = body!.getBoxesForSelection(TextSelection(
         baseOffset: lineBoundary.start, extentOffset: lineBoundary.end));
-    return boxes.firstOrNull?.toRect().height ?? 0;
+    return boxes.fold(0, (v, e) => math.max(v, e.toRect().height));
   }
 
   @override
