@@ -20,6 +20,7 @@ class EditorSandBox {
     FleatherThemeData? fleatherTheme,
     bool autofocus = false,
     FakeSpellCheckService? spellCheckService,
+    FleatherEmbedBuilder embedBuilder = defaultFleatherEmbedBuilder,
   }) {
     focusNode ??= FocusNode();
     document ??= ParchmentDocument.fromDelta(delta);
@@ -30,6 +31,7 @@ class EditorSandBox {
       focusNode: focusNode,
       autofocus: autofocus,
       spellCheckService: spellCheckService,
+      embedBuilder: embedBuilder,
     );
 
     if (fleatherTheme != null) {
@@ -141,11 +143,14 @@ class _FleatherSandbox extends StatefulWidget {
     required this.focusNode,
     this.autofocus = false,
     this.spellCheckService,
+    this.embedBuilder = defaultFleatherEmbedBuilder,
   }) : super(key: key);
+
   final FleatherController controller;
   final FocusNode focusNode;
   final bool autofocus;
   final FakeSpellCheckService? spellCheckService;
+  final FleatherEmbedBuilder embedBuilder;
 
   @override
   _FleatherSandboxState createState() => _FleatherSandboxState();
@@ -158,6 +163,7 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
   Widget build(BuildContext context) {
     return Material(
       child: FleatherField(
+        embedBuilder: widget.embedBuilder,
         controller: widget.controller,
         focusNode: widget.focusNode,
         readOnly: !_enabled,

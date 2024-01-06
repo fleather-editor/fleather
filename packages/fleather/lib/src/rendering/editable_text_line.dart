@@ -282,6 +282,14 @@ class RenderEditableTextLine extends RenderEditableBox {
     return body!.getPositionForOffset(shiftedOffset);
   }
 
+  // Computes the line box height for the position.
+  double _getLineHeightForPosition(TextPosition position) {
+    final lineBoundary = getLineBoundary(position);
+    final boxes = body!.getBoxesForSelection(TextSelection(
+        baseOffset: lineBoundary.start, extentOffset: lineBoundary.end));
+    return boxes.fold(0, (v, e) => math.max(v, e.toRect().height));
+  }
+
   @override
   TextPosition? getPositionAbove(TextPosition position) {
     assert(position.offset < node.length);
@@ -291,7 +299,8 @@ class RenderEditableTextLine extends RenderEditableBox {
     // the caret so the middle of the line above is a half line above that
     // point.
     final caretOffset = getOffsetForCaret(position);
-    final dy = -0.5 * preferredLineHeight(position);
+    final dy = -_getLineHeightForPosition(position) +
+        0.5 * preferredLineHeight(position);
     final abovePositionOffset = caretOffset.translate(0, dy);
     if (!body!.size.contains(abovePositionOffset - parentData.offset)) {
       // We're outside of the body so there is no text above to check.
