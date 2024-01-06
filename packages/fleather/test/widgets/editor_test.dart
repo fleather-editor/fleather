@@ -665,6 +665,144 @@ void main() {
                 extentOffset: 50,
                 affinity: TextAffinity.upstream));
       }, [TargetPlatform.linux]);
+
+      testWidgets(
+          'Arrow keys move cursor to next/previous line at correct position',
+          (tester) async {
+        const text =
+            'This is a relatively long paragraph with multiple lines and an inline embed: ';
+        final document = ParchmentDocument.fromJson([
+          {'insert': text},
+          {
+            'insert': {
+              '_type': 'icon',
+              '_inline': true,
+              'codePoint': '0xf0653',
+              'fontFamily': 'MaterialIcons',
+              'color': '0xFF2196F3'
+            }
+          },
+          {'insert': '\n'},
+        ]);
+        final editor = EditorSandBox(
+          tester: tester,
+          document: document,
+          autofocus: true,
+          embedBuilder: (BuildContext context, EmbedNode node) {
+            if (node.value.type == 'icon') {
+              final data = node.value.data;
+              return Icon(
+                IconData(int.parse(data['codePoint']),
+                    fontFamily: data['fontFamily']),
+                color: Color(int.parse(data['color'])),
+                size: 100,
+              );
+            }
+            throw UnimplementedError();
+          },
+        );
+        await editor.pump();
+        editor.controller.updateSelection(
+            const TextSelection.collapsed(offset: text.length));
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        expect(editor.selection, const TextSelection.collapsed(offset: 27));
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        expect(editor.selection,
+            const TextSelection.collapsed(offset: text.length));
+      });
+
+      testWidgets(
+          'Arrow keys move cursor to next/previous block at correct position',
+          (tester) async {
+        const text =
+            'This is a relatively long paragraph with multiple lines with inline embeds in next paragraph.';
+        final document = ParchmentDocument.fromJson([
+          {'insert': '$text\n'},
+          {
+            'insert': {
+              '_type': 'something',
+              '_inline': true,
+            }
+          },
+          {
+            'insert': {
+              '_type': 'something',
+              '_inline': true,
+            }
+          },
+          {'insert': '\n'},
+        ]);
+        final editor = EditorSandBox(
+          tester: tester,
+          document: document,
+          autofocus: true,
+          embedBuilder: (BuildContext context, EmbedNode node) {
+            if (node.value.type == 'something') {
+              return const Padding(
+                padding: EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
+                child: SizedBox(
+                  width: 300,
+                  height: 300,
+                ),
+              );
+            }
+            throw UnimplementedError();
+          },
+        );
+        await editor.pump();
+        editor.controller.updateSelection(
+            const TextSelection.collapsed(offset: text.length + 2));
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        expect(editor.selection, const TextSelection.collapsed(offset: 69));
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        expect(editor.selection,
+            const TextSelection.collapsed(offset: text.length + 2));
+      });
+
+      testWidgets('Arrow down moves cursor to lower line at correct position',
+          (tester) async {
+        const text =
+            'This is a relatively long paragraph with multiple lines and an inline embed: ';
+        final document = ParchmentDocument.fromJson([
+          {'insert': text},
+          {
+            'insert': {
+              '_type': 'icon',
+              '_inline': true,
+              'codePoint': '0xf0653',
+              'fontFamily': 'MaterialIcons',
+              'color': '0xFF2196F3'
+            }
+          },
+          {'insert': '\n'},
+        ]);
+        final editor = EditorSandBox(
+          tester: tester,
+          document: document,
+          autofocus: true,
+          embedBuilder: (BuildContext context, EmbedNode node) {
+            if (node.value.type == 'icon') {
+              final data = node.value.data;
+              return Icon(
+                IconData(int.parse(data['codePoint']),
+                    fontFamily: data['fontFamily']),
+                color: Color(int.parse(data['color'])),
+                size: 100,
+              );
+            }
+            throw UnimplementedError();
+          },
+        );
+        await editor.pump();
+        editor.controller
+            .updateSelection(const TextSelection.collapsed(offset: 27));
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        expect(editor.selection,
+            const TextSelection.collapsed(offset: text.length));
+      });
     });
 
     group('Spell check', () {
