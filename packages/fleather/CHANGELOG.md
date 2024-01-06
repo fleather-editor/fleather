@@ -1,3 +1,8 @@
+## 1.13.0
+
+* Enhanced text selection experience on mobile (including magnifier)
+* [Fix] Vertical cursor movements have incorrect behavior when initiated from a line with large embeds
+
 ## 1.12.0
 
 * Introduce AutoFormats to handle automatic text formatting and make Heuristics only responsible for validity of document
