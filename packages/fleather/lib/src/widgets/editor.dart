@@ -317,9 +317,6 @@ class _FleatherEditorState extends State<FleatherEditor>
   @override
   void initState() {
     super.initState();
-    if (kIsWeb) {
-      BrowserContextMenu.disableContextMenu();
-    }
     if (widget.editorKey == null) {
       _editorKey = GlobalKey<EditorState>();
     }
@@ -330,9 +327,6 @@ class _FleatherEditorState extends State<FleatherEditor>
   @override
   void dispose() {
     super.dispose();
-    if (kIsWeb) {
-      BrowserContextMenu.enableContextMenu();
-    }
   }
 
   static const Set<TargetPlatform> _mobilePlatforms = {
@@ -889,6 +883,14 @@ class RawEditorState extends EditorState
   /// is already shown, or when no text selection currently exists.
   @override
   bool showToolbar({createIfNull = false}) {
+    // Web is using native dom elements to enable clipboard functionality of the
+    // toolbar: copy, paste, select, cut. It might also provide additional
+    // functionality depending on the browser (such as translate). Due to this
+    // we should not show a Flutter toolbar for the editable text elements.
+    if (kIsWeb && BrowserContextMenu.enabled) {
+      return false;
+    }
+
     if (_selectionOverlay == null) {
       if (createIfNull) {
         _selectionOverlay = _createSelectionOverlay();
