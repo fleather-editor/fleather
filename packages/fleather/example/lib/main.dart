@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:fleather/fleather.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quill_delta/quill_delta.dart';
@@ -37,7 +38,14 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    if (kIsWeb) BrowserContextMenu.disableContextMenu();
     _initController();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (kIsWeb) BrowserContextMenu.enableContextMenu();
   }
 
   Future<void> _initController() async {
