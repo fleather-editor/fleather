@@ -324,11 +324,6 @@ class _FleatherEditorState extends State<FleatherEditor>
         _FleatherEditorSelectionGestureDetectorBuilder(state: this);
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   static const Set<TargetPlatform> _mobilePlatforms = {
     TargetPlatform.iOS,
     TargetPlatform.android
