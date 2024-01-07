@@ -732,6 +732,8 @@ abstract class EditorState extends State<RawEditor>
 
   EditorTextSelectionOverlay? get selectionOverlay;
 
+  FleatherThemeData get themeData;
+
   /// Controls the floating cursor animation when it is released.
   /// The floating cursor is animated to merge with the regular cursor.
   AnimationController get floatingCursorResetController;
@@ -802,6 +804,9 @@ class RawEditorState extends EditorState
 
   // Theme
   late FleatherThemeData _themeData;
+
+  @override
+  FleatherThemeData get themeData => _themeData;
 
   // Cursors
   late CursorController _cursorController;
@@ -1366,6 +1371,7 @@ class RawEditorState extends EditorState
       TextSelection selection, SelectionChangedCause cause) {
     final oldSelection = widget.controller.selection;
     widget.controller.updateSelection(selection, source: ChangeSource.local);
+    updateTextInputConnectionStyle(selection.base);
 
     if (widget.selectionControls == null) {
       _selectionOverlay?.dispose();

@@ -167,6 +167,8 @@ class RenderEditor extends RenderEditableContainerBox
 
   ParchmentDocument _document;
 
+  ParchmentDocument get document => _document;
+
   set document(ParchmentDocument value) {
     if (_document == value) {
       return;
@@ -246,6 +248,8 @@ class RenderEditor extends RenderEditableContainerBox
   }
 
   double? _maxContentWidth;
+
+  double? get maxContentWidth => _maxContentWidth;
 
   set maxContentWidth(double? value) {
     if (_maxContentWidth == value) return;

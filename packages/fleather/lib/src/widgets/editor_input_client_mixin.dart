@@ -1,12 +1,11 @@
+import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:fleather/fleather.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-
-import '../rendering/editor.dart';
-import 'editor.dart';
 
 mixin RawEditorStateTextInputClientMixin on EditorState
     implements DeltaTextInputClient {
@@ -108,6 +107,22 @@ mixin RawEditorStateTextInputClientMixin on EditorState
 
     _lastKnownRemoteTextEditingValue = actualValue;
     _textInputConnection!.setEditingState(actualValue);
+  }
+
+  void updateTextInputConnectionStyle(TextPosition position) {
+    final style = _getTextStyle(position);
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      if (!mounted) {
+        return;
+      }
+
+      _textInputConnection?.setStyle(
+          fontFamily: style.textStyle.fontFamily,
+          fontSize: style.textStyle.fontSize,
+          fontWeight: style.textStyle.fontWeight,
+          textDirection: style.textDirection,
+          textAlign: style.textAlign);
+    });
   }
 
   // Start TextInputClient implementation
@@ -297,7 +312,18 @@ mixin RawEditorStateTextInputClientMixin on EditorState
         if (!mounted) {
           return;
         }
-        final size = renderEditor.size;
+        final style = _getTextStyle();
+        _textInputConnection?.setStyle(
+            fontFamily: style.textStyle.fontFamily,
+            fontSize: style.textStyle.fontSize,
+            fontWeight: style.textStyle.fontWeight,
+            textDirection: style.textDirection,
+            textAlign: style.textAlign);
+        final size = Size(
+            min(renderEditor.size.width,
+                    renderEditor.maxContentWidth ?? double.infinity) -
+                renderEditor.padding.horizontal,
+            renderEditor.size.height);
         final transform = renderEditor.getTransformTo(null);
         _textInputConnection?.setEditableSizeAndTransform(size, transform);
       });
@@ -308,8 +334,73 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   void insertContent(KeyboardInsertedContent content) {
     // TODO: implement insertContent
   }
+
+  _TextInputConnectionStyle _getTextStyle([TextPosition? position]) {
+    final document = renderEditor.document;
+    ParchmentStyle parchmentStyle =
+        document.collectStyle(position?.offset ?? 0, 0);
+    _TextInputConnectionStyle style =
+        _TextInputConnectionStyle(textStyle: themeData.paragraph.style);
+    if (parchmentStyle.contains(ParchmentAttribute.heading)) {
+      final attribute = parchmentStyle.get(ParchmentAttribute.heading);
+      if (attribute == ParchmentAttribute.h1) {
+        style = style.copyWith(textStyle: themeData.heading1.style);
+      } else if (attribute == ParchmentAttribute.h2) {
+        style = style.copyWith(textStyle: themeData.heading2.style);
+      } else if (attribute == ParchmentAttribute.h3) {
+        style = style.copyWith(textStyle: themeData.heading3.style);
+      } else if (attribute == ParchmentAttribute.h4) {
+        style = style.copyWith(textStyle: themeData.heading4.style);
+      } else if (attribute == ParchmentAttribute.h5) {
+        style = style.copyWith(textStyle: themeData.heading5.style);
+      } else if (attribute == ParchmentAttribute.h6) {
+        style = style.copyWith(textStyle: themeData.heading6.style);
+      }
+    }
+    if (parchmentStyle.contains(ParchmentAttribute.code)) {
+      style = style.copyWith(textStyle: themeData.code.style);
+    }
+
+    if (parchmentStyle.contains(ParchmentAttribute.rtl)) {
+      style = style.copyWith(textDirection: TextDirection.rtl);
+    }
+
+    if (parchmentStyle.contains(ParchmentAttribute.alignment)) {
+      final align = parchmentStyle.get(ParchmentAttribute.alignment);
+      if (align == ParchmentAttribute.right) {
+        style = style.copyWith(textAlign: TextAlign.right);
+      } else if (align == ParchmentAttribute.center) {
+        style = style.copyWith(textAlign: TextAlign.center);
+      } else if (align == ParchmentAttribute.justify) {
+        style = style.copyWith(textAlign: TextAlign.justify);
+      }
+    }
+
+    return style;
+  }
 }
 
 extension on TextRange {
   int get length => end - start;
+}
+
+class _TextInputConnectionStyle {
+  const _TextInputConnectionStyle(
+      {required this.textStyle,
+      this.textDirection = TextDirection.ltr,
+      this.textAlign = TextAlign.start});
+
+  final TextStyle textStyle;
+  final TextDirection textDirection;
+  final TextAlign textAlign;
+
+  _TextInputConnectionStyle copyWith(
+      {TextStyle? textStyle,
+      TextDirection? textDirection,
+      TextAlign? textAlign}) {
+    return _TextInputConnectionStyle(
+        textStyle: textStyle ?? this.textStyle,
+        textDirection: textDirection ?? this.textDirection,
+        textAlign: textAlign ?? this.textAlign);
+  }
 }
