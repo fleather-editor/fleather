@@ -109,8 +109,8 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     _textInputConnection!.setEditingState(actualValue);
   }
 
-  void updateTextInputConnectionStyle(TextPosition position) {
-    final style = _getTextStyle(position);
+  void updateTextInputConnectionStyle([TextPosition? position]) {
+    final style = getTextStyle(position);
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       if (!mounted) {
         return;
@@ -151,6 +151,8 @@ mixin RawEditorStateTextInputClientMixin on EditorState
         start = textEditingDelta.replacedRange.start;
         length = textEditingDelta.replacedRange.length;
         data = textEditingDelta.replacementText;
+      } else if (textEditingDelta is TextEditingDeltaNonTextUpdate) {
+        updateTextInputConnectionStyle(textEditingDelta.selection.base);
       }
       _lastKnownRemoteTextEditingValue =
           textEditingDelta.apply(_lastKnownRemoteTextEditingValue!);
@@ -312,13 +314,6 @@ mixin RawEditorStateTextInputClientMixin on EditorState
         if (!mounted) {
           return;
         }
-        final style = _getTextStyle();
-        _textInputConnection?.setStyle(
-            fontFamily: style.textStyle.fontFamily,
-            fontSize: style.textStyle.fontSize,
-            fontWeight: style.textStyle.fontWeight,
-            textDirection: style.textDirection,
-            textAlign: style.textAlign);
         final size = Size(
             min(renderEditor.size.width,
                     renderEditor.maxContentWidth ?? double.infinity) -
@@ -335,12 +330,13 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     // TODO: implement insertContent
   }
 
-  _TextInputConnectionStyle _getTextStyle([TextPosition? position]) {
+  @visibleForTesting
+  TextInputConnectionStyle getTextStyle([TextPosition? position]) {
     final document = renderEditor.document;
     ParchmentStyle parchmentStyle =
         document.collectStyle(position?.offset ?? 0, 0);
-    _TextInputConnectionStyle style =
-        _TextInputConnectionStyle(textStyle: themeData.paragraph.style);
+    TextInputConnectionStyle style =
+        TextInputConnectionStyle(textStyle: themeData.paragraph.style);
     if (parchmentStyle.contains(ParchmentAttribute.heading)) {
       final attribute = parchmentStyle.get(ParchmentAttribute.heading);
       if (attribute == ParchmentAttribute.h1) {
@@ -363,6 +359,8 @@ mixin RawEditorStateTextInputClientMixin on EditorState
 
     if (parchmentStyle.contains(ParchmentAttribute.rtl)) {
       style = style.copyWith(textDirection: TextDirection.rtl);
+    } else {
+      style = style.copyWith(textDirection: TextDirection.ltr);
     }
 
     if (parchmentStyle.contains(ParchmentAttribute.alignment)) {
@@ -373,6 +371,8 @@ mixin RawEditorStateTextInputClientMixin on EditorState
         style = style.copyWith(textAlign: TextAlign.center);
       } else if (align == ParchmentAttribute.justify) {
         style = style.copyWith(textAlign: TextAlign.justify);
+      } else {
+        style = style.copyWith(textAlign: TextAlign.left);
       }
     }
 
@@ -384,23 +384,42 @@ extension on TextRange {
   int get length => end - start;
 }
 
-class _TextInputConnectionStyle {
-  const _TextInputConnectionStyle(
+@visibleForTesting
+class TextInputConnectionStyle {
+  const TextInputConnectionStyle(
       {required this.textStyle,
       this.textDirection = TextDirection.ltr,
-      this.textAlign = TextAlign.start});
+      this.textAlign = TextAlign.left});
 
   final TextStyle textStyle;
   final TextDirection textDirection;
   final TextAlign textAlign;
 
-  _TextInputConnectionStyle copyWith(
+  TextInputConnectionStyle copyWith(
       {TextStyle? textStyle,
       TextDirection? textDirection,
       TextAlign? textAlign}) {
-    return _TextInputConnectionStyle(
+    return TextInputConnectionStyle(
         textStyle: textStyle ?? this.textStyle,
         textDirection: textDirection ?? this.textDirection,
         textAlign: textAlign ?? this.textAlign);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TextInputConnectionStyle &&
+          runtimeType == other.runtimeType &&
+          textStyle == other.textStyle &&
+          textDirection == other.textDirection &&
+          textAlign == other.textAlign;
+
+  @override
+  int get hashCode =>
+      textStyle.hashCode ^ textDirection.hashCode ^ textAlign.hashCode;
+
+  @override
+  String toString() {
+    return 'TextInputConnectionStyle{textStyle: $textStyle, textDirection: $textDirection, textAlign: $textAlign}';
   }
 }
