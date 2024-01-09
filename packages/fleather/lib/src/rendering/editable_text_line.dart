@@ -19,7 +19,6 @@ enum TextLineSlot { leading, body }
 class RenderEditableTextLine extends RenderEditableBox {
   /// Creates new editable paragraph render box.
   RenderEditableTextLine({
-    // RenderEditableMetricsProvider child,
     required LineNode node,
     required EdgeInsetsGeometry padding,
     required TextDirection textDirection,
@@ -35,8 +34,6 @@ class RenderEditableTextLine extends RenderEditableBox {
     ui.BoxWidthStyle selectionWidthStyle = ui.BoxWidthStyle.tight,
     EdgeInsets floatingCursorAddedMargin =
         const EdgeInsets.fromLTRB(4, 4, 4, 5),
-//    TextRange promptRectRange,
-//    Color promptRectColor,
   })  : assert(padding.isNonNegative),
         _textDirection = textDirection,
         _padding = padding,

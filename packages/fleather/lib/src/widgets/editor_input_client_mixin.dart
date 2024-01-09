@@ -1,12 +1,11 @@
+import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:fleather/fleather.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-
-import '../rendering/editor.dart';
-import 'editor.dart';
 
 mixin RawEditorStateTextInputClientMixin on EditorState
     implements DeltaTextInputClient {
@@ -110,6 +109,22 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     _textInputConnection!.setEditingState(actualValue);
   }
 
+  void updateTextInputConnectionStyle([TextPosition? position]) {
+    final style = getTextStyle(position);
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      if (!mounted) {
+        return;
+      }
+
+      _textInputConnection?.setStyle(
+          fontFamily: style.textStyle.fontFamily,
+          fontSize: style.textStyle.fontSize,
+          fontWeight: style.textStyle.fontWeight,
+          textDirection: style.textDirection,
+          textAlign: style.textAlign);
+    });
+  }
+
   // Start TextInputClient implementation
   @override
   TextEditingValue? get currentTextEditingValue =>
@@ -136,6 +151,8 @@ mixin RawEditorStateTextInputClientMixin on EditorState
         start = textEditingDelta.replacedRange.start;
         length = textEditingDelta.replacedRange.length;
         data = textEditingDelta.replacementText;
+      } else if (textEditingDelta is TextEditingDeltaNonTextUpdate) {
+        updateTextInputConnectionStyle(textEditingDelta.selection.base);
       }
       _lastKnownRemoteTextEditingValue =
           textEditingDelta.apply(_lastKnownRemoteTextEditingValue!);
@@ -297,7 +314,11 @@ mixin RawEditorStateTextInputClientMixin on EditorState
         if (!mounted) {
           return;
         }
-        final size = renderEditor.size;
+        final size = Size(
+            min(renderEditor.size.width,
+                    renderEditor.maxContentWidth ?? double.infinity) -
+                renderEditor.padding.horizontal,
+            renderEditor.size.height);
         final transform = renderEditor.getTransformTo(null);
         _textInputConnection?.setEditableSizeAndTransform(size, transform);
       });
@@ -308,8 +329,97 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   void insertContent(KeyboardInsertedContent content) {
     // TODO: implement insertContent
   }
+
+  @visibleForTesting
+  TextInputConnectionStyle getTextStyle([TextPosition? position]) {
+    final document = renderEditor.document;
+    ParchmentStyle parchmentStyle =
+        document.collectStyle(position?.offset ?? 0, 0);
+    TextInputConnectionStyle style =
+        TextInputConnectionStyle(textStyle: themeData.paragraph.style);
+    if (parchmentStyle.contains(ParchmentAttribute.heading)) {
+      final attribute = parchmentStyle.get(ParchmentAttribute.heading);
+      if (attribute == ParchmentAttribute.h1) {
+        style = style.copyWith(textStyle: themeData.heading1.style);
+      } else if (attribute == ParchmentAttribute.h2) {
+        style = style.copyWith(textStyle: themeData.heading2.style);
+      } else if (attribute == ParchmentAttribute.h3) {
+        style = style.copyWith(textStyle: themeData.heading3.style);
+      } else if (attribute == ParchmentAttribute.h4) {
+        style = style.copyWith(textStyle: themeData.heading4.style);
+      } else if (attribute == ParchmentAttribute.h5) {
+        style = style.copyWith(textStyle: themeData.heading5.style);
+      } else if (attribute == ParchmentAttribute.h6) {
+        style = style.copyWith(textStyle: themeData.heading6.style);
+      }
+    }
+    if (parchmentStyle.contains(ParchmentAttribute.code)) {
+      style = style.copyWith(textStyle: themeData.code.style);
+    }
+
+    if (parchmentStyle.contains(ParchmentAttribute.rtl)) {
+      style = style.copyWith(textDirection: TextDirection.rtl);
+    } else {
+      style = style.copyWith(textDirection: TextDirection.ltr);
+    }
+
+    if (parchmentStyle.contains(ParchmentAttribute.alignment)) {
+      final align = parchmentStyle.get(ParchmentAttribute.alignment);
+      if (align == ParchmentAttribute.right) {
+        style = style.copyWith(textAlign: TextAlign.right);
+      } else if (align == ParchmentAttribute.center) {
+        style = style.copyWith(textAlign: TextAlign.center);
+      } else if (align == ParchmentAttribute.justify) {
+        style = style.copyWith(textAlign: TextAlign.justify);
+      } else {
+        style = style.copyWith(textAlign: TextAlign.left);
+      }
+    }
+
+    return style;
+  }
 }
 
 extension on TextRange {
   int get length => end - start;
+}
+
+@visibleForTesting
+class TextInputConnectionStyle {
+  const TextInputConnectionStyle(
+      {required this.textStyle,
+      this.textDirection = TextDirection.ltr,
+      this.textAlign = TextAlign.left});
+
+  final TextStyle textStyle;
+  final TextDirection textDirection;
+  final TextAlign textAlign;
+
+  TextInputConnectionStyle copyWith(
+      {TextStyle? textStyle,
+      TextDirection? textDirection,
+      TextAlign? textAlign}) {
+    return TextInputConnectionStyle(
+        textStyle: textStyle ?? this.textStyle,
+        textDirection: textDirection ?? this.textDirection,
+        textAlign: textAlign ?? this.textAlign);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TextInputConnectionStyle &&
+          runtimeType == other.runtimeType &&
+          textStyle == other.textStyle &&
+          textDirection == other.textDirection &&
+          textAlign == other.textAlign;
+
+  @override
+  int get hashCode =>
+      textStyle.hashCode ^ textDirection.hashCode ^ textAlign.hashCode;
+
+  @override
+  String toString() {
+    return 'TextInputConnectionStyle{textStyle: $textStyle, textDirection: $textDirection, textAlign: $textAlign}';
+  }
 }
