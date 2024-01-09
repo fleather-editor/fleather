@@ -5,7 +5,7 @@ homepage: https://fleather-editor.github.io
 repository: https://github.com/fleather-editor/fleather
 issue_tracker: https://github.com/fleather-editor/fleather/issues
 screenshots:
-  - description: 'Banner'
+  - description: "Banner"
     path: ../../images/banner.png
 topics:
   - editor
@@ -21,7 +21,7 @@ dependencies:
   collection: ^1.16.0
   quill_delta: ^3.0.0-nullsafety.2
   intl: ^0.18.0
-  parchment: ^0.11.0
+  parchment: ^1.12.0
 
 dev_dependencies:
   flutter_test:
