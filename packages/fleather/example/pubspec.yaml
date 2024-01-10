@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   url_launcher: ^6.1.5
+  image_picker: ^1.0.7
   fleather:
     path: ../
 
