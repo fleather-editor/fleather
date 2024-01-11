@@ -4,6 +4,7 @@ version: 1.13.0
 homepage: https://fleather-editor.github.io
 repository: https://github.com/fleather-editor/fleather
 issue_tracker: https://github.com/fleather-editor/fleather/issues
+documentation: https://fleather-editor.github.io/docs/getting-started/quick-start/
 screenshots:
   - description: "Banner"
     path: ../../images/banner.png
