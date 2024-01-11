@@ -6,8 +6,8 @@ repository: https://github.com/fleather-editor/fleather
 issue_tracker: https://github.com/fleather-editor/fleather/issues
 documentation: https://fleather-editor.github.io/docs/getting-started/quick-start/
 screenshots:
-  - description: "Screenshot1"
-    path: ../../images/screenshot.png
+  - description: "Fleather demo"
+    path: images/screenshot.png
 topics:
   - editor
   - text
