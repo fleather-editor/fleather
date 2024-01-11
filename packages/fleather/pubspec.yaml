@@ -4,14 +4,14 @@ version: 1.13.0
 homepage: https://fleather-editor.github.io
 repository: https://github.com/fleather-editor/fleather
 issue_tracker: https://github.com/fleather-editor/fleather/issues
+documentation: https://fleather-editor.github.io/docs/getting-started/quick-start/
 screenshots:
-  - description: 'Banner'
-    path: ../../images/banner.png
+  - description: "Fleather demo"
+    path: images/screenshot.png
 topics:
   - editor
   - text
   - widgets
-publish_to: none
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -22,6 +22,9 @@ dependencies:
   collection: ^1.16.0
   quill_delta: ^3.0.0-nullsafety.2
   intl: ^0.18.0
+  parchment: ^1.12.0
+
+dependencies_override:
   parchment:
     path: ../parchment
 
