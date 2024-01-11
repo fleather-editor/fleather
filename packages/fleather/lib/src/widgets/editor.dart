@@ -257,7 +257,7 @@ class FleatherEditor extends StatefulWidget {
   final GlobalKey<EditorState>? editorKey;
 
   const FleatherEditor({
-    Key? key,
+    super.key,
     required this.controller,
     this.editorKey,
     this.focusNode,
@@ -280,7 +280,7 @@ class FleatherEditor extends StatefulWidget {
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
-  }) : super(key: key);
+  });
 
   @override
   State<FleatherEditor> createState() => _FleatherEditorState();
@@ -490,7 +490,7 @@ class _FleatherEditorSelectionGestureDetectorBuilder
 
 class RawEditor extends StatefulWidget {
   const RawEditor({
-    Key? key,
+    super.key,
     required this.controller,
     this.focusNode,
     this.scrollController,
@@ -526,8 +526,7 @@ class RawEditor extends StatefulWidget {
           'minHeight can\'t be greater than maxHeight',
         ),
         // keyboardType = keyboardType ?? TextInputType.multiline,
-        showCursor = showCursor ?? !readOnly,
-        super(key: key);
+        showCursor = showCursor ?? !readOnly;
 
   /// Controls the document being edited.
   final FleatherController controller;
@@ -2005,8 +2004,8 @@ class RawEditorState extends EditorState
 
 class _Editor extends MultiChildRenderObjectWidget {
   const _Editor({
-    required Key key,
-    required List<Widget> children,
+    required Key super.key,
+    required super.children,
     this.offset,
     required this.document,
     required this.textDirection,
@@ -2018,7 +2017,7 @@ class _Editor extends MultiChildRenderObjectWidget {
     required this.cursorController,
     this.padding = EdgeInsets.zero,
     this.maxContentWidth,
-  }) : super(key: key, children: children);
+  });
 
   final ViewportOffset? offset;
   final ParchmentDocument document;

@@ -11,10 +11,10 @@ class InsertEmbedButton extends StatelessWidget {
   final IconData icon;
 
   const InsertEmbedButton({
-    Key? key,
+    super.key,
     required this.controller,
     required this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +48,7 @@ class UndoRedoButton extends StatelessWidget {
   final FleatherController controller;
   final _UndoRedoButtonVariant _variant;
 
-  const UndoRedoButton._(this.controller, this._variant, {Key? key})
-      : super(key: key);
+  const UndoRedoButton._(this.controller, this._variant, {super.key});
 
   const UndoRedoButton.undo({
     Key? key,
@@ -114,10 +113,10 @@ class LinkStyleButton extends StatefulWidget {
   final IconData? icon;
 
   const LinkStyleButton({
-    Key? key,
+    super.key,
     required this.controller,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   State<LinkStyleButton> createState() => _LinkStyleButtonState();
@@ -185,7 +184,7 @@ class _LinkStyleButtonState extends State<LinkStyleButton> {
 }
 
 class _LinkDialog extends StatefulWidget {
-  const _LinkDialog({Key? key}) : super(key: key);
+  const _LinkDialog();
 
   @override
   _LinkDialogState createState() => _LinkDialogState();
@@ -248,12 +247,12 @@ class ToggleStyleButton extends StatefulWidget {
   final ToggleStyleButtonBuilder childBuilder;
 
   const ToggleStyleButton({
-    Key? key,
+    super.key,
     required this.attribute,
     required this.icon,
     required this.controller,
     this.childBuilder = defaultToggleStyleButtonBuilder,
-  }) : super(key: key);
+  });
 
   @override
   State<ToggleStyleButton> createState() => _ToggleStyleButtonState();
@@ -364,13 +363,12 @@ typedef ColorButtonBuilder = Widget Function(BuildContext, Color?);
 /// Works as a dropdown menu button.
 class ColorButton extends StatefulWidget {
   const ColorButton(
-      {Key? key,
+      {super.key,
       required this.controller,
       required this.attributeKey,
       required this.nullColorLabel,
       required this.builder,
-      this.pickColor})
-      : super(key: key);
+      this.pickColor});
 
   final FleatherController controller;
   final ColorParchmentAttributeBuilder attributeKey;
@@ -745,8 +743,7 @@ class IndentationButton extends StatefulWidget {
   final FleatherController controller;
 
   const IndentationButton(
-      {Key? key, this.increase = true, required this.controller})
-      : super(key: key);
+      {super.key, this.increase = true, required this.controller});
 
   @override
   State<IndentationButton> createState() => _IndentationButtonState();
@@ -821,8 +818,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget> children;
   final EdgeInsetsGeometry? padding;
 
-  const FleatherToolbar({Key? key, this.padding, required this.children})
-      : super(key: key);
+  const FleatherToolbar({super.key, this.padding, required this.children});
 
   factory FleatherToolbar.basic({
     Key? key,
@@ -1189,14 +1185,14 @@ class FLIconButton extends StatelessWidget {
   final double highlightElevation;
 
   const FLIconButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     this.icon,
     this.size = 40,
     this.fillColor,
     this.hoverElevation = 1,
     this.highlightElevation = 1,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

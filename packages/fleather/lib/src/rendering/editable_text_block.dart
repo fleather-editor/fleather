@@ -9,9 +9,9 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
     implements RenderEditableBox {
   ///
   RenderEditableTextBlock({
-    List<RenderEditableBox>? children,
-    required BlockNode node,
-    required TextDirection textDirection,
+    super.children,
+    required BlockNode super.node,
+    required super.textDirection,
     required EdgeInsetsGeometry padding,
     required Decoration decoration,
     EdgeInsets contentPadding = EdgeInsets.zero,
@@ -20,9 +20,6 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
         _savedPadding = padding,
         _contentPadding = contentPadding,
         super(
-          children: children,
-          node: node,
-          textDirection: textDirection,
           padding: padding.add(contentPadding),
         );
 

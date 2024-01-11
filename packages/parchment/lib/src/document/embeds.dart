@@ -79,9 +79,9 @@ class EmbeddableObject {
 /// An object which can be embedded on the same line (inline) with regular text.
 class SpanEmbed extends EmbeddableObject {
   SpanEmbed(
-    String type, {
-    Map<String, dynamic> data = const {},
-  }) : super(type, inline: true, data: data);
+    super.type, {
+    super.data,
+  }) : super(inline: true);
 }
 
 /// An object which occupies an entire line in a document and cannot co-exist
@@ -95,9 +95,9 @@ class SpanEmbed extends EmbeddableObject {
 class BlockEmbed extends EmbeddableObject {
   /// Creates a new block embed of specified [type] and containing [data].
   BlockEmbed(
-    String type, {
-    Map<String, dynamic> data = const {},
-  }) : super(type, inline: false, data: data);
+    super.type, {
+    super.data,
+  }) : super(inline: false);
 
   static final BlockEmbed horizontalRule = BlockEmbed('hr');
   static BlockEmbed image(String source) =>

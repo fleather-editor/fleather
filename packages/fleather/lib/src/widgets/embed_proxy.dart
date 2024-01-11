@@ -4,9 +4,9 @@ import '../rendering/embed_proxy.dart';
 
 class EmbedProxy extends SingleChildRenderObjectWidget {
   const EmbedProxy({
-    Key? key,
-    required Widget child,
-  }) : super(key: key, child: child);
+    super.key,
+    required Widget super.child,
+  });
 
   @override
   RenderEmbedProxy createRenderObject(BuildContext context) {

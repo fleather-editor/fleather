@@ -35,7 +35,7 @@ class EditableTextLine extends RenderObjectWidget {
 
   /// Creates an editable line of text.
   const EditableTextLine({
-    Key? key,
+    super.key,
     required this.node,
     required this.body,
     required this.cursorController,
@@ -47,7 +47,7 @@ class EditableTextLine extends RenderObjectWidget {
     this.leading,
     this.indentWidth = 0.0,
     this.spacing = const VerticalSpacing(),
-  }) : super(key: key);
+  });
 
   EdgeInsetsGeometry get _padding => EdgeInsetsDirectional.only(
         start: indentWidth,
@@ -93,7 +93,7 @@ class EditableTextLine extends RenderObjectWidget {
 }
 
 class _RenderEditableTextLineElement extends RenderObjectElement {
-  _RenderEditableTextLineElement(EditableTextLine line) : super(line);
+  _RenderEditableTextLineElement(EditableTextLine super.line);
 
   final Map<TextLineSlot, Element> slotToChild = <TextLineSlot, Element>{};
 

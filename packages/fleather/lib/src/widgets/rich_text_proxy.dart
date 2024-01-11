@@ -5,8 +5,8 @@ import '../rendering/paragraph_proxy.dart';
 class RichTextProxy extends SingleChildRenderObjectWidget {
   /// Child argument should be an instance of RichText widget.
   const RichTextProxy({
-    Key? key,
-    required RichText child,
+    super.key,
+    required RichText super.child,
     required this.textStyle,
     required this.locale,
     required this.strutStyle,
@@ -14,7 +14,7 @@ class RichTextProxy extends SingleChildRenderObjectWidget {
     this.textScaler = TextScaler.noScaling,
     this.textWidthBasis = TextWidthBasis.parent,
     this.textHeightBehavior,
-  }) : super(key: key, child: child);
+  });
 
   final TextStyle textStyle;
   final TextAlign textAlign;
