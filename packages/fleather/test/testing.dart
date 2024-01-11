@@ -138,13 +138,12 @@ class EditorSandBox {
 
 class _FleatherSandbox extends StatefulWidget {
   const _FleatherSandbox({
-    Key? key,
     required this.controller,
     required this.focusNode,
     this.autofocus = false,
     this.spellCheckService,
     this.embedBuilder = defaultFleatherEmbedBuilder,
-  }) : super(key: key);
+  });
 
   final FleatherController controller;
   final FocusNode focusNode;
@@ -186,11 +185,10 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
 
 class TestUpdateWidget extends StatefulWidget {
   const TestUpdateWidget(
-      {Key? key,
+      {super.key,
       required this.focusNodeAfterChange,
       this.testField = false,
-      this.document})
-      : super(key: key);
+      this.document});
 
   final FocusNode focusNodeAfterChange;
   final bool testField;

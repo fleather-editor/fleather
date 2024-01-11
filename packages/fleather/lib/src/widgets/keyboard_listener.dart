@@ -32,8 +32,7 @@ class FleatherPressedKeys extends ChangeNotifier {
 
 class FleatherKeyboardListener extends StatefulWidget {
   final Widget child;
-  const FleatherKeyboardListener({Key? key, required this.child})
-      : super(key: key);
+  const FleatherKeyboardListener({super.key, required this.child});
 
   @override
   FleatherKeyboardListenerState createState() =>
@@ -76,10 +75,9 @@ class FleatherKeyboardListenerState extends State<FleatherKeyboardListener> {
 class _FleatherPressedKeysAccess extends InheritedWidget {
   final FleatherPressedKeys pressedKeys;
   const _FleatherPressedKeysAccess({
-    Key? key,
     required this.pressedKeys,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   @override
   bool updateShouldNotify(covariant _FleatherPressedKeysAccess oldWidget) {

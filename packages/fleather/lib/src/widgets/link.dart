@@ -73,11 +73,10 @@ class _CupertinoAction extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
   const _CupertinoAction({
-    Key? key,
     required this.title,
     required this.icon,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -144,11 +143,10 @@ class _MaterialAction extends StatelessWidget {
   final VoidCallback onPressed;
 
   const _MaterialAction({
-    Key? key,
     required this.title,
     required this.icon,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

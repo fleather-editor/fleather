@@ -6,11 +6,9 @@ import 'package:parchment/parchment.dart';
 import 'editor.dart';
 
 class FleatherShortcuts extends Shortcuts {
-  FleatherShortcuts({Key? key, required Widget child})
+  FleatherShortcuts({super.key, required super.child})
       : super(
-          key: key,
           shortcuts: _shortcuts,
-          child: child,
         );
 
   static Map<ShortcutActivator, Intent> get _shortcuts {
@@ -65,12 +63,10 @@ class ToggleUnderlineStyleIntent extends Intent {
 
 class FleatherActions extends Actions {
   FleatherActions({
-    Key? key,
-    required Widget child,
+    super.key,
+    required super.child,
   }) : super(
-          key: key,
           actions: _shortcutsActions,
-          child: child,
         );
 
   static final Map<Type, Action<Intent>> _shortcutsActions =

@@ -29,7 +29,7 @@ class EditableTextBlock extends StatelessWidget {
   final EdgeInsets? contentPadding;
 
   const EditableTextBlock({
-    Key? key,
+    super.key,
     required this.node,
     required this.controller,
     required this.readOnly,
@@ -43,7 +43,7 @@ class EditableTextBlock extends StatelessWidget {
     required this.linkActionPicker,
     this.onLaunchUrl,
     this.contentPadding,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -267,13 +267,12 @@ class _EditableBlock extends MultiChildRenderObjectWidget {
   final EdgeInsets? contentPadding;
 
   const _EditableBlock({
-    Key? key,
     required this.node,
     required this.decoration,
-    required List<Widget> children,
+    required super.children,
     this.contentPadding,
     this.padding = const VerticalSpacing(),
-  }) : super(key: key, children: children);
+  });
 
   EdgeInsets get _padding =>
       EdgeInsets.only(top: padding.top, bottom: padding.bottom);
@@ -310,13 +309,12 @@ class _NumberPoint extends StatelessWidget {
   final TextStyle style;
 
   const _NumberPoint({
-    Key? key,
     required this.number,
     required this.width,
     required this.style,
     this.withDot = true,
     this.padding = 0.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -333,9 +331,8 @@ class _BulletPoint extends StatelessWidget {
   final TextStyle style;
 
   const _BulletPoint({
-    Key? key,
     required this.style,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -350,11 +347,10 @@ class _BulletPoint extends StatelessWidget {
 
 class _CheckboxPoint extends StatelessWidget {
   const _CheckboxPoint({
-    Key? key,
     required this.value,
     required this.enabled,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   final bool value;
   final bool enabled;

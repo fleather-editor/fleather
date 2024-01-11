@@ -17,13 +17,13 @@ import 'package:flutter/widgets.dart';
 class FleatherSingleChildScrollView extends StatelessWidget {
   /// Creates a box in which a single widget can be scrolled.
   const FleatherSingleChildScrollView({
-    Key? key,
+    super.key,
     this.physics,
     required this.controller,
     required this.viewportBuilder,
     this.restorationId,
     this.scrollableKey,
-  }) : super(key: key);
+  });
 
   /// An object that can be used to control the position to which this scroll
   /// view is scrolled.
@@ -83,10 +83,9 @@ class FleatherSingleChildScrollView extends StatelessWidget {
 
 class _SingleChildViewport extends SingleChildRenderObjectWidget {
   const _SingleChildViewport({
-    Key? key,
     required this.offset,
-    Widget? child,
-  }) : super(key: key, child: child);
+    super.child,
+  });
 
   final ViewportOffset offset;
 

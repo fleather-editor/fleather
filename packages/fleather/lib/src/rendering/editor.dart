@@ -138,14 +138,14 @@ class RenderEditor extends RenderEditableContainerBox
     implements RenderAbstractEditor {
   RenderEditor({
     ViewportOffset? offset,
-    List<RenderEditableBox>? children,
+    super.children,
     required ParchmentDocument document,
-    required TextDirection textDirection,
+    required super.textDirection,
     required bool hasFocus,
     required TextSelection selection,
     required LayerLink startHandleLayerLink,
     required LayerLink endHandleLayerLink,
-    required EdgeInsetsGeometry padding,
+    required super.padding,
     required CursorController cursorController,
     this.onSelectionChanged,
     EdgeInsets floatingCursorAddedMargin =
@@ -159,10 +159,7 @@ class RenderEditor extends RenderEditableContainerBox
         _cursorController = cursorController,
         _maxContentWidth = maxContentWidth,
         super(
-          children: children,
           node: document.root,
-          textDirection: textDirection,
-          padding: padding,
         );
 
   ParchmentDocument _document;

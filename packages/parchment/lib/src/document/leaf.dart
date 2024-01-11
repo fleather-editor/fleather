@@ -237,9 +237,9 @@ abstract base class LeafNode extends Node with StyledNode {
 ///   * [LineNode], a node representing a line of text.
 ///   * [BlockNode], a node representing a group of lines.
 final class TextNode extends LeafNode {
-  TextNode([String text = ''])
+  TextNode([String super.text = ''])
       : assert(!text.contains('\n')),
-        super._(text);
+        super._();
 
   @override
   String get value => _value as String;
@@ -265,7 +265,7 @@ final class TextNode extends LeafNode {
 final class EmbedNode extends LeafNode {
   static final kObjectReplacementCharacter = '\uFFFC';
 
-  EmbedNode(EmbeddableObject object) : super._(object);
+  EmbedNode(EmbeddableObject super.object) : super._();
 
   @override
   EmbeddableObject get value => super.value as EmbeddableObject;

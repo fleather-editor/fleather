@@ -158,7 +158,7 @@ class FleatherField extends StatefulWidget {
   final GlobalKey<EditorState>? editorKey;
 
   const FleatherField({
-    Key? key,
+    super.key,
     required this.controller,
     this.editorKey,
     this.focusNode,
@@ -181,7 +181,7 @@ class FleatherField extends StatefulWidget {
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.spellCheckConfiguration,
     this.embedBuilder = defaultFleatherEmbedBuilder,
-  }) : super(key: key);
+  });
 
   @override
   State<FleatherField> createState() => _FleatherFieldState();

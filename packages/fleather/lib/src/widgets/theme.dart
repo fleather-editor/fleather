@@ -23,10 +23,10 @@ class FleatherTheme extends InheritedWidget {
   ///
   /// The [data] and [child] arguments must not be null.
   const FleatherTheme({
-    Key? key,
+    super.key,
     required this.data,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   @override
   bool updateShouldNotify(FleatherTheme oldWidget) {
