@@ -1303,6 +1303,7 @@ class RawEditorState extends EditorState
 
     if (widget.controller.selection != oldWidget.controller.selection) {
       _selectionOverlay?.update(textEditingValue);
+      _selectionOverlay?.hideToolbar();
     }
 
     _selectionOverlay?.handlesVisible = widget.showSelectionHandles;
@@ -1314,17 +1315,6 @@ class RawEditorState extends EditorState
         openConnectionIfNeeded();
       }
     }
-
-//    if (widget.style != oldWidget.style) {
-//      final TextStyle style = widget.style;
-//      _textInputConnection?.setStyle(
-//        fontFamily: style.fontFamily,
-//        fontSize: style.fontSize,
-//        fontWeight: style.fontWeight,
-//        textDirection: _textDirection,
-//        textAlign: widget.textAlign,
-//      );
-//    }
   }
 
   @override
