@@ -141,7 +141,6 @@ void main() {
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
-        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             editor.selection,
@@ -154,7 +153,6 @@ void main() {
             tester.getTopLeft(find.byType(FleatherEditor)) +
                 const Offset(10, 1),
             buttons: kSecondaryMouseButton);
-        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             editor.selection,
@@ -176,7 +174,7 @@ void main() {
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
-        await editor.pump();
+        await tester.pump();
         expect(
             editor.selection,
             const TextSelection(
@@ -188,7 +186,6 @@ void main() {
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kPrimaryMouseButton);
-        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(find.byType(CupertinoDesktopTextSelectionToolbar), findsNothing);
         await tester.tapAt(
@@ -213,7 +210,6 @@ void main() {
             tester.getTopLeft(find.byType(FleatherEditor)) +
                 const Offset(10, 1),
             buttons: kSecondaryMouseButton);
-        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(
             editor.selection,
@@ -224,7 +220,6 @@ void main() {
             tester.getTopLeft(find.byType(FleatherEditor)) +
                 const Offset(10, 1),
             buttons: kSecondaryMouseButton);
-        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(find.byType(DesktopTextSelectionToolbar), findsNothing);
       }, [TargetPlatform.windows]);
