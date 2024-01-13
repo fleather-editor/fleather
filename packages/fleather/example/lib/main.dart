@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:fleather/fleather.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -74,6 +76,31 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(elevation: 0, title: Text('Fleather Demo')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final picker = ImagePicker();
+          final image = await picker.pickImage(source: ImageSource.gallery);
+          if (image != null) {
+            final selection = _controller!.selection;
+            _controller!.replaceText(
+              selection.baseOffset,
+              selection.extentOffset - selection.baseOffset,
+              EmbeddableObject('image', inline: false, data: {
+                'source_type': kIsWeb ? 'url' : 'file',
+                'source': image.path,
+              }),
+            );
+            _controller!.replaceText(
+              selection.baseOffset + 1,
+              0,
+              '\n',
+              selection:
+                  TextSelection.collapsed(offset: selection.baseOffset + 2),
+            );
+          }
+        },
+        child: Icon(Icons.add_a_photo),
+      ),
       body: _controller == null
           ? Center(child: const CircularProgressIndicator())
           : Column(
@@ -105,15 +132,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _embedBuilder(BuildContext context, EmbedNode node) {
-    if (node.value.type == 'hr') {
-      final theme = FleatherTheme.of(context)!;
-      return Divider(
-        height: theme.paragraph.style.fontSize! * theme.paragraph.style.height!,
-        thickness: 2,
-        color: Colors.grey.shade200,
-      );
-    }
-
     if (node.value.type == 'icon') {
       final data = node.value.data;
       // Icons.rocket_launch_outlined
@@ -124,25 +142,32 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    if (node.value.type == 'image' &&
-        node.value.data['source_type'] == 'assets') {
-      return Padding(
-        // Caret takes 2 pixels, hence not symmetric padding values.
-        padding: const EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
-        child: Container(
-          width: 300,
-          height: 300,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(node.value.data['source']),
-              fit: BoxFit.cover,
+    if (node.value.type == 'image') {
+      final sourceType = node.value.data['source_type'];
+      ImageProvider? image;
+      if (sourceType == 'assets') {
+        image = AssetImage(node.value.data['source']);
+      } else if (sourceType == 'file') {
+        image = FileImage(File(node.value.data['source']));
+      } else if (sourceType == 'url') {
+        image = NetworkImage(node.value.data['source']);
+      }
+      if (image != null) {
+        return Padding(
+          // Caret takes 2 pixels, hence not symmetric padding values.
+          padding: const EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
+          child: Container(
+            width: 300,
+            height: 300,
+            decoration: BoxDecoration(
+              image: DecorationImage(image: image, fit: BoxFit.cover),
             ),
           ),
-        ),
-      );
+        );
+      }
     }
 
-    throw UnimplementedError();
+    return defaultFleatherEmbedBuilder(context, node);
   }
 
   void _launchUrl(String? url) async {
