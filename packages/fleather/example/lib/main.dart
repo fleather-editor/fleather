@@ -89,6 +89,11 @@ class _HomePageState extends State<HomePage> {
                 'source_type': kIsWeb ? 'url' : 'file',
                 'source': image.path,
               }),
+            );
+            _controller!.replaceText(
+              selection.baseOffset + 1,
+              0,
+              '\n',
               selection:
                   TextSelection.collapsed(offset: selection.baseOffset + 2),
             );
