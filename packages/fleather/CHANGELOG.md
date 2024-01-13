@@ -1,5 +1,6 @@
 ## 1.13.1
 
+* Example enriched with ImagePicker
 * [Fix] web - erratic cursor positioning when navigating document with keyboard
 * [Fix] Persistent context menu when updating `FleatherEditor` widget
 * [Fix] pub.dev warnings - dependencies upgraded
