@@ -1,3 +1,9 @@
+## 1.13.1
+
+* [Fix] web - erratic cursor positioning when navigating document with keyboard
+* [Fix] Persistent context menu when updating `FleatherEditor` widget
+* [Fix] pub.dev warnings - dependencies upgraded
+
 ## 1.13.0
 
 * Enhanced text selection experience on mobile (including magnifier)
