@@ -1,3 +1,7 @@
+## 1.13.2
+
+* [Fix] pub.dev issues
+
 ## 1.13.1
 
 * Example enriched with ImagePicker
