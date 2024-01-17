@@ -44,13 +44,23 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     }
   }
 
+  // Normalizes textEditingValue for updating remote values.
+  // Sending the last newline in document to platform IME caused
+  // weird issues like #227.
+  TextEditingValue get _normalizedTextEditingValue => textEditingValue.replaced(
+        TextRange(
+            start: textEditingValue.text.length - 1,
+            end: textEditingValue.text.length),
+        '',
+      );
+
   void openConnectionIfNeeded() {
     if (!shouldCreateInputConnection) {
       return;
     }
 
     if (!hasConnection) {
-      _lastKnownRemoteTextEditingValue = textEditingValue;
+      _lastKnownRemoteTextEditingValue = _normalizedTextEditingValue;
       _textInputConnection = TextInput.attach(
         this,
         TextInputConfiguration(
@@ -88,7 +98,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   void updateRemoteValueIfNeeded() {
     if (!hasConnection) return;
 
-    final value = textEditingValue;
+    final value = _normalizedTextEditingValue;
 
     // Since we don't keep track of composing range in value provided by
     // FleatherController we need to add it here manually before comparing
