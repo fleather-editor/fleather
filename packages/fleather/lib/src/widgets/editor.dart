@@ -2552,11 +2552,22 @@ class _UpdateTextSelectionVerticallyAction<
             : intent.forward
                 ? currentRun.moveNext()
                 : currentRun.movePrevious();
-    final TextPosition newExtent = shouldMove
-        ? currentRun.current
-        : intent.forward
-            ? TextPosition(offset: state.textEditingValue.text.length)
-            : const TextPosition(offset: 0);
+
+    TextPosition computeNewExtent() {
+      if (shouldMove) return currentRun.current;
+
+      if (intent.forward) {
+        if (collapseSelection) {
+          state.updateLastKnownWithSelection(TextSelection.collapsed(
+              offset: state.textEditingValue.text.length));
+        }
+        return TextPosition(offset: state.textEditingValue.text.length - 1);
+      }
+
+      return const TextPosition(offset: 0);
+    }
+
+    final TextPosition newExtent = computeNewExtent();
     final TextSelection newSelection = collapseSelection
         ? TextSelection.fromPosition(newExtent)
         : value.selection.extendTo(newExtent);
