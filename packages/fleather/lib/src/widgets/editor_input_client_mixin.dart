@@ -12,6 +12,7 @@ import 'editor.dart';
 mixin RawEditorStateTextInputClientMixin on EditorState
     implements DeltaTextInputClient {
   TextInputConnection? _textInputConnection;
+
   TextEditingValue? _lastKnownRemoteTextEditingValue;
 
   /// Whether to create an input connection with the platform for text editing
@@ -44,23 +45,13 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     }
   }
 
-  // Normalizes textEditingValue for updating remote values.
-  // Sending the last newline in document to platform IME caused
-  // weird issues like #227.
-  TextEditingValue get _normalizedTextEditingValue => textEditingValue.replaced(
-        TextRange(
-            start: textEditingValue.text.length - 1,
-            end: textEditingValue.text.length),
-        '',
-      );
-
   void openConnectionIfNeeded() {
     if (!shouldCreateInputConnection) {
       return;
     }
 
     if (!hasConnection) {
-      _lastKnownRemoteTextEditingValue = _normalizedTextEditingValue;
+      _lastKnownRemoteTextEditingValue = textEditingValue;
       _textInputConnection = TextInput.attach(
         this,
         TextInputConfiguration(
@@ -76,7 +67,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       );
 
       _updateSizeAndTransform();
-      _textInputConnection!.setEditingState(_lastKnownRemoteTextEditingValue!);
+      _setConnectionEditingState();
     }
     _textInputConnection!.show();
   }
@@ -98,7 +89,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   void updateRemoteValueIfNeeded() {
     if (!hasConnection) return;
 
-    final value = _normalizedTextEditingValue;
+    final value = textEditingValue;
 
     // Since we don't keep track of composing range in value provided by
     // FleatherController we need to add it here manually before comparing
@@ -118,7 +109,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     }
 
     _lastKnownRemoteTextEditingValue = actualValue;
-    _textInputConnection!.setEditingState(actualValue);
+    _setConnectionEditingState();
   }
 
   /// Update cached remote value with selection
@@ -129,6 +120,17 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     _lastKnownRemoteTextEditingValue =
         _lastKnownRemoteTextEditingValue?.copyWith(selection: selection);
   }
+  
+  // Normalizes _lastKnownRemoteTextEditingValue before updating connection state.
+  // Sending the last newline in document to platform IME causes issues like #227.
+  void _setConnectionEditingState() => _textInputConnection!
+          .setEditingState(_lastKnownRemoteTextEditingValue!.replaced(
+        TextRange(
+          start: textEditingValue.text.length - 1,
+          end: textEditingValue.text.length,
+        ),
+        '',
+      ));
 
   void updateTextInputConnectionStyle([TextPosition? position]) {
     final style = getTextStyle(position);
