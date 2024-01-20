@@ -677,7 +677,7 @@ void main() {
               'color': '0xFF2196F3'
             }
           },
-          {'insert': '\n'},
+          {'insert': '\n\n'},
         ]);
         final editor = EditorSandBox(
           tester: tester,
@@ -705,6 +705,9 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         expect(editor.selection,
             const TextSelection.collapsed(offset: text.length));
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        expect(editor.selection, const TextSelection.collapsed(offset: 50));
       });
 
       testWidgets(
