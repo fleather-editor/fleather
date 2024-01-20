@@ -9,10 +9,12 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:parchment/parchment.dart';
+import 'package:quill_delta/quill_delta.dart';
 
 import '../../util.dart';
 import '../rendering/editor.dart';
 import '../services/spell_check_suggestions_toolbar.dart';
+import '../services/clipboard_manager.dart';
 import 'baseline_proxy.dart';
 import 'controller.dart';
 import 'cursor.dart';
@@ -28,6 +30,14 @@ import 'single_child_scroll_view.dart';
 import 'text_line.dart';
 import 'text_selection.dart';
 import 'theme.dart';
+
+class _WebClipboardStatusNotifier extends ClipboardStatusNotifier {
+  @override
+  ClipboardStatus value = ClipboardStatus.pasteable;
+
+  @override
+  Future<void> update() => Future<void>.value();
+}
 
 /// Widget builder function for context menu in [FleatherEditor].
 typedef FleatherContextMenuBuilder = Widget Function(
@@ -254,6 +264,12 @@ class FleatherEditor extends StatefulWidget {
   /// Material [ListTile]s.
   final LinkActionPickerDelegate linkActionPickerDelegate;
 
+  /// Provides clipboard status and getter and setter for clipboard data
+  /// for paste, copy and cut functionality.
+  ///
+  /// Defaults to [PlainTextClipboardManager]
+  final ClipboardManager clipboardManager;
+
   final GlobalKey<EditorState>? editorKey;
 
   const FleatherEditor({
@@ -277,6 +293,7 @@ class FleatherEditor extends StatefulWidget {
     this.scrollPhysics,
     this.onLaunchUrl,
     this.spellCheckConfiguration,
+    this.clipboardManager = const PlainTextClipboardManager(),
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
@@ -415,6 +432,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       embedBuilder: widget.embedBuilder,
       spellCheckConfiguration: widget.spellCheckConfiguration,
       linkActionPickerDelegate: widget.linkActionPickerDelegate,
+      clipboardManager: widget.clipboardManager,
       // encapsulated fields below
       cursorStyle: CursorStyle(
         color: cursorColor,
@@ -510,6 +528,7 @@ class RawEditor extends StatefulWidget {
     required this.selectionColor,
     this.scrollPhysics,
     required this.cursorStyle,
+    required this.clipboardManager,
     this.showSelectionHandles = false,
     this.selectionControls,
     this.contextMenuBuilder = defaultContextMenuBuilder,
@@ -680,6 +699,8 @@ class RawEditor extends StatefulWidget {
 
   final LinkActionPickerDelegate linkActionPickerDelegate;
 
+  final ClipboardManager clipboardManager;
+
   bool get selectionEnabled => enableInteractiveSelection;
 
   @override
@@ -723,7 +744,7 @@ abstract class EditorState extends State<RawEditor>
   @override
   bool searchWebEnabled = false;
 
-  ClipboardStatusNotifier? get clipboardStatus;
+  ClipboardStatusNotifier get clipboardStatus;
 
   ScrollController get scrollController;
 
@@ -827,8 +848,8 @@ class RawEditorState extends EditorState
   late AnimationController _floatingCursorResetController;
 
   @override
-  final ClipboardStatusNotifier? clipboardStatus =
-      kIsWeb ? null : ClipboardStatusNotifier();
+  final ClipboardStatusNotifier clipboardStatus =
+      kIsWeb ? _WebClipboardStatusNotifier() : ClipboardStatusNotifier();
   final LayerLink _toolbarLayerLink = LayerLink();
   final LayerLink _startHandleLayerLink = LayerLink();
   final LayerLink _endHandleLayerLink = LayerLink();
@@ -1100,15 +1121,17 @@ class RawEditorState extends EditorState
     return null;
   }
 
-  /// Copy current selection to [Clipboard].
+  /// Copy current selection to clipboard.
   @override
   void copySelection(SelectionChangedCause cause) {
     final TextSelection selection = textEditingValue.selection;
-    final String text = textEditingValue.text;
     if (selection.isCollapsed) {
       return;
     }
-    Clipboard.setData(ClipboardData(text: selection.textInside(text)));
+
+    widget.clipboardManager.setData(controller.document
+        .toDelta()
+        .slice(selection.baseOffset, selection.extentOffset));
     if (cause == SelectionChangedCause.toolbar) {
       bringIntoView(textEditingValue.selection.extent);
       hideToolbar(false);
@@ -1135,18 +1158,19 @@ class RawEditorState extends EditorState
     }
   }
 
-  /// Cut current selection to [Clipboard].
+  /// Cut current selection to clipboard.
   @override
   void cutSelection(SelectionChangedCause cause) {
     if (widget.readOnly) {
       return;
     }
     final TextSelection selection = textEditingValue.selection;
-    final String text = textEditingValue.text;
     if (selection.isCollapsed) {
       return;
     }
-    Clipboard.setData(ClipboardData(text: selection.textInside(text)));
+    widget.clipboardManager.setData(controller.document
+        .toDelta()
+        .slice(selection.baseOffset, selection.extentOffset));
     _replaceText(ReplaceTextIntent(textEditingValue, '', selection, cause));
     if (cause == SelectionChangedCause.toolbar) {
       bringIntoView(textEditingValue.selection.extent);
@@ -1154,7 +1178,7 @@ class RawEditorState extends EditorState
     }
   }
 
-  /// Paste text from [Clipboard].
+  /// Paste text from clipboard.
   @override
   Future<void> pasteText(SelectionChangedCause cause) async {
     if (widget.readOnly) {
@@ -1166,13 +1190,20 @@ class RawEditorState extends EditorState
     }
     // Snapshot the input before using `await`.
     // See https://github.com/flutter/flutter/issues/11427
-    final ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
-    if (data == null) {
+    final delta = await widget.clipboardManager.getData();
+    if (delta == null) {
       return;
     }
 
-    _replaceText(
-        ReplaceTextIntent(textEditingValue, data.text!, selection, cause));
+    controller.compose(
+      (Delta()
+            ..retain(selection.baseOffset)
+            ..delete(selection.extentOffset - selection.baseOffset))
+          .concat(delta),
+      forceUpdateSelection: true,
+      source: ChangeSource.local,
+    );
+
     if (cause == SelectionChangedCause.toolbar) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -1392,7 +1423,6 @@ class RawEditorState extends EditorState
 
   EditorTextSelectionOverlay _createSelectionOverlay() {
     return EditorTextSelectionOverlay(
-      clipboardStatus: clipboardStatus,
       context: context,
       value: textEditingValue,
       debugRequiredFor: widget,

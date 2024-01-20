@@ -239,8 +239,16 @@ class FleatherController extends ChangeNotifier {
   /// can be composed without errors.
   ///
   /// If composing this change fails then this method throws [ComposeError].
-  void compose(Delta change,
-      {TextSelection? selection, ChangeSource source = ChangeSource.remote}) {
+  ///
+  /// If selection is not provided, new selection will be inferred with priority
+  /// to current position which can be changed by setting [forceUpdateSelection]
+  /// to true.
+  void compose(
+    Delta change, {
+    TextSelection? selection,
+    ChangeSource source = ChangeSource.remote,
+    bool forceUpdateSelection = false,
+  }) {
     if (change.isNotEmpty) {
       document.compose(change, source);
       if (source != ChangeSource.history) {
@@ -250,12 +258,10 @@ class FleatherController extends ChangeNotifier {
     if (selection != null) {
       _updateSelectionSilent(selection, source: source);
     } else {
-      // Transform selection against the composed change and give priority to
-      // current position (force: false).
-      final base =
-          change.transformPosition(_selection.baseOffset, force: false);
-      final extent =
-          change.transformPosition(_selection.extentOffset, force: false);
+      final base = change.transformPosition(_selection.baseOffset,
+          force: forceUpdateSelection);
+      final extent = change.transformPosition(_selection.extentOffset,
+          force: forceUpdateSelection);
       selection = _selection.copyWith(baseOffset: base, extentOffset: extent);
       if (_selection != selection) {
         _updateSelectionSilent(selection, source: source);

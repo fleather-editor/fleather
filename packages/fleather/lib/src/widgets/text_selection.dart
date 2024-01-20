@@ -38,7 +38,6 @@ class EditorTextSelectionOverlay {
     required this.selectionDelegate,
     DragStartBehavior dragStartBehavior = DragStartBehavior.start,
     VoidCallback? onSelectionHandleTapped,
-    ClipboardStatusNotifier? clipboardStatus,
     required this.contextMenuBuilder,
     required TextMagnifierConfiguration magnifierConfiguration,
   })  : _handlesVisible = handlesVisible,
@@ -70,7 +69,6 @@ class EditorTextSelectionOverlay {
       selectionEndpoints: const <TextSelectionPoint>[],
       selectionControls: selectionControls,
       selectionDelegate: selectionDelegate,
-      clipboardStatus: clipboardStatus,
       startHandleLayerLink: startHandleLayerLink,
       endHandleLayerLink: endHandleLayerLink,
       toolbarLayerLink: toolbarLayerLink,
@@ -652,7 +650,6 @@ class SelectionOverlay {
       'This feature was deprecated after v3.3.0-0.5.pre.',
     )
     required this.selectionDelegate,
-    required this.clipboardStatus,
     required this.startHandleLayerLink,
     required this.endHandleLayerLink,
     required this.toolbarLayerLink,
@@ -1018,13 +1015,6 @@ class SelectionOverlay {
   // See https://github.com/flutter/flutter/issues/39376#issuecomment-848406415
   // for provenance.
   final VoidCallback? onSelectionHandleTapped;
-
-  /// Maintains the status of the clipboard for determining if its contents can
-  /// be pasted or not.
-  ///
-  /// Useful because the actual value of the clipboard can only be checked
-  /// asynchronously (see [Clipboard.getData]).
-  final ClipboardStatusNotifier? clipboardStatus;
 
   /// The location of where the toolbar should be drawn in relative to the
   /// location of [toolbarLayerLink].
