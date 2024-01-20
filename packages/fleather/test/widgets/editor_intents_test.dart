@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../testing.dart';
+import '../text_input_utils.dart';
 
 Future<void> receiveAction(String selectorName) async {
   return TestAsyncUtils.guard(() {
@@ -322,5 +323,36 @@ void main() {
             baseOffset: 19,
             extentOffset: 10,
             affinity: TextAffinity.downstream));
+  });
+
+  testWidgets(
+      '$ExtendSelectionVerticallyToAdjacentLineIntent updates text connection cached value',
+      (tester) async {
+    final fakeChannel = FakeTextChannel((MethodCall call) async {});
+    TextInput.setChannel(fakeChannel);
+    const text = 'Some text\nSome text\n';
+    final editor = EditorSandBox(
+        tester: tester,
+        document: ParchmentDocument.fromJson([
+          {'insert': text}
+        ]));
+    await editor.pumpAndTap();
+    await editor.updateSelection(
+        base: text.length - 1, extent: text.length - 1);
+    fakeChannel.outgoingCalls.clear();
+    await receiveAction('moveDown:');
+    await tester.pumpAndSettle();
+    expect(
+        editor.controller.selection,
+        const TextSelection(
+            baseOffset: 19,
+            extentOffset: 19,
+            affinity: TextAffinity.downstream));
+    expect(fakeChannel.outgoingCalls.last.method, 'TextInput.setEditingState');
+    final textEditingValue =
+        TextEditingValue.fromJSON(fakeChannel.outgoingCalls.last.arguments);
+    expect(
+        textEditingValue.selection, const TextSelection.collapsed(offset: 19));
+    TextInput.setChannel(SystemChannels.textInput);
   });
 }

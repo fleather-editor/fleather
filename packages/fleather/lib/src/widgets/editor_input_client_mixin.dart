@@ -109,6 +109,15 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     _textInputConnection!.setEditingState(actualValue);
   }
 
+  /// Update cached remote value with selection
+  ///
+  /// This is used for macOS when hitting arrow down when the cursor is already at the end
+  /// of the document. If not updated, cursor position is not in sync with remote
+  void updateLastKnownWithSelection(TextSelection selection) {
+    _lastKnownRemoteTextEditingValue =
+        _lastKnownRemoteTextEditingValue?.copyWith(selection: selection);
+  }
+
   void updateTextInputConnectionStyle([TextPosition? position]) {
     final style = getTextStyle(position);
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
