@@ -147,6 +147,7 @@ class RenderEditableTextLine extends RenderEditableBox {
       return;
     }
     _hasFocus = value;
+    markNeedsPaint();
   }
 
   /// The pixel ratio of the current device.
