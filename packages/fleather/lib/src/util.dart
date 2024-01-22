@@ -1,4 +1,4 @@
-import 'package:quill_delta/quill_delta.dart';
+import 'package:parchment_delta/parchment_delta.dart';
 
 extension DeltaExtension on Delta {
   int get textLength {

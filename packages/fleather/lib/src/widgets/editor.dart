@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'dart:math';
 
-import 'package:fleather/src/services/spell_check_suggestions_toolbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -13,6 +12,7 @@ import 'package:parchment/parchment.dart';
 
 import '../../util.dart';
 import '../rendering/editor.dart';
+import '../services/spell_check_suggestions_toolbar.dart';
 import 'baseline_proxy.dart';
 import 'controller.dart';
 import 'cursor.dart';

@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:fleather/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 
+import '../fast_diff.dart';
 import 'editor.dart';
 
 mixin RawEditorStateSelectionDelegateMixin on EditorState

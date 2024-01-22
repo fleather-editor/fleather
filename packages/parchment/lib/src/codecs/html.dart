@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:html/dom.dart' as html;
 import 'package:html/parser.dart';
-import 'package:parchment/parchment.dart';
-import 'package:quill_delta/quill_delta.dart';
+import 'package:parchment_delta/parchment_delta.dart';
 
+import '../document.dart';
+import '../document/attributes.dart';
+import '../document/embeds.dart';
 import 'html_utils.dart';
 
 final _inlineAttributesParchmentToHtml = {

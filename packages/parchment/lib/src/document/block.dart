@@ -1,7 +1,4 @@
-// Copyright (c) 2018, the Fleather project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
-import 'package:quill_delta/quill_delta.dart';
+import 'package:parchment_delta/parchment_delta.dart';
 
 import 'attributes.dart';
 import 'line.dart';

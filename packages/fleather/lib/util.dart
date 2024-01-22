@@ -1,7 +1,3 @@
-// Copyright (c) 2018, the Zefyr project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
-
 /// Utility functions for Fleather.
 library fleather.util;
 
@@ -9,7 +5,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:parchment/parchment.dart';
-import 'package:quill_delta/quill_delta.dart';
+import 'package:parchment_delta/parchment_delta.dart';
 
 export 'src/fast_diff.dart';
 

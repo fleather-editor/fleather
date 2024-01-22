@@ -3,7 +3,7 @@ import 'package:fleather/src/widgets/checkbox.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quill_delta/quill_delta.dart';
+import 'package:parchment_delta/parchment_delta.dart';
 
 import '../testing.dart';
 

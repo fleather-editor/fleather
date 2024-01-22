@@ -1,8 +1,3 @@
-// Copyright (c) 2018, the Zefyr project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
-// ignore_for_file: use_super_parameters
-
 import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
@@ -447,9 +442,7 @@ class _InlineCodeAttribute extends ParchmentAttribute<bool> {
 ///   * [ForegroundColorAttributeBuilder]
 abstract class ColorParchmentAttributeBuilder
     extends ParchmentAttributeBuilder<int> {
-  const ColorParchmentAttributeBuilder._(
-      String key, ParchmentAttributeScope scope)
-      : super._(key, scope);
+  const ColorParchmentAttributeBuilder._(super.key, super.scope) : super._();
 
   /// Creates the color attribute with [color] value
   ParchmentAttribute<int> withColor(int color);

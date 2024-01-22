@@ -1,7 +1,7 @@
 import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quill_delta/quill_delta.dart';
+import 'package:parchment_delta/parchment_delta.dart';
 
 Widget widget(FleatherController controller, {bool withBasic = false}) {
   FlutterError.onError = onErrorIgnoreOverflowErrors;
