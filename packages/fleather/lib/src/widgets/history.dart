@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:parchment/parchment.dart';
+import 'package:parchment_delta/parchment_delta.dart';
 
 import 'controller.dart';
 import '../util.dart';
