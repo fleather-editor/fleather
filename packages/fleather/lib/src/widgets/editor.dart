@@ -1270,7 +1270,7 @@ class RawEditorState extends EditorState
   void initState() {
     super.initState();
 
-    clipboardStatus?.addListener(_onChangedClipboardStatus);
+    clipboardStatus.addListener(_onChangedClipboardStatus);
 
     _spellCheckConfiguration =
         _inferSpellCheckConfiguration(widget.spellCheckConfiguration);
@@ -1369,8 +1369,8 @@ class RawEditorState extends EditorState
     effectiveFocusNode.removeListener(_handleFocusChanged);
     _internalFocusNode?.dispose();
     _cursorController.dispose();
-    clipboardStatus?.removeListener(_onChangedClipboardStatus);
-    clipboardStatus?.dispose();
+    clipboardStatus.removeListener(_onChangedClipboardStatus);
+    clipboardStatus.dispose();
     super.dispose();
   }
 
@@ -2010,7 +2010,7 @@ class RawEditorState extends EditorState
   @override
   List<ContextMenuButtonItem> get contextMenuButtonItems {
     return EditableText.getEditableButtonItems(
-        clipboardStatus: clipboardStatus?.value,
+        clipboardStatus: clipboardStatus.value,
         onCopy: copyEnabled
             ? () => copySelection(SelectionChangedCause.toolbar)
             : null,
