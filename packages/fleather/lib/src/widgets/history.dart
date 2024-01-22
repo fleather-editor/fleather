@@ -1,6 +1,7 @@
-import 'package:fleather/fleather.dart';
 import 'package:flutter/widgets.dart';
-import 'package:quill_delta/quill_delta.dart';
+import 'package:parchment/parchment.dart';
+
+import 'controller.dart';
 import '../util.dart';
 
 /// Provides undo/redo capabilities for text editing.

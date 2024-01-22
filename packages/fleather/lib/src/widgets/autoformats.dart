@@ -1,9 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:fleather/fleather.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:quill_delta/quill_delta.dart';
+import 'package:parchment/parchment.dart';
 
 /// An [AutoFormat] is responsible for looking backwards for a pattern and
 /// applying a formatting suggestion to a document.

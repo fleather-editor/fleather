@@ -2,7 +2,6 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 import 'package:parchment/parchment.dart';
-import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
 final rightAttrs = ParchmentStyle().merge(ParchmentAttribute.right);

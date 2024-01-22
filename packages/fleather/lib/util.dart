@@ -9,7 +9,6 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:parchment/parchment.dart';
-import 'package:quill_delta/quill_delta.dart';
 
 export 'src/fast_diff.dart';
 

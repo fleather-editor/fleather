@@ -1,6 +1,5 @@
 import 'package:parchment/parchment.dart';
 import 'package:parchment/src/codecs/html.dart';
-import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
 void main() {

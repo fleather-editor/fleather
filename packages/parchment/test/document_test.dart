@@ -4,7 +4,6 @@
 import 'dart:convert';
 
 import 'package:parchment/parchment.dart';
-import 'package:quill_delta/quill_delta.dart';
 import 'package:test/test.dart';
 
 import 'matchers.dart';

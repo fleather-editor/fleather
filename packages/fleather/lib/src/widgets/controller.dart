@@ -5,7 +5,6 @@ import 'package:collection/collection.dart';
 import 'package:fleather/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:parchment/parchment.dart';
-import 'package:quill_delta/quill_delta.dart';
 
 import 'autoformats.dart';
 import 'history.dart';
