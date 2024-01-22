@@ -1,25 +1,74 @@
 import 'package:flutter/services.dart';
 import 'package:quill_delta/quill_delta.dart';
 
+/// Encapsulates clipboard data
+///
+/// One of the properties should be non-null or null should be returned
+/// from [FleatherCustomClipboardGetData].
+/// When pasting data in editor, [delta] has precedence over [plainText].
+class FleatherClipboardData {
+  final String? plainText;
+  final Delta? delta;
+
+  FleatherClipboardData({this.plainText, this.delta})
+      : assert(plainText != null || delta != null);
+}
+
+/// An abstract class for getting and setting data to clipboard
 abstract class ClipboardManager {
   const ClipboardManager();
 
-  Future<void> setData(Delta delta);
+  Future<void> setData(FleatherClipboardData data);
 
-  Future<Delta?> getData();
+  Future<FleatherClipboardData?> getData();
 }
 
-class PlainTextClipboardManager implements ClipboardManager {
+/// A [ClipboardManager] which only handles reading and setting
+/// of [FleatherClipboardData.plainText] and used by default in editor.
+class PlainTextClipboardManager extends ClipboardManager {
   const PlainTextClipboardManager();
 
   @override
-  Future<void> setData(Delta delta) {
-    final plainText =
-        delta.toList().map((e) => e.data is String ? e.data : '\uFFFC').join();
-    return Clipboard.setData(ClipboardData(text: plainText));
+  Future<void> setData(FleatherClipboardData data) async {
+    if (data.plainText != null) {
+      await Clipboard.setData(ClipboardData(text: data.plainText!));
+    }
   }
 
   @override
-  Future<Delta?> getData() => Clipboard.getData(Clipboard.kTextPlain)
-      .then((data) => data != null ? (Delta()..insert(data.text)) : null);
+  Future<FleatherClipboardData?> getData() =>
+      Clipboard.getData(Clipboard.kTextPlain).then((data) => data?.text != null
+          ? FleatherClipboardData(plainText: data!.text!)
+          : null);
+}
+
+/// Used by [FleatherCustomClipboardManager] to get clipboard data.
+/// 
+/// Null should be returned in case clipboard has no data
+/// or data is invalid and both [FleatherClipboardData.plainText]
+/// and [FleatherClipboardData.delta] are null.
+typedef FleatherCustomClipboardGetData = Future<FleatherClipboardData?>
+    Function();
+
+/// Used by [FleatherCustomClipboardManager] to set clipboard data.
+typedef FleatherCustomClipboardSetData = Future<bool> Function(
+    FleatherClipboardData data);
+
+/// A [ClipboardManager] which delegates getting and setting data to user and
+/// can be used to have rich clipboard.
+final class FleatherCustomClipboardManager extends ClipboardManager {
+  final FleatherCustomClipboardGetData _getData;
+  final FleatherCustomClipboardSetData _setData;
+
+  const FleatherCustomClipboardManager({
+    required FleatherCustomClipboardGetData getData,
+    required FleatherCustomClipboardSetData setData,
+  })  : _getData = getData,
+        _setData = setData;
+
+  @override
+  Future<void> setData(FleatherClipboardData data) => _setData(data);
+
+  @override
+  Future<FleatherClipboardData?> getData() => _getData();
 }

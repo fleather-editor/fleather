@@ -1129,9 +1129,7 @@ class RawEditorState extends EditorState
       return;
     }
 
-    widget.clipboardManager.setData(controller.document
-        .toDelta()
-        .slice(selection.baseOffset, selection.extentOffset));
+    _setClipboardData();
     if (cause == SelectionChangedCause.toolbar) {
       bringIntoView(textEditingValue.selection.extent);
       hideToolbar(false);
@@ -1168,14 +1166,22 @@ class RawEditorState extends EditorState
     if (selection.isCollapsed) {
       return;
     }
-    widget.clipboardManager.setData(controller.document
-        .toDelta()
-        .slice(selection.baseOffset, selection.extentOffset));
+    _setClipboardData();
     _replaceText(ReplaceTextIntent(textEditingValue, '', selection, cause));
     if (cause == SelectionChangedCause.toolbar) {
       bringIntoView(textEditingValue.selection.extent);
       hideToolbar();
     }
+  }
+
+  void _setClipboardData() {
+    final TextSelection selection = textEditingValue.selection;
+    widget.clipboardManager.setData(FleatherClipboardData(
+      plainText: selection.textInside(textEditingValue.text),
+      delta: controller.document
+          .toDelta()
+          .slice(selection.baseOffset, selection.extentOffset),
+    ));
   }
 
   /// Paste text from clipboard.
@@ -1190,19 +1196,24 @@ class RawEditorState extends EditorState
     }
     // Snapshot the input before using `await`.
     // See https://github.com/flutter/flutter/issues/11427
-    final delta = await widget.clipboardManager.getData();
-    if (delta == null) {
+    final data = await widget.clipboardManager.getData();
+    if (data?.plainText == null && data?.delta == null) {
       return;
     }
 
-    controller.compose(
-      (Delta()
-            ..retain(selection.baseOffset)
-            ..delete(selection.extentOffset - selection.baseOffset))
-          .concat(delta),
-      forceUpdateSelection: true,
-      source: ChangeSource.local,
-    );
+    if (data!.delta != null) {
+      controller.compose(
+        (Delta()
+              ..retain(selection.baseOffset)
+              ..delete(selection.extentOffset - selection.baseOffset))
+            .concat(data.delta!),
+        forceUpdateSelection: true,
+        source: ChangeSource.local,
+      );
+    } else {
+      _replaceText(ReplaceTextIntent(
+          textEditingValue, data.plainText!, selection, cause));
+    }
 
     if (cause == SelectionChangedCause.toolbar) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
