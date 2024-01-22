@@ -1,4 +1,4 @@
-import 'package:parchment/src/document/embeds.dart';
+import '../document/embeds.dart';
 
 bool isBlockEmbed(Object data) {
   if (data is EmbeddableObject) {

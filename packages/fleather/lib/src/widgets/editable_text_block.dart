@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
-import 'package:fleather/util.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 
+import '../../util.dart';
 import '../rendering/editable_text_block.dart';
 import 'checkbox.dart';
 import 'controller.dart';
