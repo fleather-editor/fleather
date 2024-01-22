@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:quill_delta/quill_delta.dart';
+import 'package:parchment_delta/parchment_delta.dart';
 
 /// Encapsulates clipboard data
 ///
@@ -43,7 +43,7 @@ class PlainTextClipboardManager extends ClipboardManager {
 }
 
 /// Used by [FleatherCustomClipboardManager] to get clipboard data.
-/// 
+///
 /// Null should be returned in case clipboard has no data
 /// or data is invalid and both [FleatherClipboardData.plainText]
 /// and [FleatherClipboardData.delta] are null.
