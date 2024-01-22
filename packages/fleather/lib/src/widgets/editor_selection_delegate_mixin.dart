@@ -97,8 +97,7 @@ mixin RawEditorStateSelectionDelegateMixin on EditorState
 
   @override
   bool get pasteEnabled =>
-      !widget.readOnly &&
-      (clipboardStatus.value == ClipboardStatus.pasteable);
+      !widget.readOnly && clipboardStatus.value == ClipboardStatus.pasteable;
 
   @override
   bool get selectAllEnabled => widget.enableInteractiveSelection;
