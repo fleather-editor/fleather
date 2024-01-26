@@ -416,6 +416,7 @@ void main() {
       await tester.tap(find.byType(TextButton));
       await tester.pump();
       expect(find.byKey(const Key('color_palette')), findsNothing);
+      await tester.pumpAndSettle(throttleDuration);
     });
   });
 }
