@@ -184,10 +184,15 @@ class TestUpdateWidget extends StatefulWidget {
       {super.key,
       required this.focusNodeAfterChange,
       this.testField = false,
-      this.document});
+      this.toolbarBuilder,
+      this.controller,
+      this.document})
+      : assert((toolbarBuilder != null) == (controller != null));
 
   final FocusNode focusNodeAfterChange;
   final bool testField;
+  final FleatherController? controller;
+  final WidgetBuilder? toolbarBuilder;
   final ParchmentDocument? document;
 
   @override
@@ -206,13 +211,16 @@ class TestUpdateWidgetState extends State<TestUpdateWidget> {
                 setState(() => focusNode = widget.focusNodeAfterChange),
             child: const Text('Change state'),
           ),
+          if (widget.toolbarBuilder != null) widget.toolbarBuilder!(context),
           widget.testField
               ? FleatherField(
-                  controller: FleatherController(document: widget.document),
+                  controller: widget.controller ??
+                      FleatherController(document: widget.document),
                   focusNode: focusNode,
                 )
               : FleatherEditor(
-                  controller: FleatherController(document: widget.document),
+                  controller: widget.controller ??
+                      FleatherController(document: widget.document),
                   focusNode: focusNode,
                 ),
         ],

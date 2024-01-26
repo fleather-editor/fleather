@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parchment_delta/parchment_delta.dart';
 
+import '../testing.dart';
+
 Widget widget(FleatherController controller, {bool withBasic = false}) {
   FlutterError.onError = onErrorIgnoreOverflowErrors;
   Widget backgroundColorBuilder(context, value) => Column(
@@ -305,68 +307,117 @@ void main() {
       // Undo + redo
       expect(find.byType(UndoRedoButton), findsNWidgets(2));
     });
-  });
 
-  testWidgets('Background color', (tester) async {
-    final controller = FleatherController();
-    await tester.pumpWidget(widget(controller));
-    await tester.pumpAndSettle();
-    final backgroundButton = find.byType(ColorButton).first;
-    controller.compose(Delta()..insert('Hello world'));
-    await tester.pump(throttleDuration);
-    controller
-        .updateSelection(const TextSelection(baseOffset: 0, extentOffset: 5));
+    testWidgets('Background color', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final backgroundButton = find.byType(ColorButton).first;
+      controller.compose(Delta()..insert('Hello world'));
+      await tester.pump(throttleDuration);
+      controller
+          .updateSelection(const TextSelection(baseOffset: 0, extentOffset: 5));
 
-    await tester.pumpAndSettle();
-    await tester.tap(backgroundButton);
-    await tester.pumpAndSettle();
-    final colorElement = find.descendant(
-        of: find.byKey(const Key('color_palette')),
-        matching: find.byType(RawMaterialButton));
-    expect(
-      colorElement,
-      findsNWidgets(17),
-    );
+      await tester.pumpAndSettle();
+      await tester.tap(backgroundButton);
+      await tester.pumpAndSettle();
+      final colorElement = find.descendant(
+          of: find.byKey(const Key('color_palette')),
+          matching: find.byType(RawMaterialButton));
+      expect(colorElement, findsNWidgets(17));
 
-    await tester.tap(find
-        .descendant(
-            of: find.byKey(const Key('color_palette')),
-            matching: find.byType(RawMaterialButton))
-        .last);
-    await tester.pumpAndSettle(throttleDuration);
-    expect(controller.document.toDelta().first,
-        Operation.insert('Hello', {'bg': Colors.black.value}));
-  });
+      await tester.tap(find
+          .descendant(
+              of: find.byKey(const Key('color_palette')),
+              matching: find.byType(RawMaterialButton))
+          .last);
+      await tester.pumpAndSettle(throttleDuration);
+      expect(controller.document.toDelta().first,
+          Operation.insert('Hello', {'bg': Colors.black.value}));
+    });
 
-  testWidgets('Text color', (tester) async {
-    final controller = FleatherController();
-    await tester.pumpWidget(widget(controller));
-    await tester.pumpAndSettle();
-    final backgroundButton = find.byType(ColorButton).last;
-    controller.compose(Delta()..insert('Hello world'));
-    await tester.pump(throttleDuration);
-    controller
-        .updateSelection(const TextSelection(baseOffset: 0, extentOffset: 5));
+    testWidgets('Text color', (tester) async {
+      final controller = FleatherController();
+      await tester.pumpWidget(widget(controller));
+      await tester.pumpAndSettle();
+      final backgroundButton = find.byType(ColorButton).last;
+      controller.compose(Delta()..insert('Hello world'));
+      await tester.pump(throttleDuration);
+      controller
+          .updateSelection(const TextSelection(baseOffset: 0, extentOffset: 5));
 
-    await tester.pumpAndSettle();
-    await tester.tap(backgroundButton);
-    await tester.pumpAndSettle();
-    final colorElement = find.descendant(
-        of: find.byKey(const Key('color_palette')),
-        matching: find.byType(RawMaterialButton));
-    expect(
-      colorElement,
-      findsNWidgets(17),
-    );
+      await tester.pumpAndSettle();
+      await tester.tap(backgroundButton);
+      await tester.pumpAndSettle();
+      final colorElement = find.descendant(
+          of: find.byKey(const Key('color_palette')),
+          matching: find.byType(RawMaterialButton));
+      expect(
+        colorElement,
+        findsNWidgets(17),
+      );
 
-    await tester.tap(find
-        .descendant(
-            of: find.byKey(const Key('color_palette')),
-            matching: find.byType(RawMaterialButton))
-        .last);
-    await tester.pumpAndSettle(throttleDuration);
-    expect(controller.document.toDelta().first,
-        Operation.insert('Hello', {'fg': Colors.black.value}));
+      await tester.tap(find
+          .descendant(
+              of: find.byKey(const Key('color_palette')),
+              matching: find.byType(RawMaterialButton))
+          .last);
+      await tester.pumpAndSettle(throttleDuration);
+      expect(controller.document.toDelta().first,
+          Operation.insert('Hello', {'fg': Colors.black.value}));
+    });
+
+    testWidgets('updating editor toolbar remove overlay entry if any',
+        (tester) async {
+      Widget backgroundColorBuilder(context, value) => Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.mode_edit_outline_outlined,
+                size: 16,
+              ),
+              Container(
+                width: 18,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: value,
+                  border: value == Colors.transparent
+                      ? Border.all(
+                          color:
+                              Theme.of(context).iconTheme.color ?? Colors.black)
+                      : null,
+                ),
+              )
+            ],
+          );
+      final controller = FleatherController();
+      final widget = MaterialApp(
+        home: TestUpdateWidget(
+          focusNodeAfterChange: FocusNode(),
+          controller: controller,
+          toolbarBuilder: (context) => FleatherToolbar(
+            children: [
+              ColorButton(
+                  controller: controller,
+                  attributeKey: ParchmentAttribute.backgroundColor,
+                  nullColorLabel: 'No color',
+                  builder: backgroundColorBuilder)
+            ],
+          ),
+        ),
+      );
+      await tester.pumpWidget(widget);
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.mode_edit_outline_outlined));
+      await tester.pump();
+      expect(find.byKey(const Key('color_palette')), findsOneWidget);
+      await tester.tap(find.byType(TextButton));
+      await tester.pump();
+      expect(find.byKey(const Key('color_palette')), findsNothing);
+      await tester.pumpAndSettle(throttleDuration);
+    });
   });
 }
 

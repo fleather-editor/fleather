@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -407,31 +408,30 @@ class _ColorButtonState extends State<ColorButton> {
     final renderBox = context.findRenderObject() as RenderBox;
     final offset = renderBox.localToGlobal(Offset.zero) + Offset(0, buttonSize);
 
+    final completer = Completer<Color?>();
+
     final selector = Material(
       elevation: 4.0,
       color: Theme.of(context).canvasColor,
       child: Container(
           constraints: BoxConstraints(maxWidth: maxWidth),
           padding: const EdgeInsets.all(8.0),
-          child: _ColorPalette(nullColorLabel)),
+          child: _ColorPalette(nullColorLabel,
+              onSelectedColor: completer.complete)),
     );
 
-    return Navigator.of(context).push<Color>(
-      RawDialogRoute(
-        barrierColor: Colors.transparent,
-        pageBuilder: (context, _, __) {
-          return Stack(
-            children: [
-              Positioned(
-                key: const Key('color_palette'),
-                top: offset.dy,
-                left: offset.dx,
-                child: selector,
-              )
-            ],
-          );
-        },
+    return _SelectorScope.of(context).pushSelector(
+      Stack(
+        children: [
+          Positioned(
+            key: const Key('color_palette'),
+            top: offset.dy,
+            left: offset.dx,
+            child: selector,
+          )
+        ],
       ),
+      completer,
     );
   }
 
@@ -458,8 +458,8 @@ class _ColorButtonState extends State<ColorButton> {
 
   @override
   void dispose() {
-    widget.controller.removeListener(_didChangeEditingValue);
     super.dispose();
+    widget.controller.removeListener(_didChangeEditingValue);
   }
 
   @override
@@ -510,9 +510,10 @@ class _ColorPalette extends StatelessWidget {
     Colors.black,
   ];
 
-  const _ColorPalette(this.nullColorLabel);
+  const _ColorPalette(this.nullColorLabel, {required this.onSelectedColor});
 
   final String nullColorLabel;
+  final void Function(Color?) onSelectedColor;
 
   @override
   Widget build(BuildContext context) {
@@ -522,17 +523,19 @@ class _ColorPalette extends StatelessWidget {
       runSpacing: 4,
       spacing: 4,
       children: [...colors]
-          .map((e) => _ColorPaletteElement(e, nullColorLabel))
+          .map((e) => _ColorPaletteElement(e, nullColorLabel, onSelectedColor))
           .toList(),
     );
   }
 }
 
 class _ColorPaletteElement extends StatelessWidget {
-  const _ColorPaletteElement(this.color, this.nullColorLabel);
+  const _ColorPaletteElement(
+      this.color, this.nullColorLabel, this.onSelectedColor);
 
   final Color? color;
   final String nullColorLabel;
+  final void Function(Color?) onSelectedColor;
 
   @override
   Widget build(BuildContext context) {
@@ -542,11 +545,9 @@ class _ColorPaletteElement extends StatelessWidget {
     return Container(
       width: (color == null ? 4 : 1) * size + (color == null ? 3 * 4 : 0),
       height: size,
-      decoration: BoxDecoration(
-        color: color,
-      ),
+      decoration: BoxDecoration(color: color),
       child: RawMaterialButton(
-        onPressed: () => Navigator.pop(context, color),
+        onPressed: () => onSelectedColor(color),
         child: color == null
             ? Text(
                 nullColorLabel,
@@ -596,10 +597,6 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
     });
   }
 
-  void _selectAttribute(ParchmentAttribute<int> value) {
-    widget.controller.formatSelection(value);
-  }
-
   @override
   void initState() {
     super.initState();
@@ -621,8 +618,8 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
 
   @override
   void dispose() {
-    widget.controller.removeListener(_didChangeEditingValue);
     super.dispose();
+    widget.controller.removeListener(_didChangeEditingValue);
   }
 
   @override
@@ -636,50 +633,52 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
         elevation: 0,
         hoverElevation: 0,
         highlightElevation: 0,
-        onPressed: _selectHeading,
+        onPressed: () async {
+          final attribute = await _selectHeading();
+          if (attribute != null) {
+            widget.controller.formatSelection(attribute);
+          }
+        },
         child: Text(_headingToText[current] ?? ''),
       ),
     );
   }
 
-  Future<void> _selectHeading() async {
+  Future<ParchmentAttribute<int>?> _selectHeading() async {
     final renderBox = context.findRenderObject() as RenderBox;
     final offset =
         renderBox.localToGlobal(Offset.zero) + Offset(0, buttonHeight);
     final themeData = FleatherTheme.of(context)!;
 
+    final completer = Completer<ParchmentAttribute<int>?>();
+
     final selector = Material(
       elevation: 4.0,
       borderRadius: BorderRadius.circular(2),
       color: Theme.of(context).canvasColor,
-      child: _HeadingList(theme: themeData),
+      child: _HeadingList(theme: themeData, onSelected: completer.complete),
     );
 
-    final newValue = await Navigator.of(context).push<ParchmentAttribute<int>>(
-      RawDialogRoute(
-        barrierColor: Colors.transparent,
-        pageBuilder: (context, _, __) {
-          return Stack(
-            children: [
-              Positioned(
-                top: offset.dy,
-                left: offset.dx,
-                child: selector,
-              )
-            ],
-          );
-        },
+    return _SelectorScope.of(context).pushSelector(
+      Stack(
+        children: [
+          Positioned(
+            top: offset.dy,
+            left: offset.dx,
+            child: selector,
+          )
+        ],
       ),
+      completer,
     );
-
-    if (newValue != null) _selectAttribute(newValue);
   }
 }
 
 class _HeadingList extends StatelessWidget {
-  final FleatherThemeData theme;
+  const _HeadingList({required this.theme, required this.onSelected});
 
-  const _HeadingList({required this.theme});
+  final FleatherThemeData theme;
+  final void Function(ParchmentAttribute<int>) onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -709,24 +708,31 @@ class _HeadingList extends StatelessWidget {
       ParchmentAttribute.heading.level6: theme?.heading6.style,
     };
     return _HeadingListEntry(
-        value: value, text: text, style: valueToStyle[value]);
+        value: value,
+        text: text,
+        style: valueToStyle[value],
+        onSelected: onSelected);
   }
 }
 
 class _HeadingListEntry extends StatelessWidget {
+  const _HeadingListEntry(
+      {required this.value,
+      required this.text,
+      required this.style,
+      required this.onSelected});
+
   final ParchmentAttribute<int> value;
   final String text;
   final TextStyle? style;
-
-  const _HeadingListEntry(
-      {required this.value, required this.text, required this.style});
+  final void Function(ParchmentAttribute<int>) onSelected;
 
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
       key: Key('heading_entry${value.value ?? 0}'),
       clipBehavior: Clip.antiAlias,
-      onPressed: () => Navigator.pop(context, value),
+      onPressed: () => onSelected(value),
       child: Container(
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -1161,14 +1167,16 @@ class _FleatherToolbarState extends State<FleatherToolbar> {
   Widget build(BuildContext context) {
     return FleatherTheme(
       data: theme,
-      child: Container(
-        padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
-        constraints:
-            BoxConstraints.tightFor(height: widget.preferredSize.height),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: widget.children,
+      child: _SelectorScope(
+        child: Container(
+          padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
+          constraints:
+              BoxConstraints.tightFor(height: widget.preferredSize.height),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: widget.children,
+            ),
           ),
         ),
       ),
@@ -1213,5 +1221,68 @@ class FLIconButton extends StatelessWidget {
         child: icon,
       ),
     );
+  }
+}
+
+class _SelectorScope extends StatefulWidget {
+  const _SelectorScope({required this.child});
+
+  static _SelectorScopeState of(BuildContext context) =>
+      context.findAncestorStateOfType<_SelectorScopeState>()!;
+
+  final Widget child;
+
+  @override
+  State<_SelectorScope> createState() => _SelectorScopeState();
+}
+
+class _SelectorScopeState extends State<_SelectorScope> {
+  OverlayEntry? _overlayEntry;
+
+  Future<T?> pushSelector<T>(Widget selector, Completer<T?> completer) {
+    _overlayEntry?.remove();
+    final overlayEntry = OverlayEntry(
+      builder: (context) => TapRegion(
+        child: selector,
+        onTapOutside: (_) => completer.complete(null),
+      ),
+    );
+    overlayEntry.addListener(() {
+      if (!overlayEntry.mounted && !completer.isCompleted) {
+        completer.complete(null);
+      }
+    });
+    completer.future.whenComplete(() {
+      overlayEntry.remove();
+      if (_overlayEntry == overlayEntry) {
+        _overlayEntry = null;
+      }
+    });
+    _overlayEntry = overlayEntry;
+    Overlay.of(context).insert(_overlayEntry!);
+    return completer.future;
+  }
+
+  void removeEntry() {
+    if (_overlayEntry == null) return;
+    _overlayEntry!.remove();
+    _overlayEntry = null;
+  }
+
+  @override
+  void didUpdateWidget(covariant _SelectorScope oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    removeEntry();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    removeEntry();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
