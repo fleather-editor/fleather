@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -355,7 +356,7 @@ Widget defaultToggleStyleButtonBuilder(
 /// Signature of callbacks that return a [Color] picked from a palette built in
 /// a [BuildContext] with a [String] specifying the label of the `null` selection
 /// option
-typedef PickColor = void Function(BuildContext, String, void Function(Color?));
+typedef PickColor = Future<Color?> Function(BuildContext, String);
 
 /// Signature of callbacks the returns a [Widget] from a [BuildContext]
 /// and a [Color] (`null` color to use the default color of the text - copes with dark mode).
@@ -398,8 +399,8 @@ class _ColorButtonState extends State<ColorButton> {
     });
   }
 
-  void _defaultPickColor(BuildContext context, String nullColorLabel,
-      void Function(Color? selectedColor) onSelected) async {
+  Future<Color?> _defaultPickColor(
+      BuildContext context, String nullColorLabel) async {
     // kIsWeb important here as Platform.xxx will cause a crash en web
     final isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
     final maxWidth = isMobile ? 200.0 : 100.0;
@@ -407,16 +408,19 @@ class _ColorButtonState extends State<ColorButton> {
     final renderBox = context.findRenderObject() as RenderBox;
     final offset = renderBox.localToGlobal(Offset.zero) + Offset(0, buttonSize);
 
+    final completer = Completer<Color?>();
+
     final selector = Material(
       elevation: 4.0,
       color: Theme.of(context).canvasColor,
       child: Container(
           constraints: BoxConstraints(maxWidth: maxWidth),
           padding: const EdgeInsets.all(8.0),
-          child: _ColorPalette(nullColorLabel, onSelectedColor: onSelected)),
+          child: _ColorPalette(nullColorLabel,
+              onSelectedColor: completer.complete)),
     );
 
-    _SelectorScope.of(context).pushSelector(
+    return _SelectorScope.of(context).pushSelector(
       Stack(
         children: [
           Positioned(
@@ -427,6 +431,7 @@ class _ColorButtonState extends State<ColorButton> {
           )
         ],
       ),
+      completer,
     );
   }
 
@@ -459,14 +464,6 @@ class _ColorButtonState extends State<ColorButton> {
 
   @override
   Widget build(BuildContext context) {
-    void onSelectedColor(selectedColor) {
-      final attribute = selectedColor != null
-          ? widget.attributeKey.withColor(selectedColor.value)
-          : widget.attributeKey.unset;
-      widget.controller.formatSelection(attribute);
-      _SelectorScope.of(context).removeEntry();
-    }
-
     return ConstrainedBox(
       constraints:
           BoxConstraints.tightFor(width: buttonSize, height: buttonSize),
@@ -479,8 +476,12 @@ class _ColorButtonState extends State<ColorButton> {
         highlightElevation: 0,
         hoverElevation: 0,
         onPressed: () async {
-          (widget.pickColor ?? _defaultPickColor)(
-              context, widget.nullColorLabel, onSelectedColor);
+          final selectedColor = await (widget.pickColor ?? _defaultPickColor)(
+              context, widget.nullColorLabel);
+          final attribute = selectedColor != null
+              ? widget.attributeKey.withColor(selectedColor.value)
+              : widget.attributeKey.unset;
+          widget.controller.formatSelection(attribute);
         },
         child: Builder(builder: (context) => widget.builder(context, _value)),
       ),
@@ -623,11 +624,6 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
 
   @override
   Widget build(BuildContext context) {
-    void onSelected(ParchmentAttribute<int> selectedBlocStyle) {
-      widget.controller.formatSelection(selectedBlocStyle);
-      _SelectorScope.of(context).removeEntry();
-    }
-
     return ConstrainedBox(
       constraints: BoxConstraints.tightFor(height: buttonHeight),
       child: RawMaterialButton(
@@ -637,26 +633,33 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
         elevation: 0,
         hoverElevation: 0,
         highlightElevation: 0,
-        onPressed: () => _selectHeading(onSelected),
+        onPressed: () async {
+          final attribute = await _selectHeading();
+          if (attribute != null) {
+            widget.controller.formatSelection(attribute);
+          }
+        },
         child: Text(_headingToText[current] ?? ''),
       ),
     );
   }
 
-  void _selectHeading(void Function(ParchmentAttribute<int>) onSelected) async {
+  Future<ParchmentAttribute<int>?> _selectHeading() async {
     final renderBox = context.findRenderObject() as RenderBox;
     final offset =
         renderBox.localToGlobal(Offset.zero) + Offset(0, buttonHeight);
     final themeData = FleatherTheme.of(context)!;
 
+    final completer = Completer<ParchmentAttribute<int>?>();
+
     final selector = Material(
       elevation: 4.0,
       borderRadius: BorderRadius.circular(2),
       color: Theme.of(context).canvasColor,
-      child: _HeadingList(theme: themeData, onSelected: onSelected),
+      child: _HeadingList(theme: themeData, onSelected: completer.complete),
     );
 
-    _SelectorScope.of(context).pushSelector(
+    return _SelectorScope.of(context).pushSelector(
       Stack(
         children: [
           Positioned(
@@ -666,6 +669,7 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
           )
         ],
       ),
+      completer,
     );
   }
 }
@@ -1233,26 +1237,36 @@ class _SelectorScope extends StatefulWidget {
 }
 
 class _SelectorScopeState extends State<_SelectorScope> {
-  OverlayEntry? overlayEntry;
+  OverlayEntry? _overlayEntry;
 
-  void pushSelector(Widget selector) {
-    overlayEntry?.remove();
-    overlayEntry = OverlayEntry(
+  Future<T?> pushSelector<T>(Widget selector, Completer<T?> completer) {
+    _overlayEntry?.remove();
+    final overlayEntry = OverlayEntry(
       builder: (context) => TapRegion(
         child: selector,
-        onTapOutside: (_) {
-          overlayEntry?.remove();
-          overlayEntry = null;
-        },
+        onTapOutside: (_) => completer.complete(null),
       ),
     );
-    Overlay.of(context).insert(overlayEntry!);
+    overlayEntry.addListener(() {
+      if (!overlayEntry.mounted && !completer.isCompleted) {
+        completer.complete(null);
+      }
+    });
+    completer.future.whenComplete(() {
+      overlayEntry.remove();
+      if (_overlayEntry == overlayEntry) {
+        _overlayEntry = null;
+      }
+    });
+    _overlayEntry = overlayEntry;
+    Overlay.of(context).insert(_overlayEntry!);
+    return completer.future;
   }
 
   void removeEntry() {
-    if (overlayEntry == null) return;
-    overlayEntry!.remove();
-    overlayEntry = null;
+    if (_overlayEntry == null) return;
+    _overlayEntry!.remove();
+    _overlayEntry = null;
   }
 
   @override
