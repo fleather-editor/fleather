@@ -16,6 +16,8 @@ class FleatherClipboardData {
   bool get hasDelta => delta != null;
 
   bool get hasPlainText => plainText != null;
+
+  bool get isEmpty => !hasPlainText && !hasDelta;
 }
 
 /// An abstract class for getting and setting data to clipboard

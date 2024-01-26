@@ -1,7 +1,13 @@
 ## 1.13.0
+
+* Replace quill_delta package with parchment_delta
+
+## 1.13.0
+
 * Upgrade dependencies
 
 ## 1.12.0
+
 * Introduce AutoFormats to handle automatic text formatting and make Heuristics only responsible for validity of document
 * [Fix] preserve line style on new line
 
