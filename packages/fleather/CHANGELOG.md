@@ -1,3 +1,11 @@
+## 1.14.0
+
+* Add `ClipboardManager` which can be used to implement rich clipboard
+* Use overlay entries to prevent focus loss when selection color or heading in default toolbar
+* Replace quill_delta package with parchment_delta
+* [Fix] Caret movement issues
+* [Fix] Caret painting on focus gain
+
 ## 1.13.2
 
 * [Fix] pub.dev issues
