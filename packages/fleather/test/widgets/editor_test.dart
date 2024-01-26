@@ -66,7 +66,6 @@ void main() {
 
       expect(find.text('Paste'), findsNothing);
       await tester.longPress(find.byType(FleatherEditor));
-      tester.binding.scheduleWarmUpFrame();
       await tester.pump();
       // Given current toolbar implementation in Flutter no other choice
       // than to search for "Paste" text
@@ -88,7 +87,6 @@ void main() {
       expect(find.text('Paste'), findsNothing);
       await tester.tap(find.byType(FleatherEditor));
       await tester.tap(find.byType(FleatherEditor));
-      tester.binding.scheduleWarmUpFrame();
       await tester.pump();
       final finder = find.text('Paste');
       expect(finder, findsOneWidget);
@@ -104,6 +102,103 @@ void main() {
           MaterialApp(home: FleatherEditor(controller: FleatherController()));
       await tester.pumpWidget(widget);
       // Fails if thrown
+    });
+
+    testWidgets('Copy intent sends data to clipboard manager', (tester) async {
+      prepareClipboard();
+      FleatherClipboardData? sentData;
+      final editor = EditorSandBox(
+        tester: tester,
+        document: ParchmentDocument.fromJson([
+          {'insert': 'Test Text\n'}
+        ]),
+        autofocus: true,
+        clipboardManager: FleatherCustomClipboardManager(
+          getData: () => throw UnimplementedError(),
+          setData: (data) async => sentData = data,
+        ),
+      );
+      await editor.pump();
+      final RawEditorState state =
+          tester.state<RawEditorState>(find.byType(RawEditor));
+      await editor.updateSelection(base: 3, extent: 6);
+      state.showToolbar(createIfNull: true);
+      await tester.pump();
+      final finder = find.text('Copy');
+      await tester.tap(finder);
+      await tester.pumpAndSettle(throttleDuration);
+      expect(sentData?.plainText, 't T');
+      expect(sentData?.delta, Delta()..insert('t T'));
+    });
+
+    testWidgets('Cut intent sends data to clipboard manager', (tester) async {
+      prepareClipboard();
+      FleatherClipboardData? sentData;
+      final editor = EditorSandBox(
+        tester: tester,
+        document: ParchmentDocument.fromJson([
+          {'insert': 'Test Text\n'}
+        ]),
+        autofocus: true,
+        clipboardManager: FleatherCustomClipboardManager(
+          getData: () => throw UnimplementedError(),
+          setData: (data) async => sentData = data,
+        ),
+      );
+      await editor.pump();
+      final RawEditorState state =
+          tester.state<RawEditorState>(find.byType(RawEditor));
+      await editor.updateSelection(base: 3, extent: 6);
+      state.showToolbar(createIfNull: true);
+      await tester.pump();
+      final finder = find.text('Cut');
+      await tester.tap(finder);
+      await tester.pumpAndSettle(throttleDuration);
+      expect(sentData?.plainText, 't T');
+      expect(sentData?.delta, Delta()..insert('t T'));
+      expect(editor.selection, const TextSelection.collapsed(offset: 3));
+    });
+
+    testWidgets('Paste intent gets data from clipboard manager',
+        (tester) async {
+      prepareClipboard();
+      var data = FleatherClipboardData(plainText: 'Test');
+      final editor = EditorSandBox(
+        tester: tester,
+        document: ParchmentDocument(),
+        autofocus: true,
+        clipboardManager: FleatherCustomClipboardManager(
+          getData: () => Future.value(data),
+          setData: (_) => throw UnimplementedError(),
+        ),
+      );
+      await editor.pump();
+
+      Future<void> paste() async {
+        await tester.longPress(find.byType(FleatherEditor));
+        await tester.pump();
+        final finder = find.text('Paste');
+        await tester.tap(finder);
+        await tester.pump();
+      }
+
+      await paste();
+      expect(editor.document.toPlainText(), 'Test\n');
+
+      data = FleatherClipboardData(
+        plainText: 'Delta takes precedence to plainText',
+        delta: Delta()..insert('Text', {'b': true}),
+      );
+
+      await paste();
+      expect(
+          editor.document.toDelta(),
+          Delta()
+            ..insert('Test')
+            ..insert('Text', {'b': true})
+            ..insert('\n'));
+
+      await tester.pumpAndSettle(throttleDuration);
     });
 
     group('Text selection', () {

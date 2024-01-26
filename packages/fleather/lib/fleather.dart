@@ -15,3 +15,4 @@ export 'src/widgets/link.dart' show LinkActionPickerDelegate, LinkMenuAction;
 export 'src/widgets/text_line.dart';
 export 'src/widgets/theme.dart';
 export 'src/widgets/autoformats.dart';
+export 'src/services/clipboard_manager.dart';

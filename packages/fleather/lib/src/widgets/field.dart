@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 
+import '../services/clipboard_manager.dart';
 import 'controller.dart';
 import 'editor.dart';
 
@@ -155,6 +156,12 @@ class FleatherField extends StatefulWidget {
   /// Defaults to [defaultContextMenuBuilder].
   final FleatherContextMenuBuilder contextMenuBuilder;
 
+  /// Provides clipboard status and getter and setter for clipboard data
+  /// for paste, copy and cut functionality.
+  ///
+  /// Defaults to [PlainTextClipboardManager]
+  final ClipboardManager clipboardManager;
+
   final GlobalKey<EditorState>? editorKey;
 
   const FleatherField({
@@ -181,6 +188,7 @@ class FleatherField extends StatefulWidget {
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.spellCheckConfiguration,
     this.embedBuilder = defaultFleatherEmbedBuilder,
+    this.clipboardManager = const PlainTextClipboardManager(),
   });
 
   @override
@@ -248,6 +256,7 @@ class _FleatherFieldState extends State<FleatherField> {
       embedBuilder: widget.embedBuilder,
       spellCheckConfiguration: widget.spellCheckConfiguration,
       contextMenuBuilder: widget.contextMenuBuilder,
+      clipboardManager: widget.clipboardManager,
     );
 
     if (widget.toolbar != null) {
