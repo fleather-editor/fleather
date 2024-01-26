@@ -1197,11 +1197,11 @@ class RawEditorState extends EditorState
     // Snapshot the input before using `await`.
     // See https://github.com/flutter/flutter/issues/11427
     final data = await widget.clipboardManager.getData();
-    if (data?.plainText == null && data?.delta == null) {
+    if (data?.hasPlainText != true && data?.hasDelta != true) {
       return;
     }
 
-    if (data!.delta != null) {
+    if (data!.hasDelta) {
       controller.compose(
         (Delta()
               ..retain(selection.baseOffset)

@@ -12,6 +12,10 @@ class FleatherClipboardData {
 
   FleatherClipboardData({this.plainText, this.delta})
       : assert(plainText != null || delta != null);
+
+  bool get hasDelta => delta != null;
+
+  bool get hasPlainText => plainText != null;
 }
 
 /// An abstract class for getting and setting data to clipboard
@@ -30,7 +34,7 @@ class PlainTextClipboardManager extends ClipboardManager {
 
   @override
   Future<void> setData(FleatherClipboardData data) async {
-    if (data.plainText != null) {
+    if (data.hasPlainText) {
       await Clipboard.setData(ClipboardData(text: data.plainText!));
     }
   }
