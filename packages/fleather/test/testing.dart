@@ -16,6 +16,7 @@ class EditorSandBox {
     FleatherThemeData? fleatherTheme,
     bool autofocus = false,
     FakeSpellCheckService? spellCheckService,
+    ClipboardManager clipboardManager = const PlainTextClipboardManager(),
     FleatherEmbedBuilder embedBuilder = defaultFleatherEmbedBuilder,
   }) {
     focusNode ??= FocusNode();
@@ -28,6 +29,7 @@ class EditorSandBox {
       autofocus: autofocus,
       spellCheckService: spellCheckService,
       embedBuilder: embedBuilder,
+      clipboardManager: clipboardManager,
     );
 
     if (fleatherTheme != null) {
@@ -139,6 +141,7 @@ class _FleatherSandbox extends StatefulWidget {
     this.autofocus = false,
     this.spellCheckService,
     this.embedBuilder = defaultFleatherEmbedBuilder,
+    this.clipboardManager = const PlainTextClipboardManager(),
   });
 
   final FleatherController controller;
@@ -146,6 +149,7 @@ class _FleatherSandbox extends StatefulWidget {
   final bool autofocus;
   final FakeSpellCheckService? spellCheckService;
   final FleatherEmbedBuilder embedBuilder;
+  final ClipboardManager clipboardManager;
 
   @override
   _FleatherSandboxState createState() => _FleatherSandboxState();
@@ -158,6 +162,7 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
   Widget build(BuildContext context) {
     return Material(
       child: FleatherField(
+        clipboardManager: widget.clipboardManager,
         embedBuilder: widget.embedBuilder,
         controller: widget.controller,
         focusNode: widget.focusNode,

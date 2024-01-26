@@ -51,7 +51,7 @@ typedef FleatherCustomClipboardGetData = Future<FleatherClipboardData?>
     Function();
 
 /// Used by [FleatherCustomClipboardManager] to set clipboard data.
-typedef FleatherCustomClipboardSetData = Future<bool> Function(
+typedef FleatherCustomClipboardSetData = Future<void> Function(
     FleatherClipboardData data);
 
 /// A [ClipboardManager] which delegates getting and setting data to user and
