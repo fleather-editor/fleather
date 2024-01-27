@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -401,8 +400,10 @@ class _ColorButtonState extends State<ColorButton> {
 
   Future<Color?> _defaultPickColor(
       BuildContext context, String nullColorLabel) async {
-    // kIsWeb important here as Platform.xxx will cause a crash en web
-    final isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+    final isMobile = switch (defaultTargetPlatform) {
+      TargetPlatform.android || TargetPlatform.iOS => true,
+      _ => false,
+    };
     final maxWidth = isMobile ? 200.0 : 100.0;
 
     final renderBox = context.findRenderObject() as RenderBox;
@@ -539,8 +540,10 @@ class _ColorPaletteElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // kIsWeb important here as Platform.xxx will cause a crash en web
-    final isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+    final isMobile = switch (defaultTargetPlatform) {
+      TargetPlatform.android || TargetPlatform.iOS => true,
+      _ => false,
+    };
     final size = isMobile ? 32.0 : 16.0;
     return Container(
       width: (color == null ? 4 : 1) * size + (color == null ? 3 * 4 : 0),
