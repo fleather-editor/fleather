@@ -1,4 +1,4 @@
-## 1.13.0
+## 1.14.0
 
 * Replace quill_delta package with parchment_delta
 

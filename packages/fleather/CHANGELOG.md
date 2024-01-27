@@ -1,4 +1,4 @@
-## 1.14.0
+## 1.14.0+1
 
 * Add `ClipboardManager` which can be used to implement rich clipboard
 * Use overlay entries to prevent focus loss when selection color or heading in default toolbar
