@@ -420,7 +420,7 @@ class _ColorButtonState extends State<ColorButton> {
               onSelectedColor: completer.complete)),
     );
 
-    return _SelectorScope.of(context).pushSelector(
+    return SelectorScope.of(context).pushSelector(
       Stack(
         children: [
           Positioned(
@@ -659,7 +659,7 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
       child: _HeadingList(theme: themeData, onSelected: completer.complete),
     );
 
-    return _SelectorScope.of(context).pushSelector(
+    return SelectorScope.of(context).pushSelector(
       Stack(
         children: [
           Positioned(
@@ -1167,7 +1167,7 @@ class _FleatherToolbarState extends State<FleatherToolbar> {
   Widget build(BuildContext context) {
     return FleatherTheme(
       data: theme,
-      child: _SelectorScope(
+      child: SelectorScope(
         child: Container(
           padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
           constraints:
@@ -1224,19 +1224,19 @@ class FLIconButton extends StatelessWidget {
   }
 }
 
-class _SelectorScope extends StatefulWidget {
-  const _SelectorScope({required this.child});
+class SelectorScope extends StatefulWidget {
+  const SelectorScope({super.key, required this.child});
 
-  static _SelectorScopeState of(BuildContext context) =>
-      context.findAncestorStateOfType<_SelectorScopeState>()!;
+  static SelectorScopeState of(BuildContext context) =>
+      context.findAncestorStateOfType<SelectorScopeState>()!;
 
   final Widget child;
 
   @override
-  State<_SelectorScope> createState() => _SelectorScopeState();
+  State<SelectorScope> createState() => SelectorScopeState();
 }
 
-class _SelectorScopeState extends State<_SelectorScope> {
+class SelectorScopeState extends State<SelectorScope> {
   OverlayEntry? _overlayEntry;
 
   Future<T?> pushSelector<T>(Widget selector, Completer<T?> completer) {
@@ -1270,7 +1270,7 @@ class _SelectorScopeState extends State<_SelectorScope> {
   }
 
   @override
-  void didUpdateWidget(covariant _SelectorScope oldWidget) {
+  void didUpdateWidget(covariant SelectorScope oldWidget) {
     super.didUpdateWidget(oldWidget);
     removeEntry();
   }
