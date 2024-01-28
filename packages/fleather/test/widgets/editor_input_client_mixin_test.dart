@@ -7,6 +7,27 @@ import 'package:flutter_test/flutter_test.dart';
 import '../testing.dart';
 
 void main() {
+  testWidgets(
+      'removes last new line from editing value when updating remote value',
+      (tester) async {
+    String? sentValue;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.textInput, (MethodCall methodCall) async {
+      if (methodCall.method == 'TextInput.setEditingState') {
+        sentValue = methodCall.arguments['text'];
+      }
+      return null;
+    });
+    final document = ParchmentDocument.fromJson([
+      {'insert': 'some text\n'}
+    ]);
+    final editor = EditorSandBox(tester: tester, document: document);
+    await editor.pump();
+    await editor.tap();
+    tester.binding.scheduleWarmUpFrame();
+    expect(sentValue, 'some text');
+  });
+
   group('sets style to TextInputConnection', () {
     final log = <TextInputConnectionStyle>[];
 
