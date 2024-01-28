@@ -120,7 +120,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     _lastKnownRemoteTextEditingValue =
         _lastKnownRemoteTextEditingValue?.copyWith(selection: selection);
   }
-  
+
   // Normalizes _lastKnownRemoteTextEditingValue before updating connection state.
   // Sending the last newline in document to platform IME causes issues like #227.
   void _setConnectionEditingState() => _textInputConnection!
