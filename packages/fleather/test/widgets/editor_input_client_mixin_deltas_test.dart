@@ -91,10 +91,17 @@ void main() {
     late FleatherController controller;
     final initialTextEditingValue = MockTextEditingValue();
 
+    setUpAll(() {
+      registerFallbackValue(const TextRange.collapsed(0));
+    });
+
     setUp(() {
       editorState = MockRawEditorState();
       rawEditor = MockRawEditor();
       controller = MockFleatherController();
+      when(() => initialTextEditingValue.text).thenReturn('');
+      when(() => initialTextEditingValue.replaced(any(), any()))
+          .thenReturn(initialTextEditingValue);
       when(() => editorState.widget).thenReturn(rawEditor);
       when(() => editorState.textEditingValue)
           .thenReturn(initialTextEditingValue);
