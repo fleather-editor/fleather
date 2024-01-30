@@ -1,3 +1,10 @@
+## 1.14.1
+
+* Use normalized text editing value for updating remote value
+* Expose `SelectorScope`
+* Remove `dart:io` usages
+* Relax `intl` version
+
 ## 1.14.0+1
 
 * Add `ClipboardManager` which can be used to implement rich clipboard
