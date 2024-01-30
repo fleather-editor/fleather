@@ -12,6 +12,7 @@ import 'editor.dart';
 mixin RawEditorStateTextInputClientMixin on EditorState
     implements DeltaTextInputClient {
   TextInputConnection? _textInputConnection;
+
   TextEditingValue? _lastKnownRemoteTextEditingValue;
 
   /// Whether to create an input connection with the platform for text editing
@@ -66,7 +67,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
       );
 
       _updateSizeAndTransform();
-      _textInputConnection!.setEditingState(_lastKnownRemoteTextEditingValue!);
+      _setConnectionEditingState();
     }
     _textInputConnection!.show();
   }
@@ -108,7 +109,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     }
 
     _lastKnownRemoteTextEditingValue = actualValue;
-    _textInputConnection!.setEditingState(actualValue);
+    _setConnectionEditingState();
   }
 
   /// Update cached remote value with selection
@@ -119,6 +120,17 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     _lastKnownRemoteTextEditingValue =
         _lastKnownRemoteTextEditingValue?.copyWith(selection: selection);
   }
+
+  // Normalizes _lastKnownRemoteTextEditingValue before updating connection state.
+  // Sending the last newline in document to platform IME causes issues like #227.
+  void _setConnectionEditingState() => _textInputConnection!
+          .setEditingState(_lastKnownRemoteTextEditingValue!.replaced(
+        TextRange(
+          start: textEditingValue.text.length - 1,
+          end: textEditingValue.text.length,
+        ),
+        '',
+      ));
 
   void updateTextInputConnectionStyle([TextPosition? position]) {
     final style = getTextStyle(position);
