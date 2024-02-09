@@ -1215,6 +1215,23 @@ class RawEditorState extends EditorState
           textEditingValue, data.plainText!, selection, cause));
     }
 
+    // move the cursor to the end of the pasted text
+    // See https://github.com/flutter/flutter/issues/271
+    int position;
+    if (data.hasDelta) {
+      position = selection.baseOffset + data.delta!.length;
+    } else {
+      position = selection.baseOffset + data.plainText!.length;
+    }
+    userUpdateTextEditingValue(
+      textEditingValue.copyWith(
+        selection: TextSelection.fromPosition(TextPosition(
+          offset: position,
+        )),
+      ),
+      cause,
+    );
+
     if (cause == SelectionChangedCause.toolbar) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         if (mounted) {

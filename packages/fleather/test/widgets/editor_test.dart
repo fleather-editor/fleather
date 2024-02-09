@@ -201,6 +201,36 @@ void main() {
       await tester.pumpAndSettle(throttleDuration);
     });
 
+    testWidgets(
+        'Paste intent deselect and move the cursor to the end of the pasted content',
+        (tester) async {
+      prepareClipboard();
+      var data = FleatherClipboardData(plainText: 'Test');
+      final editor = EditorSandBox(
+        tester: tester,
+        document: ParchmentDocument(),
+        autofocus: true,
+        clipboardManager: FleatherCustomClipboardManager(
+          getData: () => Future.value(data),
+          setData: (_) => throw UnimplementedError(),
+        ),
+      );
+      await editor.pump();
+
+      Future<void> paste() async {
+        await tester.longPress(find.byType(FleatherEditor));
+        await tester.pump();
+        final finder = find.text('Paste');
+        await tester.tap(finder);
+        await tester.pump();
+      }
+
+      await paste();
+      expect(editor.document.toPlainText(), 'Test\n');
+      expect(editor.selection, const TextSelection.collapsed(offset: 4));
+      await tester.pumpAndSettle(throttleDuration);
+    });
+
     group('Text selection', () {
       testWidgets('hides toolbar and selection handles when text changed',
           (tester) async {
