@@ -562,6 +562,50 @@ class _ColorPaletteElement extends StatelessWidget {
   }
 }
 
+/// Toolbar button which allows to display a dropdown menu with the buttons hidden because of the lack of space.
+
+class OverflowMenuButton extends StatefulWidget {
+  final List<Widget> menuChildren;
+
+  const OverflowMenuButton({super.key, required this.menuChildren});
+
+  @override
+  State<OverflowMenuButton> createState() => _OverflowMenuButtonState();
+}
+
+class _OverflowMenuButtonState extends State<OverflowMenuButton> {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return MenuAnchor(
+      builder:
+          (BuildContext context, MenuController controller, Widget? child) {
+        return FLIconButton(
+          highlightElevation: 0,
+          hoverElevation: 0,
+          size: 32,
+          icon: Icon(
+            Icons.more_vert,
+            size: 18,
+            color: theme.iconTheme.color,
+          ),
+          fillColor: theme.canvasColor,
+          onPressed: () {
+            if (controller.isOpen) {
+              controller.close();
+            } else {
+              controller.open();
+            }
+          },
+        );
+      },
+      anchorTapClosesMenu: true,
+      menuChildren: widget.menuChildren,
+    );
+  }
+}
+
 /// Toolbar button which allows to apply heading style to a line of text in
 /// Fleather editor.
 ///
@@ -1135,6 +1179,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
           controller: controller,
         ),
       ),
+
       Visibility(
         visible: !hideUndoRedo,
         child: UndoRedoButton.redo(
@@ -1143,6 +1188,8 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
       ),
 
       ...trailing,
+
+      /// ################################################################
     ]);
   }
 
@@ -1175,11 +1222,73 @@ class _FleatherToolbarState extends State<FleatherToolbar> {
           padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
           constraints:
               BoxConstraints.tightFor(height: widget.preferredSize.height),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: widget.children,
-            ),
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              double? availableWidth = constraints.maxWidth;
+              final overflowMenuChildren = <Widget>[];
+              final reallyVisibleChildren = <Widget>[];
+              final allChildren = widget.children;
+              final visibleChildren = <Widget>[];
+              for (int i = 0; i < allChildren.length; i++) {
+                final Widget child = allChildren[i];
+                if (child is SizedBox) {
+                  continue;
+                }
+
+                if (child is Visibility) {
+                  final Visibility visibilityWidget = child;
+                  if (child.visible) {
+                    visibleChildren.add(visibilityWidget.child);
+                  }
+                  continue;
+                }
+                visibleChildren.add(child);
+              }
+
+              for (int i = 0; i < visibleChildren.length; i++) {
+                final Widget child = visibleChildren[i];
+                final double? childWidth = child is SizedBox
+                    ? child.width
+                    : child is ToggleStyleButton
+                        ? 32
+                        : child is VerticalDivider
+                            ? child.indent! + child.endIndent!
+                            : 32;
+                if (availableWidth! - childWidth! >
+                    48 /* 32 is the width of the overflow menu button*/) {
+                  reallyVisibleChildren.add(child);
+                  availableWidth -= childWidth;
+                } else {
+                  if (child is VerticalDivider) {
+                    overflowMenuChildren.add(/*Horizontal*/ Container(
+                        color: Theme.of(context).canvasColor,
+                        child: Divider(
+                          indent: 2,
+                          endIndent: 2,
+                          color: child.color,
+                        )));
+                  } else {
+                    overflowMenuChildren.add(Container(
+                      constraints: const BoxConstraints.tightFor(width: 48),
+                      child: child,
+                    ));
+                  }
+                }
+              }
+              return Row(
+                children: [
+                  ...reallyVisibleChildren,
+                  if (overflowMenuChildren.isNotEmpty)
+                    VerticalDivider(
+                        indent: 16, endIndent: 16, color: Colors.grey.shade400),
+                  if (overflowMenuChildren.isNotEmpty)
+                    OverflowMenuButton(
+                      key: const Key('overflow_menu_button'),
+                      menuChildren: overflowMenuChildren,
+                    ),
+                ],
+              );
+            },
           ),
         ),
       ),
