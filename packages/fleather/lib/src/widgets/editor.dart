@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:math';
 
+import 'package:fleather/src/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -544,7 +545,6 @@ class RawEditor extends StatefulWidget {
               (maxHeight >= minHeight),
           'minHeight can\'t be greater than maxHeight',
         ),
-        // keyboardType = keyboardType ?? TextInputType.multiline,
         showCursor = showCursor ?? !readOnly;
 
   /// Controls the document being edited.
@@ -1201,36 +1201,20 @@ class RawEditorState extends EditorState
       return;
     }
 
+    Delta pasteDelta = Delta();
+    pasteDelta.retain(selection.baseOffset);
+    pasteDelta.delete(selection.extentOffset - selection.baseOffset);
+
     if (data.hasDelta) {
-      controller.compose(
-        (Delta()
-              ..retain(selection.baseOffset)
-              ..delete(selection.extentOffset - selection.baseOffset))
-            .concat(data.delta!),
-        forceUpdateSelection: true,
-        source: ChangeSource.local,
-      );
+      pasteDelta = pasteDelta.concat(data.delta!);
     } else {
-      _replaceText(ReplaceTextIntent(
-          textEditingValue, data.plainText!, selection, cause));
+      pasteDelta.insert(data.plainText!);
     }
 
-    // move the cursor to the end of the pasted text
-    // See https://github.com/flutter/flutter/issues/271
-    int position;
-    if (data.hasDelta) {
-      position = selection.baseOffset + data.delta!.length;
-    } else {
-      position = selection.baseOffset + data.plainText!.length;
-    }
-    userUpdateTextEditingValue(
-      textEditingValue.copyWith(
-        selection: TextSelection.fromPosition(TextPosition(
-          offset: position,
-        )),
-      ),
-      cause,
-    );
+    controller.compose(pasteDelta,
+        source: ChangeSource.local,
+        selection: TextSelection.collapsed(
+            offset: selection.baseOffset + pasteDelta.textLength));
 
     if (cause == SelectionChangedCause.toolbar) {
       SchedulerBinding.instance.addPostFrameCallback((_) {

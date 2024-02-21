@@ -1,5 +1,6 @@
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/services/spell_check_suggestions_toolbar.dart';
+import 'package:fleather/src/widgets/keyboard_listener.dart';
 import 'package:fleather/src/widgets/text_selection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -174,15 +175,7 @@ void main() {
       );
       await editor.pump();
 
-      Future<void> paste() async {
-        await tester.longPress(find.byType(FleatherEditor));
-        await tester.pump();
-        final finder = find.text('Paste');
-        await tester.tap(finder);
-        await tester.pump();
-      }
-
-      await paste();
+      await sendPasteIntent(tester);
       expect(editor.document.toPlainText(), 'Test\n');
 
       data = FleatherClipboardData(
@@ -190,7 +183,7 @@ void main() {
         delta: Delta()..insert('Text', {'b': true}),
       );
 
-      await paste();
+      await sendPasteIntent(tester);
       expect(
           editor.document.toDelta(),
           Delta()
@@ -201,14 +194,14 @@ void main() {
       await tester.pumpAndSettle(throttleDuration);
     });
 
-    testWidgets(
-        'Paste intent deselect and move the cursor to the end of the pasted content',
-        (tester) async {
+    testWidgets('Paste updates selection correctly', (tester) async {
       prepareClipboard();
       var data = FleatherClipboardData(plainText: 'Test');
       final editor = EditorSandBox(
         tester: tester,
-        document: ParchmentDocument(),
+        document: ParchmentDocument.fromJson([
+          {'insert': 'Hello World\n'}
+        ]),
         autofocus: true,
         clipboardManager: FleatherCustomClipboardManager(
           getData: () => Future.value(data),
@@ -216,18 +209,22 @@ void main() {
         ),
       );
       await editor.pump();
+      await editor.updateSelection(base: 6, extent: 11);
 
-      Future<void> paste() async {
-        await tester.longPress(find.byType(FleatherEditor));
-        await tester.pump();
-        final finder = find.text('Paste');
-        await tester.tap(finder);
-        await tester.pump();
-      }
+      await sendPasteIntent(tester);
+      expect(editor.document.toPlainText(), 'Hello Test\n');
+      expect(editor.selection, const TextSelection.collapsed(offset: 10));
 
-      await paste();
-      expect(editor.document.toPlainText(), 'Test\n');
-      expect(editor.selection, const TextSelection.collapsed(offset: 4));
+      data = FleatherClipboardData(
+        delta: Delta()..insert('Text', {'b': true}),
+      );
+
+      await editor.updateSelection(base: 6, extent: 10);
+      await sendPasteIntent(tester);
+
+      expect(editor.document.toPlainText(), 'Hello Text\n');
+      expect(editor.selection, const TextSelection.collapsed(offset: 10));
+
       await tester.pumpAndSettle(throttleDuration);
     });
 
@@ -1155,3 +1152,7 @@ Future<void> testWidgetsWithPlatform(String description,
     debugDefaultTargetPlatformOverride = null;
   });
 }
+
+Future<void> sendPasteIntent(WidgetTester tester) => (Actions.invoke(
+    tester.state(find.byType(FleatherKeyboardListener)).context,
+    const PasteTextIntent(SelectionChangedCause.longPress)) as Future);
