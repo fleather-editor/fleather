@@ -1474,6 +1474,7 @@ class RawEditorState extends EditorState
     if (_hasFocus) {
       // Listen for changing viewInsets, which indicates keyboard showing up.
       WidgetsBinding.instance.addObserver(this);
+      _lastBottomViewInset = View.of(context).viewInsets.bottom;
       _showCaretOnScreen();
 //      _lastBottomViewInset = WidgetsBinding.instance.window.viewInsets.bottom;
 //      if (!_value.selection.isValid) {
@@ -1514,7 +1515,7 @@ class RawEditorState extends EditorState
 
   bool _showCaretOnScreenScheduled = false;
 
-  void _showCaretOnScreen() {
+  void _showCaretOnScreen([bool withAnimation = true]) {
     if (!widget.showCursor || _showCaretOnScreenScheduled) {
       return;
     }
@@ -1539,11 +1540,16 @@ class RawEditorState extends EditorState
       );
 
       if (offset != null) {
-        _scrollController.animateTo(
-          math.min(offset, _scrollController.position.maxScrollExtent),
-          duration: _caretAnimationDuration,
-          curve: _caretAnimationCurve,
-        );
+        if (withAnimation) {
+          _scrollController.animateTo(
+            math.min(offset, _scrollController.position.maxScrollExtent),
+            duration: _caretAnimationDuration,
+            curve: _caretAnimationCurve,
+          );
+        } else {
+          _scrollController.jumpTo(
+              math.min(offset, _scrollController.position.maxScrollExtent));
+        }
       }
     });
   }
@@ -1567,6 +1573,28 @@ class RawEditorState extends EditorState
       oldControl?.hide();
       newControl?.show();
     }
+  }
+
+  late double _lastBottomViewInset;
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    if (!mounted) {
+      return;
+    }
+    final bottomBiewInset = View.of(context).viewInsets.bottom;
+    if (_lastBottomViewInset != bottomBiewInset) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _selectionOverlay?.updateForScroll();
+      });
+      if (_lastBottomViewInset < bottomBiewInset) {
+        // Because the metrics change signal from engine will come here every frame
+        // (on both iOS and Android). So we don't need to show caret with animation.
+        _showCaretOnScreen(false);
+      }
+    }
+    _lastBottomViewInset = bottomBiewInset;
   }
 
   // On MacOS some actions are sent as selectors. We need to manually find the right Action and invoke it.
