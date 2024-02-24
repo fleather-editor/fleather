@@ -1,5 +1,6 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:fleather/fleather.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parchment_delta/parchment_delta.dart';
@@ -124,6 +125,33 @@ void main() {
           ..insert('\n'),
       );
       // expect(controller.lastChangeSource, ChangeSource.local);
+    });
+
+    test('Toggleable styles', () {
+      controller.formatText(0, 0, ParchmentAttribute.bold);
+      controller.formatText(0, 0, ParchmentAttribute.italic);
+      controller.formatText(0, 0, ParchmentAttribute.underline);
+      controller.formatText(0, 0, ParchmentAttribute.strikethrough);
+      controller.formatText(0, 0, ParchmentAttribute.inlineCode);
+      controller.formatText(0, 0,
+          ParchmentAttribute.backgroundColor.withColor(Colors.black.value));
+      controller.formatText(0, 0,
+          ParchmentAttribute.foregroundColor.withColor(Colors.black.value));
+      expect(
+          controller.toggledStyles,
+          ParchmentStyle.fromJson({
+            ...ParchmentAttribute.bold.toJson(),
+            ...ParchmentAttribute.italic.toJson(),
+            ...ParchmentAttribute.underline.toJson(),
+            ...ParchmentAttribute.strikethrough.toJson(),
+            ...ParchmentAttribute.inlineCode.toJson(),
+            ...ParchmentAttribute.backgroundColor
+                .withColor(Colors.black.value)
+                .toJson(),
+            ...ParchmentAttribute.foregroundColor
+                .withColor(Colors.black.value)
+                .toJson(),
+          }));
     });
 
     test('replaceText only applies toggled styles to non new line parts', () {

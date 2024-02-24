@@ -11,12 +11,14 @@ import 'autoformats.dart';
 import 'history.dart';
 
 /// List of style keys which can be toggled for insertion
-List<String> _insertionToggleableStyleKeys = [
+List<String> _toggleableStyleKeys = [
   ParchmentAttribute.bold.key,
   ParchmentAttribute.italic.key,
   ParchmentAttribute.underline.key,
   ParchmentAttribute.strikethrough.key,
   ParchmentAttribute.inlineCode.key,
+  ParchmentAttribute.backgroundColor.key,
+  ParchmentAttribute.foregroundColor.key,
 ];
 
 class FleatherController extends ChangeNotifier {
@@ -196,7 +198,7 @@ class FleatherController extends ChangeNotifier {
     // _lastChangeSource = ChangeSource.local;
     const source = ChangeSource.local;
 
-    if (length == 0 && _insertionToggleableStyleKeys.contains(attribute.key)) {
+    if (length == 0 && _toggleableStyleKeys.contains(attribute.key)) {
       // Add the attribute to our toggledStyle. It will be used later upon insertion.
       _toggledStyles = toggledStyles.put(attribute);
     }
