@@ -313,6 +313,12 @@ class _TextLineState extends State<TextLine> {
         result = result.copyWith(color: Color(foregroundColor.value!));
       }
     }
+    if (nodeStyle.containsSame(ParchmentAttribute.superscript)) {
+      result = _mergeTextStyleWithDecoration(result, theme.superscript);
+    } else if (nodeStyle.containsSame(ParchmentAttribute.subscript)) {
+      result = _mergeTextStyleWithDecoration(result, theme.subscript);
+    }
+
     return result;
   }
 

@@ -843,6 +843,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
     bool hideBackgroundColor = false,
     bool hideForegroundColor = false,
     bool hideInlineCode = false,
+    bool hideScript = false,
     bool hideHeadingStyle = false,
     bool hideIndentation = false,
     bool hideListNumbers = false,
@@ -965,6 +966,27 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
               !hideUnderLineButton &&
               !hideStrikeThrough &&
               !hideInlineCode,
+          child: VerticalDivider(
+              indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+
+      /// ################################################################
+
+      Visibility(
+          visible: !hideScript,
+          child: ToggleStyleButton(
+            attribute: ParchmentAttribute.superscript,
+            icon: Icons.superscript,
+            controller: controller,
+          )),
+      Visibility(
+          visible: !hideScript,
+          child: ToggleStyleButton(
+            attribute: ParchmentAttribute.subscript,
+            icon: Icons.subscript,
+            controller: controller,
+          )),
+      Visibility(
+          visible: !hideScript,
           child: VerticalDivider(
               indent: 16, endIndent: 16, color: Colors.grey.shade400)),
 
