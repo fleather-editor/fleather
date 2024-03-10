@@ -165,19 +165,25 @@ class _TextLineState extends State<TextLine> {
   }
 
   InlineSpan _segmentToTextSpan(Node segment, FleatherThemeData theme) {
-    if (segment is EmbedNode) {
-      return WidgetSpan(
-          child: EmbedProxy(child: widget.embedBuilder(context, segment)));
+    try {
+      if (segment is EmbedNode) {
+        return WidgetSpan(
+            child: EmbedProxy(child: widget.embedBuilder(context, segment)));
+      }
+      final text = segment as TextNode;
+      final attrs = text.style;
+      final isLink = attrs.contains(ParchmentAttribute.link);
+      return TextSpan(
+        text: text.value,
+        style: _getInlineTextStyle(attrs, widget.node.style, theme),
+        recognizer: isLink && canLaunchLinks ? _getRecognizer(segment) : null,
+        mouseCursor: isLink && canLaunchLinks ? SystemMouseCursors.click : null,
+      );
+    } catch (err) {
+      return TextSpan(
+          text: 'error: $err',
+          style: const TextStyle(backgroundColor: Colors.red));
     }
-    final text = segment as TextNode;
-    final attrs = text.style;
-    final isLink = attrs.contains(ParchmentAttribute.link);
-    return TextSpan(
-      text: text.value,
-      style: _getInlineTextStyle(attrs, widget.node.style, theme),
-      recognizer: isLink && canLaunchLinks ? _getRecognizer(segment) : null,
-      mouseCursor: isLink && canLaunchLinks ? SystemMouseCursors.click : null,
-    );
   }
 
   GestureRecognizer _getRecognizer(Node segment) {

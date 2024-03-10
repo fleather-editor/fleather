@@ -308,8 +308,10 @@ class ParchmentDocument {
 
   /// Loads [document] delta into this document.
   void _loadDocument(Delta doc) {
-    assert((doc.last.data as String).endsWith('\n'),
-        'Invalid document delta. Document delta must always end with a line-break.');
+    if (!(doc.last.data as String).endsWith('\n')) {
+      throw ArgumentError.value(doc,
+          'Invalid document delta. Document delta must always end with a line-break.');
+    }
     var offset = 0;
     for (final op in doc.toList()) {
       final style =
