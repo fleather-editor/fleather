@@ -1,3 +1,9 @@
+## 1.14.2
+
+* Update selection correctly after pasting text
+* Make color attributes toggleable
+* Revert "Use normalized text editing value for updating remote value"
+
 ## 1.14.1
 
 * Use normalized text editing value for updating remote value
