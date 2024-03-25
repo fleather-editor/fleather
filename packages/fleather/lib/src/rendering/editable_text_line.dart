@@ -110,7 +110,7 @@ class RenderEditableTextLine extends RenderEditableBox {
   /// manipulation. It's the responsibility of this object's owner
   /// to provide selection manipulation affordances.
   ///
-  /// This field is used by [selectionEnabled] (which then controls
+  /// This field is used by [_shouldPaintSelection] (which then controls
   /// the accessibility hints mentioned above).
   bool get enableInteractiveSelection => _enableInteractiveSelection;
   bool _enableInteractiveSelection;
@@ -122,17 +122,13 @@ class RenderEditableTextLine extends RenderEditableBox {
     markNeedsSemanticsUpdate(); // TODO: should probably update semantics on the RenderEditor instead.
   }
 
-  /// Whether interactive selection are enabled based on the value of
-  /// [enableInteractiveSelection].
+  /// Whether selection should be painted based on the value of
+  /// [enableInteractiveSelection] and [hasFocus].
   ///
   /// If [enableInteractiveSelection] is not set then defaults to `true`.
-  bool get selectionEnabled {
-    return enableInteractiveSelection;
-  }
+  bool get _shouldPaintSelection => enableInteractiveSelection && hasFocus;
 
-  bool get containsSelection {
-    return intersectsWithSelection(node, _selection);
-  }
+  bool get containsSelection => intersectsWithSelection(node, _selection);
 
   // End selection implementation
 
@@ -708,7 +704,7 @@ class RenderEditableTextLine extends RenderEditableBox {
         _paintTextBackground(context, item, effectiveOffset);
       }
 
-      if (selectionEnabled && containsSelection) {
+      if (_shouldPaintSelection && containsSelection) {
         final local = localSelection(node, selection);
         _selectionRects ??= body!.getBoxesForSelection(local);
         _paintSelection(context, effectiveOffset);
