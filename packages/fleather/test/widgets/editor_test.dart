@@ -56,6 +56,21 @@ void main() {
       expect(widget.readOnly, true);
     });
 
+    testWidgets('Selection handle is hidden when editor is read-only',
+        (tester) async {
+      final editor = EditorSandBox(
+          tester: tester,
+          document: ParchmentDocument.fromDelta(Delta()..insert('Text\n')));
+      await editor.pump();
+      await editor.disable();
+      await tester.tapAt(
+          tester.getTopLeft(find.byType(RawEditor)) + const Offset(15, 5));
+      await tester.pumpAndSettle();
+      final handle = tester.widget(editor.findSelectionHandles().first)
+          as SelectionHandleOverlay;
+      expect(handle.visibility?.value, false);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
     testWidgets('ability to paste upon long press on an empty document',
         (tester) async {
       // if Clipboard not initialize (status 'unknown'), an shrunken toolbar appears
