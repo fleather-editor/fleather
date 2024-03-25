@@ -308,6 +308,8 @@ class _FleatherEditorState extends State<FleatherEditor>
     implements EditorTextSelectionGestureDetectorBuilderDelegate {
   GlobalKey<EditorState>? _editorKey;
 
+  bool _showSelectionHandles = false;
+
   @override
   GlobalKey<EditorState> get editableTextKey => widget.editorKey ?? _editorKey!;
 
@@ -342,10 +344,42 @@ class _FleatherEditorState extends State<FleatherEditor>
         _FleatherEditorSelectionGestureDetectorBuilder(state: this);
   }
 
-  static const Set<TargetPlatform> _mobilePlatforms = {
-    TargetPlatform.iOS,
-    TargetPlatform.android
-  };
+  void _handleSelectionChanged(
+      TextSelection selection, SelectionChangedCause? cause) {
+    final bool willShowSelectionHandles = _shouldShowSelectionHandles(cause);
+    if (willShowSelectionHandles != _showSelectionHandles) {
+      setState(() {
+        _showSelectionHandles = willShowSelectionHandles;
+      });
+    }
+  }
+
+  bool _shouldShowSelectionHandles(SelectionChangedCause? cause) {
+    // When the editor is activated by something that doesn't trigger the
+    // selection overlay, we shouldn't show the handles either.
+    if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar) {
+      return false;
+    }
+
+    if (cause == SelectionChangedCause.keyboard) {
+      return false;
+    }
+
+    if (widget.readOnly && widget.controller.selection.isCollapsed) {
+      return false;
+    }
+
+    if (cause == SelectionChangedCause.longPress ||
+        cause == SelectionChangedCause.scribble) {
+      return true;
+    }
+
+    if (widget.controller.document.toPlainText().length > 2) {
+      return true;
+    }
+
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -360,7 +394,6 @@ class _FleatherEditorState extends State<FleatherEditor>
     Color selectionColor;
     Radius? cursorRadius;
 
-    final showSelectionHandles = _mobilePlatforms.contains(theme.platform);
     final keyboardAppearance = widget.keyboardAppearance ?? theme.brightness;
 
     switch (theme.platform) {
@@ -445,7 +478,8 @@ class _FleatherEditorState extends State<FleatherEditor>
         opacityAnimates: cursorOpacityAnimates,
       ),
       selectionColor: selectionColor,
-      showSelectionHandles: showSelectionHandles,
+      showSelectionHandles: _showSelectionHandles,
+      onSelectionChanged: _handleSelectionChanged,
       selectionControls: textSelectionControls,
     );
 
@@ -532,6 +566,7 @@ class RawEditor extends StatefulWidget {
     required this.clipboardManager,
     this.showSelectionHandles = false,
     this.selectionControls,
+    this.onSelectionChanged,
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.spellCheckConfiguration,
     this.embedBuilder = defaultFleatherEmbedBuilder,
@@ -599,6 +634,10 @@ class RawEditor extends StatefulWidget {
   ///
   ///  * [showCursor], which controls the visibility of the cursor..
   final bool showSelectionHandles;
+
+  /// Called when the user changes the selection of text (including the cursor
+  /// location).
+  final SelectionChangedCallback? onSelectionChanged;
 
   /// Whether to show cursor.
   ///
@@ -1431,6 +1470,8 @@ class RawEditorState extends EditorState
         bringIntoView(selection.extent);
       }
     }
+
+    widget.onSelectionChanged?.call(selection, cause);
   }
 
   EditorTextSelectionOverlay _createSelectionOverlay() {
