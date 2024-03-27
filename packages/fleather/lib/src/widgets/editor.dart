@@ -1583,18 +1583,18 @@ class RawEditorState extends EditorState
     if (!mounted) {
       return;
     }
-    final bottomBiewInset = View.of(context).viewInsets.bottom;
-    if (_lastBottomViewInset != bottomBiewInset) {
+    final bottomViewInset = View.of(context).viewInsets.bottom;
+    if (_lastBottomViewInset != bottomViewInset) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         _selectionOverlay?.updateForScroll();
       });
-      if (_lastBottomViewInset < bottomBiewInset) {
+      if (_lastBottomViewInset < bottomViewInset) {
         // Because the metrics change signal from engine will come here every frame
         // (on both iOS and Android). So we don't need to show caret with animation.
         _showCaretOnScreen(false);
       }
     }
-    _lastBottomViewInset = bottomBiewInset;
+    _lastBottomViewInset = bottomViewInset;
   }
 
   // On MacOS some actions are sent as selectors. We need to manually find the right Action and invoke it.
