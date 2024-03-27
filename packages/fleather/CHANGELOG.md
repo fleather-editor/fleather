@@ -1,3 +1,9 @@
+## 1.14.3
+
+* Hide collapsed selection handle in read-only mode
+* Hide text selection highlight when editor is unfocused
+* Scroll to selection after keyboard opened
+
 ## 1.14.2
 
 * Update selection correctly after pasting text
