@@ -99,6 +99,7 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
     ParchmentAttribute.direction.key: ParchmentAttribute.direction,
     ParchmentAttribute.alignment.key: ParchmentAttribute.alignment,
     ParchmentAttribute.indent.key: ParchmentAttribute.indent,
+    ParchmentAttribute.script.key: ParchmentAttribute.script,
   };
 
   // Inline attributes
@@ -127,6 +128,16 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
   /// Link style attribute.
   // ignore: const_eval_throws_exception
   static const link = LinkAttributeBuilder._();
+
+  /// Script style attribute.
+  // ignore: const_eval_throws_exception
+  static const script = _ScriptAttributeBuilder._();
+
+  /// Alias for [ParchmentAttribute.script.superscript].
+  static ParchmentAttribute<String> get superscript => script.superscript;
+
+  /// Alias for [ParchmentAttribute.script.subscript].
+  static ParchmentAttribute<String> get subscript => script.subscript;
 
   // Line attributes
 
@@ -431,6 +442,20 @@ class _StrikethroughAttribute extends ParchmentAttribute<bool> {
 class _InlineCodeAttribute extends ParchmentAttribute<bool> {
   const _InlineCodeAttribute()
       : super._('c', ParchmentAttributeScope.inline, true);
+}
+
+/// Builder for super/sub script style attributes.
+class _ScriptAttributeBuilder extends ParchmentAttributeBuilder<String> {
+  const _ScriptAttributeBuilder._()
+      : super._('script', ParchmentAttributeScope.inline);
+
+  /// Creates a subscript attribute.
+  ParchmentAttribute<String> get superscript =>
+      ParchmentAttribute<String>._(key, scope, 'super');
+
+  /// Creates a superscript attribute.
+  ParchmentAttribute<String> get subscript =>
+      ParchmentAttribute<String>._(key, scope, 'sub');
 }
 
 /// Builder for color-based style attributes.

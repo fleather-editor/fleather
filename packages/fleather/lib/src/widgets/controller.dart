@@ -19,6 +19,7 @@ List<String> _toggleableStyleKeys = [
   ParchmentAttribute.inlineCode.key,
   ParchmentAttribute.backgroundColor.key,
   ParchmentAttribute.foregroundColor.key,
+  ParchmentAttribute.script.key,
 ];
 
 class FleatherController extends ChangeNotifier {

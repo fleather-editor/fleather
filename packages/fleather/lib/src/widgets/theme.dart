@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 
@@ -74,6 +76,12 @@ class FleatherThemeData {
   /// Style of links in text.
   final TextStyle link;
 
+  /// Style of superscript text.
+  final TextStyle superscript;
+
+  /// Style of subscript text.
+  final TextStyle subscript;
+
   /// Default style theme for regular paragraphs of text.
   final TextBlockTheme paragraph; // spacing: top: 6, bottom: 10
 
@@ -121,6 +129,8 @@ class FleatherThemeData {
     required this.lists,
     required this.quote,
     required this.code,
+    required this.superscript,
+    required this.subscript,
   });
 
   factory FleatherThemeData.fallback(BuildContext context) {
@@ -262,6 +272,8 @@ class FleatherThemeData {
           borderRadius: BorderRadius.circular(2),
         ),
       ),
+      superscript: const TextStyle(fontFeatures: [FontFeature.superscripts()]),
+      subscript: const TextStyle(fontFeatures: [FontFeature.subscripts()]),
     );
   }
 
@@ -271,6 +283,8 @@ class FleatherThemeData {
     TextStyle? underline,
     TextStyle? strikethrough,
     TextStyle? link,
+    TextStyle? superscript,
+    TextStyle? subscript,
     InlineCodeThemeData? inlineCode,
     TextBlockTheme? paragraph,
     TextBlockTheme? heading1,
@@ -300,6 +314,8 @@ class FleatherThemeData {
       lists: lists ?? this.lists,
       quote: quote ?? this.quote,
       code: code ?? this.code,
+      superscript: superscript ?? this.superscript,
+      subscript: subscript ?? this.subscript,
     );
   }
 
