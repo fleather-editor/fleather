@@ -95,7 +95,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     // with the last known remote value.
     // It is important to prevent excessive remote updates as it can cause
     // race conditions.
-    final actualValue = value.copyWith(
+    var actualValue = value.copyWith(
       composing: _lastKnownRemoteTextEditingValue?.composing,
     );
 
@@ -105,6 +105,17 @@ mixin RawEditorStateTextInputClientMixin on EditorState
         actualValue.text.isNotEmpty &&
         actualValue.text != _lastKnownRemoteTextEditingValue?.text) {
       performSpellCheck(value.text);
+    }
+
+    // This is to prevent sending an editing state with invalid composing range
+    // to engine.
+    // TODO: Maybe it's better to also include composing range in controller?
+    // Actions like [_DeleteTextAction] are using controller's editing value
+    // to update remote value.
+    // See https://github.com/fleather-editor/fleather/issues/259#issuecomment-2032404450
+    if (actualValue.composing != TextRange.empty &&
+        !actualValue.isComposingRangeValid) {
+      actualValue = actualValue.copyWith(composing: TextRange.empty);
     }
 
     _lastKnownRemoteTextEditingValue = actualValue;
