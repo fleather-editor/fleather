@@ -26,6 +26,42 @@ void main() {
   });
 
   group('$RenderEditableTextLine', () {
+    test('Correctly computes containsCursor if node is updated', () {
+      final lineNode = LineNode()..insert(0, 'some text', null);
+      final rootNode = RootNode();
+      rootNode.addFirst(lineNode);
+      final renderBox = RenderEditableTextLine(
+          node: lineNode,
+          padding: EdgeInsets.zero,
+          textDirection: TextDirection.ltr,
+          cursorController: cursorController,
+          selection: const TextSelection.collapsed(offset: 6),
+          selectionColor: Colors.blue,
+          enableInteractiveSelection: false,
+          hasFocus: false,
+          inlineCodeTheme: InlineCodeThemeData(style: const TextStyle()));
+      layout(renderBox, constraints: const BoxConstraints(maxWidth: 100));
+      expect(renderBox.containsCursor, equals(true));
+      lineNode.delete(4, 5);
+      expect(renderBox.containsCursor, equals(false));
+    });
+
+    test('Correctly computes containsCursor if node is detached', () {
+      final lineNode = LineNode()..insert(0, 'some text', null);
+      final renderBox = RenderEditableTextLine(
+          node: lineNode,
+          padding: EdgeInsets.zero,
+          textDirection: TextDirection.ltr,
+          cursorController: cursorController,
+          selection: const TextSelection.collapsed(offset: 6),
+          selectionColor: Colors.blue,
+          enableInteractiveSelection: false,
+          hasFocus: false,
+          inlineCodeTheme: InlineCodeThemeData(style: const TextStyle()));
+      layout(renderBox, constraints: const BoxConstraints(maxWidth: 100));
+      expect(renderBox.containsCursor, equals(false));
+    });
+
     test('Does not hit test body when tap is outside of text boxes', () {
       final lineNode = LineNode();
       final rootNode = RootNode();
