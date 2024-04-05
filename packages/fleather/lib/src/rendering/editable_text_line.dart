@@ -470,13 +470,11 @@ class RenderEditableTextLine extends RenderEditableBox {
   bool _containsCursor = false;
 
   bool get containsCursor {
-    if (node.parent != null) {
-      return _containsCursor = _cursorController.isFloatingCursorActive
-          ? node.containsOffset(
-              _cursorController.floatingCursorTextPosition.value!.offset)
-          : selection.isCollapsed && node.containsOffset(selection.baseOffset);
-    }
-    return _containsCursor;
+    if (node.parent == null) return _containsCursor;
+    return _containsCursor = _cursorController.isFloatingCursorActive
+        ? node.containsOffset(
+            _cursorController.floatingCursorTextPosition.value!.offset)
+        : selection.isCollapsed && node.containsOffset(selection.baseOffset);
   }
 
   late Rect _caretPrototype;
