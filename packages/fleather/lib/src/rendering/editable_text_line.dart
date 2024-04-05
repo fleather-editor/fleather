@@ -79,7 +79,6 @@ class RenderEditableTextLine extends RenderEditableBox {
     }
     _selection = value;
     _selectionRects = null;
-    _containsCursor = null;
     if (attached && containsCursor) {
       _cursorController.addListener(markNeedsLayout);
       _cursorController.cursorColor.addListener(markNeedsPaint);
@@ -209,7 +208,6 @@ class RenderEditableTextLine extends RenderEditableBox {
       return;
     }
     _node = value;
-    _containsCursor = null;
     markNeedsLayout();
   }
 
@@ -468,13 +466,17 @@ class RenderEditableTextLine extends RenderEditableBox {
   /// state. In some cases the node gets detached from its document before this
   /// render object is detached from the render tree. This causes containsCursor
   /// to fail with an NPE when it's called from [detach].
-  bool? _containsCursor;
+  /// TODO: Investigate if this is still the case and [_containsCursor] is needed.
+  bool _containsCursor = false;
 
   bool get containsCursor {
-    return _containsCursor ??= _cursorController.isFloatingCursorActive
-        ? node.containsOffset(
-            _cursorController.floatingCursorTextPosition.value!.offset)
-        : selection.isCollapsed && node.containsOffset(selection.baseOffset);
+    if (node.parent != null) {
+      return _containsCursor = _cursorController.isFloatingCursorActive
+          ? node.containsOffset(
+              _cursorController.floatingCursorTextPosition.value!.offset)
+          : selection.isCollapsed && node.containsOffset(selection.baseOffset);
+    }
+    return _containsCursor;
   }
 
   late Rect _caretPrototype;
@@ -508,7 +510,6 @@ class RenderEditableTextLine extends RenderEditableBox {
   }
 
   void _onFloatingCursorChange() {
-    _containsCursor = null;
     markNeedsPaint();
   }
 
