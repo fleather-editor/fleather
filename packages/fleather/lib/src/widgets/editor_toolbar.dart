@@ -576,14 +576,23 @@ class SelectHeadingButton extends StatefulWidget {
   State<SelectHeadingButton> createState() => _SelectHeadingButtonState();
 }
 
+// Global heading overrides to allow setting from the editor toolbar
+String normalLabelOverride = 'Normal';
+String heading1LabelOverride = 'Heading 1';
+String heading2LabelOverride = 'Heading 2';
+String heading3LabelOverride = 'Heading 3';
+String heading4LabelOverride = 'Heading 4';
+String heading5LabelOverride = 'Heading 5';
+String heading6LabelOverride = 'Heading 6';
+
 final _headingToText = {
-  ParchmentAttribute.heading.unset: 'Normal',
-  ParchmentAttribute.heading.level1: 'Heading 1',
-  ParchmentAttribute.heading.level2: 'Heading 2',
-  ParchmentAttribute.heading.level3: 'Heading 3',
-  ParchmentAttribute.heading.level4: 'Heading 4',
-  ParchmentAttribute.heading.level5: 'Heading 5',
-  ParchmentAttribute.heading.level6: 'Heading 6',
+  ParchmentAttribute.heading.unset: normalLabelOverride,
+  ParchmentAttribute.heading.level1: heading1LabelOverride,
+  ParchmentAttribute.heading.level2: heading2LabelOverride,
+  ParchmentAttribute.heading.level3: heading3LabelOverride,
+  ParchmentAttribute.heading.level4: heading4LabelOverride,
+  ParchmentAttribute.heading.level5: heading5LabelOverride,
+  ParchmentAttribute.heading.level6: heading6LabelOverride,
 };
 
 class _SelectHeadingButtonState extends State<SelectHeadingButton> {
@@ -857,7 +866,27 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
     List<Widget> leading = const <Widget>[],
     List<Widget> trailing = const <Widget>[],
     bool hideAlignment = false,
+
+    // New optional overrides for heading labels
+    String normalLabel = 'Normal',
+    String heading1Label = 'Heading 1',
+    String heading2Label = 'Heading 2',
+    String heading3Label = 'Heading 3',
+    String heading4Label = 'Heading 4',
+    String heading5Label = 'Heading 5',
+    String heading6Label = 'Heading 6',
+
   }) {
+
+    // Set heading overrides
+    normalLabelOverride = normalLabel;
+    heading1LabelOverride = heading1Label;
+    heading2LabelOverride = heading2Label;
+    heading3LabelOverride = heading3Label;
+    heading4LabelOverride = heading4Label;
+    heading5LabelOverride = heading5Label;
+    heading6LabelOverride = heading6Label;
+
     Widget backgroundColorBuilder(context, value) => Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
