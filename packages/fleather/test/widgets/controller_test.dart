@@ -247,6 +247,15 @@ void main() {
       expect(result.values, [ParchmentAttribute.bold]);
     });
 
+    test('getSelectionStyle at start of a new line', () {
+      controller.replaceText(0, 0, 'Heading');
+      controller.formatText(0, 7, ParchmentAttribute.bold);
+      controller.replaceText(7, 0, '\n');
+      controller.updateSelection(const TextSelection.collapsed(offset: 8));
+      final result = controller.getSelectionStyle();
+      expect(result.values, []);
+    });
+
     test('preserve inline format when replacing text from the first character',
         () {
       var notified = false;

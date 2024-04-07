@@ -63,13 +63,21 @@ class FleatherController extends ChangeNotifier {
   /// If nothing is selected but we've toggled an attribute,
   /// we also merge those in our style before returning.
   ParchmentStyle getSelectionStyle() {
-    final start = _selection.start;
+    int start = _selection.start;
     final length = _selection.end - start;
 
-    final effectiveStart =
-        _selection.isCollapsed ? math.max(0, start - 1) : start;
+    // We decrement the start position to collect styles
+    // before current selection position if selection is collaped and
+    // it's not on the beginning of a new line.
+    if (length == 0 && start > 0) {
+      final data = document.toDelta().slice(start - 1, start).first.data;
+      if (data is String && !data.endsWith('\n')) {
+        start = start - 1;
+      }
+    }
+
     final inlineAttributes =
-        document.collectStyle(effectiveStart, length).inlineAttributes;
+        document.collectStyle(start, length).inlineAttributes;
     final lineAttributes = document.collectStyle(start, length).lineAttributes;
 
     return ParchmentStyle()
