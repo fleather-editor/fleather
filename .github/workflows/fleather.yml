@@ -63,6 +63,8 @@ jobs:
         with:
           files: ./packages/fleather/coverage/lcov.info,./packages/parchment/coverage/lcov.info
           fail_ci_if_error: true
+          env:
+            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       #
       # Check example builds
