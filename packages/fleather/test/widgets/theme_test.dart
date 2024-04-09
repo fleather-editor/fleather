@@ -2,9 +2,8 @@ import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-
 void main() {
- group('FleatherThemeData', () {
+  group('FleatherThemeData', () {
     test('merge combines properties from both instances', () {
       // Create two instances with different properties
       final theme1 = FleatherThemeData(
@@ -18,16 +17,37 @@ void main() {
           style: const TextStyle(fontSize: 14, color: Colors.blue),
         ),
         link: const TextStyle(color: Colors.red),
-        paragraph: TextBlockTheme(style: const TextStyle(fontSize: 16.0), spacing: const VerticalSpacing(top: 6.0, bottom: 10.0)),
-        heading1: TextBlockTheme(style: const TextStyle(fontSize: 34.0), spacing: const VerticalSpacing(top: 16.0, bottom: 0.0)),
-        heading2: TextBlockTheme(style: const TextStyle(fontSize: 24.0), spacing: const VerticalSpacing(bottom: 0.0, top: 8.0)),
-        heading3: TextBlockTheme(style: const TextStyle(fontSize: 20.0), spacing: const VerticalSpacing(bottom: 0.0, top: 8.0)),
-        heading4: TextBlockTheme(style: const TextStyle(fontSize: 18), spacing: const VerticalSpacing(bottom: 0.0, top: 8.0)),
-        heading5: TextBlockTheme(style: const TextStyle(fontSize: 16.0), spacing: const VerticalSpacing(bottom: 0.0, top: 8.0)),
-        heading6: TextBlockTheme(style: const TextStyle(fontSize: 16.0), spacing: const VerticalSpacing(bottom: 0.0, top: 8.0)),
-        lists: TextBlockTheme(style: const TextStyle(fontSize: 16.0), spacing: const VerticalSpacing(top: 6.0, bottom: 10.0)),
-        quote: TextBlockTheme(style: TextStyle(color: Colors.grey.shade600), spacing: const VerticalSpacing(top: 6, bottom: 2)),
-        code: TextBlockTheme(style: TextStyle(color: Colors.blue.shade900.withOpacity(0.9), fontSize: 13.0), spacing: const VerticalSpacing(top: 6.0, bottom: 10.0)),
+        paragraph: TextBlockTheme(
+            style: const TextStyle(fontSize: 16.0),
+            spacing: const VerticalSpacing(top: 6.0, bottom: 10.0)),
+        heading1: TextBlockTheme(
+            style: const TextStyle(fontSize: 34.0),
+            spacing: const VerticalSpacing(top: 16.0, bottom: 0.0)),
+        heading2: TextBlockTheme(
+            style: const TextStyle(fontSize: 24.0),
+            spacing: const VerticalSpacing(bottom: 0.0, top: 8.0)),
+        heading3: TextBlockTheme(
+            style: const TextStyle(fontSize: 20.0),
+            spacing: const VerticalSpacing(bottom: 0.0, top: 8.0)),
+        heading4: TextBlockTheme(
+            style: const TextStyle(fontSize: 18),
+            spacing: const VerticalSpacing(bottom: 0.0, top: 8.0)),
+        heading5: TextBlockTheme(
+            style: const TextStyle(fontSize: 16.0),
+            spacing: const VerticalSpacing(bottom: 0.0, top: 8.0)),
+        heading6: TextBlockTheme(
+            style: const TextStyle(fontSize: 16.0),
+            spacing: const VerticalSpacing(bottom: 0.0, top: 8.0)),
+        lists: TextBlockTheme(
+            style: const TextStyle(fontSize: 16.0),
+            spacing: const VerticalSpacing(top: 6.0, bottom: 10.0)),
+        quote: TextBlockTheme(
+            style: TextStyle(color: Colors.grey.shade600),
+            spacing: const VerticalSpacing(top: 6, bottom: 2)),
+        code: TextBlockTheme(
+            style: TextStyle(
+                color: Colors.blue.shade900.withOpacity(0.9), fontSize: 13.0),
+            spacing: const VerticalSpacing(top: 6.0, bottom: 10.0)),
       );
 
       final theme2 = FleatherThemeData(
@@ -41,16 +61,37 @@ void main() {
           style: const TextStyle(fontSize: 12, color: Colors.green),
         ),
         link: const TextStyle(color: Colors.blue),
-        paragraph: TextBlockTheme(style: const TextStyle(fontSize: 14.0), spacing: const VerticalSpacing(top: 4.0, bottom: 8.0)),
-        heading1: TextBlockTheme(style: const TextStyle(fontSize: 32.0), spacing: const VerticalSpacing(top: 18.0, bottom: 0.0)),
-        heading2: TextBlockTheme(style: const TextStyle(fontSize: 26.0), spacing: const VerticalSpacing(bottom: 0.0, top: 10.0)),
-        heading3: TextBlockTheme(style: const TextStyle(fontSize: 22.0), spacing: const VerticalSpacing(bottom: 0.0, top: 10.0)),
-        heading4: TextBlockTheme(style: const TextStyle(fontSize: 16), spacing: const VerticalSpacing(bottom: 0.0, top: 10.0)),
-        heading5: TextBlockTheme(style: const TextStyle(fontSize: 14.0), spacing: const VerticalSpacing(bottom: 0.0, top: 10.0)),
-        heading6: TextBlockTheme(style: const TextStyle(fontSize: 12.0), spacing: const VerticalSpacing(bottom: 0.0, top: 10.0)),
-        lists: TextBlockTheme(style: const TextStyle(fontSize: 14.0), spacing: const VerticalSpacing(top: 4.0, bottom: 8.0)),
-        quote: TextBlockTheme(style: TextStyle(color: Colors.grey.shade700), spacing: const VerticalSpacing(top: 4, bottom: 4)),
-        code: TextBlockTheme(style: TextStyle(color: Colors.blue.shade800.withOpacity(0.9), fontSize: 12.0), spacing: const VerticalSpacing(top: 4.0, bottom: 8.0)),
+        paragraph: TextBlockTheme(
+            style: const TextStyle(fontSize: 14.0),
+            spacing: const VerticalSpacing(top: 4.0, bottom: 8.0)),
+        heading1: TextBlockTheme(
+            style: const TextStyle(fontSize: 32.0),
+            spacing: const VerticalSpacing(top: 18.0, bottom: 0.0)),
+        heading2: TextBlockTheme(
+            style: const TextStyle(fontSize: 26.0),
+            spacing: const VerticalSpacing(bottom: 0.0, top: 10.0)),
+        heading3: TextBlockTheme(
+            style: const TextStyle(fontSize: 22.0),
+            spacing: const VerticalSpacing(bottom: 0.0, top: 10.0)),
+        heading4: TextBlockTheme(
+            style: const TextStyle(fontSize: 16),
+            spacing: const VerticalSpacing(bottom: 0.0, top: 10.0)),
+        heading5: TextBlockTheme(
+            style: const TextStyle(fontSize: 14.0),
+            spacing: const VerticalSpacing(bottom: 0.0, top: 10.0)),
+        heading6: TextBlockTheme(
+            style: const TextStyle(fontSize: 12.0),
+            spacing: const VerticalSpacing(bottom: 0.0, top: 10.0)),
+        lists: TextBlockTheme(
+            style: const TextStyle(fontSize: 14.0),
+            spacing: const VerticalSpacing(top: 4.0, bottom: 8.0)),
+        quote: TextBlockTheme(
+            style: TextStyle(color: Colors.grey.shade700),
+            spacing: const VerticalSpacing(top: 4, bottom: 4)),
+        code: TextBlockTheme(
+            style: TextStyle(
+                color: Colors.blue.shade800.withOpacity(0.9), fontSize: 12.0),
+            spacing: const VerticalSpacing(top: 4.0, bottom: 8.0)),
       );
 
       // Merge the two instances
@@ -74,5 +115,5 @@ void main() {
       expect(mergedTheme.quote, equals(theme2.quote));
       expect(mergedTheme.code, equals(theme2.code));
     });
- });
+  });
 }
