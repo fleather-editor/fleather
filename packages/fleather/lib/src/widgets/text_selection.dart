@@ -314,6 +314,7 @@ class EditorTextSelectionOverlay {
     _effectiveStartHandleVisibility.dispose();
     _effectiveEndHandleVisibility.dispose();
     hideToolbar();
+    hideHandles();
   }
 
   MagnifierInfo _buildMagnifier({
