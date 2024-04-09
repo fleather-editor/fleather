@@ -317,6 +317,7 @@ class FleatherThemeData {
       heading3: other.heading3,
       heading4: other.heading4,
       heading5: other.heading5,
+      heading6: other.heading6,
       lists: other.lists,
       quote: other.quote,
       code: other.code,
