@@ -313,8 +313,6 @@ class EditorTextSelectionOverlay {
     _effectiveToolbarVisibility.dispose();
     _effectiveStartHandleVisibility.dispose();
     _effectiveEndHandleVisibility.dispose();
-    hideToolbar();
-    hideHandles();
   }
 
   MagnifierInfo _buildMagnifier({
@@ -1061,7 +1059,7 @@ class SelectionOverlay {
   /// {@endtemplate}
   void showHandles() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (_handles != null) {
+      if (_handles != null || _isDisposed) {
         return;
       }
       _handles = <OverlayEntry>[
@@ -1201,8 +1199,11 @@ class SelectionOverlay {
     _toolbar = null;
   }
 
+  bool _isDisposed = false;
+
   /// Disposes this object and release resources.
   void dispose() {
+    _isDisposed = true;
     hide();
     _magnifierInfo.dispose();
   }

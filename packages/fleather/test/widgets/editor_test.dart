@@ -56,6 +56,22 @@ void main() {
       expect(widget.readOnly, true);
     });
 
+    testWidgets('Selection handles are disposed when selection overlay disposed',
+        (tester) async {
+      final focusNode = FocusNode();
+      final editor = EditorSandBox(
+        tester: tester,
+        document: ParchmentDocument.fromDelta(Delta()..insert('Text\n')),
+        focusNode: focusNode,
+      );
+      await editor.pump();
+      await tester.tapAt(
+          tester.getTopLeft(find.byType(RawEditor)) + const Offset(15, 5));
+      focusNode.unfocus();
+      await tester.pumpAndSettle();
+      expect(editor.findSelectionHandles(), findsNothing);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
     testWidgets('Selection handle is hidden when editor is read-only',
         (tester) async {
       final editor = EditorSandBox(
