@@ -56,7 +56,8 @@ void main() {
       expect(widget.readOnly, true);
     });
 
-    testWidgets('Selection handles are disposed when selection overlay disposed',
+    testWidgets(
+        'Selection handles are disposed when selection overlay disposed',
         (tester) async {
       final focusNode = FocusNode();
       final editor = EditorSandBox(
