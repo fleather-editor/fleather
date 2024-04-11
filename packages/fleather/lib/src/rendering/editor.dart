@@ -350,11 +350,15 @@ class RenderEditor extends RenderEditableContainerBox
           offsetInViewport;
       final caretBottom =
           endpoints.single.point.dy + kMargin + offsetInViewport;
+      final caretHeight = caretBottom - caretTop;
       double? dy;
-      if (caretTop < scrollOffset) {
-        dy = caretTop;
-      } else if (caretBottom > scrollOffset + viewportHeight) {
+
+      /// When caret is bigger than viewport, we reveal it's bottom.
+      if (caretBottom > scrollOffset + viewportHeight ||
+          caretHeight > viewportHeight) {
         dy = caretBottom - viewportHeight;
+      } else if (caretTop < scrollOffset) {
+        dy = caretTop;
       }
       if (dy == null) return null;
       // Clamping to 0.0 so that the content does not jump unnecessarily.
