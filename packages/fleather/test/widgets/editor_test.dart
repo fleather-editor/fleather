@@ -215,7 +215,7 @@ void main() {
       final editor = EditorSandBox(
         tester: tester,
         document: ParchmentDocument.fromJson([
-          {'insert': 'Hello World\n'}
+          {'insert': 'Hello World!\n'}
         ]),
         autofocus: true,
         clipboardManager: FleatherCustomClipboardManager(
@@ -227,7 +227,7 @@ void main() {
       await editor.updateSelection(base: 6, extent: 11);
 
       await sendPasteIntent(tester);
-      expect(editor.document.toPlainText(), 'Hello Test\n');
+      expect(editor.document.toPlainText(), 'Hello Test!\n');
       expect(editor.selection, const TextSelection.collapsed(offset: 10));
 
       data = FleatherClipboardData(
@@ -237,7 +237,7 @@ void main() {
       await editor.updateSelection(base: 6, extent: 10);
       await sendPasteIntent(tester);
 
-      expect(editor.document.toPlainText(), 'Hello Text\n');
+      expect(editor.document.toPlainText(), 'Hello Text!\n');
       expect(editor.selection, const TextSelection.collapsed(offset: 10));
 
       await tester.pumpAndSettle(throttleDuration);

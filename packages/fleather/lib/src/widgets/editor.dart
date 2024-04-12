@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'dart:math';
 
-import 'package:fleather/src/util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -1251,9 +1250,7 @@ class RawEditorState extends EditorState
     }
 
     controller.compose(pasteDelta,
-        source: ChangeSource.local,
-        selection: TextSelection.collapsed(
-            offset: selection.baseOffset + pasteDelta.textLength));
+        source: ChangeSource.local, forceUpdateSelection: true);
 
     if (cause == SelectionChangedCause.toolbar) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
