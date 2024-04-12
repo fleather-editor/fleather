@@ -238,8 +238,7 @@ class EditorTextSelectionOverlay {
       return;
     }
     _value = newValue;
-    SchedulerBinding.instance
-        .addPostFrameCallback((_) => _updateSelectionOverlay());
+    _updateSelectionOverlay();
     // _updateSelectionOverlay may not rebuild the selection overlay if the
     // text metrics and selection doesn't change even if the text has changed.
     // This rebuild is needed for the toolbar to update based on the latest text
