@@ -643,15 +643,13 @@ void main() {
             const Offset(10, -1));
         await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
             const Offset(10, -1));
-        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         final handleOverlays = find.byType(SelectionHandleOverlay);
         expect(handleOverlays, findsNWidgets(2));
         final endHandle = find.descendant(
             of: handleOverlays.last, matching: find.byType(SizedBox));
         expect(endHandle, findsOneWidget);
-        final gesture = await tester.startGesture(
-            tester.getBottomRight(endHandle) - const Offset(1, 1));
+        final gesture = await tester.startGesture(tester.getCenter(endHandle));
         await gesture.moveBy(const Offset(40, 0));
         await tester.pump();
         final magnifier = find.byType(TextMagnifier);
@@ -673,15 +671,14 @@ void main() {
             const Offset(100, -1));
         await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
             const Offset(100, -1));
-        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         final handleOverlays = find.byType(SelectionHandleOverlay);
         expect(handleOverlays, findsNWidgets(2));
         final startHandle = find.descendant(
             of: handleOverlays.first, matching: find.byType(SizedBox));
         expect(startHandle, findsOneWidget);
-        final gesture = await tester.startGesture(
-            tester.getBottomRight(startHandle) - const Offset(-1, 1));
+        final gesture =
+            await tester.startGesture(tester.getCenter(startHandle));
         await gesture.moveBy(const Offset(-15, 0));
         await tester.pump();
         final magnifier = find.byType(TextMagnifier);
