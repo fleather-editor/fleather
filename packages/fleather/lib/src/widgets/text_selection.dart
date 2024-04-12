@@ -1058,17 +1058,15 @@ class SelectionOverlay {
   /// Builds the handles by inserting them into the [context]'s overlay.
   /// {@endtemplate}
   void showHandles() {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (_handles != null || _isDisposed) {
-        return;
-      }
-      _handles = <OverlayEntry>[
-        OverlayEntry(builder: _buildStartHandle),
-        OverlayEntry(builder: _buildEndHandle),
-      ];
-      Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
-          .insertAll(_handles!);
-    });
+    if (_handles != null) {
+      return;
+    }
+    _handles = <OverlayEntry>[
+      OverlayEntry(builder: _buildStartHandle),
+      OverlayEntry(builder: _buildEndHandle),
+    ];
+    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
+        .insertAll(_handles!);
   }
 
   /// {@template flutter.widgets.SelectionOverlay.hideHandles}
@@ -1199,11 +1197,8 @@ class SelectionOverlay {
     _toolbar = null;
   }
 
-  bool _isDisposed = false;
-
   /// Disposes this object and release resources.
   void dispose() {
-    _isDisposed = true;
     hide();
     _magnifierInfo.dispose();
   }
