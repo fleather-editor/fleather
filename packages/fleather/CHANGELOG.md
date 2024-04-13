@@ -1,3 +1,12 @@
+## 1.14.4
+
+* [Fix] selection handles not disposed after disposing selection overlay
+* [Fix] wrong selection after pasting
+* [Fix] multiple cursor on editor after selecting Android keyboard suggestion  
+* [Fix] FleatherThemeData.merge not applying heading 6 theme
+* [Fix] get selection style for beginning of new line
+* [Fix] sending invalid composing range to engine
+
 ## 1.14.3
 
 * Hide collapsed selection handle in read-only mode
