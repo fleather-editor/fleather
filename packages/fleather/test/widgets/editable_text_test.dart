@@ -77,7 +77,6 @@ void main() {
           composing: TextRange.empty,
         )
       ]);
-      await editor.pump();
       await tester.pumpAndSettle(throttleDuration);
     });
 

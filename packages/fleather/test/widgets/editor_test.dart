@@ -742,7 +742,6 @@ void main() {
         await tester.tapAt(
             tester.getTopLeft(find.byType(FleatherEditor)) + const Offset(1, 1),
             buttons: kSecondaryMouseButton);
-        tester.binding.scheduleWarmUpFrame();
         await tester.pump();
         expect(find.byType(DesktopTextSelectionToolbar), findsOneWidget);
         await tester
