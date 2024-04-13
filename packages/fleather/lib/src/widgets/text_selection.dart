@@ -78,12 +78,10 @@ class EditorTextSelectionOverlay {
     );
   }
 
-  /// {@template flutter.widgets.SelectionOverlay.context}
   /// The context in which the selection UI should appear.
   ///
   /// This context must have an [Overlay] as an ancestor because this object
   /// will display the text selection handles in that [Overlay].
-  /// {@endtemplate}
   final BuildContext context;
 
   // TODO(mpcomplete): what if the renderObject is removed or replaced, or
@@ -91,15 +89,16 @@ class EditorTextSelectionOverlay {
   /// The editable line in which the selected text is being displayed.
   final RenderEditor renderObject;
 
-  /// {@macro flutter.widgets.SelectionOverlay.selectionControls}
+  /// Builds text selection handles and toolbar.
   final TextSelectionControls? selectionControls;
 
-  /// {@macro flutter.widgets.SelectionOverlay.selectionDelegate}
+  /// The delegate for manipulating the current selection in the owning text
+  /// field.
   final TextSelectionDelegate selectionDelegate;
 
   late final SelectionOverlay _selectionOverlay;
 
-  /// {@macro flutter.widgets.EditableText.contextMenuBuilder}
+  /// Builds the text selection toolbar when requested by the user.
   final WidgetBuilder contextMenuBuilder;
 
   /// Retrieve current value.
@@ -144,16 +143,16 @@ class EditorTextSelectionOverlay {
     _updateTextSelectionOverlayVisibilities();
   }
 
-  /// {@macro flutter.widgets.SelectionOverlay.showHandles}
+  /// Builds the handles by inserting them into the [context]'s overlay.
   void showHandles() {
     _updateSelectionOverlay();
     _selectionOverlay.showHandles();
   }
 
-  /// {@macro flutter.widgets.SelectionOverlay.hideHandles}
+  /// Destroys the handles by removing them from overlay.
   void hideHandles() => _selectionOverlay.hideHandles();
 
-  /// {@macro flutter.widgets.SelectionOverlay.showToolbar}
+  /// Shows the toolbar by inserting it into the [context]'s overlay.
   void showToolbar() {
     _updateSelectionOverlay();
     assert(context.mounted);
@@ -163,7 +162,14 @@ class EditorTextSelectionOverlay {
     );
   }
 
-  /// {@macro flutter.widgets.SelectionOverlay.showMagnifier}
+  /// Shows the magnifier, and hides the toolbar if it was showing when
+  /// [showMagnifier] was called. This is safe to call on platforms not mobile,
+  /// since a magnifierBuilder will not be provided, or the magnifierBuilder
+  /// will return null on platforms not mobile.
+  ///
+  /// This is NOT the source of truth for if the magnifier is up or not,
+  /// since magnifiers may hide themselves. If this info is needed, check
+  /// [MagnifierController.shown].
   void showMagnifier(Offset positionToShow) {
     final TextPosition position =
         renderObject.getPositionForOffset(positionToShow);
@@ -177,7 +183,14 @@ class EditorTextSelectionOverlay {
     );
   }
 
-  /// {@macro flutter.widgets.SelectionOverlay.updateMagnifier}
+  /// Update the current magnifier with new selection data, so the magnifier
+  /// can respond accordingly.
+  ///
+  /// If the magnifier is not shown, this still updates the magnifier position
+  /// because the magnifier may have hidden itself and is looking for a cue to
+  /// reshow itself.
+  ///
+  /// If there is no magnifier in the overlay, this does nothing.
   void updateMagnifier(Offset positionToShow) {
     final TextPosition position =
         renderObject.getPositionForOffset(positionToShow);
@@ -191,7 +204,9 @@ class EditorTextSelectionOverlay {
     );
   }
 
-  /// {@macro fleather.widgets.SelectionOverlay.hideMagnifier}
+  /// Hide the current magnifier.
+  ///
+  /// This does nothing if there is no magnifier.
   void hideMagnifier() {
     _selectionOverlay.hideMagnifier();
   }
@@ -223,8 +238,7 @@ class EditorTextSelectionOverlay {
       return;
     }
     _value = newValue;
-    SchedulerBinding.instance
-        .addPostFrameCallback((_) => _updateSelectionOverlay());
+    _updateSelectionOverlay();
     // _updateSelectionOverlay may not rebuild the selection overlay if the
     // text metrics and selection doesn't change even if the text has changed.
     // This rebuild is needed for the toolbar to update based on the latest text
@@ -278,10 +292,11 @@ class EditorTextSelectionOverlay {
   bool get handlesAreVisible =>
       _selectionOverlay._handles != null && handlesVisible;
 
-  /// {@macro flutter.widgets.SelectionOverlay.toolbarIsVisible}
+  /// Whether the spell check menu is currently visible.
   ///
-  /// See also:
+  ///  See also:
   ///
+  ///   * [toolbarIsVisible], which is whether any toolbar is visible.
   ///   * [spellCheckToolbarIsVisible], which is only whether the spell check menu
   ///     specifically is visible.
   bool get toolbarIsVisible => _selectionOverlay.toolbarIsVisible;
@@ -297,13 +312,15 @@ class EditorTextSelectionOverlay {
   bool get spellCheckToolbarIsVisible =>
       _selectionOverlay._spellCheckToolbarController.isShown;
 
-  /// {@macro flutter.widgets.SelectionOverlay.hide}
+  /// Hides the entire overlay including the toolbar and the handles.
   void hide() => _selectionOverlay.hide();
 
-  /// {@macro flutter.widgets.SelectionOverlay.hideToolbar}
+  /// Hides the toolbar part of the overlay.
+  ///
+  /// To hide the whole overlay, see [hide].
   void hideToolbar() => _selectionOverlay.hideToolbar();
 
-  /// {@macro flutter.widgets.SelectionOverlay.dispose}
+  /// Disposes this object and release resources.
   void dispose() {
     _selectionOverlay.dispose();
     renderObject.selectionStartInViewport
@@ -313,7 +330,6 @@ class EditorTextSelectionOverlay {
     _effectiveToolbarVisibility.dispose();
     _effectiveStartHandleVisibility.dispose();
     _effectiveEndHandleVisibility.dispose();
-    hideToolbar();
   }
 
   MagnifierInfo _buildMagnifier({
@@ -391,13 +407,13 @@ class EditorTextSelectionOverlay {
     );
   }
 
-  /// Given a handle position and drag position, returns the position of handle
-  /// after the drag.
-  ///
-  /// The handle jumps instantly between lines when the drag reaches a full
-  /// line's height away from the original handle position. In other words, the
-  /// line jump happens when the contact point would be located at the same
-  /// place on the handle at the new line as when the gesture started.
+  // Given a handle position and drag position, returns the position of handle
+  // after the drag.
+  //
+  // The handle jumps instantly between lines when the drag reaches a full
+  // line's height away from the original handle position. In other words, the
+  // line jump happens when the contact point would be located at the same
+  // place on the handle at the new line as when the gesture started.
   double _getHandleDy(
       double dragDy, double handleDy, TextSelectionHandleType handleType) {
     final double distanceDragged = dragDy - handleDy;
@@ -669,7 +685,10 @@ class SelectionOverlay {
         _toolbarLocation = toolbarLocation,
         assert(debugCheckHasOverlay(context));
 
-  /// {@macro flutter.widgets.SelectionOverlay.context}
+  /// The context in which the selection UI should appear.
+  ///
+  /// This context must have an [Overlay] as an ancestor because this object
+  /// will display the text selection handles in that [Overlay].
   final BuildContext context;
 
   final RenderEditor renderEditor;
@@ -677,32 +696,35 @@ class SelectionOverlay {
   final ValueNotifier<MagnifierInfo> _magnifierInfo =
       ValueNotifier<MagnifierInfo>(MagnifierInfo.empty);
 
-  /// [MagnifierController.show] and [MagnifierController.hide] should not be called directly, except
-  /// from inside [showMagnifier] and [hideMagnifier]. If it is desired to show or hide the magnifier,
-  /// call [showMagnifier] or [hideMagnifier]. This is because the magnifier needs to orchestrate
+  /// [MagnifierController.show] and [MagnifierController.hide] should not be
+  /// called directly, except from inside [showMagnifier] and [hideMagnifier].
+  /// If it is desired to show or hide the magnifier,call [showMagnifier] or
+  /// [hideMagnifier]. This is because the magnifier needs to orchestrate
   /// with other properties in [SelectionOverlay].
   final MagnifierController _magnifierController = MagnifierController();
 
-  /// {@macro flutter.widgets.magnifier.TextMagnifierConfiguration.intro}
+  /// A configuration object for a magnifier.
   ///
-  /// {@macro flutter.widgets.magnifier.intro}
+  /// This magnifying glass is useful for scenarios on mobile devices where the
+  /// user's finger may be covering part of the screen where a granular action
+  /// is being performed, such as navigating a small cursor with a drag gesture,
+  /// on an image or text.
   ///
   /// By default, [SelectionOverlay]'s [TextMagnifierConfiguration] is disabled.
   ///
-  /// {@macro flutter.widgets.magnifier.TextMagnifierConfiguration.details}
+  /// In general, most features of the magnifier can be configured through
+  /// [MagnifierBuilder]. [TextMagnifierConfiguration] is used to configure the
+  /// magnifier's behavior through the [SelectionOverlay].
   final TextMagnifierConfiguration magnifierConfiguration;
 
-  /// {@template flutter.widgets.SelectionOverlay.toolbarIsVisible}
   /// Whether the toolbar is currently visible.
   ///
   /// Includes both the text selection toolbar and the spell check menu.
-  /// {@endtemplate}
   bool get toolbarIsVisible {
     return _contextMenuController.isShown ||
         _spellCheckToolbarController.isShown;
   }
 
-  /// {@template flutter.widgets.SelectionOverlay.showMagnifier}
   /// Shows the magnifier, and hides the toolbar if it was showing when [showMagnifier]
   /// was called. This is safe to call on platforms not mobile, since
   /// a magnifierBuilder will not be provided, or the magnifierBuilder will return null
@@ -711,7 +733,6 @@ class SelectionOverlay {
   /// This is NOT the source of truth for if the magnifier is up or not,
   /// since magnifiers may hide themselves. If this info is needed, check
   /// [MagnifierController.shown].
-  /// {@endtemplate}
   void showMagnifier(MagnifierInfo initialMagnifierInfo) {
     if (toolbarIsVisible) {
       hideToolbar();
@@ -741,11 +762,9 @@ class SelectionOverlay {
         builder: (_) => builtMagnifier);
   }
 
-  /// {@template flutter.widgets.SelectionOverlay.hideMagnifier}
   /// Hide the current magnifier.
   ///
   /// This does nothing if there is no magnifier.
-  /// {@endtemplate}
   void hideMagnifier() {
     // This cannot be a check on `MagnifierController.shown`, since
     // it's possible that the magnifier is still in the overlay, but
@@ -967,15 +986,11 @@ class SelectionOverlay {
   /// location of end selection handle.
   final LayerLink endHandleLayerLink;
 
-  /// {@template flutter.widgets.SelectionOverlay.selectionControls}
   /// Builds text selection handles and toolbar.
-  /// {@endtemplate}
   final TextSelectionControls? selectionControls;
 
-  /// {@template flutter.widgets.SelectionOverlay.selectionDelegate}
   /// The delegate for manipulating the current selection in the owning
   /// text field.
-  /// {@endtemplate}
   @Deprecated(
     'Use `contextMenuBuilder` instead. '
     'This feature was deprecated after v3.3.0-0.5.pre.',
@@ -997,10 +1012,10 @@ class SelectionOverlay {
   ///
   /// See also:
   ///
-  ///  * [DragGestureRecognizer.dragStartBehavior], which gives an example for the different behaviors.
+  ///  * [DragGestureRecognizer.dragStartBehavior], which gives an example for
+  ///  the different behaviors.
   final DragStartBehavior dragStartBehavior;
 
-  /// {@template flutter.widgets.SelectionOverlay.onSelectionHandleTapped}
   /// A callback that's optionally invoked when a selection handle is tapped.
   ///
   /// The [TextSelectionControls.buildHandle] implementation the text field
@@ -1011,7 +1026,6 @@ class SelectionOverlay {
   /// [CupertinoTextSelectionControls] builds a handle that's not sufficiently
   /// large for tapping (as it's not meant to be tapped) so it does not call
   /// [onSelectionHandleTapped] even when tapped.
-  /// {@endtemplate}
   // See https://github.com/flutter/flutter/issues/39376#issuecomment-848406415
   // for provenance.
   final VoidCallback? onSelectionHandleTapped;
@@ -1055,26 +1069,20 @@ class SelectionOverlay {
   final ContextMenuController _spellCheckToolbarController =
       ContextMenuController();
 
-  /// {@template flutter.widgets.SelectionOverlay.showHandles}
   /// Builds the handles by inserting them into the [context]'s overlay.
-  /// {@endtemplate}
   void showHandles() {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (_handles != null) {
-        return;
-      }
-      _handles = <OverlayEntry>[
-        OverlayEntry(builder: _buildStartHandle),
-        OverlayEntry(builder: _buildEndHandle),
-      ];
-      Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
-          .insertAll(_handles!);
-    });
+    if (_handles != null) {
+      return;
+    }
+    _handles = <OverlayEntry>[
+      OverlayEntry(builder: _buildStartHandle),
+      OverlayEntry(builder: _buildEndHandle),
+    ];
+    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
+        .insertAll(_handles!);
   }
 
-  /// {@template flutter.widgets.SelectionOverlay.hideHandles}
   /// Destroys the handles by removing them from overlay.
-  /// {@endtemplate}
   void hideHandles() {
     if (_handles != null) {
       _handles![0].remove();
@@ -1172,13 +1180,7 @@ class SelectionOverlay {
   /// Hides the entire overlay including the toolbar and the handles.
   void hide() {
     _magnifierController.hide();
-    if (_handles != null) {
-      _handles![0].remove();
-      _handles![0].dispose();
-      _handles![1].remove();
-      _handles![1].dispose();
-      _handles = null;
-    }
+    hideHandles();
     if (_toolbar != null ||
         _contextMenuController.isShown ||
         _spellCheckToolbarController.isShown) {

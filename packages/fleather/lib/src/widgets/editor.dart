@@ -1424,13 +1424,18 @@ class RawEditorState extends EditorState
       _cursorController.stopCursorTimer(resetCharTicks: false);
       _cursorController.startCursorTimer();
     }
-    _updateOrDisposeSelectionOverlayIfNeeded();
     setState(() {
       /*
        * We use widget.controller.value in build().
        * We need to run this before updating SelectionOverlay to ensure
        * that renderers are in line with the document.
        */
+    });
+    // When a new document node is added or removed due to a line/block
+    // insertion or deletion, we must wait for next frame the ensure the
+    // RenderEditor's child list reflects the new document node structure
+    SchedulerBinding.instance.addPersistentFrameCallback((timeStamp) {
+      _updateOrDisposeSelectionOverlayIfNeeded();
     });
     _verticalSelectionUpdateAction.stopCurrentVerticalRunIfSelectionChanges();
   }
