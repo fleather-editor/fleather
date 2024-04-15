@@ -1,6 +1,7 @@
 [![Fleather & Parchment](https://github.com/fleather-editor/fleather/actions/workflows/fleather.yml/badge.svg)](https://github.com/fleather-editor/fleather/actions/workflows/fleather.yml)
 [![codecov](https://codecov.io/gh/fleather-editor/fleather/branch/master/graph/badge.svg?token=JRNFZ218FY)](https://codecov.io/gh/fleather-editor/fleather)
 [![pub package](https://img.shields.io/pub/v/fleather.svg)](https://pub.dartlang.org/packages/fleather)
+[![Awesome Flutter](https://awesome.re/badge.svg)](https://github.com/Solido/awesome-flutter)
 
 # Fleather
 ![banner](https://github.com/fleather-editor/fleather/raw/master/packages/fleather/images/banner.png)
