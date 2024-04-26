@@ -322,13 +322,13 @@ void main() {
       await tester.tap(backgroundButton);
       await tester.pumpAndSettle();
       final colorElement = find.descendant(
-          of: find.byKey(const Key('color_palette')),
+          of: find.byKey(const Key('color_selector')),
           matching: find.byType(RawMaterialButton));
       expect(colorElement, findsNWidgets(17));
 
       await tester.tap(find
           .descendant(
-              of: find.byKey(const Key('color_palette')),
+              of: find.byKey(const Key('color_selector')),
               matching: find.byType(RawMaterialButton))
           .last);
       await tester.pumpAndSettle(throttleDuration);
@@ -350,7 +350,7 @@ void main() {
       await tester.tap(backgroundButton);
       await tester.pumpAndSettle();
       final colorElement = find.descendant(
-          of: find.byKey(const Key('color_palette')),
+          of: find.byKey(const Key('color_selector')),
           matching: find.byType(RawMaterialButton));
       expect(
         colorElement,
@@ -359,7 +359,7 @@ void main() {
 
       await tester.tap(find
           .descendant(
-              of: find.byKey(const Key('color_palette')),
+              of: find.byKey(const Key('color_selector')),
               matching: find.byType(RawMaterialButton))
           .last);
       await tester.pumpAndSettle(throttleDuration);
