@@ -412,11 +412,67 @@ void main() {
       await tester.pump();
       await tester.tap(find.byIcon(Icons.mode_edit_outline_outlined));
       await tester.pump();
-      expect(find.byKey(const Key('color_palette')), findsOneWidget);
+      expect(find.byKey(const Key('color_selector')), findsOneWidget);
       await tester.tap(find.byType(TextButton));
       await tester.pump();
-      expect(find.byKey(const Key('color_palette')), findsNothing);
+      expect(find.byKey(const Key('color_selector')), findsNothing);
       await tester.pumpAndSettle(throttleDuration);
+    });
+  });
+
+  group('SelectorScope', () {
+    testWidgets('Correctly places the selector in a visible area of screen',
+        (WidgetTester tester) async {
+      final padding = EdgeInsets.all(32);
+      final controller = FleatherController();
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(),
+          body: Column(
+            children: [
+              FleatherToolbar.basic(controller: controller),
+            ],
+          ),
+        ),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(padding: padding),
+          child: child!,
+        ),
+      ));
+      final validRect = tester.getRect(find.byType(Scaffold)).deflate(32);
+      await tester.tap(find.byType(SelectHeadingButton));
+      await tester.pump();
+      expect(
+        validRect.expandToInclude(
+            tester.getRect(find.byKey(const Key('heading_selector')))),
+        equals(validRect),
+      );
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(),
+          body: Column(
+            children: [
+              const Expanded(child: SizedBox()),
+              FleatherToolbar.basic(controller: controller),
+            ],
+          ),
+        ),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(padding: padding),
+          child: child!,
+        ),
+      ));
+      await tester.tap(find.byType(SelectHeadingButton));
+      await tester.pump();
+      expect(
+        validRect.expandToInclude(
+            tester.getRect(find.byKey(const Key('heading_selector')))),
+        equals(validRect),
+      );
+      expect(
+        tester.getRect(find.byKey(const Key('heading_selector'))).bottom,
+        tester.getRect(find.byType(Scaffold)).bottom - padding.bottom - 8,
+      );
     });
   });
 }
