@@ -423,7 +423,7 @@ void main() {
   group('SelectorScope', () {
     testWidgets('Correctly places the selector in a visible area of screen',
         (WidgetTester tester) async {
-      final padding = EdgeInsets.all(32);
+      const padding = EdgeInsets.all(32);
       final controller = FleatherController();
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
