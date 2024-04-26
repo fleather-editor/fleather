@@ -406,12 +406,10 @@ class _ColorButtonState extends State<ColorButton> {
     };
     final maxWidth = isMobile ? 200.0 : 100.0;
 
-    final renderBox = context.findRenderObject() as RenderBox;
-    final offset = renderBox.localToGlobal(Offset.zero) + Offset(0, buttonSize);
-
     final completer = Completer<Color?>();
 
     final selector = Material(
+      key: const Key('color_selector'),
       elevation: 4.0,
       color: Theme.of(context).canvasColor,
       child: Container(
@@ -421,19 +419,7 @@ class _ColorButtonState extends State<ColorButton> {
               onSelectedColor: completer.complete)),
     );
 
-    return SelectorScope.of(context).pushSelector(
-      Stack(
-        children: [
-          Positioned(
-            key: const Key('color_palette'),
-            top: offset.dy,
-            left: offset.dx,
-            child: selector,
-          )
-        ],
-      ),
-      completer,
-    );
+    return SelectorScope.pushSelector(context, selector, completer);
   }
 
   @override
@@ -648,32 +634,19 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
   }
 
   Future<ParchmentAttribute<int>?> _selectHeading() async {
-    final renderBox = context.findRenderObject() as RenderBox;
-    final offset =
-        renderBox.localToGlobal(Offset.zero) + Offset(0, buttonHeight);
     final themeData = FleatherTheme.of(context)!;
 
     final completer = Completer<ParchmentAttribute<int>?>();
 
     final selector = Material(
+      key: const Key('heading_selector'),
       elevation: 4.0,
       borderRadius: BorderRadius.circular(2),
       color: Theme.of(context).canvasColor,
       child: _HeadingList(theme: themeData, onSelected: completer.complete),
     );
 
-    return SelectorScope.of(context).pushSelector(
-      Stack(
-        children: [
-          Positioned(
-            top: offset.dy,
-            left: offset.dx,
-            child: selector,
-          )
-        ],
-      ),
-      completer,
-    );
+    return SelectorScope.pushSelector(context, selector, completer);
   }
 }
 
@@ -1228,12 +1201,18 @@ class FLIconButton extends StatelessWidget {
 }
 
 class SelectorScope extends StatefulWidget {
+  final Widget child;
+
   const SelectorScope({super.key, required this.child});
 
   static SelectorScopeState of(BuildContext context) =>
       context.findAncestorStateOfType<SelectorScopeState>()!;
 
-  final Widget child;
+  static Future<T?> pushSelector<T>(
+          BuildContext context, Widget selector, Completer<T?> completer,
+          {bool rootOverlay = false}) =>
+      SelectorScope.of(context)
+          .pushSelector(context, selector, completer, rootOverlay: rootOverlay);
 
   @override
   State<SelectorScope> createState() => SelectorScopeState();
@@ -1242,27 +1221,59 @@ class SelectorScope extends StatefulWidget {
 class SelectorScopeState extends State<SelectorScope> {
   OverlayEntry? _overlayEntry;
 
-  Future<T?> pushSelector<T>(Widget selector, Completer<T?> completer) {
+  /// The [context] should belong to the presentor widget.
+  Future<T?> pushSelector<T>(
+      BuildContext context, Widget selector, Completer<T?> completer,
+      {bool rootOverlay = false}) {
     _overlayEntry?.remove();
-    final overlayEntry = OverlayEntry(
-      builder: (context) => TapRegion(
-        child: selector,
-        onTapOutside: (_) => completer.complete(null),
+
+    final overlay = Overlay.of(context, rootOverlay: rootOverlay);
+
+    final RenderBox presentor = context.findRenderObject() as RenderBox;
+    final RenderBox overlayBox =
+        overlay.context.findRenderObject() as RenderBox;
+    final offset = Offset(0.0, presentor.size.height);
+    final position = RelativeRect.fromSize(
+      Rect.fromPoints(
+        presentor.localToGlobal(offset, ancestor: overlayBox),
+        presentor.localToGlobal(
+          presentor.size.bottomRight(Offset.zero) + offset,
+          ancestor: overlayBox,
+        ),
       ),
+      overlayBox.size,
     );
-    overlayEntry.addListener(() {
-      if (!overlayEntry.mounted && !completer.isCompleted) {
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        final mediaQueryData = MediaQuery.of(context);
+        return CustomSingleChildLayout(
+          delegate: _SelectorLayout(
+            position,
+            Directionality.of(context),
+            mediaQueryData.padding,
+            DisplayFeatureSubScreen.avoidBounds(mediaQueryData).toSet(),
+          ),
+          child: TapRegion(
+            child: selector,
+            onTapOutside: (_) => completer.complete(null),
+          ),
+        );
+      },
+    );
+    _overlayEntry?.addListener(() {
+      if (_overlayEntry?.mounted != true && !completer.isCompleted) {
+        _overlayEntry?.dispose();
+        _overlayEntry = null;
         completer.complete(null);
       }
     });
     completer.future.whenComplete(() {
-      overlayEntry.remove();
-      if (_overlayEntry == overlayEntry) {
-        _overlayEntry = null;
-      }
+      _overlayEntry?.remove();
+      _overlayEntry?.dispose();
+      _overlayEntry = null;
     });
-    _overlayEntry = overlayEntry;
-    Overlay.of(context).insert(_overlayEntry!);
+    overlay.insert(_overlayEntry!);
     return completer.future;
   }
 
@@ -1287,5 +1298,119 @@ class SelectorScopeState extends State<SelectorScope> {
   @override
   Widget build(BuildContext context) {
     return widget.child;
+  }
+}
+
+const _kMenuScreenPadding = 8.0;
+
+// This is a clone of _PopupMenuRouteLayout from Flutter with some modifications
+class _SelectorLayout extends SingleChildLayoutDelegate {
+  _SelectorLayout(
+    this.position,
+    this.textDirection,
+    this.padding,
+    this.avoidBounds,
+  );
+
+  // Rectangle of underlying button, relative to the overlay's dimensions.
+  final RelativeRect position;
+
+  // Whether to prefer going to the left or to the right.
+  final TextDirection textDirection;
+
+  // The padding of unsafe area.
+  EdgeInsets padding;
+
+  // List of rectangles that we should avoid overlapping. Unusable screen area.
+  final Set<Rect> avoidBounds;
+
+  // We put the child wherever position specifies, so long as it will fit within
+  // the specified parent size padded (inset) by 8. If necessary, we adjust the
+  // child's position so that it fits.
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    // The menu can be at most the size of the overlay minus 8.0 pixels in each
+    // direction.
+    return BoxConstraints.loose(constraints.biggest).deflate(
+      const EdgeInsets.all(_kMenuScreenPadding) + padding,
+    );
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    // size: The size of the overlay.
+    // childSize: The size of the menu, when fully open, as determined by
+    // getConstraintsForChild.
+
+    final double y = position.top;
+
+    // Find the ideal horizontal position.
+    double x;
+    if (position.left > position.right) {
+      // Menu button is closer to the right edge, so grow to the left, aligned to the right edge.
+      x = size.width - position.right - childSize.width;
+    } else if (position.left < position.right) {
+      // Menu button is closer to the left edge, so grow to the right, aligned to the left edge.
+      x = position.left;
+    } else {
+      // Menu button is equidistant from both edges, so grow in reading direction.
+      switch (textDirection) {
+        case TextDirection.rtl:
+          x = size.width - position.right - childSize.width;
+        case TextDirection.ltr:
+          x = position.left;
+      }
+    }
+    final Offset wantedPosition = Offset(x, y);
+    final Offset originCenter = position.toRect(Offset.zero & size).center;
+    final Iterable<Rect> subScreens =
+        DisplayFeatureSubScreen.subScreensInBounds(
+            Offset.zero & size, avoidBounds);
+    final Rect subScreen = _closestScreen(subScreens, originCenter);
+    return _fitInsideScreen(subScreen, childSize, wantedPosition);
+  }
+
+  Rect _closestScreen(Iterable<Rect> screens, Offset point) {
+    Rect closest = screens.first;
+    for (final Rect screen in screens) {
+      if ((screen.center - point).distance <
+          (closest.center - point).distance) {
+        closest = screen;
+      }
+    }
+    return closest;
+  }
+
+  Offset _fitInsideScreen(Rect screen, Size childSize, Offset wantedPosition) {
+    double x = wantedPosition.dx;
+    double y = wantedPosition.dy;
+    // Avoid going outside an area defined as the rectangle 8.0 pixels from the
+    // edge of the screen in every direction.
+    if (x < screen.left + _kMenuScreenPadding + padding.left) {
+      x = screen.left + _kMenuScreenPadding + padding.left;
+    } else if (x + childSize.width >
+        screen.right - _kMenuScreenPadding - padding.right) {
+      x = screen.right - childSize.width - _kMenuScreenPadding - padding.right;
+    }
+    if (y < screen.top + _kMenuScreenPadding + padding.top) {
+      y = _kMenuScreenPadding + padding.top;
+    } else if (y + childSize.height >
+        screen.bottom - _kMenuScreenPadding - padding.bottom) {
+      y = screen.bottom -
+          childSize.height -
+          _kMenuScreenPadding -
+          padding.bottom;
+    }
+
+    return Offset(x, y);
+  }
+
+  @override
+  bool shouldRelayout(_SelectorLayout oldDelegate) {
+    return position != oldDelegate.position ||
+        textDirection != oldDelegate.textDirection ||
+        padding != oldDelegate.padding ||
+        !setEquals(avoidBounds, oldDelegate.avoidBounds);
   }
 }
