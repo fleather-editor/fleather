@@ -1292,7 +1292,7 @@ class SelectorScopeState extends State<SelectorScope> {
   }
 }
 
-const _kMenuScreenPadding = 8.0;
+const _selectorScreenPadding = 8.0;
 
 // This is a clone of _PopupMenuRouteLayout from Flutter with some modifications
 class _SelectorLayout extends SingleChildLayoutDelegate {
@@ -1324,7 +1324,7 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
     // The menu can be at most the size of the overlay minus 8.0 pixels in each
     // direction.
     return BoxConstraints.loose(constraints.biggest).deflate(
-      const EdgeInsets.all(_kMenuScreenPadding) + padding,
+      const EdgeInsets.all(_selectorScreenPadding) + padding,
     );
   }
 
@@ -1370,19 +1370,22 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
     double y = wantedPosition.dy;
     // Avoid going outside an area defined as the rectangle 8.0 pixels from the
     // edge of the screen in every direction.
-    if (x < screen.left + _kMenuScreenPadding + padding.left) {
-      x = screen.left + _kMenuScreenPadding + padding.left;
+    if (x < screen.left + _selectorScreenPadding + padding.left) {
+      x = screen.left + _selectorScreenPadding + padding.left;
     } else if (x + childSize.width >
-        screen.right - _kMenuScreenPadding - padding.right) {
-      x = screen.right - childSize.width - _kMenuScreenPadding - padding.right;
+        screen.right - _selectorScreenPadding - padding.right) {
+      x = screen.right -
+          childSize.width -
+          _selectorScreenPadding -
+          padding.right;
     }
-    if (y < screen.top + _kMenuScreenPadding + padding.top) {
-      y = _kMenuScreenPadding + padding.top;
+    if (y < screen.top + _selectorScreenPadding + padding.top) {
+      y = _selectorScreenPadding + padding.top;
     } else if (y + childSize.height >
-        screen.bottom - _kMenuScreenPadding - padding.bottom) {
+        screen.bottom - _selectorScreenPadding - padding.bottom) {
       y = screen.bottom -
           childSize.height -
-          _kMenuScreenPadding -
+          _selectorScreenPadding -
           padding.bottom;
     }
 
