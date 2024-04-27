@@ -1208,6 +1208,7 @@ class SelectorScope extends StatefulWidget {
   static SelectorScopeState of(BuildContext context) =>
       context.findAncestorStateOfType<SelectorScopeState>()!;
 
+  /// The [context] should belong to the presenter widget.
   static Future<T?> showSelector<T>(
           BuildContext context, Widget selector, Completer<T?> completer,
           {bool rootOverlay = false}) =>
@@ -1244,22 +1245,22 @@ class SelectorScopeState extends State<SelectorScope> {
       overlayBox.size,
     );
 
+    final mediaQueryData = MediaQuery.of(context);
+    final textDirection = Directionality.of(context);
+
     _overlayEntry = OverlayEntry(
-      builder: (context) {
-        final mediaQueryData = MediaQuery.of(context);
-        return CustomSingleChildLayout(
-          delegate: _SelectorLayout(
-            position,
-            Directionality.of(context),
-            mediaQueryData.padding,
-            DisplayFeatureSubScreen.avoidBounds(mediaQueryData).toSet(),
-          ),
-          child: TapRegion(
-            child: selector,
-            onTapOutside: (_) => completer.complete(null),
-          ),
-        );
-      },
+      builder: (context) => CustomSingleChildLayout(
+        delegate: _SelectorLayout(
+          position,
+          textDirection,
+          mediaQueryData.padding,
+          DisplayFeatureSubScreen.avoidBounds(mediaQueryData).toSet(),
+        ),
+        child: TapRegion(
+          child: selector,
+          onTapOutside: (_) => completer.complete(null),
+        ),
+      ),
     );
     _overlayEntry?.addListener(() {
       if (_overlayEntry?.mounted != true && !completer.isCompleted) {
@@ -1316,8 +1317,8 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
   final Set<Rect> avoidBounds;
 
   // We put the child wherever position specifies, so long as it will fit within
-  // the specified parent size padded (inset) by 8. If necessary, we adjust the
-  // child's position so that it fits.
+  // the specified parent size padded (inset) by [_selectorScreenPadding].
+  // If necessary, we adjust the child's position so that it fits.
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
@@ -1338,11 +1339,19 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
 
     // Find the ideal horizontal position.
     double x;
-    switch (textDirection) {
-      case TextDirection.rtl:
-        x = size.width - position.right - childSize.width;
-      case TextDirection.ltr:
-        x = position.left;
+    if (position.right > childSize.width) {
+      // Menu button is closer to the left edge, so grow to the right, aligned to the left edge.
+      x = position.left;
+    } else if (position.left > childSize.width) {
+      // Menu button is closer to the right edge, so grow to the left, aligned to the right edge.
+      x = size.width - position.right - childSize.width;
+    } else {
+      switch (textDirection) {
+        case TextDirection.rtl:
+          x = size.width - position.right - childSize.width;
+        case TextDirection.ltr:
+          x = position.left;
+      }
     }
 
     final Offset wantedPosition = Offset(x, y);
