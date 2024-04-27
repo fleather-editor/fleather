@@ -419,7 +419,7 @@ class _ColorButtonState extends State<ColorButton> {
               onSelectedColor: completer.complete)),
     );
 
-    return SelectorScope.pushSelector(context, selector, completer);
+    return SelectorScope.showSelector(context, selector, completer);
   }
 
   @override
@@ -646,7 +646,7 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
       child: _HeadingList(theme: themeData, onSelected: completer.complete),
     );
 
-    return SelectorScope.pushSelector(context, selector, completer);
+    return SelectorScope.showSelector(context, selector, completer);
   }
 }
 
@@ -1208,11 +1208,11 @@ class SelectorScope extends StatefulWidget {
   static SelectorScopeState of(BuildContext context) =>
       context.findAncestorStateOfType<SelectorScopeState>()!;
 
-  static Future<T?> pushSelector<T>(
+  static Future<T?> showSelector<T>(
           BuildContext context, Widget selector, Completer<T?> completer,
           {bool rootOverlay = false}) =>
       SelectorScope.of(context)
-          .pushSelector(context, selector, completer, rootOverlay: rootOverlay);
+          .showSelector(context, selector, completer, rootOverlay: rootOverlay);
 
   @override
   State<SelectorScope> createState() => SelectorScopeState();
@@ -1221,23 +1221,23 @@ class SelectorScope extends StatefulWidget {
 class SelectorScopeState extends State<SelectorScope> {
   OverlayEntry? _overlayEntry;
 
-  /// The [context] should belong to the presentor widget.
-  Future<T?> pushSelector<T>(
+  /// The [context] should belong to the presenter widget.
+  Future<T?> showSelector<T>(
       BuildContext context, Widget selector, Completer<T?> completer,
       {bool rootOverlay = false}) {
     _overlayEntry?.remove();
 
     final overlay = Overlay.of(context, rootOverlay: rootOverlay);
 
-    final RenderBox presentor = context.findRenderObject() as RenderBox;
+    final RenderBox presenter = context.findRenderObject() as RenderBox;
     final RenderBox overlayBox =
         overlay.context.findRenderObject() as RenderBox;
-    final offset = Offset(0.0, presentor.size.height);
+    final offset = Offset(0.0, presenter.size.height);
     final position = RelativeRect.fromSize(
       Rect.fromPoints(
-        presentor.localToGlobal(offset, ancestor: overlayBox),
-        presentor.localToGlobal(
-          presentor.size.bottomRight(Offset.zero) + offset,
+        presenter.localToGlobal(offset, ancestor: overlayBox),
+        presenter.localToGlobal(
+          presenter.size.bottomRight(Offset.zero) + offset,
           ancestor: overlayBox,
         ),
       ),
@@ -1268,11 +1268,7 @@ class SelectorScopeState extends State<SelectorScope> {
         completer.complete(null);
       }
     });
-    completer.future.whenComplete(() {
-      _overlayEntry?.remove();
-      _overlayEntry?.dispose();
-      _overlayEntry = null;
-    });
+    completer.future.whenComplete(removeEntry);
     overlay.insert(_overlayEntry!);
     return completer.future;
   }
@@ -1280,13 +1276,8 @@ class SelectorScopeState extends State<SelectorScope> {
   void removeEntry() {
     if (_overlayEntry == null) return;
     _overlayEntry!.remove();
+    _overlayEntry!.dispose();
     _overlayEntry = null;
-  }
-
-  @override
-  void didUpdateWidget(covariant SelectorScope oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    removeEntry();
   }
 
   @override
@@ -1347,21 +1338,13 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
 
     // Find the ideal horizontal position.
     double x;
-    if (position.left > position.right) {
-      // Menu button is closer to the right edge, so grow to the left, aligned to the right edge.
-      x = size.width - position.right - childSize.width;
-    } else if (position.left < position.right) {
-      // Menu button is closer to the left edge, so grow to the right, aligned to the left edge.
-      x = position.left;
-    } else {
-      // Menu button is equidistant from both edges, so grow in reading direction.
-      switch (textDirection) {
-        case TextDirection.rtl:
-          x = size.width - position.right - childSize.width;
-        case TextDirection.ltr:
-          x = position.left;
-      }
+    switch (textDirection) {
+      case TextDirection.rtl:
+        x = size.width - position.right - childSize.width;
+      case TextDirection.ltr:
+        x = position.left;
     }
+    
     final Offset wantedPosition = Offset(x, y);
     final Offset originCenter = position.toRect(Offset.zero & size).center;
     final Iterable<Rect> subScreens =
