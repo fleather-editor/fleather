@@ -1344,7 +1344,7 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
       case TextDirection.ltr:
         x = position.left;
     }
-    
+
     final Offset wantedPosition = Offset(x, y);
     final Offset originCenter = position.toRect(Offset.zero & size).center;
     final Iterable<Rect> subScreens =
