@@ -72,6 +72,7 @@ class _CupertinoAction extends StatelessWidget {
   final String title;
   final IconData icon;
   final VoidCallback onPressed;
+
   const _CupertinoAction({
     required this.title,
     required this.icon,
@@ -109,6 +110,7 @@ class _CupertinoAction extends StatelessWidget {
 Future<LinkMenuAction> _showMaterialMenu(
     BuildContext context, String link) async {
   final result = await showModalBottomSheet<LinkMenuAction>(
+    clipBehavior: Clip.hardEdge,
     context: context,
     builder: (ctx) {
       return Column(
