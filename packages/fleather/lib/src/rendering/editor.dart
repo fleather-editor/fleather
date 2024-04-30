@@ -137,21 +137,22 @@ class RenderEditor extends RenderEditableContainerBox
     with RelayoutWhenSystemFontsChangeMixin
     implements RenderAbstractEditor {
   RenderEditor({
-    ViewportOffset? offset,
     super.children,
-    required ParchmentDocument document,
+    required super.padding,
     required super.textDirection,
+    required ParchmentDocument document,
+    required ViewportOffset offset,
     required bool hasFocus,
     required TextSelection selection,
     required LayerLink startHandleLayerLink,
     required LayerLink endHandleLayerLink,
-    required super.padding,
     required CursorController cursorController,
     this.onSelectionChanged,
     EdgeInsets floatingCursorAddedMargin =
         const EdgeInsets.fromLTRB(4, 4, 4, 5),
     double? maxContentWidth,
   })  : _document = document,
+        _offset = offset,
         _hasFocus = hasFocus,
         _selection = selection,
         _startHandleLayerLink = startHandleLayerLink,
@@ -186,18 +187,25 @@ class RenderEditor extends RenderEditableContainerBox
     markNeedsSemanticsUpdate();
   }
 
-  Offset get paintOffset => Offset(0.0, -(offset?.pixels ?? 0.0));
+  Offset get paintOffset => Offset(0.0, -offset.pixels);
 
-  ViewportOffset? get offset => _offset;
-  ViewportOffset? _offset;
+  ViewportOffset get offset => _offset;
+  ViewportOffset _offset;
 
-  set offset(ViewportOffset? value) {
+  set offset(ViewportOffset value) {
     if (_offset == value) return;
-    if (attached) _offset?.removeListener(markNeedsPaint);
+    if (attached) _offset.removeListener(markNeedsPaint);
     _offset = value;
-    if (attached) _offset?.addListener(markNeedsPaint);
+    if (attached) _offset.addListener(markNeedsPaint);
     markNeedsLayout();
   }
+
+  double _maxScrollExtent = 0;
+
+  // We need to check the paint offset here because during animation, the start of
+  // the text may position outside the visible region even when the text fits.
+  bool get _hasVisualOverflow =>
+      _maxScrollExtent > 0 || paintOffset != Offset.zero;
 
   Offset? _lastSecondaryTapDownPosition;
 
@@ -331,8 +339,7 @@ class RenderEditor extends RenderEditableContainerBox
   /// this editor from above it.
   ///
   /// Returns `null` if the cursor is currently visible.
-  double? getOffsetToRevealCursor(
-      double viewportHeight, double scrollOffset, double offsetInViewport) {
+  double? getOffsetToRevealCursor(double viewportHeight, double scrollOffset) {
     const kMargin = 8.0;
     // Endpoints coordinates represents lower left or lower right corner of
     // the selection. If we want to scroll up to reveal the caret we need to
@@ -346,10 +353,8 @@ class RenderEditor extends RenderEditableContainerBox
           offset: selection.extentOffset - child.node.documentOffset);
       final caretTop = endpoints.single.point.dy -
           child.preferredLineHeight(childPosition) -
-          kMargin +
-          offsetInViewport;
-      final caretBottom =
-          endpoints.single.point.dy + kMargin + offsetInViewport;
+          kMargin;
+      final caretBottom = endpoints.single.point.dy + kMargin;
       final caretHeight = caretBottom - caretTop;
       double? dy;
 
@@ -573,20 +578,6 @@ class RenderEditor extends RenderEditableContainerBox
   @override
   void performLayout() {
     assert(() {
-      if (!constraints.hasBoundedHeight) return true;
-      throw FlutterError.fromParts(<DiagnosticsNode>[
-        ErrorSummary(
-            'RenderEditableContainerBox must have unlimited space along its main axis.'),
-        ErrorDescription(
-            'RenderEditableContainerBox does not clip or resize its children, so it must be '
-            'placed in a parent that does not constrain the main '
-            'axis.'),
-        ErrorHint(
-            'You probably want to put the RenderEditableContainerBox inside a '
-            'RenderViewport with a matching main axis.')
-      ]);
-    }());
-    assert(() {
       if (constraints.hasBoundedWidth) return true;
       throw FlutterError.fromParts(<DiagnosticsNode>[
         ErrorSummary(
@@ -601,7 +592,7 @@ class RenderEditor extends RenderEditableContainerBox
     resolvePadding();
     assert(resolvedPadding != null);
 
-    var mainAxisExtent = resolvedPadding!.top;
+    var contentSize = resolvedPadding!.top;
     var child = firstChild;
     final innerConstraints = BoxConstraints.tightFor(
             width: math.min(
@@ -614,16 +605,29 @@ class RenderEditor extends RenderEditableContainerBox
       child.layout(innerConstraints, parentUsesSize: true);
       final childParentData = child.parentData as EditableContainerParentData;
       childParentData.offset =
-          Offset(resolvedPadding!.left + leftOffset, mainAxisExtent);
-      mainAxisExtent += child.size.height;
+          Offset(resolvedPadding!.left + leftOffset, contentSize);
+      contentSize += child.size.height;
       assert(child.parentData == childParentData);
       child = childParentData.nextSibling;
     }
-    mainAxisExtent += resolvedPadding!.bottom;
-    size = constraints.constrain(Size(constraints.maxWidth, mainAxisExtent));
+    contentSize += resolvedPadding!.bottom;
+    size = constraints
+        .constrain(Size(_maxContentWidth ?? constraints.maxWidth, contentSize));
+    _maxScrollExtent = math.max(0.0, contentSize - size.height);
+    offset.applyViewportDimension(size.height);
+    offset.applyContentDimensions(0.0, _maxScrollExtent);
 
     assert(size.isFinite);
   }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _offset.addListener(markNeedsPaint);
+  }
+
+  final LayerHandle<ClipRectLayer> _clipRectLayer =
+      LayerHandle<ClipRectLayer>();
 
   @override
   void paint(PaintingContext context, Offset offset) {
@@ -632,7 +636,19 @@ class RenderEditor extends RenderEditableContainerBox
         !_cursorController.style.paintAboveText) {
       _paintFloatingCursor(context, offset);
     }
-    defaultPaint(context, offset);
+    if (_hasVisualOverflow) {
+      _clipRectLayer.layer = context.pushClipRect(
+        needsCompositing,
+        offset,
+        Offset.zero & size,
+        (context, offset) => defaultPaint(context, offset + paintOffset),
+        clipBehavior: Clip.hardEdge,
+        oldLayer: _clipRectLayer.layer,
+      );
+    } else {
+      _clipRectLayer.layer = null;
+      defaultPaint(context, offset);
+    }
     _updateSelectionExtentsVisibility(offset + paintOffset);
     _paintHandleLayers(context, getEndpointsForSelection(selection));
 
@@ -650,7 +666,7 @@ class RenderEditor extends RenderEditableContainerBox
 
   void _paintHandleLayers(
       PaintingContext context, List<TextSelectionPoint> endpoints) {
-    var startPoint = endpoints[0].point;
+    var startPoint = endpoints[0].point + paintOffset;
     startPoint = Offset(
       startPoint.dx.clamp(0.0, size.width),
       startPoint.dy.clamp(0.0, size.height),
@@ -661,7 +677,7 @@ class RenderEditor extends RenderEditableContainerBox
       Offset.zero,
     );
     if (endpoints.length == 2) {
-      var endPoint = endpoints[1].point;
+      var endPoint = endpoints[1].point + paintOffset;
       endPoint = Offset(
         endPoint.dx.clamp(0.0, size.width),
         endPoint.dy.clamp(0.0, size.height),
@@ -686,15 +702,39 @@ class RenderEditor extends RenderEditableContainerBox
   @override
   TextPosition getPositionForOffset(Offset offset) {
     final local = globalToLocal(offset);
-    final child = childAtOffset(local);
+    final child = childAtOffset(local - paintOffset);
 
     final parentData = child.parentData as BoxParentData;
-    final localOffset = local - parentData.offset;
+    final localOffset = local - parentData.offset - paintOffset;
     final localPosition = child.getPositionForOffset(localOffset);
     return TextPosition(
       offset: localPosition.offset + child.node.offset,
       affinity: localPosition.affinity,
     );
+  }
+
+  // Override needed to account for ViewPort-like behaviour of renderer
+  @override
+  RenderEditableBox childAtOffset(Offset offset) {
+    assert(firstChild != null);
+    resolvePadding();
+
+    if (offset.dy <= resolvedPadding!.top) return firstChild!;
+    if (offset.dy >= _maxScrollExtent - resolvedPadding!.bottom) {
+      return lastChild!;
+    }
+
+    var child = firstChild;
+    var dy = resolvedPadding!.top;
+    var dx = -offset.dx;
+    while (child != null) {
+      if (child.size.contains(offset.translate(dx, -dy))) {
+        return child;
+      }
+      dy += child.size.height;
+      child = childAfter(child);
+    }
+    throw StateError('No child at offset $offset.');
   }
 
   @override
@@ -705,7 +745,8 @@ class RenderEditor extends RenderEditableContainerBox
     final childLocalRect = targetChild.getLocalRectForCaret(localPosition);
 
     final boxParentData = targetChild.parentData as BoxParentData;
-    return childLocalRect.shift(Offset(0, boxParentData.offset.dy));
+    return childLocalRect
+        .shift(Offset(0, boxParentData.offset.dy + paintOffset.dy));
   }
 
   // Start floating cursor
