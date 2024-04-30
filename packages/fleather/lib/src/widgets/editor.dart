@@ -2025,21 +2025,24 @@ class RawEditorState extends EditorState
     final smallestLineHeight = math.min(baseLineHeight, extentLineHeight);
 
     return _textSelectionToolbarAnchorsFromSelection(
-        renderEditor: renderEditor,
         startGlyphHeight: smallestLineHeight,
         endGlyphHeight: smallestLineHeight,
         selectionEndpoints: endpoints);
   }
 
   TextSelectionToolbarAnchors _textSelectionToolbarAnchorsFromSelection({
-    required RenderEditor renderEditor,
     required double startGlyphHeight,
     required double endGlyphHeight,
     required List<TextSelectionPoint> selectionEndpoints,
   }) {
+    // If editor is scrollable, the editing region is only the viewport
+    // otherwise use editor as editing region
+    final viewport = RenderAbstractViewport.maybeOf(renderEditor);
+    final visualSizeRenderer = (viewport ?? renderEditor) as RenderBox;
     final Rect editingRegion = Rect.fromPoints(
-      renderEditor.localToGlobal(Offset.zero),
-      renderEditor.localToGlobal(renderEditor.size.bottomRight(Offset.zero)),
+      visualSizeRenderer.localToGlobal(Offset.zero),
+      visualSizeRenderer
+          .localToGlobal(visualSizeRenderer.size.bottomRight(Offset.zero)),
     );
 
     if (editingRegion.left.isNaN ||
@@ -2056,12 +2059,21 @@ class RawEditorState extends EditorState
     final Rect selectionRect = Rect.fromLTRB(
       isMultiline
           ? editingRegion.left
-          : editingRegion.left + selectionEndpoints.first.point.dx,
-      editingRegion.top + selectionEndpoints.first.point.dy - startGlyphHeight,
+          : editingRegion.left +
+              selectionEndpoints.first.point.dx +
+              renderEditor.paintOffset.dx,
+      editingRegion.top +
+          selectionEndpoints.first.point.dy +
+          renderEditor.paintOffset.dy -
+          startGlyphHeight,
       isMultiline
           ? editingRegion.right
-          : editingRegion.left + selectionEndpoints.last.point.dx,
-      editingRegion.top + selectionEndpoints.last.point.dy,
+          : editingRegion.left +
+              selectionEndpoints.last.point.dx +
+              renderEditor.paintOffset.dx,
+      editingRegion.top +
+          selectionEndpoints.last.point.dy +
+          renderEditor.paintOffset.dy,
     );
 
     return TextSelectionToolbarAnchors(

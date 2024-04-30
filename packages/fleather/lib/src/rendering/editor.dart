@@ -186,7 +186,7 @@ class RenderEditor extends RenderEditableContainerBox
     markNeedsSemanticsUpdate();
   }
 
-  Offset get _paintOffset => Offset(0.0, -(offset?.pixels ?? 0.0));
+  Offset get paintOffset => Offset(0.0, -(offset?.pixels ?? 0.0));
 
   ViewportOffset? get offset => _offset;
   ViewportOffset? _offset;
@@ -633,7 +633,7 @@ class RenderEditor extends RenderEditableContainerBox
       _paintFloatingCursor(context, offset);
     }
     defaultPaint(context, offset);
-    _updateSelectionExtentsVisibility(offset + _paintOffset);
+    _updateSelectionExtentsVisibility(offset + paintOffset);
     _paintHandleLayers(context, getEndpointsForSelection(selection));
 
     if (hasFocus &&
