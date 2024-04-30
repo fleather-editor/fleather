@@ -13,8 +13,8 @@ import 'package:parchment_delta/parchment_delta.dart';
 
 import '../../util.dart';
 import '../rendering/editor.dart';
-import '../services/spell_check_suggestions_toolbar.dart';
 import '../services/clipboard_manager.dart';
+import '../services/spell_check_suggestions_toolbar.dart';
 import 'baseline_proxy.dart';
 import 'controller.dart';
 import 'cursor.dart';
