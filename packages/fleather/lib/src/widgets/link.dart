@@ -111,6 +111,7 @@ Future<LinkMenuAction> _showMaterialMenu(
     BuildContext context, String link) async {
   final result = await showModalBottomSheet<LinkMenuAction>(
     clipBehavior: Clip.hardEdge,
+    useSafeArea: true,
     context: context,
     builder: (ctx) {
       return Column(
