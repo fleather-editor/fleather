@@ -111,28 +111,29 @@ Future<LinkMenuAction> _showMaterialMenu(
     BuildContext context, String link) async {
   final result = await showModalBottomSheet<LinkMenuAction>(
     clipBehavior: Clip.hardEdge,
-    useSafeArea: true,
     context: context,
     builder: (ctx) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _MaterialAction(
-            title: 'Open',
-            icon: Icons.language_sharp,
-            onPressed: () => Navigator.of(context).pop(LinkMenuAction.launch),
-          ),
-          _MaterialAction(
-            title: 'Copy',
-            icon: Icons.copy_sharp,
-            onPressed: () => Navigator.of(context).pop(LinkMenuAction.copy),
-          ),
-          _MaterialAction(
-            title: 'Remove',
-            icon: Icons.link_off_sharp,
-            onPressed: () => Navigator.of(context).pop(LinkMenuAction.remove),
-          ),
-        ],
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _MaterialAction(
+              title: 'Open',
+              icon: Icons.language_sharp,
+              onPressed: () => Navigator.of(context).pop(LinkMenuAction.launch),
+            ),
+            _MaterialAction(
+              title: 'Copy',
+              icon: Icons.copy_sharp,
+              onPressed: () => Navigator.of(context).pop(LinkMenuAction.copy),
+            ),
+            _MaterialAction(
+              title: 'Remove',
+              icon: Icons.link_off_sharp,
+              onPressed: () => Navigator.of(context).pop(LinkMenuAction.remove),
+            ),
+          ],
+        ),
       );
     },
   );
