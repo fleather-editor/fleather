@@ -318,13 +318,10 @@ class _NumberPoint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final styleHeight = style.height;
     return Container(
       // Empirically, depending on height of the style, we need to
       // align at top or at bottom
-      alignment: styleHeight == null || styleHeight <= 1
-          ? AlignmentDirectional.topEnd
-          : AlignmentDirectional.bottomEnd,
+      alignment: AlignmentDirectional.topEnd,
       width: width,
       padding: EdgeInsetsDirectional.only(end: padding),
       child: Text(withDot ? '$number.' : '$number', style: style),
