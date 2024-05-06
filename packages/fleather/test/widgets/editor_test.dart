@@ -106,6 +106,48 @@ void main() {
       tester.view.viewInsets = FakeViewPadding.zero;
     });
 
+    testWidgets('Keep selectiontoolbar with editor bounds', (tester) async {
+      final delta = Delta();
+      for (int i = 0; i < 30; i++) {
+        delta.insert('Test\n');
+      }
+      final scrollController = ScrollController();
+      final controller =
+          FleatherController(document: ParchmentDocument.fromDelta(delta));
+      final editor = MaterialApp(
+        home: Scaffold(
+          body: Column(
+            children: [
+              const SizedBox(width: 300, height: 150),
+              Expanded(
+                child: FleatherEditor(
+                  controller: controller,
+                  scrollController: scrollController,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpWidget(editor);
+      // Double tap to show toolbar
+      await tester.tapAt(
+          tester.getTopLeft(find.byType(RawEditor)) + const Offset(1, 1));
+      await tester.tapAt(
+          tester.getTopLeft(find.byType(RawEditor)) + const Offset(1, 1));
+      await tester.pumpAndSettle();
+      expect(find.byType(TextSelectionToolbar), findsOneWidget);
+      // Scroll extent is > 500, toolbar position should be around -400 if not
+      // capped
+      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+      await tester.pumpAndSettle();
+      final renderToolbarTextButton =
+          tester.renderObject(find.byType(TextSelectionToolbarTextButton).first)
+              as RenderBox;
+      final toolbarTop = renderToolbarTextButton.localToGlobal(Offset.zero);
+      expect(toolbarTop.dy, greaterThan(90));
+    });
+
     testWidgets('allows merging attribute theme data', (tester) async {
       var delta = Delta()
         ..insert(
