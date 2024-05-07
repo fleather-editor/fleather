@@ -1,4 +1,4 @@
-## 1.14.5
+## 1.14.5+1
 
 * [Fix] toolbar moving out of viewport upon scrolling
 * [Fix] list number using the wrong theme
