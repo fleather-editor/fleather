@@ -1,3 +1,11 @@
+## 1.15.0
+
+* [Fix] toolbar moving out of viewport upon scrolling
+* [Fix] list number using the wrong theme
+* [Fix] link bottom sheet UI issues
+* [Fix] toolbar selector positioning
+* [Fix] scroll to cursor when cursor is bigger than viewport
+
 ## 1.14.4
 
 * [Fix] selection handles not disposed after disposing selection overlay
