@@ -1,3 +1,7 @@
+## Fleather 1.4.4 > 1.14.5+1
+
+* Change `SelectorScope.of(context).pushSelector(selector, completer)` to `SelectorScope.showSelector(context, selector, completer)` or `SelectorScope.of(context).showSelector(context, selector, completer)`
+
 ## Fleather 1.13.2 > 1.14.0+1 | Parchment 1.13.0 > 1.14.0
 
 * Change `quill_delta:` to `parchment_delta:` in `pubspec.yaml`

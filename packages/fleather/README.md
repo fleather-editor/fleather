@@ -28,7 +28,7 @@ Add Fleather to your dependencies.
 dependencies:
   flutter:
     sdk: flutter
-  fleather: ^1.14.5
+  fleather: ^1.14.5+1
 ```
 
 ## Usage
