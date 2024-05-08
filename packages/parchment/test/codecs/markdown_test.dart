@@ -543,6 +543,25 @@ void main() {
       expect(result, expected);
     });
 
+    test('cl', () {
+      final delta = Delta()
+        ..insert('Hello')
+        ..insert('\n', ParchmentAttribute.cl.toJson())
+        ..insert(
+          'This is a',
+        )
+        ..insert('\n', {
+          ...ParchmentAttribute.cl.toJson(),
+          ...ParchmentAttribute.checked.toJson(),
+        })
+        ..insert('Checklist')
+        ..insert('\n', ParchmentAttribute.cl.toJson());
+      final result =
+          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+      final expected = '- [ ] Hello\n- [X] This is a\n- [ ] Checklist\n\n';
+      expect(result, expected);
+    });
+
     test('multiline blocks', () {
       void runFor(ParchmentAttribute<String> attribute, String source,
           String expected) {

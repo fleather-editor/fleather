@@ -411,6 +411,16 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
       for (final lineNode in node.children) {
         if (node.style.containsSame(ParchmentAttribute.ol)) {
           lineBuffer.write(currentItemOrder);
+        } else if (node.style.containsSame(ParchmentAttribute.cl)) {
+          lineBuffer.write('- [');
+          if ((lineNode as LineNode)
+              .style
+              .contains(ParchmentAttribute.checked)) {
+            lineBuffer.write('X');
+          } else {
+            lineBuffer.write(' ');
+          }
+          lineBuffer.write('] ');
         }
         handleLine(lineNode as LineNode);
         if (!lineNode.isLast) {
@@ -454,6 +464,8 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     } else if (attribute?.key == ParchmentAttribute.block.key) {
       _writeBlockTag(buffer, attribute as ParchmentAttribute<String>,
           close: close);
+    } else if (attribute?.key == ParchmentAttribute.checked.key) {
+      // no-op
     } else {
       throw ArgumentError('Cannot handle $attribute');
     }
@@ -501,7 +513,9 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
       if (close) return; // no close tag needed for simple blocks.
 
       final tag = simpleBlocks[block];
-      buffer.write(tag);
+      if (tag != null) {
+        buffer.write(tag);
+      }
     }
   }
 }
