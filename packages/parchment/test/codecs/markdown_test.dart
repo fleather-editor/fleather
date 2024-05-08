@@ -337,6 +337,19 @@ void main() {
       expect(act, exp);
     });
 
+    test('cl', () {
+      var markdown = '- [ ] Hello\n- [X] This is a\n- [ ] Checklist\n\n';
+      final act = parchmentMarkdown.decode(markdown).toDelta();
+      final exp = Delta()
+        ..insert('Hello')
+        ..insert('\n', {'block': 'cl'})
+        ..insert('This is a')
+        ..insert('\n', {'block': 'cl', 'checked': true})
+        ..insert('Checklist')
+        ..insert('\n', {'block': 'cl'});
+      expect(act, exp);
+    });
+
     test('simple bq', () {
       //      var markdown = '> quote\n> > nested\n>#Heading\n>**bold**\n>_italics_\n>* bullet\n>1. 1st point\n>1. 2nd point\n\n';
       var markdown =
@@ -590,7 +603,7 @@ void main() {
 }
 
 final doc =
-    r'[{"insert":"Fleather"},{"insert":"\n","attributes":{"heading":1}},{"insert":"Soft and gentle rich text editing for Flutter applications.","attributes":{"i":true}},{"insert":"\nFleather is an "},{"insert":"early preview","attributes":{"b":true}},{"insert":" open source library.\nDocumentation"},{"insert":"\n","attributes":{"heading":3}},{"insert":"Quick Start"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Data format and Document Model"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Style attributes"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Heuristic rules"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Clean and modern look"},{"insert":"\n","attributes":{"heading":2}},{"insert":"Fleather’s rich text editor is built with "},{"insert": "simplicity and flexibility", "attributes":{"i":true}},{"insert":" in mind. It provides clean interface for distraction-free editing. Think "},{"insert": "Medium.com", "attributes":{"c":true}},{"insert": "-like experience.\nimport ‘package:flutter/material.dart’;"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"import ‘package:parchment/parchment.dart’;"},{"insert":"\n\n","attributes":{"block":"code"}},{"insert":"void main() {"},{"insert":"\n","attributes":{"block":"code"}},{"insert":" print(“Hello world!”);"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"}"},{"insert":"\n","attributes":{"block":"code"}}]';
+    r'[{"insert":"Fleather"},{"insert":"\n","attributes":{"heading":1}},{"insert":"Soft and gentle rich text editing for Flutter applications.","attributes":{"i":true}},{"insert":"\nFleather is an "},{"insert":"early preview","attributes":{"b":true}},{"insert":" open source library.\n"},{"insert":"That even supports"},{"insert":"\n","attributes":{"block":"cl"}},{"insert":"Checklists"},{"insert":"\n","attributes":{"checked":true,"block":"cl"}},{"insert":"Documentation"},{"insert":"\n","attributes":{"heading":3}},{"insert":"Quick Start"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Data format and Document Model"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Style attributes"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Heuristic rules"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Clean and modern look"},{"insert":"\n","attributes":{"heading":2}},{"insert":"Fleather’s rich text editor is built with "},{"insert": "simplicity and flexibility", "attributes":{"i":true}},{"insert":" in mind. It provides clean interface for distraction-free editing. Think "},{"insert": "Medium.com", "attributes":{"c":true}},{"insert": "-like experience.\nimport ‘package:flutter/material.dart’;"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"import ‘package:parchment/parchment.dart’;"},{"insert":"\n\n","attributes":{"block":"code"}},{"insert":"void main() {"},{"insert":"\n","attributes":{"block":"code"}},{"insert":" print(“Hello world!”);"},{"insert":"\n","attributes":{"block":"code"}},{"insert":"}"},{"insert":"\n","attributes":{"block":"code"}}]';
 final delta = Delta.fromJson(json.decode(doc) as List);
 
 final markdown = '''
@@ -599,6 +612,9 @@ final markdown = '''
 _Soft and gentle rich text editing for Flutter applications._
 
 Fleather is an **early preview** open source library.
+
+- [ ] That even supports
+- [X] Checklists
 
 ### Documentation
 
