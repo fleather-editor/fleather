@@ -225,6 +225,23 @@ void main() {
       expect(andBack, markdown);
     });
 
+    test('double link', () {
+      final markdown =
+          'This **house** is a [circus](https://github.com) and [home](https://github.com)\n\n';
+      final document = parchmentMarkdown.decode(markdown);
+      final delta = document.toDelta();
+
+      expect(delta.elementAt(3).data, 'circus');
+      expect(delta.elementAt(3).attributes?['b'], null);
+      expect(delta.elementAt(3).attributes?['a'], 'https://github.com');
+
+      expect(delta.elementAt(5).data, 'home');
+      expect(delta.elementAt(5).attributes?['a'], 'https://github.com');
+
+      final andBack = parchmentMarkdown.encode(document);
+      expect(andBack, markdown);
+    });
+
     test('style around link', () {
       final markdown =
           'This **house** is a **[circus](https://github.com)**\n\n';
