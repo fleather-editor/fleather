@@ -1702,6 +1702,19 @@ void main() {
     });
 
     group('Embeds', () {
+      test('Block embeds special treatment', () {
+        String html = '<p><hr><p><img src="http://fake.link/image.png"></p>'
+            '<img src="http://another.fake.link/image.png"></p><p>a</p>';
+        final doc = ParchmentDocument.fromJson([
+          {'insert': '\n'}
+        ]);
+        doc.insert(0, 'a');
+        doc.insert(0, BlockEmbed.image('http://another.fake.link/image.png'));
+        doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
+        doc.insert(0, BlockEmbed.horizontalRule);
+        expect(codec.decode(html).toDelta(), doc.toDelta());
+      });
+
       test('Image', () {
         final html = '<img src="http://fake.link/image.png">';
         final doc = ParchmentDocument.fromJson([
