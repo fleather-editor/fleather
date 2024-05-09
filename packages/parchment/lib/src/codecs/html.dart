@@ -45,6 +45,8 @@ const _indentWidthInPx = 32;
 ///           `<div class"checklist-item><input type="checklist" checked><label>`
 /// - alignment -> `<xxx align="left | right | center | justify">`
 /// - direction -> `<xxx dir="rtl">`
+/// - indentation -> `<xxx style=padding-left:16px>`
+/// - only one level is supported when decoding
 ///
 /// ## Embed mapping
 /// - [BlockEmbed.image] -> `<img src="...">`
@@ -68,6 +70,7 @@ class ParchmentHtmlCodec extends Codec<ParchmentDocument, String> {
 // Mutable record for the state of the encoder
 class _EncoderState {
   StringBuffer buffer = StringBuffer();
+
   // Stack on inline tags
   final List<_HtmlInlineTag> openInlineTags = [];
 
@@ -1005,14 +1008,22 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
         switch (sValue) {
           case 'right':
             updated = updated.put(ParchmentAttribute.right);
-            break;
+            continue;
           case 'center':
             updated = updated.put(ParchmentAttribute.center);
-            break;
+            continue;
           case 'justify':
             updated = updated.put(ParchmentAttribute.justify);
         }
-        break;
+        continue;
+      }
+      if (style.startsWith('padding-left')) {
+        final sValue = style.split(':')[1];
+        if (sValue == '0' || sValue == '0px' || sValue == 'Oem') {
+          continue;
+        }
+        updated = updated.put(ParchmentAttribute.indent.withLevel(1));
+        continue;
       }
     }
     return updated;
