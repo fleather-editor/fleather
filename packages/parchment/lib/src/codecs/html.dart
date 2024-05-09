@@ -68,6 +68,7 @@ class ParchmentHtmlCodec extends Codec<ParchmentDocument, String> {
 // Mutable record for the state of the encoder
 class _EncoderState {
   StringBuffer buffer = StringBuffer();
+
   // Stack on inline tags
   final List<_HtmlInlineTag> openInlineTags = [];
 
@@ -887,12 +888,22 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
     }
     if (node is html.Element) {
       if (node.localName == 'hr') {
+        // <hr> is a block element and cannot be enclosed in <p>
         delta.insert(BlockEmbed.horizontalRule.toJson());
+        delta.insert('\n');
         return delta;
       }
       if (node.localName == 'img') {
         final src = node.attributes['src'] ?? '';
         delta.insert(BlockEmbed.image(src).toJson());
+        // <img> can be enclosed in a <p> element, but
+        // we only want to support <p> with only one node (<img>)
+        if (node.parent is html.Element &&
+            node.parent!.localName == 'p' &&
+            node.parent!.children.length == 1) {
+          return delta;
+        }
+        delta.insert('\n');
         return delta;
       }
       inlineStyle = _updateInlineStyle(node, inlineStyle);
