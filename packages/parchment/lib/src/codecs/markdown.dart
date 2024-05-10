@@ -35,9 +35,7 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
     r'(`(?<inline_code_text>.+?)`)',
   );
 
-  // as per https://www.michaelperrin.fr/blog/2019/02/advanced-regular-expressions
-  static final _linkRegExp =
-      RegExp(r'\[(?<text>.+)\]\((?<url>[^ ]+)(?: "(?<title>.+)")?\)');
+  static final _linkRegExp = RegExp(r'\[(.+?)\]\(([^)]+)\)');
   static final _ulRegExp = RegExp(r'^( *)\* +(.*)');
   static final _olRegExp = RegExp(r'^( *)\d+[.)] +(.*)');
   static final _clRegExp = RegExp(r'^( *)- +\[( |x|X)\] +(.*)');
