@@ -491,10 +491,10 @@ class _FleatherEditorState extends State<FleatherEditor>
       ),
     );
 
-    return _selectionGestureDetectorBuilder.buildGestureDetector(
-      behavior: HitTestBehavior.translucent,
-      child: child,
-    );
+    return widget.enableInteractiveSelection
+        ? _selectionGestureDetectorBuilder.buildGestureDetector(
+            behavior: HitTestBehavior.translucent, child: child)
+        : child;
   }
 }
 
