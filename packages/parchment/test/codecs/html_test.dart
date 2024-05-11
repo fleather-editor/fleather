@@ -1360,6 +1360,16 @@ void main() {
           expect(codec.decode(html).toDelta(), doc.toDelta());
         });
 
+        test('with indentation', () {
+          final html = '<p style=padding-left:32px>Hello World!</p>';
+          final doc = ParchmentHtmlCodec().decode(html);
+          expect(
+              doc.toDelta(),
+              Delta()
+                ..insert('Hello World!')
+                ..insert('\n', {'indent': 1}));
+        });
+
         test('Paragraph with link', () {
           final html =
               '<p>Hello World!<a href="http://fake.link">Hello World!</a> Another hello world!</p>';
