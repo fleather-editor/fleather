@@ -15,6 +15,7 @@ class EditorSandBox {
     ParchmentDocument? document,
     FleatherThemeData? fleatherTheme,
     bool autofocus = false,
+    bool enableSelectionInteraction = true,
     FakeSpellCheckService? spellCheckService,
     ClipboardManager clipboardManager = const PlainTextClipboardManager(),
     FleatherEmbedBuilder embedBuilder = defaultFleatherEmbedBuilder,
@@ -27,6 +28,7 @@ class EditorSandBox {
       controller: controller,
       focusNode: focusNode,
       autofocus: autofocus,
+      enableSelectionInteraction: enableSelectionInteraction,
       spellCheckService: spellCheckService,
       embedBuilder: embedBuilder,
       clipboardManager: clipboardManager,
@@ -139,6 +141,7 @@ class _FleatherSandbox extends StatefulWidget {
     required this.controller,
     required this.focusNode,
     this.autofocus = false,
+    this.enableSelectionInteraction = true,
     this.spellCheckService,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.clipboardManager = const PlainTextClipboardManager(),
@@ -147,6 +150,7 @@ class _FleatherSandbox extends StatefulWidget {
   final FleatherController controller;
   final FocusNode focusNode;
   final bool autofocus;
+  final bool enableSelectionInteraction;
   final FakeSpellCheckService? spellCheckService;
   final FleatherEmbedBuilder embedBuilder;
   final ClipboardManager clipboardManager;
@@ -167,6 +171,7 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
         controller: widget.controller,
         focusNode: widget.focusNode,
         readOnly: !_enabled,
+        enableInteractiveSelection: widget.enableSelectionInteraction,
         autofocus: widget.autofocus,
         spellCheckConfiguration: widget.spellCheckService != null
             ? SpellCheckConfiguration(
@@ -178,9 +183,7 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
   }
 
   void disable() {
-    setState(() {
-      _enabled = false;
-    });
+    setState(() => _enabled = false);
   }
 }
 

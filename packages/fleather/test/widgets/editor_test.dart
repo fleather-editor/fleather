@@ -392,6 +392,14 @@ void main() {
     });
 
     group('Text selection', () {
+      testWidgets('disabled selection interaction disables associated gestures',
+          (tester) async {
+        final editor =
+            EditorSandBox(tester: tester, enableSelectionInteraction: false);
+        await editor.pump();
+        expect(find.byType(TextSelectionGestureDetector), findsNothing);
+      });
+
       testWidgets('hides toolbar and selection handles when text changed',
           (tester) async {
         const delta = TextEditingDeltaInsertion(
