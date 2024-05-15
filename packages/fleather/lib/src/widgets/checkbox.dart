@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 ///
 /// {@tool dartpad}
 /// This example shows how you can override the default theme of
-/// of a [FleatherCheckbox] with a [MaterialStateProperty].
+/// of a [FleatherCheckbox] with a [WidgetStateProperty].
 /// In this example, the checkbox's color will be `Colors.blue` when the [FleatherCheckbox]
 /// is being pressed, hovered, or focused. Otherwise, the checkbox's color will
 /// be `Colors.red`.
@@ -124,10 +124,10 @@ class _FleatherCheckboxState extends State<FleatherCheckbox>
   bool? get value => widget.value;
 
   BorderSide? _resolveSide(BorderSide? side) {
-    if (side is MaterialStateBorderSide) {
-      return MaterialStateProperty.resolveAs<BorderSide?>(side, states);
+    if (side is WidgetStateBorderSide) {
+      return WidgetStateProperty.resolveAs<BorderSide?>(side, states);
     }
-    if (!states.contains(MaterialState.selected)) {
+    if (!states.contains(WidgetState.selected)) {
       return side;
     }
     return null;
@@ -141,18 +141,17 @@ class _FleatherCheckboxState extends State<FleatherCheckbox>
         ? _CheckboxDefaultsM3(context)
         : _CheckboxDefaultsM2(context);
 
-    final MaterialStateProperty<MouseCursor> effectiveMouseCursor =
-        MaterialStateProperty.resolveWith<MouseCursor>(
-            (Set<MaterialState> states) {
+    final WidgetStateProperty<MouseCursor> effectiveMouseCursor =
+        WidgetStateProperty.resolveWith<MouseCursor>((Set<WidgetState> states) {
       return checkboxTheme.mouseCursor?.resolve(states) ??
-          MaterialStateMouseCursor.clickable.resolve(states);
+          WidgetStateMouseCursor.clickable.resolve(states);
     });
 
     // Colors need to be resolved in selected and non selected states separately
     // so that they can be lerped between.
-    final Set<MaterialState> activeStates = states..add(MaterialState.selected);
-    final Set<MaterialState> inactiveStates = states
-      ..remove(MaterialState.selected);
+    final Set<WidgetState> activeStates = states..add(WidgetState.selected);
+    final Set<WidgetState> inactiveStates = states
+      ..remove(WidgetState.selected);
     final Color? activeColor = checkboxTheme.fillColor?.resolve(activeStates);
     final Color effectiveActiveColor =
         activeColor ?? defaults.fillColor!.resolve(activeStates)!;
@@ -161,40 +160,40 @@ class _FleatherCheckboxState extends State<FleatherCheckbox>
     final Color effectiveInactiveColor =
         inactiveColor ?? defaults.fillColor!.resolve(inactiveStates)!;
 
-    final Set<MaterialState> focusedStates = states..add(MaterialState.focused);
+    final Set<WidgetState> focusedStates = states..add(WidgetState.focused);
     Color effectiveFocusOverlayColor =
         checkboxTheme.overlayColor?.resolve(focusedStates) ??
             defaults.overlayColor!.resolve(focusedStates)!;
 
-    final Set<MaterialState> hoveredStates = states..add(MaterialState.hovered);
+    final Set<WidgetState> hoveredStates = states..add(WidgetState.hovered);
     Color effectiveHoverOverlayColor =
         checkboxTheme.overlayColor?.resolve(hoveredStates) ??
             defaults.overlayColor!.resolve(hoveredStates)!;
 
-    final Set<MaterialState> activePressedStates = activeStates
-      ..add(MaterialState.pressed);
+    final Set<WidgetState> activePressedStates = activeStates
+      ..add(WidgetState.pressed);
     final Color effectiveActivePressedOverlayColor =
         checkboxTheme.overlayColor?.resolve(activePressedStates) ??
             activeColor?.withAlpha(kRadialReactionAlpha) ??
             defaults.overlayColor!.resolve(activePressedStates)!;
 
-    final Set<MaterialState> inactivePressedStates = inactiveStates
-      ..add(MaterialState.pressed);
+    final Set<WidgetState> inactivePressedStates = inactiveStates
+      ..add(WidgetState.pressed);
     final Color effectiveInactivePressedOverlayColor =
         checkboxTheme.overlayColor?.resolve(inactivePressedStates) ??
             inactiveColor?.withAlpha(kRadialReactionAlpha) ??
             defaults.overlayColor!.resolve(inactivePressedStates)!;
 
     if (downPosition != null) {
-      effectiveHoverOverlayColor = states.contains(MaterialState.selected)
+      effectiveHoverOverlayColor = states.contains(WidgetState.selected)
           ? effectiveActivePressedOverlayColor
           : effectiveInactivePressedOverlayColor;
-      effectiveFocusOverlayColor = states.contains(MaterialState.selected)
+      effectiveFocusOverlayColor = states.contains(WidgetState.selected)
           ? effectiveActivePressedOverlayColor
           : effectiveInactivePressedOverlayColor;
     }
 
-    final Set<MaterialState> checkStates = states;
+    final Set<WidgetState> checkStates = states;
     final Color effectiveCheckColor =
         checkboxTheme.checkColor?.resolve(checkStates) ??
             defaults.checkColor!.resolve(checkStates)!;
@@ -218,8 +217,8 @@ class _FleatherCheckboxState extends State<FleatherCheckbox>
           ..focusColor = effectiveFocusOverlayColor
           ..splashRadius = effectiveSplashRadius
           ..downPosition = downPosition
-          ..isFocused = states.contains(MaterialState.focused)
-          ..isHovered = states.contains(MaterialState.hovered)
+          ..isFocused = states.contains(WidgetState.focused)
+          ..isHovered = states.contains(WidgetState.hovered)
           ..activeColor = effectiveActiveColor
           ..inactiveColor = effectiveInactiveColor
           ..checkColor = effectiveCheckColor
@@ -435,12 +434,12 @@ class _CheckboxDefaultsM2 extends CheckboxThemeData {
   final ColorScheme _colors;
 
   @override
-  MaterialStateProperty<Color> get fillColor {
-    return MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-      if (states.contains(MaterialState.disabled)) {
+  WidgetStateProperty<Color> get fillColor {
+    return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+      if (states.contains(WidgetState.disabled)) {
         return _theme.disabledColor;
       }
-      if (states.contains(MaterialState.selected)) {
+      if (states.contains(WidgetState.selected)) {
         return _colors.secondary;
       }
       return _theme.unselectedWidgetColor;
@@ -448,20 +447,20 @@ class _CheckboxDefaultsM2 extends CheckboxThemeData {
   }
 
   @override
-  MaterialStateProperty<Color> get checkColor {
-    return MaterialStateProperty.all<Color>(const Color(0xFFFFFFFF));
+  WidgetStateProperty<Color> get checkColor {
+    return WidgetStateProperty.all<Color>(const Color(0xFFFFFFFF));
   }
 
   @override
-  MaterialStateProperty<Color?> get overlayColor {
-    return MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-      if (states.contains(MaterialState.pressed)) {
+  WidgetStateProperty<Color?> get overlayColor {
+    return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+      if (states.contains(WidgetState.pressed)) {
         return fillColor.resolve(states).withAlpha(kRadialReactionAlpha);
       }
-      if (states.contains(MaterialState.hovered)) {
+      if (states.contains(WidgetState.hovered)) {
         return _theme.hoverColor;
       }
-      if (states.contains(MaterialState.focused)) {
+      if (states.contains(WidgetState.focused)) {
         return _theme.focusColor;
       }
       return Colors.transparent;
@@ -497,24 +496,24 @@ class _CheckboxDefaultsM3 extends CheckboxThemeData {
   final ColorScheme _colors;
 
   @override
-  MaterialStateProperty<Color> get fillColor {
-    return MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-      if (states.contains(MaterialState.disabled)) {
+  WidgetStateProperty<Color> get fillColor {
+    return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+      if (states.contains(WidgetState.disabled)) {
         return _colors.onSurface.withOpacity(0.38);
       }
-      if (states.contains(MaterialState.error)) {
+      if (states.contains(WidgetState.error)) {
         return _colors.error;
       }
-      if (states.contains(MaterialState.selected)) {
+      if (states.contains(WidgetState.selected)) {
         return _colors.primary;
       }
-      if (states.contains(MaterialState.pressed)) {
+      if (states.contains(WidgetState.pressed)) {
         return _colors.onSurface;
       }
-      if (states.contains(MaterialState.hovered)) {
+      if (states.contains(WidgetState.hovered)) {
         return _colors.onSurface;
       }
-      if (states.contains(MaterialState.focused)) {
+      if (states.contains(WidgetState.focused)) {
         return _colors.onSurface;
       }
       return _colors.onSurfaceVariant;
@@ -522,17 +521,17 @@ class _CheckboxDefaultsM3 extends CheckboxThemeData {
   }
 
   @override
-  MaterialStateProperty<Color> get checkColor {
-    return MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-      if (states.contains(MaterialState.disabled)) {
-        if (states.contains(MaterialState.selected)) {
+  WidgetStateProperty<Color> get checkColor {
+    return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+      if (states.contains(WidgetState.disabled)) {
+        if (states.contains(WidgetState.selected)) {
           return _colors.surface;
         }
         return Colors
             .transparent; // No icons available when the checkbox is unselected.
       }
-      if (states.contains(MaterialState.selected)) {
-        if (states.contains(MaterialState.error)) {
+      if (states.contains(WidgetState.selected)) {
+        if (states.contains(WidgetState.error)) {
           return _colors.onError;
         }
         return _colors.onPrimary;
@@ -543,38 +542,38 @@ class _CheckboxDefaultsM3 extends CheckboxThemeData {
   }
 
   @override
-  MaterialStateProperty<Color> get overlayColor {
-    return MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-      if (states.contains(MaterialState.error)) {
-        if (states.contains(MaterialState.pressed)) {
+  WidgetStateProperty<Color> get overlayColor {
+    return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+      if (states.contains(WidgetState.error)) {
+        if (states.contains(WidgetState.pressed)) {
           return _colors.error.withOpacity(0.12);
         }
-        if (states.contains(MaterialState.hovered)) {
+        if (states.contains(WidgetState.hovered)) {
           return _colors.error.withOpacity(0.08);
         }
-        if (states.contains(MaterialState.focused)) {
+        if (states.contains(WidgetState.focused)) {
           return _colors.error.withOpacity(0.12);
         }
       }
-      if (states.contains(MaterialState.selected)) {
-        if (states.contains(MaterialState.pressed)) {
+      if (states.contains(WidgetState.selected)) {
+        if (states.contains(WidgetState.pressed)) {
           return _colors.onSurface.withOpacity(0.12);
         }
-        if (states.contains(MaterialState.hovered)) {
+        if (states.contains(WidgetState.hovered)) {
           return _colors.primary.withOpacity(0.08);
         }
-        if (states.contains(MaterialState.focused)) {
+        if (states.contains(WidgetState.focused)) {
           return _colors.primary.withOpacity(0.12);
         }
         return Colors.transparent;
       }
-      if (states.contains(MaterialState.pressed)) {
+      if (states.contains(WidgetState.pressed)) {
         return _colors.primary.withOpacity(0.12);
       }
-      if (states.contains(MaterialState.hovered)) {
+      if (states.contains(WidgetState.hovered)) {
         return _colors.onSurface.withOpacity(0.08);
       }
-      if (states.contains(MaterialState.focused)) {
+      if (states.contains(WidgetState.focused)) {
         return _colors.onSurface.withOpacity(0.12);
       }
       return Colors.transparent;
