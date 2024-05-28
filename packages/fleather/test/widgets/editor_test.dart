@@ -532,6 +532,7 @@ void main() {
         await tester.sendKeyDownEvent(LogicalKeyboardKey.shift);
         await tester.tapAt(tester.getTopRight(find.byType(FleatherEditor)) +
             const Offset(-1, 1));
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shift);
         await tester.pump();
         expect(
             editor.selection,
@@ -554,6 +555,7 @@ void main() {
         await tester.sendKeyDownEvent(LogicalKeyboardKey.shift);
         await tester.tapAt(tester.getBottomRight(find.byType(FleatherEditor)) -
             const Offset(1, 1));
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shift);
         await tester.pump();
         expect(
             editor.selection,
