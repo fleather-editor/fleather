@@ -1,3 +1,10 @@
+## 1.15.0
+
+* Add support for decoding indentation, <hr>, and <img> in HTML codec 
+* Add support for checkbox in Markdown codec
+* [Fix] decoding Markdown with multiple links
+* Upgrade dependencies
+
 ## 1.14.0
 
 * Replace quill_delta package with parchment_delta

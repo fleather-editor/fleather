@@ -1,3 +1,9 @@
+## 1.15.0
+
+* Upgrade to Flutter 3.22
+* Remove selection gestures when enableInteractiveSelection is `false`
+* Upgrade dependencies
+
 ## 1.14.5+1
 
 * [Fix] toolbar moving out of viewport upon scrolling
