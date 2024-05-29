@@ -885,9 +885,9 @@ class RenderEditor extends RenderEditableContainerBox
         final caretOffset = child.getOffsetForCaret(localPosition);
         final testPosition = TextPosition(offset: sibling.node.length - 1);
         final testOffset = sibling.getOffsetForCaret(testPosition);
-        // The addition of 1 point to testOffset.dy is added because somehow in
-        // Flutter 3.22 the text painer for the offset is yielding wrong
-        // text position (1 line above the correct line).
+        // The addition of 1 point to testOffset.dy is added because somehow
+        // in Flutter 3.22 the TextPainter is yielding wrong text position
+        // for the offset (1 line above the correct line).
         final finalOffset = Offset(caretOffset.dx, testOffset.dy + 1);
         final siblingPosition = sibling.getPositionForOffset(finalOffset);
         newPosition = TextPosition(
