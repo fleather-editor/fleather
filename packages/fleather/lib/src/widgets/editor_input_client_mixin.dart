@@ -57,7 +57,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
           inputType: TextInputType.multiline,
           readOnly: widget.readOnly,
           obscureText: false,
-          autocorrect: false,
+          autocorrect: true,
           enableDeltaModel: true,
           inputAction: TextInputAction.newline,
           keyboardAppearance: widget.keyboardAppearance,
