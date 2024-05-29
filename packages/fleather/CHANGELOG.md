@@ -1,4 +1,4 @@
-## 1.15.0
+## 1.15.0+1
 
 * Upgrade to Flutter 3.22
 * Remove selection gestures when enableInteractiveSelection is `false`
