@@ -457,6 +457,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       scrollable: widget.scrollable,
       padding: widget.padding,
       autofocus: widget.autofocus,
+      autocorrect: widget.autocorrect,
       showCursor: widget.showCursor,
       readOnly: widget.readOnly,
       enableInteractiveSelection: widget.enableInteractiveSelection,
