@@ -298,4 +298,29 @@ void main() {
       }
     });
   });
+
+  group('send editor options to TextInputConnection', () {
+    testWidgets('send autocorrect option', (tester) async {
+      Map<String, dynamic>? textInputClientProperties;
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.textInput, (MethodCall methodCall) async {
+        if (methodCall.method == 'TextInput.setClient') {
+          textInputClientProperties = methodCall.arguments[1];
+        }
+        return null;
+      });
+
+      final editor =
+          EditorSandBox(tester: tester, document: ParchmentDocument());
+      await editor.pump();
+      await editor.tap();
+      tester.binding.scheduleWarmUpFrame();
+      await tester.pumpAndSettle();
+
+      expect(
+        textInputClientProperties?['autocorrect'],
+        true,
+      );
+    });
+  });
 }
