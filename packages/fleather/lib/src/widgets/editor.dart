@@ -155,6 +155,11 @@ class FleatherEditor extends StatefulWidget {
   /// Defaults to `false`. Must not be `null`.
   final bool readOnly;
 
+  /// Whether to enable autocorrection.
+  ///
+  /// Defaults to `true`.
+  final bool autocorrect;
+
   /// Whether to enable user interface affordances for changing the
   /// text selection.
   ///
@@ -283,6 +288,7 @@ class FleatherEditor extends StatefulWidget {
     this.autofocus = false,
     this.showCursor = true,
     this.readOnly = false,
+    this.autocorrect = true,
     this.enableInteractiveSelection = true,
     this.minHeight,
     this.maxHeight,
@@ -451,6 +457,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       scrollable: widget.scrollable,
       padding: widget.padding,
       autofocus: widget.autofocus,
+      autocorrect: widget.autocorrect,
       showCursor: widget.showCursor,
       readOnly: widget.readOnly,
       enableInteractiveSelection: widget.enableInteractiveSelection,
@@ -551,6 +558,7 @@ class RawEditor extends StatefulWidget {
     this.autofocus = false,
     bool? showCursor,
     this.readOnly = false,
+    this.autocorrect = true,
     this.enableInteractiveSelection = true,
     this.minHeight,
     this.maxHeight,
@@ -601,6 +609,11 @@ class RawEditor extends StatefulWidget {
   ///
   /// Defaults to false. Must not be null.
   final bool readOnly;
+
+  /// Whether to enable autocorrection.
+  ///
+  /// Defaults to `true`.
+  final bool autocorrect;
 
   /// Callback which is triggered when the user wants to open a URL from
   /// a link in the document.

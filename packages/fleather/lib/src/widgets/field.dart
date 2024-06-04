@@ -65,6 +65,11 @@ class FleatherField extends StatefulWidget {
   /// Defaults to `false`. Must not be `null`.
   final bool readOnly;
 
+  /// Whether to enable autocorrection.
+  ///
+  /// Defaults to `true`.
+  final bool autocorrect;
+
   /// Whether to enable user interface affordances for changing the
   /// text selection.
   ///
@@ -175,6 +180,7 @@ class FleatherField extends StatefulWidget {
     this.autofocus = false,
     this.showCursor = true,
     this.readOnly = false,
+    this.autocorrect = true,
     this.enableInteractiveSelection = true,
     this.minHeight,
     this.maxHeight,
@@ -245,6 +251,7 @@ class _FleatherFieldState extends State<FleatherField> {
       autofocus: widget.autofocus,
       showCursor: widget.showCursor,
       readOnly: widget.readOnly,
+      autocorrect: widget.autocorrect,
       enableInteractiveSelection: widget.enableInteractiveSelection,
       minHeight: widget.minHeight,
       maxHeight: widget.maxHeight,

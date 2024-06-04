@@ -127,6 +127,7 @@ void main() {
               style: const TextStyle(), spacing: const VerticalSpacing())));
       when(() => rawEditor.controller).thenReturn(controller);
       when(() => rawEditor.readOnly).thenReturn(false);
+      when(() => rawEditor.autocorrect).thenReturn(true);
       when(() => rawEditor.keyboardAppearance).thenReturn(Brightness.light);
       when(() => rawEditor.textCapitalization)
           .thenReturn(TextCapitalization.none);
