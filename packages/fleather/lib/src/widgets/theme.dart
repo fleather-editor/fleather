@@ -148,7 +148,7 @@ class FleatherThemeData {
 
     final inlineCodeStyle = TextStyle(
       fontSize: 14,
-      color: themeData.colorScheme.primary,
+      color: themeData.colorScheme.primary.withOpacity(0.8),
       fontFamily: fontFamily,
     );
 
@@ -254,7 +254,7 @@ class FleatherThemeData {
       ),
       code: TextBlockTheme(
         style: TextStyle(
-          color: themeData.colorScheme.primary,
+          color: themeData.colorScheme.primary.withOpacity(0.8),
           fontFamily: fontFamily,
           fontSize: 13.0,
           height: 1.4,
