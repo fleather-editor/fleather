@@ -131,6 +131,9 @@ void main() {
       when(() => rawEditor.keyboardAppearance).thenReturn(Brightness.light);
       when(() => rawEditor.textCapitalization)
           .thenReturn(TextCapitalization.none);
+      when(() => rawEditor.autofocus).thenReturn(true);
+      when(() => rawEditor.enableSuggestions).thenReturn(true);
+      when(() => rawEditor.enableInteractiveSelection).thenReturn(true);
       when(() => controller.replaceText(any(), any(), any(),
           selection: any(named: 'selection'))).thenReturn(null);
       editorState.openConnectionIfNeeded();
