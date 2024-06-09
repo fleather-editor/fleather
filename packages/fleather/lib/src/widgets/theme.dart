@@ -148,7 +148,7 @@ class FleatherThemeData {
 
     final inlineCodeStyle = TextStyle(
       fontSize: 14,
-      color: themeData.colorScheme.primary.withOpacity(0.8),
+      color: themeData.colorScheme.primary,
       fontFamily: fontFamily,
     );
 
@@ -158,8 +158,8 @@ class FleatherThemeData {
       underline: const TextStyle(decoration: TextDecoration.underline),
       strikethrough: const TextStyle(decoration: TextDecoration.lineThrough),
       inlineCode: InlineCodeThemeData(
-        backgroundColor: Colors.grey.shade100,
-        radius: const Radius.circular(3),
+        backgroundColor: themeData.colorScheme.surfaceContainerHigh,
+        radius: const Radius.circular(2),
         style: inlineCodeStyle,
         heading1: inlineCodeStyle.copyWith(
           fontSize: 32,
@@ -245,20 +245,23 @@ class FleatherThemeData {
         lineSpacing: const VerticalSpacing(top: 6, bottom: 2),
         decoration: BoxDecoration(
           border: BorderDirectional(
-            start: BorderSide(width: 4, color: Colors.grey.shade300),
+            start: BorderSide(
+              width: 4,
+              color: themeData.colorScheme.surfaceContainerHigh,
+            ),
           ),
         ),
       ),
       code: TextBlockTheme(
         style: TextStyle(
-          color: Colors.blue.shade900.withOpacity(0.9),
+          color: themeData.colorScheme.primary,
           fontFamily: fontFamily,
           fontSize: 13.0,
           height: 1.4,
         ),
         spacing: baseSpacing,
         decoration: BoxDecoration(
-          color: Colors.grey.shade50,
+          color: themeData.colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(2),
         ),
       ),
