@@ -104,6 +104,9 @@ class FleatherThemeData {
   /// Style theme for code blocks.
   final TextBlockTheme code;
 
+  /// Style theme for horizontal rule.
+  final HorizontalRuleThemeData horizontalRule;
+
   FleatherThemeData({
     required this.bold,
     required this.italic,
@@ -121,6 +124,7 @@ class FleatherThemeData {
     required this.lists,
     required this.quote,
     required this.code,
+    required this.horizontalRule,
   });
 
   factory FleatherThemeData.fallback(BuildContext context) {
@@ -265,6 +269,10 @@ class FleatherThemeData {
           borderRadius: BorderRadius.circular(2),
         ),
       ),
+      horizontalRule: HorizontalRuleThemeData(
+        thickness: 2,
+        color: themeData.colorScheme.surfaceContainerHigh,
+      ),
     );
   }
 
@@ -285,6 +293,7 @@ class FleatherThemeData {
     TextBlockTheme? lists,
     TextBlockTheme? quote,
     TextBlockTheme? code,
+    HorizontalRuleThemeData? horizontalRuleThemeData,
   }) {
     return FleatherThemeData(
       bold: bold ?? this.bold,
@@ -303,6 +312,7 @@ class FleatherThemeData {
       lists: lists ?? this.lists,
       quote: quote ?? this.quote,
       code: code ?? this.code,
+      horizontalRule: horizontalRuleThemeData ?? this.horizontalRule,
     );
   }
 
@@ -412,4 +422,18 @@ class InlineCodeThemeData {
   @override
   int get hashCode =>
       Object.hash(style, heading1, heading2, heading3, backgroundColor, radius);
+}
+
+/// Theme data for horizontal rule.
+class HorizontalRuleThemeData {
+  /// Thickness for horizontal rule.
+  final double thickness;
+
+  /// Color for horizontal rule.
+  final Color color;
+
+  HorizontalRuleThemeData({
+    required this.thickness,
+    required this.color,
+  });
 }

@@ -81,14 +81,13 @@ typedef FleatherEmbedBuilder = Widget Function(
 /// Only supports "horizontal rule" embeds.
 Widget defaultFleatherEmbedBuilder(BuildContext context, EmbedNode node) {
   if (node.value.type == 'hr') {
-    final theme = Theme.of(context);
-    final fleatherTheme = FleatherTheme.of(context)!;
+    final fleatherThemeData = FleatherTheme.of(context)!;
 
     return Divider(
-      height: fleatherTheme.paragraph.style.fontSize! *
-          fleatherTheme.paragraph.style.height!,
-      thickness: 2,
-      color: theme.colorScheme.surfaceContainerHigh,
+      height: fleatherThemeData.paragraph.style.fontSize! *
+          fleatherThemeData.paragraph.style.height!,
+      thickness: fleatherThemeData.horizontalRule.thickness,
+      color: fleatherThemeData.horizontalRule.color,
     );
   }
   throw UnimplementedError(
