@@ -51,25 +51,32 @@ mixin RawEditorStateTextInputClientMixin on EditorState
 
     if (!hasConnection) {
       _lastKnownRemoteTextEditingValue = textEditingValue;
-      _textInputConnection = TextInput.attach(
-        this,
-        TextInputConfiguration(
-          inputType: TextInputType.multiline,
-          readOnly: widget.readOnly,
-          obscureText: false,
-          autocorrect: widget.autocorrect,
-          enableDeltaModel: true,
-          inputAction: TextInputAction.newline,
-          keyboardAppearance: widget.keyboardAppearance,
-          textCapitalization: widget.textCapitalization,
-        ),
-      );
+      _textInputConnection = TextInput.attach(this, _configuration);
 
       _updateSizeAndTransform();
       _textInputConnection!.setEditingState(_lastKnownRemoteTextEditingValue!);
     }
     _textInputConnection!.show();
   }
+
+  void updateConnectionConfig() {
+    if (hasConnection) {
+      _textInputConnection!.updateConfig(_configuration);
+    }
+  }
+
+  TextInputConfiguration get _configuration => TextInputConfiguration(
+        inputType: TextInputType.multiline,
+        readOnly: widget.readOnly,
+        obscureText: false,
+        enableDeltaModel: true,
+        autocorrect: widget.autocorrect,
+        enableSuggestions: widget.enableSuggestions,
+        inputAction: TextInputAction.newline,
+        enableInteractiveSelection: widget.enableInteractiveSelection,
+        keyboardAppearance: widget.keyboardAppearance,
+        textCapitalization: widget.textCapitalization,
+      );
 
   /// Closes input connection if it's currently open. Otherwise does nothing.
   void closeConnectionIfNeeded() {
