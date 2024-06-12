@@ -270,6 +270,7 @@ class FleatherThemeData {
         ),
       ),
       horizontalRule: HorizontalRuleThemeData(
+        height: baseStyle.fontSize! * baseStyle.height!,
         thickness: 2,
         color: themeData.colorScheme.surfaceContainerHigh,
       ),
@@ -312,7 +313,7 @@ class FleatherThemeData {
       lists: lists ?? this.lists,
       quote: quote ?? this.quote,
       code: code ?? this.code,
-      horizontalRule: horizontalRuleThemeData ?? this.horizontalRule,
+      horizontalRule: horizontalRuleThemeData ?? horizontalRule,
     );
   }
 
@@ -426,6 +427,9 @@ class InlineCodeThemeData {
 
 /// Theme data for horizontal rule.
 class HorizontalRuleThemeData {
+  /// Height for horizontal rule.
+  final double height;
+
   /// Thickness for horizontal rule.
   final double thickness;
 
@@ -433,6 +437,7 @@ class HorizontalRuleThemeData {
   final Color color;
 
   HorizontalRuleThemeData({
+    required this.height,
     required this.thickness,
     required this.color,
   });

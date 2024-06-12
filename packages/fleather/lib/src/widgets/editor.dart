@@ -84,8 +84,7 @@ Widget defaultFleatherEmbedBuilder(BuildContext context, EmbedNode node) {
     final fleatherThemeData = FleatherTheme.of(context)!;
 
     return Divider(
-      height: fleatherThemeData.paragraph.style.fontSize! *
-          fleatherThemeData.paragraph.style.height!,
+      height: fleatherThemeData.horizontalRule.height,
       thickness: fleatherThemeData.horizontalRule.thickness,
       color: fleatherThemeData.horizontalRule.color,
     );

@@ -125,8 +125,8 @@ void main() {
             style: const TextStyle(), spacing: const VerticalSpacing()),
         code: TextBlockTheme(
             style: const TextStyle(), spacing: const VerticalSpacing()),
-        horizontalRule:
-            HorizontalRuleThemeData(thickness: 0, color: Colors.transparent),
+        horizontalRule: HorizontalRuleThemeData(
+            height: 0, thickness: 0, color: Colors.transparent),
       ));
       when(() => rawEditor.controller).thenReturn(controller);
       when(() => rawEditor.readOnly).thenReturn(false);
