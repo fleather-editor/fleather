@@ -210,7 +210,8 @@ class _MarkdownInlineShortcuts extends AutoFormat {
             change: change,
             undo: undo,
             undoPositionCandidate: position - (rule.length * 2),
-            selection: TextSelection.collapsed(offset: position - (rule.length * 2) + 1),
+            selection: TextSelection.collapsed(
+                offset: position - (rule.length * 2) + 1),
             undoSelection: TextSelection.collapsed(offset: position + 1),
           );
         }
