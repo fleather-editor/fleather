@@ -1245,22 +1245,22 @@ class SelectorScopeState extends State<SelectorScope> {
       overlayBox.size,
     );
 
-    final mediaQueryData = MediaQuery.of(context);
-    final textDirection = Directionality.of(context);
-
     _overlayEntry = OverlayEntry(
-      builder: (context) => CustomSingleChildLayout(
-        delegate: _SelectorLayout(
-          position,
-          textDirection,
-          mediaQueryData.padding,
-          DisplayFeatureSubScreen.avoidBounds(mediaQueryData).toSet(),
-        ),
-        child: TapRegion(
-          child: selector,
-          onTapOutside: (_) => completer.complete(null),
-        ),
-      ),
+      builder: (context) {
+        final mediaQueryData = MediaQuery.of(context);
+        return CustomSingleChildLayout(
+          delegate: _SelectorLayout(
+            position,
+            Directionality.of(context),
+            mediaQueryData.padding + mediaQueryData.viewInsets,
+            DisplayFeatureSubScreen.avoidBounds(mediaQueryData).toSet(),
+          ),
+          child: TapRegion(
+            child: selector,
+            onTapOutside: (_) => completer.complete(null),
+          ),
+        );
+      },
     );
     _overlayEntry?.addListener(() {
       if (_overlayEntry?.mounted != true && !completer.isCompleted) {
