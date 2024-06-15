@@ -104,6 +104,9 @@ class FleatherThemeData {
   /// Style theme for code blocks.
   final TextBlockTheme code;
 
+  /// Style theme for horizontal rule.
+  final HorizontalRuleThemeData horizontalRule;
+
   FleatherThemeData({
     required this.bold,
     required this.italic,
@@ -121,6 +124,7 @@ class FleatherThemeData {
     required this.lists,
     required this.quote,
     required this.code,
+    required this.horizontalRule,
   });
 
   factory FleatherThemeData.fallback(BuildContext context) {
@@ -158,8 +162,8 @@ class FleatherThemeData {
       underline: const TextStyle(decoration: TextDecoration.underline),
       strikethrough: const TextStyle(decoration: TextDecoration.lineThrough),
       inlineCode: InlineCodeThemeData(
-        backgroundColor: Colors.grey.shade100,
-        radius: const Radius.circular(3),
+        backgroundColor: themeData.colorScheme.surfaceContainerHigh,
+        radius: const Radius.circular(2),
         style: inlineCodeStyle,
         heading1: inlineCodeStyle.copyWith(
           fontSize: 32,
@@ -245,22 +249,30 @@ class FleatherThemeData {
         lineSpacing: const VerticalSpacing(top: 6, bottom: 2),
         decoration: BoxDecoration(
           border: BorderDirectional(
-            start: BorderSide(width: 4, color: Colors.grey.shade300),
+            start: BorderSide(
+              width: 4,
+              color: themeData.colorScheme.surfaceContainerHigh,
+            ),
           ),
         ),
       ),
       code: TextBlockTheme(
         style: TextStyle(
-          color: Colors.blue.shade900.withOpacity(0.9),
+          color: themeData.colorScheme.primary.withOpacity(0.8),
           fontFamily: fontFamily,
           fontSize: 13.0,
           height: 1.4,
         ),
         spacing: baseSpacing,
         decoration: BoxDecoration(
-          color: Colors.grey.shade50,
+          color: themeData.colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(2),
         ),
+      ),
+      horizontalRule: HorizontalRuleThemeData(
+        height: baseStyle.fontSize! * baseStyle.height!,
+        thickness: 2,
+        color: themeData.colorScheme.surfaceContainerHigh,
       ),
     );
   }
@@ -282,6 +294,7 @@ class FleatherThemeData {
     TextBlockTheme? lists,
     TextBlockTheme? quote,
     TextBlockTheme? code,
+    HorizontalRuleThemeData? horizontalRuleThemeData,
   }) {
     return FleatherThemeData(
       bold: bold ?? this.bold,
@@ -300,6 +313,7 @@ class FleatherThemeData {
       lists: lists ?? this.lists,
       quote: quote ?? this.quote,
       code: code ?? this.code,
+      horizontalRule: horizontalRuleThemeData ?? horizontalRule,
     );
   }
 
@@ -409,4 +423,22 @@ class InlineCodeThemeData {
   @override
   int get hashCode =>
       Object.hash(style, heading1, heading2, heading3, backgroundColor, radius);
+}
+
+/// Theme data for horizontal rule.
+class HorizontalRuleThemeData {
+  /// Height for horizontal rule.
+  final double height;
+
+  /// Thickness for horizontal rule.
+  final double thickness;
+
+  /// Color for horizontal rule.
+  final Color color;
+
+  HorizontalRuleThemeData({
+    required this.height,
+    required this.thickness,
+    required this.color,
+  });
 }
