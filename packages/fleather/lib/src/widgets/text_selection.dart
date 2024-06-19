@@ -2435,7 +2435,7 @@ class EditorTextSelectionGestureDetectorBuilder {
     if (!_isShiftPressed) {
       // Adjust the drag start offset for possible viewport offset changes.
       final Offset editableOffset =
-          Offset(0.0, renderEditor.paintOffset.dy - _dragStartViewportOffset);
+          Offset(0.0, _dragStartViewportOffset - renderEditor.paintOffset.dy);
       final Offset scrollableOffset = Offset(
         0.0,
         _scrollPosition - _dragStartScrollOffset,

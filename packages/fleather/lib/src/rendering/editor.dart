@@ -720,7 +720,7 @@ class RenderEditor extends RenderEditableContainerBox
     resolvePadding();
 
     if (offset.dy <= resolvedPadding!.top) return firstChild!;
-    if (offset.dy >= size.height - resolvedPadding!.bottom) {
+    if (offset.dy >= size.height + _maxScrollExtent - resolvedPadding!.bottom) {
       return lastChild!;
     }
 
