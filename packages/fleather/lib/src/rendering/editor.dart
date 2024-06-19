@@ -720,7 +720,7 @@ class RenderEditor extends RenderEditableContainerBox
     resolvePadding();
 
     if (offset.dy <= resolvedPadding!.top) return firstChild!;
-    if (offset.dy >= _maxScrollExtent - resolvedPadding!.bottom) {
+    if (offset.dy >= size.height - resolvedPadding!.bottom) {
       return lastChild!;
     }
 
@@ -734,7 +734,7 @@ class RenderEditor extends RenderEditableContainerBox
       dy += child.size.height;
       child = childAfter(child);
     }
-    throw StateError('No child at offset $offset.');
+    return lastChild!;
   }
 
   @override

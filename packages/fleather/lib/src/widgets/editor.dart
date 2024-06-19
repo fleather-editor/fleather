@@ -15,7 +15,6 @@ import '../../util.dart';
 import '../rendering/editor.dart';
 import '../services/spell_check_suggestions_toolbar.dart';
 import '../services/clipboard_manager.dart';
-import 'baseline_proxy.dart';
 import 'controller.dart';
 import 'cursor.dart';
 import 'editable_text_block.dart';
@@ -1647,38 +1646,32 @@ class RawEditorState extends EditorState
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
     super.build(context); // See AutomaticKeepAliveClientMixin.
-    final baselinePadding =
-        EdgeInsets.only(top: _themeData.paragraph.spacing.top);
-    final child = BaselineProxy(
-      textStyle: _themeData.paragraph.style,
-      padding: baselinePadding,
-      child: Scrollable(
-        key: _scrollableKey,
-        excludeFromSemantics: true,
-        controller: _scrollController,
-        axisDirection: AxisDirection.down,
-        scrollBehavior: ScrollConfiguration.of(context).copyWith(
-          scrollbars: true,
-          overscroll: false,
-        ),
-        physics: widget.scrollPhysics,
-        viewportBuilder: (context, offset) => CompositedTransformTarget(
-          link: _toolbarLayerLink,
-          child: _Editor(
-            key: _editorKey,
-            offset: offset,
-            document: widget.controller.document,
-            selection: widget.controller.selection,
-            hasFocus: _hasFocus,
-            textDirection: _textDirection,
-            startHandleLayerLink: _startHandleLayerLink,
-            endHandleLayerLink: _endHandleLayerLink,
-            onSelectionChanged: _handleSelectionChanged,
-            padding: widget.padding,
-            maxContentWidth: widget.maxContentWidth,
-            cursorController: _cursorController,
-            children: _buildChildren(context),
-          ),
+    final child = Scrollable(
+      key: _scrollableKey,
+      excludeFromSemantics: true,
+      controller: _scrollController,
+      axisDirection: AxisDirection.down,
+      scrollBehavior: ScrollConfiguration.of(context).copyWith(
+        scrollbars: true,
+        overscroll: false,
+      ),
+      physics: widget.scrollPhysics,
+      viewportBuilder: (context, offset) => CompositedTransformTarget(
+        link: _toolbarLayerLink,
+        child: _Editor(
+          key: _editorKey,
+          offset: offset,
+          document: widget.controller.document,
+          selection: widget.controller.selection,
+          hasFocus: _hasFocus,
+          textDirection: _textDirection,
+          startHandleLayerLink: _startHandleLayerLink,
+          endHandleLayerLink: _endHandleLayerLink,
+          onSelectionChanged: _handleSelectionChanged,
+          padding: widget.padding,
+          maxContentWidth: widget.maxContentWidth,
+          cursorController: _cursorController,
+          children: _buildChildren(context),
         ),
       ),
     );
