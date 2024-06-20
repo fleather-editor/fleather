@@ -13,8 +13,8 @@ import 'package:parchment_delta/parchment_delta.dart';
 
 import '../../util.dart';
 import '../rendering/editor.dart';
-import '../services/spell_check_suggestions_toolbar.dart';
 import '../services/clipboard_manager.dart';
+import '../services/spell_check_suggestions_toolbar.dart';
 import 'controller.dart';
 import 'cursor.dart';
 import 'editable_text_block.dart';
@@ -1646,35 +1646,61 @@ class RawEditorState extends EditorState
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
     super.build(context); // See AutomaticKeepAliveClientMixin.
-    final child = Scrollable(
-      key: _scrollableKey,
-      excludeFromSemantics: true,
-      controller: _scrollController,
-      axisDirection: AxisDirection.down,
-      scrollBehavior: ScrollConfiguration.of(context).copyWith(
-        scrollbars: true,
-        overscroll: false,
-      ),
-      physics: widget.scrollPhysics,
-      viewportBuilder: (context, offset) => CompositedTransformTarget(
-        link: _toolbarLayerLink,
-        child: _Editor(
-          key: _editorKey,
-          offset: offset,
-          document: widget.controller.document,
-          selection: widget.controller.selection,
-          hasFocus: _hasFocus,
-          textDirection: _textDirection,
-          startHandleLayerLink: _startHandleLayerLink,
-          endHandleLayerLink: _endHandleLayerLink,
-          onSelectionChanged: _handleSelectionChanged,
-          padding: widget.padding,
-          maxContentWidth: widget.maxContentWidth,
-          cursorController: _cursorController,
-          children: _buildChildren(context),
+
+    final Widget child;
+
+    if (widget.scrollable) {
+      child = Scrollable(
+        key: _scrollableKey,
+        excludeFromSemantics: true,
+        controller: _scrollController,
+        axisDirection: AxisDirection.down,
+        scrollBehavior: ScrollConfiguration.of(context).copyWith(
+          scrollbars: true,
+          overscroll: false,
         ),
-      ),
-    );
+        physics: widget.scrollPhysics,
+        viewportBuilder: (context, offset) => CompositedTransformTarget(
+          link: _toolbarLayerLink,
+          child: _Editor(
+            key: _editorKey,
+            offset: offset,
+            document: widget.controller.document,
+            selection: widget.controller.selection,
+            hasFocus: _hasFocus,
+            textDirection: _textDirection,
+            startHandleLayerLink: _startHandleLayerLink,
+            endHandleLayerLink: _endHandleLayerLink,
+            onSelectionChanged: _handleSelectionChanged,
+            padding: widget.padding,
+            maxContentWidth: widget.maxContentWidth,
+            cursorController: _cursorController,
+            children: _buildChildren(context),
+          ),
+        ),
+      );
+    } else {
+      child = CompositedTransformTarget(
+        link: _toolbarLayerLink,
+        child: Semantics(
+          child: _Editor(
+            key: _editorKey,
+            offset: ViewportOffset.zero(),
+            document: widget.controller.document,
+            selection: widget.controller.selection,
+            hasFocus: _hasFocus,
+            cursorController: _cursorController,
+            textDirection: _textDirection,
+            startHandleLayerLink: _startHandleLayerLink,
+            endHandleLayerLink: _endHandleLayerLink,
+            onSelectionChanged: _handleSelectionChanged,
+            padding: widget.padding,
+            maxContentWidth: widget.maxContentWidth,
+            children: _buildChildren(context),
+          ),
+        ),
+      );
+    }
 
     final constraints = widget.expands || widget.scrollable
         ? const BoxConstraints.expand()
