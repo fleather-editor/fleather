@@ -1,3 +1,11 @@
+## 1.16.0
+
+* Inline Markdown shortcuts
+* Enable auto-correct on mobile devices
+* Enable suggestions on Android devices
+* [UI change] Adjust default theme
+* [Fix] selectors in toolbar going under keyboard
+
 ## 1.15.0+1
 
 * Upgrade to Flutter 3.22
