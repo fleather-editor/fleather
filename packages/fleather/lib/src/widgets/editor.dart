@@ -15,7 +15,6 @@ import '../../util.dart';
 import '../rendering/editor.dart';
 import '../services/clipboard_manager.dart';
 import '../services/spell_check_suggestions_toolbar.dart';
-import 'baseline_proxy.dart';
 import 'controller.dart';
 import 'cursor.dart';
 import 'editable_text_block.dart';
@@ -26,7 +25,6 @@ import 'history.dart';
 import 'keyboard_listener.dart';
 import 'link.dart';
 import 'shortcuts.dart';
-import 'single_child_scroll_view.dart';
 import 'text_line.dart';
 import 'text_selection.dart';
 import 'theme.dart';
@@ -1597,16 +1595,9 @@ class RawEditorState extends EditorState
         return;
       }
 
-      final viewport = RenderAbstractViewport.of(renderEditor);
-      final editorOffset = renderEditor.localToGlobal(const Offset(0.0, 0.0),
-          ancestor: viewport);
-      final offsetInViewport = _scrollController.offset + editorOffset.dy;
-
       final offset = renderEditor.getOffsetToRevealCursor(
-        _scrollController.position.viewportDimension,
-        _scrollController.offset,
-        offsetInViewport,
-      );
+          _scrollController.position.viewportDimension,
+          _scrollController.offset);
 
       if (offset != null) {
         if (withAnimation) {
@@ -1685,65 +1676,62 @@ class RawEditorState extends EditorState
     assert(debugCheckHasMediaQuery(context));
     super.build(context); // See AutomaticKeepAliveClientMixin.
 
-    Widget child = CompositedTransformTarget(
-      link: _toolbarLayerLink,
-      child: Semantics(
-        child: _Editor(
-          key: _editorKey,
-          document: widget.controller.document,
-          selection: widget.controller.selection,
-          hasFocus: _hasFocus,
-          cursorController: _cursorController,
-          textDirection: _textDirection,
-          startHandleLayerLink: _startHandleLayerLink,
-          endHandleLayerLink: _endHandleLayerLink,
-          onSelectionChanged: _handleSelectionChanged,
-          padding: widget.padding,
-          maxContentWidth: widget.maxContentWidth,
-          children: _buildChildren(context),
-        ),
-      ),
-    );
+    final Widget child;
 
     if (widget.scrollable) {
-      // Since `SingleChildScrollView` does not implement
-      // `computeDistanceToActualBaseline` it prevents the editor from
-      // providing its baseline metrics. To address this issue we wrap
-      // the scroll view with [BaselineProxy] which mimics the editor's
-      // baseline.
-      // This implies that the first line has no styles applied to it.
-      final baselinePadding =
-          EdgeInsets.only(top: _themeData.paragraph.spacing.top);
-      child = BaselineProxy(
-        textStyle: _themeData.paragraph.style,
-        padding: baselinePadding,
-        child: FleatherSingleChildScrollView(
-          scrollableKey: _scrollableKey,
-          controller: _scrollController,
-          physics: widget.scrollPhysics,
-          viewportBuilder: (_, offset) => CompositedTransformTarget(
-            link: _toolbarLayerLink,
-            child: _Editor(
-              key: _editorKey,
-              offset: offset,
-              document: widget.controller.document,
-              selection: widget.controller.selection,
-              hasFocus: _hasFocus,
-              textDirection: _textDirection,
-              startHandleLayerLink: _startHandleLayerLink,
-              endHandleLayerLink: _endHandleLayerLink,
-              onSelectionChanged: _handleSelectionChanged,
-              padding: widget.padding,
-              maxContentWidth: widget.maxContentWidth,
-              cursorController: _cursorController,
-              children: _buildChildren(context),
-            ),
+      child = Scrollable(
+        key: _scrollableKey,
+        excludeFromSemantics: true,
+        controller: _scrollController,
+        axisDirection: AxisDirection.down,
+        scrollBehavior: ScrollConfiguration.of(context).copyWith(
+          scrollbars: true,
+          overscroll: false,
+        ),
+        physics: widget.scrollPhysics,
+        viewportBuilder: (context, offset) => CompositedTransformTarget(
+          link: _toolbarLayerLink,
+          child: _Editor(
+            key: _editorKey,
+            offset: offset,
+            document: widget.controller.document,
+            selection: widget.controller.selection,
+            hasFocus: _hasFocus,
+            textDirection: _textDirection,
+            startHandleLayerLink: _startHandleLayerLink,
+            endHandleLayerLink: _endHandleLayerLink,
+            onSelectionChanged: _handleSelectionChanged,
+            padding: widget.padding,
+            maxContentWidth: widget.maxContentWidth,
+            cursorController: _cursorController,
+            children: _buildChildren(context),
+          ),
+        ),
+      );
+    } else {
+      child = CompositedTransformTarget(
+        link: _toolbarLayerLink,
+        child: Semantics(
+          child: _Editor(
+            key: _editorKey,
+            offset: ViewportOffset.zero(),
+            document: widget.controller.document,
+            selection: widget.controller.selection,
+            hasFocus: _hasFocus,
+            cursorController: _cursorController,
+            textDirection: _textDirection,
+            startHandleLayerLink: _startHandleLayerLink,
+            endHandleLayerLink: _endHandleLayerLink,
+            onSelectionChanged: _handleSelectionChanged,
+            padding: widget.padding,
+            maxContentWidth: widget.maxContentWidth,
+            children: _buildChildren(context),
           ),
         ),
       );
     }
 
-    final constraints = widget.expands
+    final constraints = widget.expands || widget.scrollable
         ? const BoxConstraints.expand()
         : BoxConstraints(
             minHeight: widget.minHeight ?? 0.0,
@@ -2079,12 +2067,10 @@ class RawEditorState extends EditorState
   }) {
     // If editor is scrollable, the editing region is only the viewport
     // otherwise use editor as editing region
-    final viewport = RenderAbstractViewport.maybeOf(renderEditor);
-    final visualSizeRenderer = (viewport ?? renderEditor) as RenderBox;
+    final paintOffset = renderEditor.paintOffset;
     final Rect editingRegion = Rect.fromPoints(
-      visualSizeRenderer.localToGlobal(Offset.zero),
-      visualSizeRenderer
-          .localToGlobal(visualSizeRenderer.size.bottomRight(Offset.zero)),
+      renderEditor.localToGlobal(Offset.zero),
+      renderEditor.localToGlobal(renderEditor.size.bottomRight(Offset.zero)),
     );
 
     if (editingRegion.left.isNaN ||
@@ -2093,29 +2079,23 @@ class RawEditorState extends EditorState
         editingRegion.bottom.isNaN) {
       return const TextSelectionToolbarAnchors(primaryAnchor: Offset.zero);
     }
-
+    final viewportAdjustedBasePointDy =
+        selectionEndpoints.first.point.dy + paintOffset.dy;
+    final viewportAdjustedEndPointDy =
+        selectionEndpoints.last.point.dy + paintOffset.dy;
     final bool isMultiline =
-        selectionEndpoints.last.point.dy - selectionEndpoints.first.point.dy >
+        viewportAdjustedEndPointDy - viewportAdjustedBasePointDy >
             endGlyphHeight / 2;
 
     final Rect selectionRect = Rect.fromLTRB(
       isMultiline
           ? editingRegion.left
-          : editingRegion.left +
-              selectionEndpoints.first.point.dx +
-              renderEditor.paintOffset.dx,
-      editingRegion.top +
-          selectionEndpoints.first.point.dy +
-          renderEditor.paintOffset.dy -
-          startGlyphHeight,
+          : editingRegion.left + selectionEndpoints.first.point.dx,
+      editingRegion.top + viewportAdjustedBasePointDy - startGlyphHeight,
       isMultiline
           ? editingRegion.right
-          : editingRegion.left +
-              selectionEndpoints.last.point.dx +
-              renderEditor.paintOffset.dx,
-      editingRegion.top +
-          selectionEndpoints.last.point.dy +
-          renderEditor.paintOffset.dy,
+          : editingRegion.left + selectionEndpoints.last.point.dx,
+      editingRegion.top + viewportAdjustedEndPointDy,
     );
 
     return TextSelectionToolbarAnchors(
@@ -2163,7 +2143,7 @@ class _Editor extends MultiChildRenderObjectWidget {
   const _Editor({
     required Key super.key,
     required super.children,
-    this.offset,
+    required this.offset,
     required this.document,
     required this.textDirection,
     required this.hasFocus,
@@ -2176,7 +2156,7 @@ class _Editor extends MultiChildRenderObjectWidget {
     this.maxContentWidth,
   });
 
-  final ViewportOffset? offset;
+  final ViewportOffset offset;
   final ParchmentDocument document;
   final TextDirection textDirection;
   final bool hasFocus;

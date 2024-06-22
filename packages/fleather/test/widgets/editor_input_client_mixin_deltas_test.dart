@@ -1,6 +1,7 @@
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/widgets/editor_input_client_mixin.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,6 +17,7 @@ class MockRawEditor extends Mock implements RawEditor {
 class MockEditorState extends Mock implements EditorState {
   @override
   RenderEditor renderEditor = RenderEditor(
+      offset: ViewportOffset.zero(),
       document: ParchmentDocument.fromJson([
         {'insert': 'Some text\n'}
       ]),
