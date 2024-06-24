@@ -1,11 +1,10 @@
 // This document contains functions for extending the default Encoders and Decoders which come with Fleather
 // This allows you to write custom extensions which are called when running the encode and decode functions.
-// By including a type you allow the extension to be scoped to availble options
-// for codecs available.
-// In this case that would be Markdown and HTML.
+// By including a type you allow the extension to be scoped to availble options (Markdown, HTML).
+// So you can just build a big pile of extensions if you want and just add them in to every instance of the encoder/decoder.
 
 // Custom Encoder and Decoder functions run BEFORE the default encoder and decoder functions.
-// This means you can override normal behavior of the encoder if desired.
+// This means you can override normal behavior of the default embed encoder if desired (really just for HR and image tags at this point).
 
 import 'package:html/dom.dart';
 import 'package:parchment/src/document/embeds.dart';

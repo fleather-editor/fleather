@@ -410,25 +410,6 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     ParchmentAttribute? currentBlockAttribute;
 
     void handleLine(LineNode node) {
-      // We're going to load our custom extensions here.
-      // Loop through available extensions and apply them if applicable.
-      if (node.hasBlockEmbed) {
-        //inspect(node);
-        for (final EncodeExtension extension in extensions ?? []) {
-          // Convert to embednode and check if we can encode it.
-          final blockEmbed = node.children.first as EmbedNode;
-          if (extension.canEncode(
-              CodecExtensionType.markdown, blockEmbed.value.type)) {
-            // Pass the embeddable object to the extension encode function
-            // Return a string which writes to the encode buffer.
-            buffer.write(extension.encode(blockEmbed.value));
-            // Return this function since it runs line-by-line.
-            // No need to keep checking for additional extensions since we already encoded the results.
-            return;
-          }
-        }
-      }
-
       for (final attr in node.style.lineAttributes) {
         if (attr.key == ParchmentAttribute.block.key) {
           if (currentBlockAttribute != attr) {
@@ -443,8 +424,23 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
       }
 
       for (final textNode in node.children) {
-        handleText(lineBuffer, textNode as TextNode, currentInlineStyle);
-        currentInlineStyle = textNode.style;
+        if (textNode is TextNode) {
+          handleText(lineBuffer, textNode as TextNode, currentInlineStyle);
+          currentInlineStyle = textNode.style;
+        } else if (textNode is EmbedNode) {
+          // Import custom extensions for block and inline embeds.
+          // If there is an extension which matches the extension type and the EmbedBlock type
+          // then we will run the encode function and write the output to the buffer.
+          // Otherwise we'll drop it silently.
+          for (final EncodeExtension extension in extensions ?? []) {
+            if (extension.canEncode(
+                CodecExtensionType.markdown, textNode.value.type)) {
+              // Pass the embeddable object to the extension encode function
+              // Return a string which writes to the encode buffer.
+              lineBuffer.write(extension.encode(textNode.value));
+            }
+          }
+        }
       }
 
       handleText(lineBuffer, TextNode(), currentInlineStyle);

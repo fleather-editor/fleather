@@ -492,14 +492,16 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
     if (op.data is Map<String, dynamic>) {
       final data = op.data as Map<String, dynamic>;
       final embeddable = EmbeddableObject.fromJson(data);
-      if (embeddable is BlockEmbed) {
-        // We're going to loop through our custom encoder extensions here to see if we can encode this block.
-        for (final EncodeExtension extension in extensions ?? []) {
-          if (extension.canEncode(CodecExtensionType.html, embeddable.type)) {
-            buffer.write(extension.encode(embeddable));
-            return;
-          }
+
+      // We're going to loop through our custom encoder extensions here to see if we can encode this block.
+      for (final EncodeExtension extension in extensions ?? []) {
+        if (extension.canEncode(CodecExtensionType.html, embeddable.type)) {
+          buffer.write(extension.encode(embeddable));
+          return;
         }
+      }
+
+      if (embeddable is BlockEmbed) {
         if (embeddable.type == 'hr') {
           buffer.write('<hr>');
           return;
