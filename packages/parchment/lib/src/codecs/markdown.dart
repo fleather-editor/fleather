@@ -7,9 +7,14 @@ import '../document.dart';
 import '../document/block.dart';
 import '../document/leaf.dart';
 import '../document/line.dart';
+import './codec_extensions.dart';
 
 class ParchmentMarkdownCodec extends Codec<ParchmentDocument, String> {
-  const ParchmentMarkdownCodec();
+  // We're adding in custom extensions here. This can be null to not break current implementations.
+  // It will evaluate to a const empty list if null in encoder.
+  final List<EncodeExtension>? extensions;
+
+  const ParchmentMarkdownCodec({this.extensions});
 
   @override
   Converter<String, ParchmentDocument> get decoder =>
@@ -17,7 +22,7 @@ class ParchmentMarkdownCodec extends Codec<ParchmentDocument, String> {
 
   @override
   Converter<ParchmentDocument, String> get encoder =>
-      _ParchmentMarkdownEncoder();
+      _ParchmentMarkdownEncoder(extensions: extensions);
 }
 
 class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
@@ -349,6 +354,13 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
 }
 
 class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
+  // Insert custom extensions if needed
+  final List<EncodeExtension>? extensions;
+
+  _ParchmentMarkdownEncoder({
+    this.extensions = const [],
+  });
+
   static final simpleBlocks = <ParchmentAttribute, String>{
     ParchmentAttribute.bq: '> ',
     ParchmentAttribute.ul: '* ',
@@ -398,7 +410,18 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     ParchmentAttribute? currentBlockAttribute;
 
     void handleLine(LineNode node) {
-      if (node.hasBlockEmbed) return;
+      // We're going to load our custom extensions here.
+      // Loop through available extensions and apply them if applicable.
+      if (node.hasBlockEmbed) {
+        for (final extension in extensions ?? []) {
+          if (extension.canEncode(node[0].)) {
+            // Convert to block embed.
+
+            buffer.write(extension.encode(node.blockEmbed!));
+            return;
+          }
+        }
+      };
 
       for (final attr in node.style.lineAttributes) {
         if (attr.key == ParchmentAttribute.block.key) {
