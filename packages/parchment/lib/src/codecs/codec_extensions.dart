@@ -46,9 +46,9 @@ class EncodeExtension {
     required this.encode,
   });
 
-  // Simple bool to see if this node can be encoded.
+  // Simple bool to see if this node can be encoded. String match on node type
   bool canEncode(String node) {
-    return node.localName == blockType;
+    return node == blockType;
   }
 }
 

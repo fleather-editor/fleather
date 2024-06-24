@@ -413,15 +413,19 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
       // We're going to load our custom extensions here.
       // Loop through available extensions and apply them if applicable.
       if (node.hasBlockEmbed) {
-        for (final extension in extensions ?? []) {
-          if (extension.canEncode(node[0].)) {
-            // Convert to block embed.
-
-            buffer.write(extension.encode(node.blockEmbed!));
+        for (final EncodeExtension extension in extensions ?? []) {
+          // Convert to embednode and check if we can encode it.
+          final blockEmbed = node.defaultChild.value as EmbedNode;
+          if (extension.canEncode(blockEmbed.value.data['_type'] as String)) {
+            // Pass the embeddable object to the extension encode function
+            // Return a string which writes to the encode buffer.
+            buffer.write(extension.encode(blockEmbed.value));
+            // Return this function since it runs line-by-line.
+            // No need to keep checking for additional extensions since we already encoded the results.
             return;
           }
         }
-      };
+      }
 
       for (final attr in node.style.lineAttributes) {
         if (attr.key == ParchmentAttribute.block.key) {
