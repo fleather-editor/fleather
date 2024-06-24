@@ -357,7 +357,7 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
   // Insert custom extensions if needed
   final List<EncodeExtension>? extensions;
 
-  _ParchmentMarkdownEncoder({
+  const _ParchmentMarkdownEncoder({
     this.extensions = const [],
   });
 
@@ -413,10 +413,12 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
       // We're going to load our custom extensions here.
       // Loop through available extensions and apply them if applicable.
       if (node.hasBlockEmbed) {
+        //inspect(node);
         for (final EncodeExtension extension in extensions ?? []) {
           // Convert to embednode and check if we can encode it.
-          final blockEmbed = node.defaultChild.value as EmbedNode;
-          if (extension.canEncode(blockEmbed.value.data['_type'] as String)) {
+          final blockEmbed = node.children.first as EmbedNode;
+          if (extension.canEncode(
+              CodecExtensionType.markdown, blockEmbed.value.type)) {
             // Pass the embeddable object to the extension encode function
             // Return a string which writes to the encode buffer.
             buffer.write(extension.encode(blockEmbed.value));

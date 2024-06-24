@@ -47,8 +47,8 @@ class EncodeExtension {
   });
 
   // Simple bool to see if this node can be encoded. String match on node type
-  bool canEncode(String node) {
-    return node == blockType;
+  bool canEncode(CodecExtensionType type, String node) {
+    return codecType == type && node == blockType;
   }
 }
 
