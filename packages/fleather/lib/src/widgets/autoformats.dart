@@ -49,9 +49,7 @@ class AutoFormats {
     }) {
 
     // Start by adding our custom formats
-    List<AutoFormat> formats = [
-      ...autoFormats ?? [],
-    ];
+    List<AutoFormat> formats = autoFormats ?? [];
 
     // Map to merge private and public API for default formats
     final formatMap = {
