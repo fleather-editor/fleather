@@ -38,6 +38,18 @@ class AutoFormats {
     ]);
   }
 
+  /// Create a new instance of [AutoFormats] with the provided [autoFormats] + fallback [AutoFormats].
+
+  factory AutoFormats.buildWithFallback(List<AutoFormat> autoFormats) {
+    return AutoFormats(autoFormats: autoFormats)
+        .merge(AutoFormats.fallback()._autoFormats);
+  }
+
+  /// Merge [autoFormats] with the current set of [autoformats].
+  AutoFormats merge(List<AutoFormat> autoFormats) {
+    return AutoFormats(autoFormats: [...autoFormats, ..._autoFormats]);
+  }
+
   final List<AutoFormat> _autoFormats;
 
   AutoFormatResult? _activeSuggestion;
