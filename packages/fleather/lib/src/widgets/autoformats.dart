@@ -5,6 +5,15 @@ import 'package:intl/intl.dart' as intl;
 import 'package:parchment/parchment.dart';
 import 'package:parchment_delta/parchment_delta.dart';
 
+// This enum defines a standard set of default autoformats which is publicly accessible 
+// so you can pick and choose the default formats.
+enum AutoFormatType {
+  links,
+  markdownInlineShortcuts,
+  markdownLineShortcuts,
+  autoTextDirection,
+}
+
 /// An [AutoFormat] is responsible for looking backwards for a pattern and
 /// applying a formatting suggestion to a document.
 ///
@@ -29,20 +38,36 @@ class AutoFormats {
       : _autoFormats = autoFormats;
 
   /// Default set of auto formats.
-  factory AutoFormats.fallback() {
-    return AutoFormats(autoFormats: [
-      const _AutoFormatLinks(),
-      const _MarkdownInlineShortcuts(),
-      const _MarkdownLineShortcuts(),
-      const _AutoTextDirection(),
-    ]);
-  }
+  factory AutoFormats.fallback({
+    List<AutoFormat>? autoFormats,
+    List<AutoFormatType>? defaultFormats = const [
+        AutoFormatType.links,
+        AutoFormatType.markdownInlineShortcuts,
+        AutoFormatType.markdownLineShortcuts,
+        AutoFormatType.autoTextDirection,
+      ],
+    }) {
 
-  /// Create a new instance of [AutoFormats] with the provided [autoFormats] + fallback [AutoFormats].
+    // Start by adding our custom formats
+    List<AutoFormat> formats = [
+      ...autoFormats ?? [],
+    ];
 
-  factory AutoFormats.buildWithFallback(List<AutoFormat> autoFormats) {
-    return AutoFormats(autoFormats: autoFormats)
-        .merge(AutoFormats.fallback()._autoFormats);
+    // Map to merge private and public API for default formats
+    final formatMap = {
+      AutoFormatType.links: () => const _AutoFormatLinks(),
+      AutoFormatType.markdownInlineShortcuts: () => const _MarkdownInlineShortcuts(),
+      AutoFormatType.markdownLineShortcuts: () => const _MarkdownLineShortcuts(),
+      AutoFormatType.autoTextDirection: () => const _AutoTextDirection(),
+    };
+    
+    for (var entry in formatMap.entries) {
+      if (defaultFormats?.contains(entry.key) ?? false) {
+        formats.add(entry.value());
+      }
+    }
+    
+    return AutoFormats(autoFormats: formats);
   }
 
   /// Merge [autoFormats] with the current set of [autoformats].
