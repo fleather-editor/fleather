@@ -1,6 +1,5 @@
 import 'package:parchment/codecs.dart';
 import 'package:parchment/parchment.dart';
-import 'package:parchment/src/codecs/codec_extensions.dart';
 import 'package:parchment_delta/parchment_delta.dart';
 
 void main() {
@@ -19,33 +18,33 @@ void main() {
   // We're going to do both an inline and a block embed. They are essentially the same except the inline property.
   // Inline Block Embed
   final youtubeInlineEmbedDelta = {
-    "_type": "youtube",
-    "_inline": true,
-    "url": url,
-    "title": "Read the Url Before Clicking",
-    "language": "en",
-    "thumbUrl": thumbUrl
+    '_type': 'youtube',
+    '_inline': true,
+    'url': url,
+    'title': 'Read the Url Before Clicking',
+    'language': 'en',
+    'thumbUrl': thumbUrl
   };
 
   // Block Embed
   final youtubeBlockEmbedDelta = {
-    "_type": "youtube",
-    "_inline": false,
-    "url": url,
-    "title": "Read the Url Before Clicking",
-    "language": "en",
-    "thumbUrl": thumbUrl
+    '_type': 'youtube',
+    '_inline': false,
+    'url': url,
+    'title': 'Read the Url Before Clicking',
+    'language': 'en',
+    'thumbUrl': thumbUrl
   };
 
   // Lets create new Delta to insert content into our document.
   final newDelta = Delta()
     ..insert(
         'Lets add in some examples of custom embed blocks which we\'ll implement custom encoders to encode the result.')
-    ..insert("\n")
-    ..insert("Lets Start with a simple inline block: ")
+    ..insert('\n')
+    ..insert('Lets Start with a simple inline block: ')
     ..insert(youtubeInlineEmbedDelta)
-    ..insert("\n")
-    ..insert("Now lets add a block embed: \n")
+    ..insert('\n')
+    ..insert('Now lets add a block embed: \n')
     ..insert(youtubeBlockEmbedDelta);
 
   // Since we know our changes are progormatically generated they don't need to be run through Heuristics and Autoformatting.
@@ -101,10 +100,10 @@ void main() {
       ParchmentMarkdownCodec(extensions: encoderList).encode(doc);
 
   // Lets print out our results.
-  print("HTML Output:");
+  print('HTML Output:');
   print(htmlOutput);
-  print("\n\n");
-  print("Markdown Output:");
+  print('\n\n');
+  print('Markdown Output:');
   print(markdownOutput);
 
   // Congrats! You can now make all manner of awesome custom embeds and work with them like any other text.

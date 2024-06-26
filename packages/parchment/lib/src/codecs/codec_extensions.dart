@@ -6,7 +6,6 @@
 // Custom Encoder and Decoder functions run BEFORE the default encoder and decoder functions.
 // This means you can override normal behavior of the default embed encoder if desired (really just for HR and image tags at this point).
 
-import 'package:html/dom.dart';
 import 'package:parchment/src/document/embeds.dart';
 
 // Simple enum to allow us to write one encode class to encapsulate both Markdown and HTML encode extensions
