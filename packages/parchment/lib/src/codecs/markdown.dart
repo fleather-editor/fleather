@@ -425,7 +425,7 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
 
       for (final textNode in node.children) {
         if (textNode is TextNode) {
-          handleText(lineBuffer, textNode as TextNode, currentInlineStyle);
+          handleText(lineBuffer, textNode, currentInlineStyle);
           currentInlineStyle = textNode.style;
         } else if (textNode is EmbedNode) {
           // Import custom extensions for block and inline embeds.
