@@ -576,8 +576,7 @@ class RawEditor extends StatefulWidget {
     this.spellCheckConfiguration,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
-  })  : assert(scrollable || scrollController != null),
-        assert(maxHeight == null || maxHeight > 0),
+  })  : assert(maxHeight == null || maxHeight > 0),
         assert(minHeight == null || minHeight >= 0),
         assert(
           (maxHeight == null) ||
