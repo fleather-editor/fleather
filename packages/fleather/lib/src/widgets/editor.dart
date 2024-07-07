@@ -108,9 +108,8 @@ class FleatherEditor extends StatefulWidget {
 
   /// The [ScrollController] to use when vertically scrolling the contents.
   ///
-  /// If `null` then this editor instantiates a new ScrollController.
-  ///
-  /// Scroll controller must not be `null` if [scrollable] is set to `false`.
+  /// If `null` and [scrollable] is `true` then this editor instantiates a
+  /// new ScrollController
   final ScrollController? scrollController;
 
   /// Whether this editor should create a scrollable container for its content.
@@ -121,9 +120,6 @@ class FleatherEditor extends StatefulWidget {
   /// When set to `false` the editor always expands to fit the entire content
   /// of the document and should normally be placed as a child of another
   /// scrollable widget, otherwise the content may be clipped.
-  ///
-  /// The [scrollController] property must not be `null` when this is set to
-  /// `false`.
   ///
   /// Set to `true` by default.
   final bool scrollable;
@@ -1701,8 +1697,10 @@ class RawEditorState extends EditorState
       );
     }
 
-    final constraints = widget.expands || widget.scrollable
-        ? const BoxConstraints.expand()
+    final constraints = widget.scrollable
+        ? widget.expands
+            ? const BoxConstraints.expand()
+            : const BoxConstraints.expand().copyWith(minHeight: 0)
         : BoxConstraints(
             minHeight: widget.minHeight ?? 0.0,
             maxHeight: widget.maxHeight ?? double.infinity);
@@ -1716,7 +1714,7 @@ class RawEditorState extends EditorState
           child: Focus(
             focusNode: effectiveFocusNode,
             child: FleatherKeyboardListener(
-              child: Container(
+              child: ConstrainedBox(
                 constraints: constraints,
                 child: child,
               ),
