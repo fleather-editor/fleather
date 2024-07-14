@@ -285,6 +285,12 @@ class FleatherEditor extends StatefulWidget {
   /// Defaults to [PlainTextClipboardManager]
   final ClipboardManager clipboardManager;
 
+  /// Provide a notifier that indicated whether current content of clipboard
+  /// can be pasted
+  ///
+  /// Defaults to [ClipboardStatusNotifier] or [_WebClipboardStatusNotifier]
+  final ClipboardStatusNotifier? clipboardStatus;
+
   final GlobalKey<EditorState>? editorKey;
 
   const FleatherEditor({
@@ -311,6 +317,7 @@ class FleatherEditor extends StatefulWidget {
     this.onLaunchUrl,
     this.spellCheckConfiguration,
     this.clipboardManager = const PlainTextClipboardManager(),
+    this.clipboardStatus,
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
@@ -485,6 +492,8 @@ class _FleatherEditorState extends State<FleatherEditor>
       spellCheckConfiguration: widget.spellCheckConfiguration,
       linkActionPickerDelegate: widget.linkActionPickerDelegate,
       clipboardManager: widget.clipboardManager,
+      clipboardStatus: widget.clipboardStatus ??
+          (kIsWeb ? _WebClipboardStatusNotifier() : ClipboardStatusNotifier()),
       // encapsulated fields below
       cursorStyle: CursorStyle(
         color: cursorColor,
@@ -584,6 +593,7 @@ class RawEditor extends StatefulWidget {
     this.scrollPhysics,
     required this.cursorStyle,
     required this.clipboardManager,
+    required this.clipboardStatus,
     this.showSelectionHandles = false,
     this.selectionControls,
     this.onSelectionChanged,
@@ -774,6 +784,8 @@ class RawEditor extends StatefulWidget {
 
   final ClipboardManager clipboardManager;
 
+  final ClipboardStatusNotifier clipboardStatus;
+
   bool get selectionEnabled => enableInteractiveSelection;
 
   @override
@@ -921,8 +933,8 @@ class RawEditorState extends EditorState
   late AnimationController _floatingCursorResetController;
 
   @override
-  final ClipboardStatusNotifier clipboardStatus =
-      kIsWeb ? _WebClipboardStatusNotifier() : ClipboardStatusNotifier();
+  ClipboardStatusNotifier get clipboardStatus => widget.clipboardStatus;
+
   final LayerLink _toolbarLayerLink = LayerLink();
   final LayerLink _startHandleLayerLink = LayerLink();
   final LayerLink _endHandleLayerLink = LayerLink();
@@ -994,6 +1006,7 @@ class RawEditorState extends EditorState
       return false;
     }
 
+    clipboardStatus.update();
     _selectionOverlay!.showToolbar();
     return true;
   }
@@ -1227,6 +1240,7 @@ class RawEditorState extends EditorState
           break;
       }
     }
+    clipboardStatus.update();
   }
 
   /// Cut current selection to clipboard.
@@ -1245,6 +1259,7 @@ class RawEditorState extends EditorState
       bringIntoView(textEditingValue.selection.extent);
       hideToolbar();
     }
+    clipboardStatus.update();
   }
 
   void _setClipboardData() {
