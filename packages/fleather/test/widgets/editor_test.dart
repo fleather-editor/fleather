@@ -1,7 +1,6 @@
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/services/spell_check_suggestions_toolbar.dart';
 import 'package:fleather/src/widgets/keyboard_listener.dart';
-import 'package:fleather/src/widgets/single_child_scroll_view.dart';
 import 'package:fleather/src/widgets/text_selection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -42,16 +41,16 @@ void main() {
       final endpoint =
           renderEditor.getEndpointsForSelection(renderEditor.selection);
       expect(
-          tester
-              .getRect(find.byType(FleatherEditor))
-              .contains(renderEditor.localToGlobal(endpoint[0].point)),
+          tester.getRect(find.byType(FleatherEditor)).contains(
+              renderEditor.localToGlobal(endpoint[0].point) +
+                  renderEditor.paintOffset),
           isTrue);
       tester.view.viewInsets = const FakeViewPadding(bottom: 200);
       await tester.pump();
       expect(
-          tester
-              .getRect(find.byType(FleatherEditor))
-              .contains(renderEditor.localToGlobal(endpoint[0].point)),
+          tester.getRect(find.byType(FleatherEditor)).contains(
+              renderEditor.localToGlobal(endpoint[0].point) +
+                  renderEditor.paintOffset),
           isTrue);
       tester.view.viewInsets = FakeViewPadding.zero;
     });
@@ -65,21 +64,22 @@ void main() {
         ..insert('\n');
       final controller =
           FleatherController(document: ParchmentDocument.fromDelta(delta));
+      final embedHeight =
+          (tester.view.physicalSize / tester.view.devicePixelRatio).height *
+              1.5;
       final editor = MaterialApp(
         home: Scaffold(
           body: Column(
             children: [
               Expanded(
-                  child: FleatherEditor(
-                controller: controller,
-                embedBuilder: (context, node) => SizedBox(
-                  width: 100,
-                  height:
-                      (tester.view.physicalSize / tester.view.devicePixelRatio)
-                              .height *
-                          1.5,
+                child: FleatherEditor(
+                  controller: controller,
+                  embedBuilder: (context, node) => SizedBox(
+                    width: 100,
+                    height: embedHeight,
+                  ),
                 ),
-              )),
+              ),
             ],
           ),
         ),
@@ -89,18 +89,16 @@ void main() {
           tester.getBottomRight(find.byType(RawEditor)) - const Offset(1, 1));
       await tester.pumpAndSettle();
 
-      final scrollController = tester
-          .widget<FleatherSingleChildScrollView>(
-              find.byType(FleatherSingleChildScrollView))
-          .controller;
-      double scrollOffset = scrollController.offset;
+      final renderEditor =
+          tester.state<EditorState>(find.byType(RawEditor)).renderEditor;
+      var scrollOffset = -renderEditor.paintOffset.dy;
       tester.view.viewInsets = const FakeViewPadding(bottom: 20);
       await tester.pump();
-      expect(scrollController.offset > scrollOffset, isTrue);
-      scrollOffset = scrollController.offset;
+      expect(-renderEditor.paintOffset.dy > scrollOffset, isTrue);
+      scrollOffset = -renderEditor.paintOffset.dy;
       tester.view.viewInsets = const FakeViewPadding(bottom: 40);
       await tester.pump();
-      expect(scrollController.offset > scrollOffset, isTrue);
+      expect(-renderEditor.paintOffset.dy > scrollOffset, isTrue);
       tester.view.viewInsets = FakeViewPadding.zero;
     });
 
