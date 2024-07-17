@@ -50,13 +50,15 @@ Widget widget(FleatherController controller, {bool withBasic = false}) {
           )
         ],
       );
+  final editorKey = GlobalKey<EditorState>();
   return MaterialApp(
     home: Material(
       child: Column(children: [
         if (withBasic)
-          FleatherToolbar.basic(controller: controller)
+          FleatherToolbar.basic(controller: controller, editorKey: editorKey)
         else
           FleatherToolbar(
+            editorKey: editorKey,
             children: [
               ToggleStyleButton(
                 attribute: ParchmentAttribute.bold,
@@ -110,6 +112,7 @@ Widget widget(FleatherController controller, {bool withBasic = false}) {
             child: FleatherEditor(
           controller: controller,
           maxContentWidth: 800,
+          editorKey: editorKey,
         ))
       ]),
     ),
@@ -148,6 +151,10 @@ void main() {
 
       expect(tester.widget<FLIconButton>(rawRedoButton).onPressed, isNull);
       expect(controller.document.toDelta(), Delta()..insert('Hello world\n'));
+
+      final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+      expect(editor.effectiveFocusNode.hasFocus, false);
+      expect(editor.hasConnection, false);
     });
 
     testWidgets('Bold', (tester) async {
@@ -204,6 +211,10 @@ void main() {
 
       expect(controller.document.toDelta().last,
           Operation.insert('\n', {'heading': 6}));
+
+      final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+      expect(editor.effectiveFocusNode.hasFocus, true);
+      expect(editor.hasConnection, true);
     });
 
     testWidgets('Indentation', (tester) async {
@@ -227,6 +238,10 @@ void main() {
       await tester.pumpAndSettle(throttleDuration);
       expect(controller.document.toDelta().last,
           Operation.insert('Hello world\n'));
+
+      final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+      expect(editor.effectiveFocusNode.hasFocus, true);
+      expect(editor.hasConnection, true);
     });
 
     testWidgets('Link', (tester) async {
@@ -260,6 +275,10 @@ void main() {
           controller.document.toDelta().first,
           Operation.insert(
               'Hello', {'a': 'https://fleather-editor.github.io'}));
+
+      final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+      expect(editor.effectiveFocusNode.hasFocus, true);
+      expect(editor.hasConnection, true);
     });
 
     testWidgets('Horizontal rule', (tester) async {
@@ -278,6 +297,10 @@ void main() {
 
       expect(controller.document.toDelta().elementAt(1),
           Operation.insert({'_type': 'hr', '_inline': false}));
+
+      final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+      expect(editor.effectiveFocusNode.hasFocus, true);
+      expect(editor.hasConnection, true);
     });
 
     testWidgets('Basic toolbar', (tester) async {
@@ -334,6 +357,10 @@ void main() {
       await tester.pumpAndSettle(throttleDuration);
       expect(controller.document.toDelta().first,
           Operation.insert('Hello', {'bg': Colors.black.value}));
+
+      final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+      expect(editor.effectiveFocusNode.hasFocus, true);
+      expect(editor.hasConnection, true);
     });
 
     testWidgets('Text color', (tester) async {
@@ -365,6 +392,10 @@ void main() {
       await tester.pumpAndSettle(throttleDuration);
       expect(controller.document.toDelta().first,
           Operation.insert('Hello', {'fg': Colors.black.value}));
+
+      final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+      expect(editor.effectiveFocusNode.hasFocus, true);
+      expect(editor.hasConnection, true);
     });
 
     testWidgets('updating editor toolbar remove overlay entry if any',
@@ -493,6 +524,10 @@ Future<void> performToggle(WidgetTester tester, FleatherController controller,
   await tester.pumpAndSettle(throttleDuration);
   expect(
       controller.document.toDelta().first, Operation.insert('Hello world\n'));
+
+  final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+  expect(editor.effectiveFocusNode.hasFocus, true);
+  expect(editor.hasConnection, true);
 }
 
 void onErrorIgnoreOverflowErrors(

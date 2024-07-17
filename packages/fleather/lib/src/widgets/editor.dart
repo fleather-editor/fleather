@@ -1462,8 +1462,6 @@ class RawEditorState extends EditorState
   }
 
   void _didChangeTextEditingValue() {
-    requestKeyboard();
-
     _showCaretOnScreen();
     updateRemoteValueIfNeeded();
     _cursorController.startOrStopCursorTimerIfNeeded(

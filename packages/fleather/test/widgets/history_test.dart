@@ -65,7 +65,7 @@ void main() {
         ..retain(initialLength - 5)
         ..delete(5)
         ..insert('mmmmm,', {'i': true}));
-      await editor.pump();
+      await editor.pumpAndTap();
       final inputClient = getInputClient();
       inputClient.openConnectionIfNeeded();
       inputClient.updateEditingValueWithDeltas([
@@ -106,7 +106,7 @@ void main() {
         ..retain(initialLength - 5)
         ..delete(5)
         ..insert('mmmmm'));
-      await editor.pump();
+      await editor.pumpAndTap();
       editor.controller
           .formatText(initialLength - 5, 5, ParchmentAttribute.italic.unset);
       // Throttle time of 500ms in history
@@ -131,44 +131,39 @@ void main() {
 
     testWidgets('update widget', (tester) async {
       Future<void> showKeyboard() async {
-        return TestAsyncUtils.guard<void>(() async {
-          final editor = tester.state<RawEditorState>(find.byType(RawEditor));
-          editor.requestKeyboard();
-          await tester.pumpAndSettle();
-        });
+        final editor = tester.state<RawEditorState>(find.byType(RawEditor));
+        editor.requestKeyboard();
+        await tester.pumpAndSettle();
       }
 
       Future<void> enterText(TextEditingValue text) async {
-        return TestAsyncUtils.guard<void>(() async {
-          await showKeyboard();
-          final inputClient = getInputClient();
-          inputClient.updateEditingValueWithDeltas([
-            TextEditingDeltaInsertion(
-              oldText: inputClient.textEditingValue.text,
-              textInserted: text.text,
-              insertionOffset: 0,
-              selection: text.selection,
-              composing: text.composing,
-            )
-          ]);
-          tester.binding.testTextInput.updateEditingValue(text);
-          await tester.idle();
-          await tester.pumpAndSettle();
-        });
+        await showKeyboard();
+        final inputClient = getInputClient();
+        inputClient.updateEditingValueWithDeltas([
+          TextEditingDeltaInsertion(
+            oldText: inputClient.textEditingValue.text,
+            textInserted: text.text,
+            insertionOffset: 0,
+            selection: text.selection,
+            composing: text.composing,
+          )
+        ]);
+        tester.binding.testTextInput.updateEditingValue(text);
+        await tester.idle();
+        await tester.pumpAndSettle();
       }
 
       final documentDelta = Delta()..insert('Something in the way mmmmm\n');
       await tester.pumpWidget(
         MaterialApp(
-          home: TestUpdateWidget(
-            focusNodeAfterChange: FocusNode(),
-          ),
+          home: TestUpdateWidget(focusNodeAfterChange: FocusNode()),
         ),
       );
       await tester.pumpAndSettle();
 
       // update widget
       await tester.tap(find.byType(TextButton));
+      await tester.pump();
 
       await enterText(const TextEditingValue(
           text: 'Something in the way mmmmm',

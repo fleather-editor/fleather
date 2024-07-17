@@ -164,6 +164,15 @@ void main() {
       expect(text.children!.first.style!.color, Colors.red);
     });
 
+    testWidgets('changes to controller does not request keyboard',
+        (tester) async {
+      final editor = EditorSandBox(tester: tester);
+      await editor.pump();
+      await editor.updateSelection(base: 0, extent: 3);
+      await tester.pump();
+      expect(editor.focusNode.hasFocus, false);
+    });
+
     testWidgets('collapses selection when unfocused', (tester) async {
       final editor = EditorSandBox(tester: tester, autofocus: true);
       await editor.pumpAndTap();
@@ -598,7 +607,7 @@ void main() {
           {'insert': 'Test test\n'}
         ]);
         final editor = EditorSandBox(tester: tester, document: document);
-        await editor.pump();
+        await editor.pumpAndTap();
         await editor.updateSelection(base: 1, extent: 2);
         await tester.sendKeyDownEvent(LogicalKeyboardKey.shift);
         final gesture = await tester.startGesture(
