@@ -1,3 +1,11 @@
+## 1.17.0
+
+* Fleather manages the viewport
+* Add ability to provide custom clipboard status notifier
+* Fix editor requests keyboard and focus when checklist toggled
+
+Behavior for `scrollable` and `expand` changed. Check https://github.com/fleather-editor/fleather/pull/338#issuecomment-2212484545;
+
 ## 1.16.0
 
 * Inline Markdown shortcuts
