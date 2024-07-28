@@ -24,7 +24,8 @@ void main() {
         controller.updateSelection(
             TextSelection.collapsed(offset: document.length - 1));
         await tester.pump();
-        await tester.ime.typeText('Hello, World!', finder: find.byType(RawEditor));
+        await tester.ime
+            .typeText('Hello, World!', finder: find.byType(RawEditor));
       },
       reportKey: 'editing_timeline',
     );

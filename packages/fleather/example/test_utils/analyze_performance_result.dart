@@ -84,8 +84,7 @@ void main() {
       outputBuffer.write(targetValue.toStringAsFixed(2));
     }
     if (referenceValue != null) {
-      outputBuffer
-          .writeln(' Reference: ${referenceValue.toStringAsFixed(2)}');
+      outputBuffer.writeln(' Reference: ${referenceValue.toStringAsFixed(2)}');
     } else {
       outputBuffer.writeln();
     }
