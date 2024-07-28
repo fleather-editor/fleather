@@ -30,9 +30,8 @@ jobs:
         run: mv packages/fleather/example/build/performance_timelines packages/fleather/example/build/reference_performance_timelines
 
       - name: Run performance tests
-        working-directory: ./packages/parchment
+        working-directory: ./packages/fleather/example
         run: |
-          ls
           flutter drive --driver=test_driver/performance_driver.dart --target=integration_test/scrolling_test.dart --profile
           flutter drive --driver=test_driver/performance_driver.dart --target=integration_test/editing_test.dart --profile
           dart run test_utils/analyze_performance_result.dart
