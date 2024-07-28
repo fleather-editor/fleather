@@ -23,6 +23,11 @@ dependency_overrides:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_driver:
+    sdk: flutter
+  flutter_test_robots: ^0.0.24
 
 flutter:
   uses-material-design: true
