@@ -32,8 +32,8 @@ jobs:
       - name: Run performance tests
         working-directory: ./packages/fleather/example
         run: |
-          flutter drive -d linux-x64 --driver=test_driver/performance_driver.dart --target=integration_test/scrolling_test.dart --profile
-          flutter drive -d linux-x64 --driver=test_driver/performance_driver.dart --target=integration_test/editing_test.dart --profile
+          flutter drive -d linux --driver=test_driver/performance_driver.dart --target=integration_test/scrolling_test.dart --profile
+          flutter drive -d linux --driver=test_driver/performance_driver.dart --target=integration_test/editing_test.dart --profile
           dart run test_utils/analyze_performance_result.dart
 
       - name: Save reference summary
