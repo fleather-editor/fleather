@@ -32,6 +32,9 @@ jobs:
       - name: Run performance tests
         working-directory: ./packages/fleather/example
         run: |
+          sudo apt install clang
+          sudo apt install ninja-build
+          sudo apt install libgtk-3-dev
           flutter drive -d linux --driver=test_driver/performance_driver.dart --target=integration_test/scrolling_test.dart --profile
           flutter drive -d linux --driver=test_driver/performance_driver.dart --target=integration_test/editing_test.dart --profile
           dart run test_utils/analyze_performance_result.dart
