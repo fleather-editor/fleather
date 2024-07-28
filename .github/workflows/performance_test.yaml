@@ -20,10 +20,6 @@ jobs:
           # Manually Update this `key`
           cache-key: "20230512"
 
-      - uses: futureware-tech/simulator-action@v3
-        with:
-          model: 'iPhone 15'
-
       - name: Restore reference summary from cache
         id: performance_timelines_cache_restore
         uses: actions/cache/restore@v4
@@ -37,8 +33,8 @@ jobs:
       - name: Run performance tests
         working-directory: ./packages/fleather/example
         run: |
-          flutter drive -d iPhone 15 --driver=test_driver/performance_driver.dart --target=integration_test/scrolling_test.dart --profile
-          flutter drive -d iPhone 15 --driver=test_driver/performance_driver.dart --target=integration_test/editing_test.dart --profile
+          flutter drive -d macos --driver=test_driver/performance_driver.dart --target=integration_test/scrolling_test.dart --profile
+          flutter drive -d macos --driver=test_driver/performance_driver.dart --target=integration_test/editing_test.dart --profile
           dart run test_utils/analyze_performance_result.dart
 
       - name: Save reference summary
