@@ -18,26 +18,24 @@ jobs:
           cache: true
           # Manually Update this `key`
           cache-key: "20230512"
-      - run: |
-          cd packages/fleather/example
-          ls
 
       - name: Restore reference summary from cache
         id: performance_timelines_cache_restore
         uses: actions/cache/restore@v4
         with:
-          path: build/performance_timelines
+          path: packages/fleather/example/build/performance_timelines
           key: performance_timelines
 
       - if: steps.performance_timelines_cache_restore.outputs.cache-hit == 'true'
-        run: mv performance_timelines reference_performance_timelines
+        run: mv packages/fleather/example/build/performance_timelines packages/fleather/example/build/reference_performance_timelines
 
       - name: Run performance tests
+        working-directory: ./packages/parchment
         run: |
-            ls
-            flutter drive --driver=test_driver/performance_driver.dart --target=integration_test/scrolling_test.dart --profile
-            flutter drive --driver=test_driver/performance_driver.dart --target=integration_test/editing_test.dart --profile
-            dart run test_utils/analyze_performance_result.dart
+          ls
+          flutter drive --driver=test_driver/performance_driver.dart --target=integration_test/scrolling_test.dart --profile
+          flutter drive --driver=test_driver/performance_driver.dart --target=integration_test/editing_test.dart --profile
+          dart run test_utils/analyze_performance_result.dart
 
       - name: Save reference summary
         if: github.ref == 'refs/heads/master'
