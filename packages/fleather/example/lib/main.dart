@@ -35,6 +35,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final FocusNode _focusNode = FocusNode();
+  final GlobalKey<EditorState> _editorKey = GlobalKey();
   FleatherController? _controller;
 
   @override
@@ -105,12 +106,14 @@ class _HomePageState extends State<HomePage> {
           ? Center(child: const CircularProgressIndicator())
           : Column(
               children: [
-                FleatherToolbar.basic(controller: _controller!),
+                FleatherToolbar.basic(
+                    controller: _controller!, editorKey: _editorKey),
                 Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
                 Expanded(
                   child: FleatherEditor(
                     controller: _controller!,
                     focusNode: _focusNode,
+                    editorKey: _editorKey,
                     padding: EdgeInsets.only(
                       left: 16,
                       right: 16,

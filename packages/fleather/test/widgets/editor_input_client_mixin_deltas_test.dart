@@ -1,6 +1,7 @@
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/widgets/editor_input_client_mixin.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,6 +17,7 @@ class MockRawEditor extends Mock implements RawEditor {
 class MockEditorState extends Mock implements EditorState {
   @override
   RenderEditor renderEditor = RenderEditor(
+      offset: ViewportOffset.zero(),
       document: ParchmentDocument.fromJson([
         {'insert': 'Some text\n'}
       ]),
@@ -99,38 +101,44 @@ void main() {
       when(() => editorState.textEditingValue)
           .thenReturn(initialTextEditingValue);
       when(() => editorState.themeData).thenReturn(FleatherThemeData(
-          bold: const TextStyle(),
-          italic: const TextStyle(),
-          underline: const TextStyle(),
-          strikethrough: const TextStyle(),
-          inlineCode: InlineCodeThemeData(style: const TextStyle()),
-          link: const TextStyle(),
-          paragraph: TextBlockTheme(
-              style: const TextStyle(), spacing: const VerticalSpacing()),
-          heading1: TextBlockTheme(
-              style: const TextStyle(), spacing: const VerticalSpacing()),
-          heading2: TextBlockTheme(
-              style: const TextStyle(), spacing: const VerticalSpacing()),
-          heading3: TextBlockTheme(
-              style: const TextStyle(), spacing: const VerticalSpacing()),
-          heading4: TextBlockTheme(
-              style: const TextStyle(), spacing: const VerticalSpacing()),
-          heading5: TextBlockTheme(
-              style: const TextStyle(), spacing: const VerticalSpacing()),
-          heading6: TextBlockTheme(
-              style: const TextStyle(), spacing: const VerticalSpacing()),
-          lists: TextBlockTheme(
-              style: const TextStyle(), spacing: const VerticalSpacing()),
-          quote: TextBlockTheme(
-              style: const TextStyle(), spacing: const VerticalSpacing()),
-          code: TextBlockTheme(
-              style: const TextStyle(), spacing: const VerticalSpacing())));
+        bold: const TextStyle(),
+        italic: const TextStyle(),
+        underline: const TextStyle(),
+        strikethrough: const TextStyle(),
+        inlineCode: InlineCodeThemeData(style: const TextStyle()),
+        link: const TextStyle(),
+        paragraph: TextBlockTheme(
+            style: const TextStyle(), spacing: const VerticalSpacing()),
+        heading1: TextBlockTheme(
+            style: const TextStyle(), spacing: const VerticalSpacing()),
+        heading2: TextBlockTheme(
+            style: const TextStyle(), spacing: const VerticalSpacing()),
+        heading3: TextBlockTheme(
+            style: const TextStyle(), spacing: const VerticalSpacing()),
+        heading4: TextBlockTheme(
+            style: const TextStyle(), spacing: const VerticalSpacing()),
+        heading5: TextBlockTheme(
+            style: const TextStyle(), spacing: const VerticalSpacing()),
+        heading6: TextBlockTheme(
+            style: const TextStyle(), spacing: const VerticalSpacing()),
+        lists: TextBlockTheme(
+            style: const TextStyle(), spacing: const VerticalSpacing()),
+        quote: TextBlockTheme(
+            style: const TextStyle(), spacing: const VerticalSpacing()),
+        code: TextBlockTheme(
+            style: const TextStyle(), spacing: const VerticalSpacing()),
+        horizontalRule: HorizontalRuleThemeData(
+            height: 0, thickness: 0, color: Colors.transparent),
+      ));
       when(() => rawEditor.controller).thenReturn(controller);
       when(() => rawEditor.readOnly).thenReturn(false);
       when(() => rawEditor.autocorrect).thenReturn(true);
       when(() => rawEditor.keyboardAppearance).thenReturn(Brightness.light);
       when(() => rawEditor.textCapitalization)
           .thenReturn(TextCapitalization.none);
+      when(() => rawEditor.autofocus).thenReturn(true);
+      when(() => rawEditor.enableSuggestions).thenReturn(true);
+      when(() => rawEditor.enableInteractiveSelection).thenReturn(true);
       when(() => controller.replaceText(any(), any(), any(),
           selection: any(named: 'selection'))).thenReturn(null);
       editorState.openConnectionIfNeeded();

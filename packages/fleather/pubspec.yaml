@@ -1,6 +1,6 @@
 name: fleather
 description: Clean, minimalistic and collaboration-ready rich text editor for Flutter.
-version: 1.15.0+1
+version: 1.17.0
 homepage: https://fleather-editor.github.io
 repository: https://github.com/fleather-editor/fleather
 issue_tracker: https://github.com/fleather-editor/fleather/issues

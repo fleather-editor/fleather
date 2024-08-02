@@ -299,28 +299,50 @@ void main() {
     });
   });
 
-  group('send editor options to TextInputConnection', () {
-    testWidgets('send autocorrect option', (tester) async {
-      Map<String, dynamic>? textInputClientProperties;
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-          SystemChannels.textInput, (MethodCall methodCall) async {
-        if (methodCall.method == 'TextInput.setClient') {
-          textInputClientProperties = methodCall.arguments[1];
-        }
-        return null;
-      });
+  testWidgets('send editor options to TextInputConnection', (tester) async {
+    Map<String, dynamic>? textInputSetClientProperties;
+    Map<String, dynamic>? textInputUpdateConfigProperties;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.textInput, (MethodCall methodCall) async {
+      if (methodCall.method == 'TextInput.setClient') {
+        textInputSetClientProperties = methodCall.arguments[1];
+      } else if (methodCall.method == 'TextInput.updateConfig') {
+        textInputUpdateConfigProperties = methodCall.arguments;
+      }
+      return null;
+    });
 
-      final editor =
-          EditorSandBox(tester: tester, document: ParchmentDocument());
-      await editor.pump();
-      await editor.tap();
+    final controller = FleatherController();
+    Future<void> pumpEditor(bool enable) async {
+      final editor = MaterialApp(
+          home: FleatherField(
+        controller: controller,
+        enableSuggestions: enable,
+        autocorrect: enable,
+      ));
+      await tester.pumpWidget(editor);
+      await tester.tapAt(tester.getCenter(find.byType(RawEditor)));
       tester.binding.scheduleWarmUpFrame();
       await tester.pumpAndSettle();
+    }
 
-      expect(
-        textInputClientProperties?['autocorrect'],
-        true,
-      );
-    });
+    await pumpEditor(true);
+    expect(textInputSetClientProperties?['autocorrect'], true);
+    expect(textInputSetClientProperties?['enableSuggestions'], true);
+    expect(textInputUpdateConfigProperties, isNull);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
+
+    await pumpEditor(false);
+    expect(textInputSetClientProperties?['autocorrect'], false);
+    expect(textInputSetClientProperties?['enableSuggestions'], false);
+    expect(textInputUpdateConfigProperties, isNull);
+
+    textInputSetClientProperties = null;
+    await pumpEditor(true);
+    expect(textInputUpdateConfigProperties?['autocorrect'], true);
+    expect(textInputUpdateConfigProperties?['enableSuggestions'], true);
+    expect(textInputSetClientProperties, isNull);
   });
 }

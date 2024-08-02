@@ -220,17 +220,20 @@ class TestUpdateWidgetState extends State<TestUpdateWidget> {
             child: const Text('Change state'),
           ),
           if (widget.toolbarBuilder != null) widget.toolbarBuilder!(context),
-          widget.testField
-              ? FleatherField(
-                  controller: widget.controller ??
-                      FleatherController(document: widget.document),
-                  focusNode: focusNode,
-                )
-              : FleatherEditor(
-                  controller: widget.controller ??
-                      FleatherController(document: widget.document),
-                  focusNode: focusNode,
-                ),
+          Expanded(
+            child: widget.testField
+                ? FleatherField(
+                    controller: widget.controller ??
+                        FleatherController(document: widget.document),
+                    focusNode: focusNode,
+                  )
+                : FleatherEditor(
+                    controller: widget.controller ??
+                        FleatherController(document: widget.document),
+                    focusNode: focusNode,
+                    scrollable: true,
+                  ),
+          ),
         ],
       );
 }

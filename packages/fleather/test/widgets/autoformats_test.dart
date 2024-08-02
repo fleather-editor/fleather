@@ -132,6 +132,58 @@ void main() {
           ParchmentAttribute.block.code.value);
     });
 
+    test('Detects italic shortcut', () {
+      final document = ParchmentDocument.fromJson([
+        {'insert': 'Some long text\n**Test*that continues\n'}
+      ]);
+      final performed = autoformats.run(document, 22, ' ');
+      expect(performed, isTrue);
+      expect(autoformats.selection, const TextSelection.collapsed(offset: 21));
+      final attributes = document.toDelta().toList()[1].attributes;
+      expect(attributes![ParchmentAttribute.italic.key], isTrue);
+    });
+
+    test('Detects bold shortcut', () {
+      final document = ParchmentDocument.fromJson([
+        {'insert': 'Some long text\n**Test**that continues\n'}
+      ]);
+      final performed = autoformats.run(document, 23, ' ');
+      expect(performed, isTrue);
+      expect(autoformats.selection, const TextSelection.collapsed(offset: 20));
+      final attributes = document.toDelta().toList()[1].attributes;
+      expect(attributes![ParchmentAttribute.bold.key], isTrue);
+    });
+
+    test('Detects inline code shortcut', () {
+      const text = 'Some long text\n`Test`that continues\n';
+      final document = ParchmentDocument.fromJson([
+        {'insert': text}
+      ]);
+      final performed = autoformats.run(document, 21, ' ');
+      expect(performed, isTrue);
+      expect(autoformats.selection, const TextSelection.collapsed(offset: 20));
+      final attributes = document.toDelta().toList()[1].attributes;
+      expect(attributes![ParchmentAttribute.inlineCode.key], isTrue);
+      final undoSelection = autoformats.undoActive(document);
+      expect(undoSelection, const TextSelection.collapsed(offset: 22));
+      expect(document.toDelta().first.data, text);
+    });
+
+    test('Detects strikethrough shortcut', () {
+      const text = 'Some long text\n~~Test~~that continues\n';
+      final document = ParchmentDocument.fromJson([
+        {'insert': text}
+      ]);
+      final performed = autoformats.run(document, 23, '\n');
+      expect(performed, isTrue);
+      expect(autoformats.selection, const TextSelection.collapsed(offset: 20));
+      final attributes = document.toDelta().toList()[1].attributes;
+      expect(attributes![ParchmentAttribute.strikethrough.key], isTrue);
+      final undoSelection = autoformats.undoActive(document);
+      expect(undoSelection, const TextSelection.collapsed(offset: 24));
+      expect(document.toDelta().first.data, text);
+    });
+
     test('No trigger of detection if inserting other than space', () {
       final document = ParchmentDocument.fromJson([
         {'insert': 'Some long text\n* \nthat continues\n'}

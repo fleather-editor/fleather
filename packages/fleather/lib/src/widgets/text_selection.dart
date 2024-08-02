@@ -272,7 +272,11 @@ class EditorTextSelectionOverlay {
           ? selectionDelegate.textEditingValue.selection.base
           : selectionDelegate.textEditingValue.selection.extent)
       // Update selection toolbar metrics.
-      ..selectionEndpoints = renderObject.getEndpointsForSelection(_selection)
+      ..selectionEndpoints = renderObject
+          .getEndpointsForSelection(_selection)
+          .map((e) => TextSelectionPoint(
+              e.point + renderObject.paintOffset, e.direction))
+          .toList()
       ..toolbarLocation = renderObject.lastSecondaryTapDownPosition;
   }
 
@@ -1103,8 +1107,7 @@ class SelectionOverlay {
       contextMenuBuilder: (BuildContext context) {
         return _SelectionToolbarWrapper(
           layerLink: toolbarLayerLink,
-          offset: -renderBox.localToGlobal(Offset.zero) +
-              Offset(0, renderEditor.offset?.pixels ?? 0.0),
+          offset: -renderBox.localToGlobal(Offset.zero),
           child: contextMenuBuilder(context),
         );
       },
@@ -1127,8 +1130,7 @@ class SelectionOverlay {
       contextMenuBuilder: (BuildContext context) {
         return _SelectionToolbarWrapper(
           layerLink: toolbarLayerLink,
-          offset: -renderBox.localToGlobal(Offset.zero) +
-              Offset(0, renderEditor.offset?.pixels ?? 0.0),
+          offset: -renderBox.localToGlobal(Offset.zero),
           child: builder(context),
         );
       },
@@ -2062,7 +2064,7 @@ class EditorTextSelectionGestureDetectorBuilder {
 
       _showMagnifierIfSupportedByPlatform(details.globalPosition);
 
-      _dragStartViewportOffset = renderEditor.offset?.pixels ?? 0;
+      _dragStartViewportOffset = renderEditor.paintOffset.dy;
       _dragStartScrollOffset = _scrollPosition;
     }
   }
@@ -2080,8 +2082,8 @@ class EditorTextSelectionGestureDetectorBuilder {
   void onSingleLongTapMoveUpdate(LongPressMoveUpdateDetails details) {
     if (delegate.selectionEnabled) {
       // Adjust the drag start offset for possible viewport offset changes.
-      final Offset editableOffset = Offset(
-          0.0, (renderEditor.offset?.pixels ?? 0) - _dragStartViewportOffset);
+      final Offset editableOffset =
+          Offset(0.0, renderEditor.paintOffset.dy - _dragStartViewportOffset);
       final Offset scrollableOffset = Offset(
         0.0,
         _scrollPosition - _dragStartScrollOffset,
@@ -2334,7 +2336,7 @@ class EditorTextSelectionGestureDetectorBuilder {
 
     _dragStartSelection = renderEditor.selection;
     _dragStartScrollOffset = _scrollPosition;
-    _dragStartViewportOffset = renderEditor.offset?.pixels ?? 0;
+    _dragStartViewportOffset = renderEditor.paintOffset.dy;
     _dragBeganOnPreviousSelection =
         _positionOnSelection(details.globalPosition, _dragStartSelection);
 
@@ -2432,8 +2434,8 @@ class EditorTextSelectionGestureDetectorBuilder {
 
     if (!_isShiftPressed) {
       // Adjust the drag start offset for possible viewport offset changes.
-      final Offset editableOffset = Offset(
-          0.0, (renderEditor.offset?.pixels ?? 0) - _dragStartViewportOffset);
+      final Offset editableOffset =
+          Offset(0.0, _dragStartViewportOffset - renderEditor.paintOffset.dy);
       final Offset scrollableOffset = Offset(
         0.0,
         _scrollPosition - _dragStartScrollOffset,

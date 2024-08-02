@@ -32,7 +32,8 @@ class AutoFormats {
   factory AutoFormats.fallback() {
     return AutoFormats(autoFormats: [
       const _AutoFormatLinks(),
-      const _MarkdownShortCuts(),
+      const _MarkdownInlineShortcuts(),
+      const _MarkdownLineShortcuts(),
       const _AutoTextDirection(),
     ]);
   }
@@ -165,8 +166,64 @@ class _AutoFormatLinks extends AutoFormat {
   }
 }
 
+// Replaces certain Markdown shortcuts with actual inline styles.
+class _MarkdownInlineShortcuts extends AutoFormat {
+  static final rules = <String, ParchmentAttribute>{
+    '**': ParchmentAttribute.bold,
+    '*': ParchmentAttribute.italic,
+    '`': ParchmentAttribute.inlineCode,
+    '~~': ParchmentAttribute.strikethrough,
+  };
+
+  const _MarkdownInlineShortcuts();
+
+  @override
+  AutoFormatResult? apply(
+      ParchmentDocument document, int position, String data) {
+    if (data != ' ' && data != '\n') return null;
+
+    final documentDelta = document.toDelta();
+    final iter = DeltaIterator(documentDelta);
+    final previous = iter.skip(position);
+    // No previous operation means nothing to analyze.
+    if (previous == null || previous.data is! String) return null;
+    final previousText = previous.data as String;
+    if (previousText.isEmpty) return null;
+
+    final candidate = previousText.split('\n').last;
+
+    for (final String rule in rules.keys) {
+      if (candidate.endsWith(rule)) {
+        final lastOffset = candidate.lastIndexOf(rule);
+        final startOffset =
+            candidate.substring(0, lastOffset).lastIndexOf(rule);
+        final contentLength = lastOffset - startOffset - rule.length;
+        if (startOffset != -1 && contentLength > 0) {
+          final change = Delta()
+            ..retain(position - candidate.length + startOffset)
+            ..delete(rule.length)
+            ..retain(contentLength, {...rules[rule]!.toJson()})
+            ..delete(rule.length);
+          final undo = change.invert(documentDelta);
+          document.compose(change, ChangeSource.local);
+          return AutoFormatResult(
+            change: change,
+            undo: undo,
+            undoPositionCandidate: position - (rule.length * 2),
+            selection: TextSelection.collapsed(
+                offset: position - (rule.length * 2) + 1),
+            undoSelection: TextSelection.collapsed(offset: position + 1),
+          );
+        }
+      }
+    }
+
+    return null;
+  }
+}
+
 // Replaces certain Markdown shortcuts with actual line or block styles.
-class _MarkdownShortCuts extends AutoFormat {
+class _MarkdownLineShortcuts extends AutoFormat {
   static final rules = <String, ParchmentAttribute>{
     '-': ParchmentAttribute.block.bulletList,
     '*': ParchmentAttribute.block.bulletList,
@@ -180,7 +237,7 @@ class _MarkdownShortCuts extends AutoFormat {
     '###': ParchmentAttribute.h3,
   };
 
-  const _MarkdownShortCuts();
+  const _MarkdownLineShortcuts();
 
   String? _getLinePrefix(DeltaIterator iter, int index) {
     final prefixOps = skipToLineAt(iter, index);

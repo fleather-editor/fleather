@@ -48,6 +48,8 @@ void main() {
             style: TextStyle(
                 color: Colors.blue.shade900.withOpacity(0.9), fontSize: 13.0),
             spacing: const VerticalSpacing(top: 6.0, bottom: 10.0)),
+        horizontalRule:
+            HorizontalRuleThemeData(height: 2, thickness: 2, color: Colors.red),
       );
 
       final theme2 = FleatherThemeData(
@@ -92,6 +94,8 @@ void main() {
             style: TextStyle(
                 color: Colors.blue.shade800.withOpacity(0.9), fontSize: 12.0),
             spacing: const VerticalSpacing(top: 4.0, bottom: 8.0)),
+        horizontalRule: HorizontalRuleThemeData(
+            height: 4, thickness: 4, color: Colors.green),
       );
 
       // Merge the two instances
