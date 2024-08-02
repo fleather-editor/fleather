@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fleather/src/widgets/editor.dart';
+import 'package:fleather/src/widgets/fleather_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
@@ -176,7 +177,9 @@ class _LinkStyleButtonState extends State<LinkStyleButton> {
     showDialog<String>(
       context: context,
       builder: (ctx) {
-        return const _LinkDialog();
+        return _LinkDialog(
+          localizations: FleatherLocalizations.of(context),
+        );
       },
     ).then(_linkSubmitted);
   }
@@ -190,7 +193,9 @@ class _LinkStyleButtonState extends State<LinkStyleButton> {
 }
 
 class _LinkDialog extends StatefulWidget {
-  const _LinkDialog();
+  const _LinkDialog({required this.localizations});
+
+  final FleatherLocalizationsData localizations;
 
   @override
   _LinkDialogState createState() => _LinkDialogState();
@@ -203,14 +208,16 @@ class _LinkDialogState extends State<_LinkDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       content: TextField(
-        decoration: const InputDecoration(labelText: 'Paste a link'),
+        decoration: InputDecoration(
+          labelText: widget.localizations.linkDialogPasteALink,
+        ),
         autofocus: true,
         onChanged: _linkChanged,
       ),
       actions: [
         TextButton(
           onPressed: _link.isNotEmpty ? _applyLink : null,
-          child: const Text('Apply'),
+          child: Text(widget.localizations.linkDialogApply),
         ),
       ],
     );
@@ -568,16 +575,6 @@ class SelectHeadingButton extends StatefulWidget {
   State<SelectHeadingButton> createState() => _SelectHeadingButtonState();
 }
 
-final _headingToText = {
-  ParchmentAttribute.heading.unset: 'Normal',
-  ParchmentAttribute.heading.level1: 'Heading 1',
-  ParchmentAttribute.heading.level2: 'Heading 2',
-  ParchmentAttribute.heading.level3: 'Heading 3',
-  ParchmentAttribute.heading.level4: 'Heading 4',
-  ParchmentAttribute.heading.level5: 'Heading 5',
-  ParchmentAttribute.heading.level6: 'Heading 6',
-};
-
 class _SelectHeadingButtonState extends State<SelectHeadingButton> {
   static double buttonHeight = 32;
 
@@ -619,6 +616,10 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
 
   @override
   Widget build(BuildContext context) {
+    final currentHeading = FleatherLocalizations.of(context)
+        .headingsLocalizations
+        .headingsToText[current];
+
     return ConstrainedBox(
       constraints: BoxConstraints.tightFor(height: buttonHeight),
       child: RawMaterialButton(
@@ -636,7 +637,7 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
             toolbar.requestKeyboard();
           }
         },
-        child: Text(_headingToText[current] ?? ''),
+        child: Text(currentHeading ?? ''),
       ),
     );
   }
@@ -666,13 +667,18 @@ class _HeadingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final headings = FleatherLocalizations.of(context)
+        .headingsLocalizations
+        .headingsToText
+        .entries;
+
     return SingleChildScrollView(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 200),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: _headingToText.entries
+          children: headings
               .map((entry) => _listItem(theme, entry.key, entry.value))
               .toList(),
         ),
