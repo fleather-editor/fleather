@@ -1,10 +1,6 @@
 name: Performance Test
 
-on: 
-  push:
-    branches:
-      - 'master'
-  pull_request:
+on: [push, workflow_dispatch]
 
 jobs:
   test:
@@ -18,7 +14,7 @@ jobs:
           flutter-version: "3.22.0"
           cache: true
           # Manually Update this `key`
-          cache-key: "20230512"
+          cache-key: "3.22.0-stable"
 
       - name: Restore reference summary from cache
         id: performance_timelines_cache_restore
