@@ -18,3 +18,5 @@ doc/api/
 build/
 
 example/feather
+
+lib/l10n/untranslated.txt

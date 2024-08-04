@@ -1,0 +1,39 @@
+{
+  "@@locale": "en",
+  "linkDialogPasteLink": "Paste a link",
+  "@linkDialogPasteLink": {
+    "description": "Label for the input decoration of the link text field in the link dialog"
+  },
+  "linkDialogApply": "Apply",
+  "@linkDialogApply": {
+    "description": "Label for the confirmation button in the link dialog"
+  },
+  "headingNormal": "Normal",
+  "@headingNormal": {
+    "description": "A normal heading text style"
+  },
+  "headingLevel1": "Heading 1",
+  "@headingLevel1": {
+    "description": "A level 1 heading text style"
+  },
+  "headingLevel2": "Heading 2",
+  "@headingLevel2": {
+    "description": "A level 2 heading text style"
+  },
+  "headingLevel3": "Heading 3",
+  "@headingLevel3": {
+    "description": "A level 3 heading text style"
+  },
+  "headingLevel4": "Heading 4",
+  "@headingLevel4": {
+    "description": "A level 4 heading text style"
+  },
+  "headingLevel5": "Heading 5",
+  "@headingLevel5": {
+    "description": "A level 5 heading text style"
+  },
+  "headingLevel6": "Heading 6",
+  "@headingLevel6": {
+    "description": "A level 6 heading text style"
+  }
+}
