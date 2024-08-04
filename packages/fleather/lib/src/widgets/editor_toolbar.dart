@@ -37,7 +37,8 @@ class InsertEmbedButton extends StatelessWidget {
           baseOffset: index + 2,
           extentOffset: index + 2,
         );
-        controller.replaceText(index, length, BlockEmbed.horizontalRule, selection: newSelection);
+        controller.replaceText(index, length, BlockEmbed.horizontalRule,
+            selection: newSelection);
         FleatherToolbar._of(context).requestKeyboard();
       },
     );
@@ -81,7 +82,8 @@ class UndoRedoButton extends StatelessWidget {
     return AnimatedBuilder(
         animation: controller,
         builder: (context, child) {
-          final icon = _variant == _UndoRedoButtonVariant.undo ? Icons.undo : Icons.redo;
+          final icon =
+              _variant == _UndoRedoButtonVariant.undo ? Icons.undo : Icons.redo;
           final isEnabled = _isEnabled();
           final theme = Theme.of(context);
 
@@ -177,7 +179,8 @@ class _LinkStyleButtonState extends State<LinkStyleButton> {
 
   void _linkSubmitted(String? value) {
     if (value == null || value.isEmpty) return;
-    widget.controller.formatSelection(ParchmentAttribute.link.fromString(value));
+    widget.controller
+        .formatSelection(ParchmentAttribute.link.fromString(value));
     FleatherToolbar._of(context).requestKeyboard();
   }
 }
@@ -198,7 +201,8 @@ class _LinkDialogState extends State<_LinkDialog> {
 
     return AlertDialog(
       content: TextField(
-        decoration: InputDecoration(labelText: localizations.linkDialogPasteLink),
+        decoration:
+            InputDecoration(labelText: localizations.linkDialogPasteLink),
         autofocus: true,
         onChanged: _linkChanged,
       ),
@@ -297,9 +301,12 @@ class _ToggleStyleButtonState extends State<ToggleStyleButton> {
     // toggle style buttons (except the code block button itself) since there
     // is no point in applying styles to a unformatted block of text.
     // TODO: Add code block checks to heading and embed buttons as well.
-    final isInCodeBlock = _selectionStyle.containsSame(ParchmentAttribute.block.code);
-    final isEnabled = !isInCodeBlock || widget.attribute == ParchmentAttribute.block.code;
-    return widget.childBuilder(context, widget.attribute, widget.icon, _isToggled, isEnabled ? _toggleAttribute : null);
+    final isInCodeBlock =
+        _selectionStyle.containsSame(ParchmentAttribute.block.code);
+    final isEnabled =
+        !isInCodeBlock || widget.attribute == ParchmentAttribute.block.code;
+    return widget.childBuilder(context, widget.attribute, widget.icon,
+        _isToggled, isEnabled ? _toggleAttribute : null);
   }
 
   void _toggleAttribute() {
@@ -389,11 +396,13 @@ class _ColorButtonState extends State<ColorButton> {
   void _didChangeEditingValue() {
     setState(() {
       final selectionColor = _selectionStyle.get(widget.attributeKey);
-      _value = selectionColor?.value != null ? Color(selectionColor!.value!) : null;
+      _value =
+          selectionColor?.value != null ? Color(selectionColor!.value!) : null;
     });
   }
 
-  Future<Color?> _defaultPickColor(BuildContext context, String nullColorLabel) async {
+  Future<Color?> _defaultPickColor(
+      BuildContext context, String nullColorLabel) async {
     final isMobile = switch (defaultTargetPlatform) {
       TargetPlatform.android || TargetPlatform.iOS => true,
       _ => false,
@@ -409,7 +418,8 @@ class _ColorButtonState extends State<ColorButton> {
       child: Container(
           constraints: BoxConstraints(maxWidth: maxWidth),
           padding: const EdgeInsets.all(8.0),
-          child: _ColorPalette(nullColorLabel, onSelectedColor: completer.complete)),
+          child: _ColorPalette(nullColorLabel,
+              onSelectedColor: completer.complete)),
     );
 
     return SelectorScope.showSelector(context, selector, completer);
@@ -419,7 +429,8 @@ class _ColorButtonState extends State<ColorButton> {
   void initState() {
     super.initState();
     final selectionColor = _selectionStyle.get(widget.attributeKey);
-    _value = selectionColor?.value != null ? Color(selectionColor!.value!) : null;
+    _value =
+        selectionColor?.value != null ? Color(selectionColor!.value!) : null;
     widget.controller.addListener(_didChangeEditingValue);
   }
 
@@ -430,7 +441,8 @@ class _ColorButtonState extends State<ColorButton> {
       oldWidget.controller.removeListener(_didChangeEditingValue);
       widget.controller.addListener(_didChangeEditingValue);
       final selectionColor = _selectionStyle.get(widget.attributeKey);
-      _value = selectionColor?.value != null ? Color(selectionColor!.value!) : null;
+      _value =
+          selectionColor?.value != null ? Color(selectionColor!.value!) : null;
     }
   }
 
@@ -443,7 +455,8 @@ class _ColorButtonState extends State<ColorButton> {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints.tightFor(width: buttonSize, height: buttonSize),
+      constraints:
+          BoxConstraints.tightFor(width: buttonSize, height: buttonSize),
       child: RawMaterialButton(
         visualDensity: VisualDensity.compact,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
@@ -454,9 +467,11 @@ class _ColorButtonState extends State<ColorButton> {
         hoverElevation: 0,
         onPressed: () async {
           final toolbar = FleatherToolbar._of(context);
-          final selectedColor = await (widget.pickColor ?? _defaultPickColor)(context, widget.nullColorLabel);
-          final attribute =
-              selectedColor != null ? widget.attributeKey.withColor(selectedColor.value) : widget.attributeKey.unset;
+          final selectedColor = await (widget.pickColor ?? _defaultPickColor)(
+              context, widget.nullColorLabel);
+          final attribute = selectedColor != null
+              ? widget.attributeKey.withColor(selectedColor.value)
+              : widget.attributeKey.unset;
           widget.controller.formatSelection(attribute);
           toolbar.requestKeyboard();
         },
@@ -499,13 +514,16 @@ class _ColorPalette extends StatelessWidget {
       alignment: WrapAlignment.start,
       runSpacing: 4,
       spacing: 4,
-      children: [...colors].map((e) => _ColorPaletteElement(e, nullColorLabel, onSelectedColor)).toList(),
+      children: [...colors]
+          .map((e) => _ColorPaletteElement(e, nullColorLabel, onSelectedColor))
+          .toList(),
     );
   }
 }
 
 class _ColorPaletteElement extends StatelessWidget {
-  const _ColorPaletteElement(this.color, this.nullColorLabel, this.onSelectedColor);
+  const _ColorPaletteElement(
+      this.color, this.nullColorLabel, this.onSelectedColor);
 
   final Color? color;
   final String nullColorLabel;
@@ -572,14 +590,16 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
 
   void _didChangeEditingValue() {
     setState(() {
-      current = selectionStyle.get(ParchmentAttribute.heading) ?? ParchmentAttribute.heading.unset;
+      current = selectionStyle.get(ParchmentAttribute.heading) ??
+          ParchmentAttribute.heading.unset;
     });
   }
 
   @override
   void initState() {
     super.initState();
-    current = selectionStyle.get(ParchmentAttribute.heading) ?? ParchmentAttribute.heading.unset;
+    current = selectionStyle.get(ParchmentAttribute.heading) ??
+        ParchmentAttribute.heading.unset;
     widget.controller.addListener(_didChangeEditingValue);
   }
 
@@ -589,7 +609,8 @@ class _SelectHeadingButtonState extends State<SelectHeadingButton> {
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_didChangeEditingValue);
       widget.controller.addListener(_didChangeEditingValue);
-      current = selectionStyle.get(ParchmentAttribute.heading) ?? ParchmentAttribute.heading.unset;
+      current = selectionStyle.get(ParchmentAttribute.heading) ??
+          ParchmentAttribute.heading.unset;
     }
   }
 
@@ -654,13 +675,17 @@ class _HeadingList extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: _headingToText(context).entries.map((entry) => _listItem(theme, entry.key, entry.value)).toList(),
+          children: _headingToText(context)
+              .entries
+              .map((entry) => _listItem(theme, entry.key, entry.value))
+              .toList(),
         ),
       ),
     );
   }
 
-  Widget _listItem(FleatherThemeData? theme, ParchmentAttribute<int> value, String text) {
+  Widget _listItem(
+      FleatherThemeData? theme, ParchmentAttribute<int> value, String text) {
     final valueToStyle = {
       ParchmentAttribute.heading.unset: theme?.paragraph.style,
       ParchmentAttribute.heading.level1: theme?.heading1.style,
@@ -670,12 +695,20 @@ class _HeadingList extends StatelessWidget {
       ParchmentAttribute.heading.level5: theme?.heading5.style,
       ParchmentAttribute.heading.level6: theme?.heading6.style,
     };
-    return _HeadingListEntry(value: value, text: text, style: valueToStyle[value], onSelected: onSelected);
+    return _HeadingListEntry(
+        value: value,
+        text: text,
+        style: valueToStyle[value],
+        onSelected: onSelected);
   }
 }
 
 class _HeadingListEntry extends StatelessWidget {
-  const _HeadingListEntry({required this.value, required this.text, required this.style, required this.onSelected});
+  const _HeadingListEntry(
+      {required this.value,
+      required this.text,
+      required this.style,
+      required this.onSelected});
 
   final ParchmentAttribute<int> value;
   final String text;
@@ -706,7 +739,8 @@ class IndentationButton extends StatefulWidget {
   final bool increase;
   final FleatherController controller;
 
-  const IndentationButton({super.key, this.increase = true, required this.controller});
+  const IndentationButton(
+      {super.key, this.increase = true, required this.controller});
 
   @override
   State<IndentationButton> createState() => _IndentationButtonState();
@@ -742,27 +776,34 @@ class _IndentationButtonState extends State<IndentationButton> {
 
   @override
   Widget build(BuildContext context) {
-    final isEnabled = !_selectionStyle.containsSame(ParchmentAttribute.block.code);
+    final isEnabled =
+        !_selectionStyle.containsSame(ParchmentAttribute.block.code);
     final theme = Theme.of(context);
     final iconColor = isEnabled ? theme.iconTheme.color : theme.disabledColor;
     return FLIconButton(
       highlightElevation: 0,
       hoverElevation: 0,
       size: 32,
-      icon: Icon(widget.increase ? Icons.format_indent_increase : Icons.format_indent_decrease,
-          size: 18, color: iconColor),
+      icon: Icon(
+          widget.increase
+              ? Icons.format_indent_increase
+              : Icons.format_indent_decrease,
+          size: 18,
+          color: iconColor),
       fillColor: theme.canvasColor,
       onPressed: isEnabled
           ? () {
-              final indentLevel = _selectionStyle.get(ParchmentAttribute.indent)?.value ?? 0;
+              final indentLevel =
+                  _selectionStyle.get(ParchmentAttribute.indent)?.value ?? 0;
               if (indentLevel == 0 && !widget.increase) {
                 return;
               }
               if (indentLevel == 1 && !widget.increase) {
-                widget.controller.formatSelection(ParchmentAttribute.indent.unset);
-              } else {
                 widget.controller
-                    .formatSelection(ParchmentAttribute.indent.withLevel(indentLevel + (widget.increase ? 1 : -1)));
+                    .formatSelection(ParchmentAttribute.indent.unset);
+              } else {
+                widget.controller.formatSelection(ParchmentAttribute.indent
+                    .withLevel(indentLevel + (widget.increase ? 1 : -1)));
               }
               FleatherToolbar._of(context).requestKeyboard();
             }
@@ -778,7 +819,8 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
   /// If provided, toolbar requests focus and keyboard on toolbar buttons press.
   final GlobalKey<EditorState>? editorKey;
 
-  const FleatherToolbar({super.key, this.editorKey, this.padding, required this.children});
+  const FleatherToolbar(
+      {super.key, this.editorKey, this.padding, required this.children});
 
   factory FleatherToolbar.basic({
     Key? key,
@@ -824,7 +866,8 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
           ],
         );
     Widget textColorBuilder(context, value) {
-      Color effectiveColor = value ?? DefaultTextStyle.of(context).style.color ?? Colors.black;
+      Color effectiveColor =
+          value ?? DefaultTextStyle.of(context).style.color ?? Colors.black;
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
@@ -842,236 +885,265 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
       );
     }
 
-    return FleatherToolbar(key: key, editorKey: editorKey, padding: padding, children: [
-      ...leading,
-      Visibility(
-        visible: !hideBoldButton,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.bold,
-          icon: Icons.format_bold,
-          controller: controller,
-        ),
-      ),
-      const SizedBox(width: 1),
-      Visibility(
-        visible: !hideItalicButton,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.italic,
-          icon: Icons.format_italic,
-          controller: controller,
-        ),
-      ),
-      const SizedBox(width: 1),
-      Visibility(
-        visible: !hideUnderLineButton,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.underline,
-          icon: Icons.format_underline,
-          controller: controller,
-        ),
-      ),
-      const SizedBox(width: 1),
-      Visibility(
-        visible: !hideStrikeThrough,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.strikethrough,
-          icon: Icons.format_strikethrough,
-          controller: controller,
-        ),
-      ),
-      const SizedBox(width: 1),
-      Visibility(
-        visible: !hideForegroundColor,
-        child: ColorButton(
-          controller: controller,
-          attributeKey: ParchmentAttribute.foregroundColor,
-          nullColorLabel: 'Automatic',
-          builder: textColorBuilder,
-        ),
-      ),
-      Visibility(
-        visible: !hideBackgroundColor,
-        child: ColorButton(
-          controller: controller,
-          attributeKey: ParchmentAttribute.backgroundColor,
-          nullColorLabel: 'No color',
-          builder: backgroundColorBuilder,
-        ),
-      ),
-      const SizedBox(width: 1),
-      Visibility(
-        visible: !hideInlineCode,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.inlineCode,
-          icon: Icons.code,
-          controller: controller,
-        ),
-      ),
-      Visibility(
-          visible:
-              !hideBoldButton && !hideItalicButton && !hideUnderLineButton && !hideStrikeThrough && !hideInlineCode,
-          child: VerticalDivider(indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+    return FleatherToolbar(
+        key: key,
+        editorKey: editorKey,
+        padding: padding,
+        children: [
+          ...leading,
+          Visibility(
+            visible: !hideBoldButton,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.bold,
+              icon: Icons.format_bold,
+              controller: controller,
+            ),
+          ),
+          const SizedBox(width: 1),
+          Visibility(
+            visible: !hideItalicButton,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.italic,
+              icon: Icons.format_italic,
+              controller: controller,
+            ),
+          ),
+          const SizedBox(width: 1),
+          Visibility(
+            visible: !hideUnderLineButton,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.underline,
+              icon: Icons.format_underline,
+              controller: controller,
+            ),
+          ),
+          const SizedBox(width: 1),
+          Visibility(
+            visible: !hideStrikeThrough,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.strikethrough,
+              icon: Icons.format_strikethrough,
+              controller: controller,
+            ),
+          ),
+          const SizedBox(width: 1),
+          Visibility(
+            visible: !hideForegroundColor,
+            child: ColorButton(
+              controller: controller,
+              attributeKey: ParchmentAttribute.foregroundColor,
+              nullColorLabel: 'Automatic',
+              builder: textColorBuilder,
+            ),
+          ),
+          Visibility(
+            visible: !hideBackgroundColor,
+            child: ColorButton(
+              controller: controller,
+              attributeKey: ParchmentAttribute.backgroundColor,
+              nullColorLabel: 'No color',
+              builder: backgroundColorBuilder,
+            ),
+          ),
+          const SizedBox(width: 1),
+          Visibility(
+            visible: !hideInlineCode,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.inlineCode,
+              icon: Icons.code,
+              controller: controller,
+            ),
+          ),
+          Visibility(
+              visible: !hideBoldButton &&
+                  !hideItalicButton &&
+                  !hideUnderLineButton &&
+                  !hideStrikeThrough &&
+                  !hideInlineCode,
+              child: VerticalDivider(
+                  indent: 16, endIndent: 16, color: Colors.grey.shade400)),
 
-      /// ################################################################
+          /// ################################################################
 
-      Visibility(
-          visible: !hideDirection,
-          child: ToggleStyleButton(
-            attribute: ParchmentAttribute.rtl,
-            icon: Icons.format_textdirection_r_to_l,
-            controller: controller,
-          )),
-      Visibility(
-          visible: !hideDirection, child: VerticalDivider(indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+          Visibility(
+              visible: !hideDirection,
+              child: ToggleStyleButton(
+                attribute: ParchmentAttribute.rtl,
+                icon: Icons.format_textdirection_r_to_l,
+                controller: controller,
+              )),
+          Visibility(
+              visible: !hideDirection,
+              child: VerticalDivider(
+                  indent: 16, endIndent: 16, color: Colors.grey.shade400)),
 
-      /// ################################################################
+          /// ################################################################
 
-      Visibility(
-        visible: !hideAlignment,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.left,
-          icon: Icons.format_align_left,
-          controller: controller,
-        ),
-      ),
-      const SizedBox(width: 1),
-      Visibility(
-        visible: !hideAlignment,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.center,
-          icon: Icons.format_align_center,
-          controller: controller,
-        ),
-      ),
-      const SizedBox(width: 1),
-      Visibility(
-        visible: !hideAlignment,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.right,
-          icon: Icons.format_align_right,
-          controller: controller,
-        ),
-      ),
-      const SizedBox(width: 1),
-      Visibility(
-        visible: !hideAlignment,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.justify,
-          icon: Icons.format_align_justify,
-          controller: controller,
-        ),
-      ),
-      Visibility(
-          visible: !hideAlignment, child: VerticalDivider(indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+          Visibility(
+            visible: !hideAlignment,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.left,
+              icon: Icons.format_align_left,
+              controller: controller,
+            ),
+          ),
+          const SizedBox(width: 1),
+          Visibility(
+            visible: !hideAlignment,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.center,
+              icon: Icons.format_align_center,
+              controller: controller,
+            ),
+          ),
+          const SizedBox(width: 1),
+          Visibility(
+            visible: !hideAlignment,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.right,
+              icon: Icons.format_align_right,
+              controller: controller,
+            ),
+          ),
+          const SizedBox(width: 1),
+          Visibility(
+            visible: !hideAlignment,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.justify,
+              icon: Icons.format_align_justify,
+              controller: controller,
+            ),
+          ),
+          Visibility(
+              visible: !hideAlignment,
+              child: VerticalDivider(
+                  indent: 16, endIndent: 16, color: Colors.grey.shade400)),
 
-      /// ################################################################
+          /// ################################################################
 
-      Visibility(
-        visible: !hideIndentation,
-        child: IndentationButton(
-          increase: false,
-          controller: controller,
-        ),
-      ),
-      Visibility(
-        visible: !hideIndentation,
-        child: IndentationButton(
-          controller: controller,
-        ),
-      ),
-      Visibility(
-          visible: !hideIndentation, child: VerticalDivider(indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+          Visibility(
+            visible: !hideIndentation,
+            child: IndentationButton(
+              increase: false,
+              controller: controller,
+            ),
+          ),
+          Visibility(
+            visible: !hideIndentation,
+            child: IndentationButton(
+              controller: controller,
+            ),
+          ),
+          Visibility(
+              visible: !hideIndentation,
+              child: VerticalDivider(
+                  indent: 16, endIndent: 16, color: Colors.grey.shade400)),
 
-      /// ################################################################
+          /// ################################################################
 
-      Visibility(visible: !hideHeadingStyle, child: SelectHeadingButton(controller: controller)),
-      Visibility(
-          visible: !hideHeadingStyle, child: VerticalDivider(indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+          Visibility(
+              visible: !hideHeadingStyle,
+              child: SelectHeadingButton(controller: controller)),
+          Visibility(
+              visible: !hideHeadingStyle,
+              child: VerticalDivider(
+                  indent: 16, endIndent: 16, color: Colors.grey.shade400)),
 
-      /// ################################################################
-      Visibility(
-        visible: !hideListNumbers,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.block.numberList,
-          controller: controller,
-          icon: Icons.format_list_numbered,
-        ),
-      ),
+          /// ################################################################
+          Visibility(
+            visible: !hideListNumbers,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.block.numberList,
+              controller: controller,
+              icon: Icons.format_list_numbered,
+            ),
+          ),
 
-      Visibility(
-        visible: !hideListBullets,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.block.bulletList,
-          controller: controller,
-          icon: Icons.format_list_bulleted,
-        ),
-      ),
-      Visibility(
-        visible: !hideListChecks,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.block.checkList,
-          controller: controller,
-          icon: Icons.checklist,
-        ),
-      ),
-      Visibility(
-        visible: !hideCodeBlock,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.block.code,
-          controller: controller,
-          icon: Icons.code,
-        ),
-      ),
-      Visibility(
-          visible: !hideListNumbers && !hideListBullets && !hideListChecks && !hideCodeBlock,
-          child: VerticalDivider(indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+          Visibility(
+            visible: !hideListBullets,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.block.bulletList,
+              controller: controller,
+              icon: Icons.format_list_bulleted,
+            ),
+          ),
+          Visibility(
+            visible: !hideListChecks,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.block.checkList,
+              controller: controller,
+              icon: Icons.checklist,
+            ),
+          ),
+          Visibility(
+            visible: !hideCodeBlock,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.block.code,
+              controller: controller,
+              icon: Icons.code,
+            ),
+          ),
+          Visibility(
+              visible: !hideListNumbers &&
+                  !hideListBullets &&
+                  !hideListChecks &&
+                  !hideCodeBlock,
+              child: VerticalDivider(
+                  indent: 16, endIndent: 16, color: Colors.grey.shade400)),
 
-      /// ################################################################
+          /// ################################################################
 
-      Visibility(
-        visible: !hideQuote,
-        child: ToggleStyleButton(
-          attribute: ParchmentAttribute.block.quote,
-          controller: controller,
-          icon: Icons.format_quote,
-        ),
-      ),
-      Visibility(visible: !hideQuote, child: VerticalDivider(indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+          Visibility(
+            visible: !hideQuote,
+            child: ToggleStyleButton(
+              attribute: ParchmentAttribute.block.quote,
+              controller: controller,
+              icon: Icons.format_quote,
+            ),
+          ),
+          Visibility(
+              visible: !hideQuote,
+              child: VerticalDivider(
+                  indent: 16, endIndent: 16, color: Colors.grey.shade400)),
 
-      /// ################################################################
+          /// ################################################################
 
-      Visibility(visible: !hideLink, child: LinkStyleButton(controller: controller)),
-      Visibility(
-        visible: !hideHorizontalRule,
-        child: InsertEmbedButton(
-          controller: controller,
-          icon: Icons.horizontal_rule,
-        ),
-      ),
-      Visibility(
-          visible: !hideHorizontalRule || !hideLink,
-          child: VerticalDivider(indent: 16, endIndent: 16, color: Colors.grey.shade400)),
+          Visibility(
+              visible: !hideLink,
+              child: LinkStyleButton(controller: controller)),
+          Visibility(
+            visible: !hideHorizontalRule,
+            child: InsertEmbedButton(
+              controller: controller,
+              icon: Icons.horizontal_rule,
+            ),
+          ),
+          Visibility(
+              visible: !hideHorizontalRule || !hideLink,
+              child: VerticalDivider(
+                  indent: 16, endIndent: 16, color: Colors.grey.shade400)),
 
-      /// ################################################################
+          /// ################################################################
 
-      Visibility(
-        visible: !hideUndoRedo,
-        child: UndoRedoButton.undo(
-          controller: controller,
-        ),
-      ),
-      Visibility(
-        visible: !hideUndoRedo,
-        child: UndoRedoButton.redo(
-          controller: controller,
-        ),
-      ),
+          Visibility(
+            visible: !hideUndoRedo,
+            child: UndoRedoButton.undo(
+              controller: controller,
+            ),
+          ),
+          Visibility(
+            visible: !hideUndoRedo,
+            child: UndoRedoButton.redo(
+              controller: controller,
+            ),
+          ),
 
-      ...trailing,
-    ]);
+          ...trailing,
+        ]);
   }
 
-  static _FleatherToolbarState _of(BuildContext context) => context.findAncestorStateOfType<_FleatherToolbarState>()!;
+  static _FleatherToolbarState _of(BuildContext context) =>
+      context.findAncestorStateOfType<_FleatherToolbarState>()!;
 
   @override
   State<FleatherToolbar> createState() => _FleatherToolbarState();
@@ -1088,7 +1160,9 @@ class _FleatherToolbarState extends State<FleatherToolbar> {
     super.didChangeDependencies();
     final parentTheme = FleatherTheme.of(context, nullOk: true);
     final fallbackTheme = FleatherThemeData.fallback(context);
-    theme = (parentTheme != null) ? fallbackTheme.merge(parentTheme) : fallbackTheme;
+    theme = (parentTheme != null)
+        ? fallbackTheme.merge(parentTheme)
+        : fallbackTheme;
   }
 
   void requestKeyboard() => widget.editorKey?.currentState?.requestKeyboard();
@@ -1100,7 +1174,8 @@ class _FleatherToolbarState extends State<FleatherToolbar> {
       child: SelectorScope(
         child: Container(
           padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
-          constraints: BoxConstraints.tightFor(height: widget.preferredSize.height),
+          constraints:
+              BoxConstraints.tightFor(height: widget.preferredSize.height),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -1158,12 +1233,15 @@ class SelectorScope extends StatefulWidget {
 
   const SelectorScope({super.key, required this.child});
 
-  static SelectorScopeState of(BuildContext context) => context.findAncestorStateOfType<SelectorScopeState>()!;
+  static SelectorScopeState of(BuildContext context) =>
+      context.findAncestorStateOfType<SelectorScopeState>()!;
 
   /// The [context] should belong to the presenter widget.
-  static Future<T?> showSelector<T>(BuildContext context, Widget selector, Completer<T?> completer,
+  static Future<T?> showSelector<T>(
+          BuildContext context, Widget selector, Completer<T?> completer,
           {bool rootOverlay = false}) =>
-      SelectorScope.of(context).showSelector(context, selector, completer, rootOverlay: rootOverlay);
+      SelectorScope.of(context)
+          .showSelector(context, selector, completer, rootOverlay: rootOverlay);
 
   @override
   State<SelectorScope> createState() => SelectorScopeState();
@@ -1173,14 +1251,16 @@ class SelectorScopeState extends State<SelectorScope> {
   OverlayEntry? _overlayEntry;
 
   /// The [context] should belong to the presenter widget.
-  Future<T?> showSelector<T>(BuildContext context, Widget selector, Completer<T?> completer,
+  Future<T?> showSelector<T>(
+      BuildContext context, Widget selector, Completer<T?> completer,
       {bool rootOverlay = false}) {
     _overlayEntry?.remove();
 
     final overlay = Overlay.of(context, rootOverlay: rootOverlay);
 
     final RenderBox presenter = context.findRenderObject() as RenderBox;
-    final RenderBox overlayBox = overlay.context.findRenderObject() as RenderBox;
+    final RenderBox overlayBox =
+        overlay.context.findRenderObject() as RenderBox;
     final offset = Offset(0.0, presenter.size.height);
     final position = RelativeRect.fromSize(
       Rect.fromPoints(
@@ -1304,7 +1384,9 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
 
     final Offset wantedPosition = Offset(x, y);
     final Offset originCenter = position.toRect(Offset.zero & size).center;
-    final Iterable<Rect> subScreens = DisplayFeatureSubScreen.subScreensInBounds(Offset.zero & size, avoidBounds);
+    final Iterable<Rect> subScreens =
+        DisplayFeatureSubScreen.subScreensInBounds(
+            Offset.zero & size, avoidBounds);
     final Rect subScreen = _closestScreen(subScreens, originCenter);
     return _fitInsideScreen(subScreen, childSize, wantedPosition);
   }
@@ -1312,7 +1394,8 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
   Rect _closestScreen(Iterable<Rect> screens, Offset point) {
     Rect closest = screens.first;
     for (final Rect screen in screens) {
-      if ((screen.center - point).distance < (closest.center - point).distance) {
+      if ((screen.center - point).distance <
+          (closest.center - point).distance) {
         closest = screen;
       }
     }
@@ -1326,13 +1409,21 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
     // edge of the screen in every direction.
     if (x < screen.left + _selectorScreenPadding + padding.left) {
       x = screen.left + _selectorScreenPadding + padding.left;
-    } else if (x + childSize.width > screen.right - _selectorScreenPadding - padding.right) {
-      x = screen.right - childSize.width - _selectorScreenPadding - padding.right;
+    } else if (x + childSize.width >
+        screen.right - _selectorScreenPadding - padding.right) {
+      x = screen.right -
+          childSize.width -
+          _selectorScreenPadding -
+          padding.right;
     }
     if (y < screen.top + _selectorScreenPadding + padding.top) {
       y = _selectorScreenPadding + padding.top;
-    } else if (y + childSize.height > screen.bottom - _selectorScreenPadding - padding.bottom) {
-      y = screen.bottom - childSize.height - _selectorScreenPadding - padding.bottom;
+    } else if (y + childSize.height >
+        screen.bottom - _selectorScreenPadding - padding.bottom) {
+      y = screen.bottom -
+          childSize.height -
+          _selectorScreenPadding -
+          padding.bottom;
     }
 
     return Offset(x, y);
