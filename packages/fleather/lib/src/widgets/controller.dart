@@ -23,7 +23,7 @@ List<String> _toggleableStyleKeys = [
 
 class FleatherController extends ChangeNotifier {
   FleatherController({ParchmentDocument? document, AutoFormats? autoFormats})
-      : document = document ?? ParchmentDocument(),
+      : _document = document ?? ParchmentDocument(),
         _history = HistoryStack.doc(document),
         _autoFormats = autoFormats ?? AutoFormats.fallback(),
         _selection = const TextSelection.collapsed(offset: 0) {
@@ -33,13 +33,15 @@ class FleatherController extends ChangeNotifier {
     );
   }
 
-  /// Document managed by this controller.
-  final ParchmentDocument document;
+  ParchmentDocument _document;
+
+  /// Doument managed by this controller.
+  ParchmentDocument get document => _document;
 
   // A list of changes applied to this doc. The changes could be undone or redone.
-  final HistoryStack _history;
+  HistoryStack _history;
 
-  late final _Throttled<Delta> _throttledPush;
+  late _Throttled<Delta> _throttledPush;
   Timer? _throttleTimer;
 
   // The auto format handler
@@ -310,6 +312,32 @@ class FleatherController extends ChangeNotifier {
       selection: selection,
       composing: TextRange.empty,
     );
+  }
+
+  /// Clear the controller state.
+  ///
+  /// It creates a new empty [ParchmentDocument] and a clean edit history.
+  /// The old [document] will be closed if [closeDocument] is true.
+  ///
+  /// Calling this will notify all the listeners of this [TextEditingController]
+  /// that they need to update (it calls [notifyListeners]). For this reason,
+  /// this method should only be called between frames, e.g. in response to user
+  /// actions, not during the build, layout, or paint phases.
+  void clear([bool closeDocument = true]) {
+    _throttleTimer?.cancel();
+    _toggledStyles = ParchmentStyle();
+    _selection = const TextSelection.collapsed(offset: 0);
+    _autoFormats.cancelActive();
+    if (closeDocument) {
+      document.close();
+    }
+    _document = ParchmentDocument();
+    _history = HistoryStack.doc(document);
+    _throttledPush = _throttle(
+      duration: throttleDuration,
+      function: _history.push,
+    );
+    notifyListeners();
   }
 }
 

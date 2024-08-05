@@ -274,6 +274,23 @@ void main() {
       // expect(controller.lastChangeSource, ChangeSource.local);
     });
 
+    test('clear', () {
+      fakeAsync((async) {
+        controller.compose(Delta()..insert('word'),
+            selection: const TextSelection.collapsed(offset: 4));
+        async.flushTimers();
+        var notified = false;
+        controller.addListener(() => notified = true);
+        controller.clear();
+        expect(controller.document.toDelta(), Delta()..insert('\n'));
+        expect(controller.selection, const TextSelection.collapsed(offset: 0));
+        expect(controller.canUndo, isFalse);
+        expect(controller.canRedo, isFalse);
+        expect(controller.toggledStyles, ParchmentStyle());
+        expect(notified, isTrue);
+      });
+    });
+
     group('history', () {
       group('empty stack', () {
         test('undo returns null', () {
