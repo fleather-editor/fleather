@@ -274,20 +274,47 @@ void main() {
       // expect(controller.lastChangeSource, ChangeSource.local);
     });
 
-    test('clear', () {
-      fakeAsync((async) {
-        controller.compose(Delta()..insert('word'),
-            selection: const TextSelection.collapsed(offset: 4));
-        async.flushTimers();
-        var notified = false;
-        controller.addListener(() => notified = true);
-        controller.clear();
-        expect(controller.document.toDelta(), Delta()..insert('\n'));
-        expect(controller.selection, const TextSelection.collapsed(offset: 0));
-        expect(controller.canUndo, isFalse);
-        expect(controller.canRedo, isFalse);
-        expect(controller.toggledStyles, ParchmentStyle());
-        expect(notified, isTrue);
+    group('clear', () {
+      test('closes the document by default', () {
+        fakeAsync((async) {
+          final doc = controller.document;
+          controller.compose(Delta()..insert('word'),
+              selection: const TextSelection.collapsed(offset: 4));
+          async.flushTimers();
+          var notified = false;
+          controller.addListener(() => notified = true);
+          controller.clear();
+          expect(identical(controller.document, doc), isFalse);
+          expect(controller.document.toDelta(), Delta()..insert('\n'));
+          expect(doc.isClosed, isTrue);
+          expect(
+              controller.selection, const TextSelection.collapsed(offset: 0));
+          expect(controller.canUndo, isFalse);
+          expect(controller.canRedo, isFalse);
+          expect(controller.toggledStyles, ParchmentStyle());
+          expect(notified, isTrue);
+        });
+      });
+
+      test('closeDocument is false', () {
+        fakeAsync((async) {
+          final doc = controller.document;
+          controller.compose(Delta()..insert('word'),
+              selection: const TextSelection.collapsed(offset: 4));
+          async.flushTimers();
+          var notified = false;
+          controller.addListener(() => notified = true);
+          controller.clear(closeDocument: false);
+          expect(identical(controller.document, doc), isFalse);
+          expect(controller.document.toDelta(), Delta()..insert('\n'));
+          expect(doc.isClosed, isFalse);
+          expect(
+              controller.selection, const TextSelection.collapsed(offset: 0));
+          expect(controller.canUndo, isFalse);
+          expect(controller.canRedo, isFalse);
+          expect(controller.toggledStyles, ParchmentStyle());
+          expect(notified, isTrue);
+        });
       });
     });
 

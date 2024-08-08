@@ -319,11 +319,11 @@ class FleatherController extends ChangeNotifier {
   /// It creates a new empty [ParchmentDocument] and a clean edit history.
   /// The old [document] will be closed if [closeDocument] is true.
   ///
-  /// Calling this will notify all the listeners of this [TextEditingController]
+  /// Calling this will notify all the listeners of this [FleatherController]
   /// that they need to update (it calls [notifyListeners]). For this reason,
   /// this method should only be called between frames, e.g. in response to user
   /// actions, not during the build, layout, or paint phases.
-  void clear([bool closeDocument = true]) {
+  void clear({bool closeDocument = true}) {
     _throttleTimer?.cancel();
     _toggledStyles = ParchmentStyle();
     _selection = const TextSelection.collapsed(offset: 0);
