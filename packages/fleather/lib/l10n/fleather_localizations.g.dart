@@ -16,7 +16,7 @@ import 'fleather_localizations_fr.g.dart';
 /// `supportedLocales` list. For example:
 ///
 /// ```dart
-/// import 'fleather_localizations/fleather_localizations.g.dart';
+/// import 'l10n/fleather_localizations.g.dart';
 ///
 /// return MaterialApp(
 ///   localizationsDelegates: FleatherLocalizations.localizationsDelegates,
@@ -65,9 +65,9 @@ abstract class FleatherLocalizations {
 
   final String localeName;
 
-  static FleatherLocalizations of(BuildContext context) {
+  static FleatherLocalizations? of(BuildContext context) {
     return Localizations.of<FleatherLocalizations>(
-        context, FleatherLocalizations)!;
+        context, FleatherLocalizations);
   }
 
   static const LocalizationsDelegate<FleatherLocalizations> delegate =

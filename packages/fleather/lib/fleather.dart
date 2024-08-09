@@ -5,7 +5,7 @@ library fleather;
 
 export 'package:parchment/parchment.dart';
 
-export 'l10n/fleather_localizations/fleather_localizations.g.dart';
+export 'l10n/l10n.dart' hide BuildContextLocalizationsExtension;
 export 'src/rendering/editor.dart';
 export 'src/services/clipboard_manager.dart';
 export 'src/widgets/autoformats.dart';

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fleather/fleather.dart';
+import 'package:fleather/l10n/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -200,7 +201,7 @@ class _LinkDialogState extends State<_LinkDialog> {
     return AlertDialog(
       content: TextField(
         decoration: InputDecoration(
-          labelText: FleatherLocalizations.of(context).addLinkDialogPasteLink,
+          labelText: context.l.addLinkDialogPasteLink,
         ),
         autofocus: true,
         onChanged: _linkChanged,
@@ -208,9 +209,7 @@ class _LinkDialogState extends State<_LinkDialog> {
       actions: [
         TextButton(
           onPressed: _link.isNotEmpty ? _applyLink : null,
-          child: Text(
-            FleatherLocalizations.of(context).addLinkDialogApply,
-          ),
+          child: Text(context.l.addLinkDialogApply),
         ),
       ],
     );
@@ -569,7 +568,7 @@ class SelectHeadingButton extends StatefulWidget {
 }
 
 Map<ParchmentAttribute<int>, String> _headingToText(BuildContext context) {
-  final localizations = FleatherLocalizations.of(context);
+  final localizations = context.l;
 
   return {
     ParchmentAttribute.heading.unset: localizations.headingNormal,
@@ -939,8 +938,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
             child: ColorButton(
               controller: controller,
               attributeKey: ParchmentAttribute.foregroundColor,
-              nullColorLabel:
-                  FleatherLocalizations.of(context).foregroundColorAutomatic,
+              nullColorLabel: context.l.foregroundColorAutomatic,
               builder: textColorBuilder,
             ),
           );
@@ -951,8 +949,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
             child: ColorButton(
               controller: controller,
               attributeKey: ParchmentAttribute.backgroundColor,
-              nullColorLabel:
-                  FleatherLocalizations.of(context).backgroundColorNoColor,
+              nullColorLabel: context.l.backgroundColorNoColor,
               builder: backgroundColorBuilder,
             ),
           );

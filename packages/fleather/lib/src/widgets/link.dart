@@ -1,4 +1,5 @@
 import 'package:fleather/fleather.dart';
+import 'package:fleather/l10n/l10n.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -49,17 +50,17 @@ Future<LinkMenuAction> _showCupertinoLinkMenu(
         title: Text(link),
         actions: [
           _CupertinoAction(
-            title: FleatherLocalizations.of(context).linkDialogOpen,
+            title: context.l.linkDialogOpen,
             icon: Icons.language_sharp,
             onPressed: () => Navigator.of(context).pop(LinkMenuAction.launch),
           ),
           _CupertinoAction(
-            title: FleatherLocalizations.of(context).linkDialogCopy,
+            title: context.l.linkDialogCopy,
             icon: Icons.copy_sharp,
             onPressed: () => Navigator.of(context).pop(LinkMenuAction.copy),
           ),
           _CupertinoAction(
-            title: FleatherLocalizations.of(context).linkDialogRemove,
+            title: context.l.linkDialogRemove,
             icon: Icons.link_off_sharp,
             onPressed: () => Navigator.of(context).pop(LinkMenuAction.remove),
           ),
@@ -122,17 +123,17 @@ Future<LinkMenuAction> _showMaterialMenu(
           mainAxisSize: MainAxisSize.min,
           children: [
             _MaterialAction(
-              title: FleatherLocalizations.of(context).linkDialogOpen,
+              title: context.l.linkDialogOpen,
               icon: Icons.language_sharp,
               onPressed: () => Navigator.of(context).pop(LinkMenuAction.launch),
             ),
             _MaterialAction(
-              title: FleatherLocalizations.of(context).linkDialogCopy,
+              title: context.l.linkDialogCopy,
               icon: Icons.copy_sharp,
               onPressed: () => Navigator.of(context).pop(LinkMenuAction.copy),
             ),
             _MaterialAction(
-              title: FleatherLocalizations.of(context).linkDialogRemove,
+              title: context.l.linkDialogRemove,
               icon: Icons.link_off_sharp,
               onPressed: () => Navigator.of(context).pop(LinkMenuAction.remove),
             ),

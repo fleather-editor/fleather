@@ -1,13 +1,12 @@
 format: true
 use-escaping: true
-nullable-getter: false
 synthetic-package: false
 
-arb-dir: lib/l10n
+arb-dir: l10n
 template-arb-file: app_en.arb
 
-output-dir: lib/l10n/fleather_localizations
+output-dir: lib/l10n
 output-class: FleatherLocalizations
 output-localization-file: fleather_localizations.g.dart
 
-untranslated-messages-file: lib/l10n/untranslated.txt
+untranslated-messages-file: untranslated.txt
