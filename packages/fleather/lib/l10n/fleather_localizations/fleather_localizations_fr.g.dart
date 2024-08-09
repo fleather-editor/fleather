@@ -5,10 +5,10 @@ class FleatherLocalizationsFr extends FleatherLocalizations {
   FleatherLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get linkDialogPasteLink => 'Coller un lien';
+  String get foregroundColorAutomatic => 'Automatique';
 
   @override
-  String get linkDialogApply => 'Appliquer';
+  String get backgroundColorNoColor => 'Aucune couleur';
 
   @override
   String get headingNormal => 'Normal';
@@ -30,4 +30,19 @@ class FleatherLocalizationsFr extends FleatherLocalizations {
 
   @override
   String get headingLevel6 => 'Titre 6';
+
+  @override
+  String get addLinkDialogPasteLink => 'Coller un lien';
+
+  @override
+  String get addLinkDialogApply => 'Appliquer';
+
+  @override
+  String get linkDialogOpen => 'Ouvrir';
+
+  @override
+  String get linkDialogCopy => 'Copier';
+
+  @override
+  String get linkDialogRemove => 'Retirer';
 }

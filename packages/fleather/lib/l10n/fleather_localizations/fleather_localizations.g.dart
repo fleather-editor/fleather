@@ -97,17 +97,17 @@ abstract class FleatherLocalizations {
     Locale('fr')
   ];
 
-  /// Label for the input decoration of the link text field in the link dialog
+  /// Automatically assign a foreground color to the text
   ///
   /// In en, this message translates to:
-  /// **'Paste a link'**
-  String get linkDialogPasteLink;
+  /// **'Automatic'**
+  String get foregroundColorAutomatic;
 
-  /// Label for the confirmation button in the link dialog
+  /// Assign no background color to the text
   ///
   /// In en, this message translates to:
-  /// **'Apply'**
-  String get linkDialogApply;
+  /// **'No color'**
+  String get backgroundColorNoColor;
 
   /// A normal heading text style
   ///
@@ -150,6 +150,36 @@ abstract class FleatherLocalizations {
   /// In en, this message translates to:
   /// **'Heading 6'**
   String get headingLevel6;
+
+  /// Label for the input decoration of the link text field in the add link dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a link'**
+  String get addLinkDialogPasteLink;
+
+  /// Label for the confirmation button in the link dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get addLinkDialogApply;
+
+  /// Open the link
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get linkDialogOpen;
+
+  /// Copy the link
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get linkDialogCopy;
+
+  /// Remove the link
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get linkDialogRemove;
 }
 
 class _FleatherLocalizationsDelegate
