@@ -9,7 +9,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:parchment/parchment.dart';
-import 'package:parchment_delta/parchment_delta.dart';
 
 import '../../util.dart';
 import '../rendering/editor.dart';

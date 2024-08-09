@@ -5,7 +5,6 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:parchment/parchment.dart';
-import 'package:parchment_delta/parchment_delta.dart';
 
 export 'src/fast_diff.dart';
 
