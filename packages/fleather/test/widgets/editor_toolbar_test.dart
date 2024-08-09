@@ -1,6 +1,5 @@
 import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parchment_delta/parchment_delta.dart';
 
@@ -53,16 +52,6 @@ Widget widget(FleatherController controller, {bool withBasic = false}) {
       );
   final editorKey = GlobalKey<EditorState>();
   return MaterialApp(
-    localizationsDelegates: const [
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-      FleatherLocalizations.delegate,
-    ],
-    supportedLocales: const [
-      ...FleatherLocalizations.supportedLocales,
-    ],
-    locale: const Locale('en'),
     home: Material(
       child: Column(children: [
         if (withBasic)
@@ -436,16 +425,6 @@ void main() {
           );
       final controller = FleatherController();
       final widget = MaterialApp(
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          FleatherLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          ...FleatherLocalizations.supportedLocales,
-        ],
-        locale: const Locale('en'),
         home: TestUpdateWidget(
           focusNodeAfterChange: FocusNode(),
           controller: controller,
@@ -478,16 +457,6 @@ void main() {
       const padding = EdgeInsets.all(32);
       final controller = FleatherController();
       await tester.pumpWidget(MaterialApp(
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          FleatherLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          ...FleatherLocalizations.supportedLocales,
-        ],
-        locale: const Locale('en'),
         home: Scaffold(
           appBar: AppBar(),
           body: Column(
@@ -510,16 +479,6 @@ void main() {
         equals(validRect),
       );
       await tester.pumpWidget(MaterialApp(
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          FleatherLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          ...FleatherLocalizations.supportedLocales,
-        ],
-        locale: const Locale('en'),
         home: Scaffold(
           appBar: AppBar(),
           body: Column(
