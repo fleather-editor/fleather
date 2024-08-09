@@ -10,10 +10,10 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.22.0"
+          flutter-version: "3.24.0"
           cache: true
           # Manually Update this `key`
-          cache-key: "20230512"
+          cache-key: "3.24.0"
       - run: dart pub global activate coverage
 
       #
