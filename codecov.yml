@@ -1,2 +1,2 @@
 ignore:
-  - '*.g.dart'
+  - '**.g.dart'
