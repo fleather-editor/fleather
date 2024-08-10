@@ -10,6 +10,9 @@ class RenderEmbedProxy extends RenderProxyBox implements RenderContentProxyBox {
   RenderEmbedProxy({RenderBox? child}) : super(child);
 
   @override
+  bool isRepaintBoundary = true;
+
+  @override
   List<TextBox> getBoxesForSelection(TextSelection selection) {
     if (selection.isCollapsed) {
       final left = selection.extentOffset == 0 ? 0.0 : size.width;

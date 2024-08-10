@@ -274,6 +274,9 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
   // End RenderEditableBox implementation
 
   @override
+  bool isRepaintBoundary = true;
+
+  @override
   void detach() {
     _painter?.dispose();
     _painter = null;
