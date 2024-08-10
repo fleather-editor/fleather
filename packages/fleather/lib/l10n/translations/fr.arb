@@ -1,0 +1,17 @@
+{
+  "@@locale": "fr",
+  "foregroundColorAutomatic": "Automatique",
+  "backgroundColorNoColor": "Aucune couleur",
+  "headingNormal": "Normal",
+  "headingLevel1": "Titre 1",
+  "headingLevel2": "Titre 2",
+  "headingLevel3": "Titre 3",
+  "headingLevel4": "Titre 4",
+  "headingLevel5": "Titre 5",
+  "headingLevel6": "Titre 6",
+  "addLinkDialogPasteLink": "Coller un lien",
+  "addLinkDialogApply": "Appliquer",
+  "linkDialogOpen": "Ouvrir",
+  "linkDialogCopy": "Copier",
+  "linkDialogRemove": "Retirer"
+}

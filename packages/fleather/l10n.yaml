@@ -1,0 +1,12 @@
+format: true
+use-escaping: true
+synthetic-package: false
+
+arb-dir: lib/l10n/translations
+template-arb-file: en.arb
+
+output-dir: lib/l10n
+output-class: FleatherLocalizations
+output-localization-file: fleather_localizations.g.dart
+
+untranslated-messages-file: untranslated.txt
