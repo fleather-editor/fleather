@@ -1,8 +1,9 @@
-import 'package:fleather/fleather.dart';
-import 'package:fleather/l10n/l10n.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:parchment/parchment.dart';
+
+import '../../l10n/l10n.dart';
 
 /// List of possible actions returned from [LinkActionPickerDelegate].
 enum LinkMenuAction {

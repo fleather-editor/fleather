@@ -1,9 +1,12 @@
 import 'dart:async';
-
-import 'package:fleather/fleather.dart';
-import 'package:fleather/l10n/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:parchment/parchment.dart';
+
+import 'controller.dart';
+import 'editor.dart';
+import 'theme.dart';
+import '../../l10n/l10n.dart';
 
 const double kToolbarHeight = 56.0;
 
