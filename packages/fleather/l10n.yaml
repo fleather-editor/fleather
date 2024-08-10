@@ -2,8 +2,8 @@ format: true
 use-escaping: true
 synthetic-package: false
 
-arb-dir: l10n
-template-arb-file: app_en.arb
+arb-dir: lib/l10n/translations
+template-arb-file: en.arb
 
 output-dir: lib/l10n
 output-class: FleatherLocalizations
