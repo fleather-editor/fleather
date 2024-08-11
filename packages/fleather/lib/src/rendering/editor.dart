@@ -661,7 +661,8 @@ class RenderEditor extends RenderEditableContainerBox
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    return defaultHitTestChildren(result, position: position);
+    final Offset effectivePosition = position - paintOffset;
+    return defaultHitTestChildren(result, position: effectivePosition);
   }
 
   void _paintHandleLayers(
