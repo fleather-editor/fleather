@@ -1,5 +1,6 @@
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/services/spell_check_suggestions_toolbar.dart';
+import 'package:fleather/src/widgets/checkbox.dart';
 import 'package:fleather/src/widgets/keyboard_listener.dart';
 import 'package:fleather/src/widgets/text_selection.dart';
 import 'package:flutter/cupertino.dart';
@@ -99,6 +100,57 @@ void main() {
       await tester.pump();
       expect(-renderEditor.paintOffset.dy > scrollOffset, isTrue);
       tester.view.viewInsets = FakeViewPadding.zero;
+    });
+
+    testWidgets('Allows children to capture events when scrolled',
+        (tester) async {
+      Delta generateDelta({required bool withBoxChecked}) {
+        var delta = Delta();
+        List.generate(20, (_) => delta.insert('Test\n'));
+        return delta
+          ..insert('\n')
+          ..insert('some check box')
+          ..insert('\n', {'block': 'cl', 'checked': withBoxChecked});
+      }
+
+      final delta = generateDelta(withBoxChecked: false);
+      final controller =
+          FleatherController(document: ParchmentDocument.fromDelta(delta));
+      final embedHeight =
+          (tester.view.physicalSize / tester.view.devicePixelRatio).height *
+              1.5;
+      final scrollController = ScrollController();
+      final editor = MaterialApp(
+        home: Scaffold(
+          body: Column(
+            children: [
+              Expanded(
+                child: FleatherEditor(
+                  controller: controller,
+                  scrollController: scrollController,
+                  embedBuilder: (context, node) => SizedBox(
+                    width: 100,
+                    height: embedHeight,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpWidget(editor);
+      final renderEditor =
+          tester.state<EditorState>(find.byType(RawEditor)).renderEditor;
+      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+      await tester.pumpAndSettle();
+      final checkBox = find.byType(FleatherCheckbox);
+      expect(checkBox, findsOneWidget);
+      await tester.tapAt(tester.getCenter(checkBox) + renderEditor.paintOffset);
+      await tester.pumpAndSettle();
+      tester.binding.scheduleWarmUpFrame();
+      await tester.pumpAndSettle();
+      expect(
+          controller.document.toDelta(), generateDelta(withBoxChecked: true));
     });
 
     testWidgets('Keep selectiontoolbar with editor bounds', (tester) async {
