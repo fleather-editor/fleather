@@ -1,6 +1,6 @@
 name: Performance Test
 
-on: [push, pull_request, workflow_dispatch]
+on: [pull_request, workflow_dispatch]
 
 jobs:
   test_master:
@@ -32,6 +32,11 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: master_performance_timelines
+      - run: ls .
+      - run: ls packages/
+      - run: ls packages/fleather/
+      - run: ls packages/fleather/example/
+      - run: ls packages/fleather/example/build/
       - run: mv packages/fleather/example/build/performance_timelines packages/fleather/example/build/reference_performance_timelines
 
       - uses: actions/download-artifact@v4
