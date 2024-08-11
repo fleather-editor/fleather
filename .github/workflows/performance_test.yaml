@@ -10,13 +10,14 @@ jobs:
       artifact_name: master_performance_timelines
 
   test_current:
+    needs: test_master
     uses: ./.github/workflows/_run_performance_test.yaml
     with:
       branch: ${{github.ref}}
       artifact_name: current_ref_performance_timelines
 
   analyze:
-    needs: [test_master, test_current]
+    needs: test_current
     runs-on: ubuntu-latest
 
     steps:
