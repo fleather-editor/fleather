@@ -55,7 +55,7 @@ void main() {
       ]);
       FleatherController controller = FleatherController(document: document);
       FocusNode focusNode = FocusNode();
-      final Size testSize = Size(230, 5);
+      const Size testSize = Size(230, 5);
       final editor = MaterialApp(
         home: FleatherEditor(
             controller: controller,
