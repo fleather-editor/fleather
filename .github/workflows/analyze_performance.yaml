@@ -1,23 +1,9 @@
-name: Performance Test
+name: Analyze Performance
 
 on: [pull_request, workflow_dispatch]
 
 jobs:
-  test_master:
-    uses: ./.github/workflows/_run_performance_test.yaml
-    with:
-      branch: ${{github.ref}}
-      artifact_name: master_performance_timelines
-
-  test_current:
-    needs: test_master
-    uses: ./.github/workflows/_run_performance_test.yaml
-    with:
-      branch: ${{github.ref}}
-      artifact_name: current_ref_performance_timelines
-
   analyze:
-    needs: test_current
     runs-on: ubuntu-latest
 
     steps:
@@ -32,12 +18,12 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: master_performance_timelines
+          name: reference_performance_timelines
           path: packages/fleather/example/build/reference_performance_timelines
 
       - uses: actions/download-artifact@v4
         with:
-          name: current_ref_performance_timelines
+          name: target_performance_timelines
           path: packages/fleather/example/build/performance_timelines
 
       - name: Analyze results
