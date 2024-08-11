@@ -3,7 +3,19 @@ name: Performance Test
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  test:
+  test_master:
+    uses: ./.github/workflows/_run_performance_test.yaml
+    with:
+      branch: master
+      artifact_name: master_performance_timelines
+
+  test_current:
+    uses: ./.github/workflows/_run_performance_test.yaml
+    with:
+      branch: ${{github.ref}}
+      artifact_name: current_ref_performance_timelines
+
+  analyze:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,16 +27,6 @@ jobs:
           cache: true
           # Manually Update this `key`
           cache-key: "3.24.0"
-
-      - uses: ./.github/workflows/_run_performance_test.yaml
-        with:
-          branch: master
-          artifact_name: master_performance_timelines
-
-      - uses: ./.github/workflows/_run_performance_test.yaml
-        with:
-          branch: ${{github.ref}}
-          artifact_name: current_ref_performance_timelines
 
       - uses: actions/download-artifact@v4
         with:
