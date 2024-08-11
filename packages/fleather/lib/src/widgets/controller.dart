@@ -21,10 +21,13 @@ List<String> _toggleableStyleKeys = [
 ];
 
 class FleatherController extends ChangeNotifier {
-  FleatherController({ParchmentDocument? document, AutoFormats? autoFormats})
+  FleatherController(
+      {ParchmentDocument? document,
+      AutoFormats? autoFormats,
+      this.skipScrollOnToggleLeading = false})
       : _document = document ?? ParchmentDocument(),
         _history = HistoryStack.doc(document),
-        _autoFormats = autoFormats ?? AutoFormats.fallback(),
+        _autoFormats = autoFormats ?? AutoFormats.fallback(), 
         _selection = const TextSelection.collapsed(offset: 0) {
     _throttledPush = _throttle(
       duration: throttleDuration,
@@ -42,6 +45,10 @@ class FleatherController extends ChangeNotifier {
 
   late _Throttled<Delta> _throttledPush;
   Timer? _throttleTimer;
+
+  // skipScroll if formatText but just for toggle leading checkbox
+  final bool skipScrollOnToggleLeading;
+  bool skipScroll = false;
 
   // The auto format handler
   final AutoFormats _autoFormats;
@@ -202,7 +209,8 @@ class FleatherController extends ChangeNotifier {
     return true;
   }
 
-  void formatText(int index, int length, ParchmentAttribute attribute) {
+  void formatText(int index, int length, ParchmentAttribute attribute,
+      {bool withoutScroll = false}) {
     final change = document.format(index, length, attribute);
     // _lastChangeSource = ChangeSource.local;
     const source = ChangeSource.local;
@@ -223,7 +231,9 @@ class FleatherController extends ChangeNotifier {
       _updateSelectionSilent(adjustedSelection, source: source);
     }
     _updateHistory();
+    skipScroll = withoutScroll;
     notifyListeners();
+    skipScroll = false;
   }
 
   /// Formats current selection with [attribute].

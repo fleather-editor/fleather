@@ -1594,6 +1594,10 @@ class RawEditorState extends EditorState
       return;
     }
 
+    if (widget.controller.skipScroll) {
+      return;
+    }
+
     _showCaretOnScreenScheduled = true;
     SchedulerBinding.instance.addPostFrameCallback((Duration _) {
       _showCaretOnScreenScheduled = false;
