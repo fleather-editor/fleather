@@ -1,12 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:fleather/fleather.dart';
-import 'package:fleather/src/widgets/editor_input_client_mixin.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../testing.dart';
 
 class MyTextSelectionHandle extends StatefulWidget {
   final Size size;
