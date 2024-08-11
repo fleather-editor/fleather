@@ -286,6 +286,8 @@ class FleatherEditor extends StatefulWidget {
 
   final GlobalKey<EditorState>? editorKey;
 
+  final TextSelectionControls? textSelectionControls;
+
   const FleatherEditor({
     super.key,
     required this.controller,
@@ -314,6 +316,7 @@ class FleatherEditor extends StatefulWidget {
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.embedBuilder = defaultFleatherEmbedBuilder,
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
+    this.textSelectionControls
   });
 
   @override
@@ -412,10 +415,11 @@ class _FleatherEditorState extends State<FleatherEditor>
 
     final keyboardAppearance = widget.keyboardAppearance ?? theme.brightness;
 
+ 
     switch (theme.platform) {
       case TargetPlatform.iOS:
         final cupertinoTheme = CupertinoTheme.of(context);
-        textSelectionControls = cupertinoTextSelectionControls;
+        textSelectionControls = widget.textSelectionControls ?? cupertinoTextSelectionControls;
         paintCursorAboveText = true;
         cursorOpacityAnimates = true;
         cursorColor = selectionTheme.cursorColor ?? cupertinoTheme.primaryColor;
@@ -428,7 +432,7 @@ class _FleatherEditorState extends State<FleatherEditor>
 
       case TargetPlatform.macOS:
         final CupertinoThemeData cupertinoTheme = CupertinoTheme.of(context);
-        textSelectionControls = cupertinoDesktopTextSelectionControls;
+        textSelectionControls = widget.textSelectionControls ?? cupertinoDesktopTextSelectionControls;
         paintCursorAboveText = true;
         cursorOpacityAnimates = false;
         cursorColor = selectionTheme.cursorColor ?? cupertinoTheme.primaryColor;
@@ -441,7 +445,7 @@ class _FleatherEditorState extends State<FleatherEditor>
 
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
-        textSelectionControls = materialTextSelectionControls;
+        textSelectionControls = widget.textSelectionControls ?? materialTextSelectionControls;
         paintCursorAboveText = false;
         cursorOpacityAnimates = false;
         cursorColor = selectionTheme.cursorColor ?? theme.colorScheme.primary;
@@ -451,7 +455,7 @@ class _FleatherEditorState extends State<FleatherEditor>
 
       case TargetPlatform.linux:
       case TargetPlatform.windows:
-        textSelectionControls = desktopTextSelectionControls;
+        textSelectionControls = widget.textSelectionControls ?? desktopTextSelectionControls;
         paintCursorAboveText = false;
         cursorOpacityAnimates = false;
         cursorColor = selectionTheme.cursorColor ?? theme.colorScheme.primary;
