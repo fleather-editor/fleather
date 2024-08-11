@@ -3,7 +3,14 @@ name: Analyze Performance
 on: [pull_request, workflow_dispatch]
 
 jobs:
+  test:
+    uses: ./.github/workflows/_run_performance_test.yaml
+    with:
+      ref: ${{github.ref}}
+      target: ${{github.ref}}
+
   analyze:
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
