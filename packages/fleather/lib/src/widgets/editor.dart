@@ -288,36 +288,35 @@ class FleatherEditor extends StatefulWidget {
 
   final TextSelectionControls? textSelectionControls;
 
-  const FleatherEditor({
-    super.key,
-    required this.controller,
-    this.editorKey,
-    this.focusNode,
-    this.scrollController,
-    this.scrollable = true,
-    this.padding = EdgeInsets.zero,
-    this.autofocus = false,
-    this.showCursor = true,
-    this.readOnly = false,
-    this.autocorrect = true,
-    this.enableSuggestions = true,
-    this.enableInteractiveSelection = true,
-    this.minHeight,
-    this.maxHeight,
-    this.maxContentWidth,
-    this.expands = false,
-    this.textCapitalization = TextCapitalization.sentences,
-    this.keyboardAppearance,
-    this.scrollPhysics,
-    this.onLaunchUrl,
-    this.spellCheckConfiguration,
-    this.clipboardManager = const PlainTextClipboardManager(),
-    this.clipboardStatus,
-    this.contextMenuBuilder = defaultContextMenuBuilder,
-    this.embedBuilder = defaultFleatherEmbedBuilder,
-    this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
-    this.textSelectionControls
-  });
+  const FleatherEditor(
+      {super.key,
+      required this.controller,
+      this.editorKey,
+      this.focusNode,
+      this.scrollController,
+      this.scrollable = true,
+      this.padding = EdgeInsets.zero,
+      this.autofocus = false,
+      this.showCursor = true,
+      this.readOnly = false,
+      this.autocorrect = true,
+      this.enableSuggestions = true,
+      this.enableInteractiveSelection = true,
+      this.minHeight,
+      this.maxHeight,
+      this.maxContentWidth,
+      this.expands = false,
+      this.textCapitalization = TextCapitalization.sentences,
+      this.keyboardAppearance,
+      this.scrollPhysics,
+      this.onLaunchUrl,
+      this.spellCheckConfiguration,
+      this.clipboardManager = const PlainTextClipboardManager(),
+      this.clipboardStatus,
+      this.contextMenuBuilder = defaultContextMenuBuilder,
+      this.embedBuilder = defaultFleatherEmbedBuilder,
+      this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
+      this.textSelectionControls});
 
   @override
   State<FleatherEditor> createState() => _FleatherEditorState();
@@ -415,11 +414,11 @@ class _FleatherEditorState extends State<FleatherEditor>
 
     final keyboardAppearance = widget.keyboardAppearance ?? theme.brightness;
 
- 
     switch (theme.platform) {
       case TargetPlatform.iOS:
         final cupertinoTheme = CupertinoTheme.of(context);
-        textSelectionControls = widget.textSelectionControls ?? cupertinoTextSelectionControls;
+        textSelectionControls =
+            widget.textSelectionControls ?? cupertinoTextSelectionControls;
         paintCursorAboveText = true;
         cursorOpacityAnimates = true;
         cursorColor = selectionTheme.cursorColor ?? cupertinoTheme.primaryColor;
@@ -432,7 +431,8 @@ class _FleatherEditorState extends State<FleatherEditor>
 
       case TargetPlatform.macOS:
         final CupertinoThemeData cupertinoTheme = CupertinoTheme.of(context);
-        textSelectionControls = widget.textSelectionControls ?? cupertinoDesktopTextSelectionControls;
+        textSelectionControls = widget.textSelectionControls ??
+            cupertinoDesktopTextSelectionControls;
         paintCursorAboveText = true;
         cursorOpacityAnimates = false;
         cursorColor = selectionTheme.cursorColor ?? cupertinoTheme.primaryColor;
@@ -445,7 +445,8 @@ class _FleatherEditorState extends State<FleatherEditor>
 
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
-        textSelectionControls = widget.textSelectionControls ?? materialTextSelectionControls;
+        textSelectionControls =
+            widget.textSelectionControls ?? materialTextSelectionControls;
         paintCursorAboveText = false;
         cursorOpacityAnimates = false;
         cursorColor = selectionTheme.cursorColor ?? theme.colorScheme.primary;
@@ -455,7 +456,8 @@ class _FleatherEditorState extends State<FleatherEditor>
 
       case TargetPlatform.linux:
       case TargetPlatform.windows:
-        textSelectionControls = widget.textSelectionControls ?? desktopTextSelectionControls;
+        textSelectionControls =
+            widget.textSelectionControls ?? desktopTextSelectionControls;
         paintCursorAboveText = false;
         cursorOpacityAnimates = false;
         cursorColor = selectionTheme.cursorColor ?? theme.colorScheme.primary;
