@@ -351,6 +351,35 @@ void main() {
       expect(sentData?.delta, Delta()..insert('t T'));
     });
 
+    testWidgets(
+        'Copy sends correct data to clipboard manager when selection extents are inverted',
+        (tester) async {
+      prepareClipboard();
+      FleatherClipboardData? sentData;
+      final editor = EditorSandBox(
+        tester: tester,
+        document: ParchmentDocument.fromJson([
+          {'insert': 'Test Text\n'}
+        ]),
+        autofocus: true,
+        clipboardManager: FleatherCustomClipboardManager(
+          getData: () => throw UnimplementedError(),
+          setData: (data) async => sentData = data,
+        ),
+      );
+      await editor.pump();
+      final RawEditorState state =
+          tester.state<RawEditorState>(find.byType(RawEditor));
+      await editor.updateSelection(base: 6, extent: 3);
+      state.showToolbar(createIfNull: true);
+      await tester.pump();
+      final finder = find.text('Copy');
+      await tester.tap(finder);
+      await tester.pumpAndSettle(throttleDuration);
+      expect(sentData?.plainText, 't T');
+      expect(sentData?.delta, Delta()..insert('t T'));
+    });
+
     testWidgets('Cut intent sends data to clipboard manager', (tester) async {
       prepareClipboard();
       FleatherClipboardData? sentData;
