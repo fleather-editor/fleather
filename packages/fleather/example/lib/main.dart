@@ -24,7 +24,7 @@ class FleatherApp extends StatelessWidget {
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate
         ],
-        supportedLocales: const [Locale('en'), Locale('fr')],
+        supportedLocales: FleatherLocalizations.supportedLocales,
         debugShowCheckedModeBanner: false,
         theme: ThemeData.light(),
         darkTheme: ThemeData.dark(),
