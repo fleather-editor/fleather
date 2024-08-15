@@ -1264,9 +1264,9 @@ class RawEditorState extends EditorState
     final TextSelection selection = textEditingValue.selection;
     widget.clipboardManager.setData(FleatherClipboardData(
       plainText: selection.textInside(textEditingValue.text),
-      delta: controller.document
-          .toDelta()
-          .slice(selection.baseOffset, selection.extentOffset),
+      delta: controller.document.toDelta().slice(
+          math.min(selection.baseOffset, selection.extentOffset),
+          math.max(selection.baseOffset, selection.extentOffset)),
     ));
   }
 
