@@ -24,13 +24,15 @@ void main() {
         controller.updateSelection(
             TextSelection.collapsed(offset: document.length - 1));
         await tester.pump();
-        await tester.ime
-            .typeText('Hello, World!', finder: find.byType(RawEditor));
+        await tester.ime.typeText(iputText, finder: find.byType(RawEditor));
       },
       reportKey: 'editing_timeline',
     );
   });
 }
+
+final iputText =
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
 
 final markdown = '''
 # Fleather

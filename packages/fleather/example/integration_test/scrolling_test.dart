@@ -22,9 +22,15 @@ void main() {
 
     await binding.traceAction(
       () async {
-        while (scrollController.position.extentAfter != 0) {
-          await tester.drag(scrollableFinder, const Offset(0, -200));
-          await tester.pump();
+        for (var i = 0; i < 10; i++) {
+          while (scrollController.position.extentAfter != 0) {
+            await tester.drag(scrollableFinder, const Offset(0, -200));
+            await tester.pump();
+          }
+          while (scrollController.position.extentBefore != 0) {
+            await tester.drag(scrollableFinder, const Offset(0, 200));
+            await tester.pump();
+          }
         }
       },
       reportKey: 'scrolling_timeline',
