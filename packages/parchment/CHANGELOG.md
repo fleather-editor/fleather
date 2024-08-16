@@ -1,3 +1,7 @@
+## 1.18.0
+
+* Expose `parchment_delta` by Parchment
+
 ## 1.15.0
 
 * Add support for decoding indentation, <hr>, and <img> in HTML codec 
