@@ -8,7 +8,7 @@ void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('Scroll to the end', (tester) async {
-    final document = ParchmentMarkdownCodec().decode(markdown * 100);
+    final document = const ParchmentMarkdownCodec().decode(markdown * 100);
     final controller = FleatherController(document: document);
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
@@ -36,7 +36,7 @@ void main() {
   });
 }
 
-final markdown = '''
+const markdown = '''
 # Fleather
 
 _Soft and gentle rich text editing for Flutter applications._
