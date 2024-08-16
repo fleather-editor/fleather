@@ -39,13 +39,6 @@ void main(List<String> args) {
   hasRegression = hasRegression || result.$2;
   outputBuffer.writeln(result.$1);
 
-  if (hasRegression) {
-    outputBuffer.write(buildErrorMessage('Performance tests found regression'));
-  } else {
-    outputBuffer
-        .write(buildSuccessMessage('Performance tests found no regression'));
-  }
-
   print(outputBuffer.toString());
   exit(hasRegression ? 1 : 0);
 }
@@ -79,7 +72,7 @@ void main(List<String> args) {
   if (testHasRegression) {
     outputBuffer.writeln(buildErrorMessage('regression'));
   } else {
-    outputBuffer.writeln('no regression');
+    outputBuffer.writeln(buildSuccessMessage('no regression'));
   }
 
   return (outputBuffer.toString(), testHasRegression);
