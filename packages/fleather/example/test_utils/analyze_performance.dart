@@ -26,22 +26,16 @@ const _criterias = [
   Criteria('average_cpu_usage', 'Average CPU Usage'),
 ];
 
-const _performanceTimelinesPath = 'build/performance_timelines';
-const _referencePerformanceTimelinesPath =
-    'build/reference_performance_timelines';
-
-void main() {
+void main(List<String> args) {
   final outputBuffer = StringBuffer();
   bool hasRegression = false;
 
-  final performanceTimelinesDir = Directory(_performanceTimelinesPath);
-  for (final fileEntity in performanceTimelinesDir.listSync()) {
-    if (!fileEntity.path.contains('timeline_summary.json')) continue;
-    final fileName = fileEntity.path.split('/').last;
-    final result = _analyze(fileName);
-    hasRegression = hasRegression || result.$2;
-    outputBuffer.writeln(result.$1);
-  }
+  final reference = args[0];
+  final target = args[1];
+
+  final result = _analyze(reference, target);
+  hasRegression = hasRegression || result.$2;
+  outputBuffer.writeln(result.$1);
 
   if (hasRegression) {
     outputBuffer.write(buildErrorMessage('Performance tests found regression'));
@@ -54,15 +48,11 @@ void main() {
   exit(hasRegression ? 1 : 0);
 }
 
-(String, bool) _analyze(String fileName) {
-  final Map<String, dynamic> targetSummary = jsonDecode(
-      File('$_performanceTimelinesPath/$fileName').readAsStringSync());
-  Map<String, dynamic>? referenceSummary;
-  final referenceSummaryFile =
-      File('$_referencePerformanceTimelinesPath/$fileName');
-  if (referenceSummaryFile.existsSync()) {
-    referenceSummary = jsonDecode(referenceSummaryFile.readAsStringSync());
-  }
+(String, bool) _analyze(String reference, String target) {
+  final Map<String, dynamic> referenceSummary =
+      jsonDecode(File(reference).readAsStringSync());
+  final Map<String, dynamic> targetSummary =
+      jsonDecode(File(target).readAsStringSync());
 
   bool testHasRegression = false;
   final outputBuffer = StringBuffer();
@@ -71,28 +61,19 @@ void main() {
     if (!targetSummary.containsKey(criteria.key)) continue;
     bool criteriaHasRegression = false;
     final double targetValue = targetSummary[criteria.key];
-    final double? referenceValue = referenceSummary?[criteria.key];
-    if (referenceValue != null) {
-      criteriaHasRegression =
-          criteria.isRegression(targetValue, referenceValue);
-    }
+    final double referenceValue = referenceSummary[criteria.key];
+    criteriaHasRegression = criteria.isRegression(targetValue, referenceValue);
     outputBuffer.write('${criteria.title}: Target: ');
-    if (referenceValue != null &&
-        criteria.isWorse(targetValue, referenceValue)) {
+    if (criteria.isWorse(targetValue, referenceValue)) {
       outputBuffer.write(buildErrorMessage(targetValue.toStringAsFixed(2)));
     } else {
       outputBuffer.write(targetValue.toStringAsFixed(2));
     }
-    if (referenceValue != null) {
-      outputBuffer.writeln(' Reference: ${referenceValue.toStringAsFixed(2)}');
-    } else {
-      outputBuffer.writeln();
-    }
+    outputBuffer.writeln(' Reference: ${referenceValue.toStringAsFixed(2)}');
     testHasRegression = testHasRegression || criteriaHasRegression;
   }
 
-  outputBuffer
-      .write('Performance tests for ${fileName.split('.').first} found ');
+  outputBuffer.write('Performance tests found ');
   if (testHasRegression) {
     outputBuffer.writeln(buildErrorMessage('regression'));
   } else {
