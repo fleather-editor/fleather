@@ -1,3 +1,13 @@
+## 1.18.0
+
+* Add the ability to use custom `TextSelectionControls`
+* Add foundations for localization
+* Add translations for French
+* Add clear method on controller
+* Improve performance by using repaint boundary
+* Fix hit test issue when scrolled
+* Fix copy issue when selection is inverted
+
 ## 1.17.0
 
 * Fleather manages the viewport
