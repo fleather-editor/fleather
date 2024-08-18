@@ -59,7 +59,10 @@ void main() {
       root.retain(0, 4, boldStyle);
       root.retain(16, 6, boldStyle);
       final line = root.first as LineNode;
+      final lastTextSegment = line.children.last;
+      expect(lastTextSegment.offset, 16);
       final newLine = line.splitAt(10);
+      expect(lastTextSegment.offset, 6);
       expect(line.toPlainText(), 'This house\n');
       expect(newLine.toPlainText(), ' is a circus\n');
     });

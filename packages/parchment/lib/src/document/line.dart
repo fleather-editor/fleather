@@ -155,7 +155,6 @@ final class LineNode extends ContainerNode<LeafNode> with StyledNode {
   @override
   LeafNode get defaultChild => TextNode();
 
-  // TODO: should be able to cache length and invalidate on any child-related operation
   @override
   int get length => super.length + 1;
 

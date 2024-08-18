@@ -23,11 +23,20 @@ void main() {
     });
 
     test('documentOffset', () {
-      root.insert(0, 'First line\nSecond line', null);
-      final line = root.children.last as LineNode;
-      final text = line.first as TextNode;
-      expect(line.documentOffset, 11);
-      expect(text.documentOffset, 11);
+      root.insert(0, 'First line\nSecond line\nThird line', null);
+      final secondLine = root.children.first.next as LineNode;
+      final thirdLine = root.children.last as LineNode;
+      expect(thirdLine.documentOffset, 23);
+      secondLine.insert(6, ' styled', ParchmentStyle.fromJson({'b': true}));
+      final styledText = secondLine.first.next as TextNode;
+      final lastText = secondLine.last as TextNode;
+      expect(secondLine.documentOffset, 11);
+      expect(thirdLine.documentOffset, 30);
+      expect(styledText.documentOffset, 17);
+      expect(lastText.documentOffset, 24);
+      secondLine.remove(styledText);
+      expect(lastText.documentOffset, 17);
+      expect(thirdLine.documentOffset, 23);
     });
 
     test('containsOffset', () {
