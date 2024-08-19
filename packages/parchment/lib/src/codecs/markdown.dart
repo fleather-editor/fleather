@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:parchment_delta/parchment_delta.dart';
 
-import '../document/attributes.dart';
 import '../document.dart';
+import '../document/attributes.dart';
 import '../document/block.dart';
 import '../document/leaf.dart';
 import '../document/line.dart';
@@ -134,10 +134,15 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
     }
     final match = _olRegExp.matchAsPrefix(line);
     final span = match?.group(2);
+    final indent = ((match?.group(1)?.length ?? 0) / 2).floor();
     if (span != null) {
       _handleSpan(span, delta, false, style);
-      _handleSpan(
-          '\n', delta, false, ParchmentStyle().put(ParchmentAttribute.ol));
+      ParchmentStyle blockStyle = ParchmentStyle().put(ParchmentAttribute.ol);
+      if (indent > 0) {
+        blockStyle =
+            blockStyle.put(ParchmentAttribute.indent.withLevel(indent));
+      }
+      _handleSpan('\n', delta, false, blockStyle);
       return true;
     }
     return false;
@@ -432,10 +437,20 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     }
 
     void handleBlock(BlockNode node) {
-      int currentItemOrder = 1;
+      // store for each indent level the current item order
+      int currentLevel = 0;
+      Map<int, int> currentItemOrders = {0: 1};
       for (final lineNode in node.children) {
+        if ((lineNode is LineNode) &&
+            lineNode.style.contains(ParchmentAttribute.indent)) {
+          final indent = lineNode.style.value(ParchmentAttribute.indent)!;
+          currentLevel++;
+          currentItemOrders[currentLevel] = 1;
+          // Insert 2 spaces per indent before black start
+          lineBuffer.writeAll(List.generate(indent, (_) => '  '));
+        }
         if (node.style.containsSame(ParchmentAttribute.ol)) {
-          lineBuffer.write(currentItemOrder);
+          lineBuffer.write(currentItemOrders[currentLevel]);
         } else if (node.style.containsSame(ParchmentAttribute.cl)) {
           lineBuffer.write('- [');
           if ((lineNode as LineNode)
@@ -451,7 +466,7 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
         if (!lineNode.isLast) {
           buffer.write('\n');
         }
-        currentItemOrder += 1;
+        currentItemOrders[currentLevel] = currentItemOrders[currentLevel]! + 1;
       }
 
       handleLine(LineNode());
@@ -490,7 +505,9 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
       _writeBlockTag(buffer, attribute as ParchmentAttribute<String>,
           close: close);
     } else if (attribute?.key == ParchmentAttribute.checked.key) {
-      // no-op
+      // no-op already handled in handleBlock
+    } else if (attribute?.key == ParchmentAttribute.indent.key) {
+      // no-op already handled in handleBlock
     } else {
       throw ArgumentError('Cannot handle $attribute');
     }
