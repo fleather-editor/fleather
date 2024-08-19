@@ -427,6 +427,19 @@ void main() {
         expect(controller.selection, selection);
       });
 
+      test('No de-activation when receiving non text update', () {
+        const text = 'Some link https://fleather-editor.github.io';
+        const selection = TextSelection.collapsed(offset: text.length);
+        controller.replaceText(0, 0, text);
+        controller.replaceText(text.length, 0, ' ', selection: selection);
+        controller.replaceText(0, 0, '', selection: selection);
+        controller.replaceText(text.length, 1, '',
+            selection: const TextSelection.collapsed(offset: text.length));
+        final expDelta = Delta()..insert('$text \n');
+        expect(controller.document.toDelta(), expDelta);
+        expect(controller.selection, selection);
+      });
+
       test('Markdown shortcuts', () {
         const text = 'Some line\n*';
         const selection = TextSelection.collapsed(offset: text.length);

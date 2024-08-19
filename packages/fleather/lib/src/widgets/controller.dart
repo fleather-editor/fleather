@@ -182,6 +182,10 @@ class FleatherController extends ChangeNotifier {
   // document; `false` otherwise
   bool _captureAutoFormatCancellationOrUndo(
       ParchmentDocument document, int position, int length, Object data) {
+    // Platform (iOS for example) may send TextEditingDeltaNonTextUpdate
+    // before the TextEditingDeltaDeletion that may cancel all active autoformats
+    // We ignore these changes
+    if (length == 0 && data == '') return true;
     if (!_autoFormats.hasActiveSuggestion) return true;
 
     if (_autoFormats.canUndo) {
