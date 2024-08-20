@@ -112,8 +112,8 @@ abstract base class Node extends LinkedListEntry<Node> {
   void unlink() {
     assert(_parent != null);
     final oldParent = _parent;
-    _parent = null;
     final oldNext = next;
+    _parent = null;
     super.unlink();
     oldNext?.invalidateOffset();
     oldParent?.invalidateLength();
@@ -192,7 +192,7 @@ abstract base class ContainerNode<T extends Node> extends Node {
     assert(node._parent == null);
     node._parent = this;
     _children.add(node);
-    node.next?.invalidateOffset();
+    node.invalidateOffset();
     invalidateLength();
   }
 
@@ -201,7 +201,7 @@ abstract base class ContainerNode<T extends Node> extends Node {
     assert(node._parent == null);
     node._parent = this;
     _children.addFirst(node);
-    node.next?.invalidateOffset();
+    node.invalidateOffset();
     invalidateLength();
   }
 
@@ -226,8 +226,6 @@ abstract base class ContainerNode<T extends Node> extends Node {
       child.unlink();
       newParent.add(child);
     }
-
-    invalidateLength();
 
     /// In case [newParent] already had children we need to make sure
     /// combined list is optimized.
@@ -283,7 +281,6 @@ abstract base class ContainerNode<T extends Node> extends Node {
       final result = lookup(index);
       result.node!.insert(result.offset, data, style);
     }
-    invalidateLength();
   }
 
   @override
@@ -298,7 +295,6 @@ abstract base class ContainerNode<T extends Node> extends Node {
     assert(isNotEmpty);
     final res = lookup(index);
     res.node!.delete(res.offset, length);
-    invalidateLength();
   }
 
   @override

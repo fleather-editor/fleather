@@ -127,9 +127,16 @@ void main() {
     });
 
     test('format line', () {
-      root.insert(0, 'Hello world', null);
+      root.insert(0, 'Hello world\n', null);
+      root.insert(12, 'Second headline\n', null);
       root.retain(11, 1, h1Style);
       root.retain(11, 1, rightStyle);
+
+      final secondHeadline = root.first.next!;
+      expect(secondHeadline.offset, 12);
+
+      root.retain(27, 1, ParchmentStyle().merge(ParchmentAttribute.cl));
+      expect(secondHeadline.offset, 0);
 
       final line = root.first as LineNode;
       expect(line, hasLength(12));
