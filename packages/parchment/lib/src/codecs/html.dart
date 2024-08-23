@@ -539,13 +539,13 @@ class _HtmlInlineTag extends _HtmlTag {
       final argb = toRGBA(value);
       return '<${_inlineAttributesParchmentToHtml[key]} '
           'style="color: '
-          'rgba(${argb[1]},${argb[2]},${argb[3]},${argb[0] / 255})">';
+          'rgba(${argb.R},${argb.G},${argb.B},${argb.A / 255})">';
     }
     if (key == ParchmentAttribute.backgroundColor.key) {
       final argb = toRGBA(value);
       return '<${_inlineAttributesParchmentToHtml[key]} '
           'style="background-color: '
-          'rgba(${argb[1]},${argb[2]},${argb[3]},${argb[0] / 255})">';
+          'rgba(${argb.R},${argb.G},${argb.B},${argb.A / 255})">';
     }
     return '<${_inlineAttributesParchmentToHtml[key]}>';
   }
