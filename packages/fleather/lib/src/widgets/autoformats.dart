@@ -28,12 +28,15 @@ class AutoFormats {
       : _autoFormats = autoFormats;
 
   /// Default set of auto formats.
-  factory AutoFormats.fallback() {
+  /// 
+  /// Use [additionalFormats] to add your autoformats to the default set.
+  factory AutoFormats.fallback([List<AutoFormat>? additionalFormats]) {
     return AutoFormats(autoFormats: [
-      const _AutoFormatLinks(),
-      const _MarkdownInlineShortcuts(),
-      const _MarkdownLineShortcuts(),
-      const _AutoTextDirection(),
+      const AutoFormatLinks(),
+      const MarkdownInlineShortcuts(),
+      const MarkdownLineShortcuts(),
+      const AutoTextDirection(),
+      ...?additionalFormats,
     ]);
   }
 
@@ -119,11 +122,11 @@ class AutoFormatResult {
   final int undoPositionCandidate;
 }
 
-class _AutoFormatLinks extends AutoFormat {
+class AutoFormatLinks extends AutoFormat {
   static final _urlRegex =
       RegExp(r'^(.?)((?:https?://|www\.)[^\s/$.?#].[^\s]*)');
 
-  const _AutoFormatLinks();
+  const AutoFormatLinks();
 
   @override
   AutoFormatResult? apply(
@@ -166,7 +169,7 @@ class _AutoFormatLinks extends AutoFormat {
 }
 
 // Replaces certain Markdown shortcuts with actual inline styles.
-class _MarkdownInlineShortcuts extends AutoFormat {
+class MarkdownInlineShortcuts extends AutoFormat {
   static final rules = <String, ParchmentAttribute>{
     '**': ParchmentAttribute.bold,
     '*': ParchmentAttribute.italic,
@@ -174,7 +177,7 @@ class _MarkdownInlineShortcuts extends AutoFormat {
     '~~': ParchmentAttribute.strikethrough,
   };
 
-  const _MarkdownInlineShortcuts();
+  const MarkdownInlineShortcuts();
 
   @override
   AutoFormatResult? apply(
@@ -222,7 +225,7 @@ class _MarkdownInlineShortcuts extends AutoFormat {
 }
 
 // Replaces certain Markdown shortcuts with actual line or block styles.
-class _MarkdownLineShortcuts extends AutoFormat {
+class MarkdownLineShortcuts extends AutoFormat {
   static final rules = <String, ParchmentAttribute>{
     '-': ParchmentAttribute.block.bulletList,
     '*': ParchmentAttribute.block.bulletList,
@@ -236,7 +239,7 @@ class _MarkdownLineShortcuts extends AutoFormat {
     '###': ParchmentAttribute.h3,
   };
 
-  const _MarkdownLineShortcuts();
+  const MarkdownLineShortcuts();
 
   String? _getLinePrefix(DeltaIterator iter, int index) {
     final prefixOps = skipToLineAt(iter, index);
@@ -383,8 +386,8 @@ class _MarkdownLineShortcuts extends AutoFormat {
 
 // Infers text direction from the input when happens in the beginning of a line.
 // This rule also removes alignment and sets it based on inferred direction.
-class _AutoTextDirection extends AutoFormat {
-  const _AutoTextDirection();
+class AutoTextDirection extends AutoFormat {
+  const AutoTextDirection();
 
   final _isRTL = intl.Bidi.startsWithRtl;
 
