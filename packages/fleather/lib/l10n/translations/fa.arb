@@ -1,0 +1,17 @@
+{
+    "@@locale": "fa",
+    "foregroundColorAutomatic": "خودکار",
+    "backgroundColorNoColor": "بدون رنگ",
+    "headingNormal": "عادی",
+    "headingLevel1": "سرتیتر اول",
+    "headingLevel2": "سرتیتر دوم",
+    "headingLevel3": "سرتیتر سوم",
+    "headingLevel4": "سرتیتر چهارم",
+    "headingLevel5": "سرتیتر پنجم",
+    "headingLevel6": "سرتیتر ششم",
+    "addLinkDialogPasteLink": "لینک",
+    "addLinkDialogApply": "اعمال",
+    "linkDialogOpen": "باز کردن",
+    "linkDialogCopy": "کپی",
+    "linkDialogRemove": "حذف"
+  }
