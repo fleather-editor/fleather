@@ -3,10 +3,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAutoFormat extends Mock implements AutoFormat {}
-
-class MockAutoFormatResult extends Mock implements AutoFormatResult {}
-
 void main() {
   late AutoFormats autoformats;
 
@@ -16,15 +12,10 @@ void main() {
   });
 
   test('Can use custom formats with fallbacks', () {
-    final customAutoformat = MockAutoFormat();
     final document = ParchmentDocument();
-    const position = 5;
-    const data = 'Test';
-    when(() => customAutoformat.apply(any(), any(), any()))
-        .thenReturn(MockAutoFormatResult());
-    final formats = AutoFormats.fallback([customAutoformat]);
-    formats.run(document, position, data);
-    verify(() => customAutoformat.apply(document, position, data));
+    final formats = AutoFormats.fallback([FakeAutoFormat('.')]);
+    expect(formats.run(document, 0, '.'), isTrue);
+    expect(document.toDelta(), Delta()..insert('Fake\n'));
   });
 
   group('Link detection', () {
@@ -282,4 +273,29 @@ void main() {
       expect(autoformats.canUndo, isFalse);
     });
   });
+}
+
+class FakeAutoFormat extends AutoFormat {
+  final String trigger;
+
+  FakeAutoFormat(this.trigger);
+
+  @override
+  AutoFormatResult? apply(
+      ParchmentDocument document, int position, String data) {
+    if (data == trigger) {
+      final change = Delta()
+        ..retain(position)
+        ..insert('Fake');
+      document.compose(change, ChangeSource.local);
+      return AutoFormatResult(
+        change: change,
+        undo: Delta()
+          ..retain(position)
+          ..delete(4),
+        undoPositionCandidate: position,
+      );
+    }
+    return null;
+  }
 }
