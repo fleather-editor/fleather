@@ -18,8 +18,8 @@ void main() {
   test('Can use custom formats with fallbacks', () {
     final customAutoformat = MockAutoFormat();
     final document = ParchmentDocument();
-    final position = 5;
-    final data = 'Test';
+    const position = 5;
+    const data = 'Test';
     when(() => customAutoformat.apply(any(), any(), any()))
         .thenReturn(MockAutoFormatResult());
     final formats = AutoFormats.fallback([customAutoformat]);
