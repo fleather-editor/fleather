@@ -28,7 +28,7 @@ class AutoFormats {
       : _autoFormats = autoFormats;
 
   /// Default set of auto formats.
-  /// 
+  ///
   /// Use [additionalFormats] to add your autoformats to the default set.
   factory AutoFormats.fallback([List<AutoFormat>? additionalFormats]) {
     return AutoFormats(autoFormats: [
