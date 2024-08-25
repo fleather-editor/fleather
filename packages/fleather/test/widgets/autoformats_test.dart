@@ -1,12 +1,30 @@
 import 'package:fleather/fleather.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockAutoFormat extends Mock implements AutoFormat {}
+
+class MockAutoFormatResult extends Mock implements AutoFormatResult {}
 
 void main() {
   late AutoFormats autoformats;
 
   setUp(() {
     autoformats = AutoFormats.fallback();
+    registerFallbackValue(ParchmentDocument());
+  });
+
+  test('Can use custom formats with fallbacks', () {
+    final customAutoformat = MockAutoFormat();
+    final document = ParchmentDocument();
+    final position = 5;
+    final data = 'Test';
+    when(() => customAutoformat.apply(any(), any(), any()))
+        .thenReturn(MockAutoFormatResult());
+    final formats = AutoFormats.fallback([customAutoformat]);
+    formats.run(document, position, data);
+    verify(() => customAutoformat.apply(document, position, data));
   });
 
   group('Link detection', () {
