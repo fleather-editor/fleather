@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'fleather_localizations_en.g.dart';
+import 'fleather_localizations_fa.g.dart';
 import 'fleather_localizations_fr.g.dart';
 
 /// Callers can lookup localized strings with an instance of FleatherLocalizations
@@ -94,6 +95,7 @@ abstract class FleatherLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
+    Locale('fa'),
     Locale('fr')
   ];
 
@@ -194,7 +196,7 @@ class _FleatherLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'fr'].contains(locale.languageCode);
+      <String>['en', 'fa', 'fr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_FleatherLocalizationsDelegate old) => false;
@@ -205,6 +207,8 @@ FleatherLocalizations lookupFleatherLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return FleatherLocalizationsEn();
+    case 'fa':
+      return FleatherLocalizationsFa();
     case 'fr':
       return FleatherLocalizationsFr();
   }
