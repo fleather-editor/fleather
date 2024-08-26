@@ -1,12 +1,21 @@
 import 'package:fleather/fleather.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 void main() {
   late AutoFormats autoformats;
 
   setUp(() {
     autoformats = AutoFormats.fallback();
+    registerFallbackValue(ParchmentDocument());
+  });
+
+  test('Can use custom formats with fallbacks', () {
+    final document = ParchmentDocument();
+    final formats = AutoFormats.fallback([FakeAutoFormat('.')]);
+    expect(formats.run(document, 0, '.'), isTrue);
+    expect(document.toDelta(), Delta()..insert('Fake\n'));
   });
 
   group('Link detection', () {
@@ -264,4 +273,29 @@ void main() {
       expect(autoformats.canUndo, isFalse);
     });
   });
+}
+
+class FakeAutoFormat extends AutoFormat {
+  final String trigger;
+
+  FakeAutoFormat(this.trigger);
+
+  @override
+  AutoFormatResult? apply(
+      ParchmentDocument document, int position, String data) {
+    if (data == trigger) {
+      final change = Delta()
+        ..retain(position)
+        ..insert('Fake');
+      document.compose(change, ChangeSource.local);
+      return AutoFormatResult(
+        change: change,
+        undo: Delta()
+          ..retain(position)
+          ..delete(4),
+        undoPositionCandidate: position,
+      );
+    }
+    return null;
+  }
 }
