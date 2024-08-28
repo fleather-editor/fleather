@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 
+import '../../l10n/l10n.dart';
+
 /// List of possible actions returned from [LinkActionPickerDelegate].
 enum LinkMenuAction {
   /// Launch the link
@@ -39,25 +41,27 @@ Future<LinkMenuAction> defaultLinkActionPickerDelegate(
 }
 
 Future<LinkMenuAction> _showCupertinoLinkMenu(
-    BuildContext context, String link) async {
+  BuildContext context,
+  String link,
+) async {
   final result = await showCupertinoModalPopup<LinkMenuAction>(
     context: context,
-    builder: (ctx) {
+    builder: (context) {
       return CupertinoActionSheet(
         title: Text(link),
         actions: [
           _CupertinoAction(
-            title: 'Open',
+            title: context.l.linkDialogOpen,
             icon: Icons.language_sharp,
             onPressed: () => Navigator.of(context).pop(LinkMenuAction.launch),
           ),
           _CupertinoAction(
-            title: 'Copy',
+            title: context.l.linkDialogCopy,
             icon: Icons.copy_sharp,
             onPressed: () => Navigator.of(context).pop(LinkMenuAction.copy),
           ),
           _CupertinoAction(
-            title: 'Remove',
+            title: context.l.linkDialogRemove,
             icon: Icons.link_off_sharp,
             onPressed: () => Navigator.of(context).pop(LinkMenuAction.remove),
           ),
@@ -108,7 +112,9 @@ class _CupertinoAction extends StatelessWidget {
 }
 
 Future<LinkMenuAction> _showMaterialMenu(
-    BuildContext context, String link) async {
+  BuildContext context,
+  String link,
+) async {
   final result = await showModalBottomSheet<LinkMenuAction>(
     clipBehavior: Clip.hardEdge,
     context: context,
@@ -118,17 +124,17 @@ Future<LinkMenuAction> _showMaterialMenu(
           mainAxisSize: MainAxisSize.min,
           children: [
             _MaterialAction(
-              title: 'Open',
+              title: context.l.linkDialogOpen,
               icon: Icons.language_sharp,
               onPressed: () => Navigator.of(context).pop(LinkMenuAction.launch),
             ),
             _MaterialAction(
-              title: 'Copy',
+              title: context.l.linkDialogCopy,
               icon: Icons.copy_sharp,
               onPressed: () => Navigator.of(context).pop(LinkMenuAction.copy),
             ),
             _MaterialAction(
-              title: 'Remove',
+              title: context.l.linkDialogRemove,
               icon: Icons.link_off_sharp,
               onPressed: () => Navigator.of(context).pop(LinkMenuAction.remove),
             ),

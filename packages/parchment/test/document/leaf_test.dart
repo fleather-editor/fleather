@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:parchment/parchment.dart';
-import 'package:parchment_delta/parchment_delta.dart';
 import 'package:test/test.dart';
 
 final boldStyle = ParchmentStyle().merge(ParchmentAttribute.bold);

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:parchment/codecs.dart';
 import 'package:parchment/parchment.dart';
-import 'package:parchment_delta/parchment_delta.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -371,6 +370,19 @@ void main() {
       expect(act, exp);
     });
 
+    test('ol with indent', () {
+      var markdown = '1. Hello\n  1. This is a\n2. List\n\n';
+      final act = parchmentMarkdown.decode(markdown).toDelta();
+      final exp = Delta()
+        ..insert('Hello')
+        ..insert('\n', {'block': 'ol'})
+        ..insert('This is a')
+        ..insert('\n', {'block': 'ol', 'indent': 1})
+        ..insert('List')
+        ..insert('\n', {'block': 'ol'});
+      expect(act, exp);
+    });
+
     test('cl', () {
       var markdown = '- [ ] Hello\n- [X] This is a\n- [ ] Checklist\n\n';
       final act = parchmentMarkdown.decode(markdown).toDelta();
@@ -587,6 +599,20 @@ void main() {
       final result =
           parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
       final expected = '1. Hello\n2. This is a\n3. List\n\n';
+      expect(result, expected);
+    });
+
+    test('ol with indent', () {
+      final delta = Delta()
+        ..insert('Hello')
+        ..insert('\n', {'block': 'ol'})
+        ..insert('This is a')
+        ..insert('\n', {'block': 'ol', 'indent': 1})
+        ..insert('List')
+        ..insert('\n', {'block': 'ol'});
+      final result =
+          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+      final expected = '1. Hello\n  1. This is a\n2. List\n\n';
       expect(result, expected);
     });
 

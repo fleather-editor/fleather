@@ -1,11 +1,10 @@
-// TODO: Use tuple once Parchment is ported to Dart 3
-List<int> toRGBA(int colorValue) {
-  return [
-    (0xff000000 & colorValue) >> 24,
-    (0x00ff0000 & colorValue) >> 16,
-    (0x0000ff00 & colorValue) >> 8,
-    (0x000000ff & colorValue) >> 0
-  ];
+({int R, int G, int B, int A}) toRGBA(int colorValue) {
+  return (
+    A: (0xff000000 & colorValue) >> 24,
+    R: (0x00ff0000 & colorValue) >> 16,
+    G: (0x0000ff00 & colorValue) >> 8,
+    B: (0x000000ff & colorValue) >> 0
+  );
 }
 
 int colorValueFromCSS(String cssColor) {

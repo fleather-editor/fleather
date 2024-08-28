@@ -520,6 +520,9 @@ class RenderEditableTextLine extends RenderEditableBox {
   bool _attachedToCursorController = false;
 
   @override
+  bool isRepaintBoundary = true;
+
+  @override
   void attach(covariant PipelineOwner owner) {
     super.attach(owner);
     for (final child in _children) {

@@ -2,7 +2,6 @@ import 'package:fake_async/fake_async.dart';
 import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:parchment_delta/parchment_delta.dart';
 
 void main() {
   group('$FleatherController', () {
@@ -274,6 +273,50 @@ void main() {
       // expect(controller.lastChangeSource, ChangeSource.local);
     });
 
+    group('clear', () {
+      test('closes the document by default', () {
+        fakeAsync((async) {
+          final doc = controller.document;
+          controller.compose(Delta()..insert('word'),
+              selection: const TextSelection.collapsed(offset: 4));
+          async.flushTimers();
+          var notified = false;
+          controller.addListener(() => notified = true);
+          controller.clear();
+          expect(identical(controller.document, doc), isFalse);
+          expect(controller.document.toDelta(), Delta()..insert('\n'));
+          expect(doc.isClosed, isTrue);
+          expect(
+              controller.selection, const TextSelection.collapsed(offset: 0));
+          expect(controller.canUndo, isFalse);
+          expect(controller.canRedo, isFalse);
+          expect(controller.toggledStyles, ParchmentStyle());
+          expect(notified, isTrue);
+        });
+      });
+
+      test('closeDocument is false', () {
+        fakeAsync((async) {
+          final doc = controller.document;
+          controller.compose(Delta()..insert('word'),
+              selection: const TextSelection.collapsed(offset: 4));
+          async.flushTimers();
+          var notified = false;
+          controller.addListener(() => notified = true);
+          controller.clear(closeDocument: false);
+          expect(identical(controller.document, doc), isFalse);
+          expect(controller.document.toDelta(), Delta()..insert('\n'));
+          expect(doc.isClosed, isFalse);
+          expect(
+              controller.selection, const TextSelection.collapsed(offset: 0));
+          expect(controller.canUndo, isFalse);
+          expect(controller.canRedo, isFalse);
+          expect(controller.toggledStyles, ParchmentStyle());
+          expect(notified, isTrue);
+        });
+      });
+    });
+
     group('history', () {
       group('empty stack', () {
         test('undo returns null', () {
@@ -381,6 +424,19 @@ void main() {
             selection: const TextSelection.collapsed(offset: text.length));
         final attributes = controller.document.toDelta().toList()[1].attributes;
         expect(attributes!.containsKey(ParchmentAttribute.link.key), isTrue);
+        expect(controller.selection, selection);
+      });
+
+      test('No de-activation when receiving non text update', () {
+        const text = 'Some link https://fleather-editor.github.io';
+        const selection = TextSelection.collapsed(offset: text.length);
+        controller.replaceText(0, 0, text);
+        controller.replaceText(text.length, 0, ' ', selection: selection);
+        controller.replaceText(0, 0, '', selection: selection);
+        controller.replaceText(text.length, 1, '',
+            selection: const TextSelection.collapsed(offset: text.length));
+        final expDelta = Delta()..insert('$text \n');
+        expect(controller.document.toDelta(), expDelta);
         expect(controller.selection, selection);
       });
 
