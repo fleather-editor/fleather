@@ -29,6 +29,12 @@ abstract base class LeafNode extends Node with StyledNode {
   Object get value => _value;
   Object _value;
 
+  void _setValue(Object newValue) {
+    _value = newValue;
+    parent.invalidateLength();
+    next?.invalidateOffset();
+  }
+
   /// Splits this leaf node at [index] and returns new node.
   ///
   /// If this is the last node in its list and [index] equals this node's
@@ -48,7 +54,7 @@ abstract base class LeafNode extends Node with StyledNode {
 
     if (this is TextNode) {
       final text = _value as String;
-      _value = text.substring(0, index);
+      _setValue(text.substring(0, index));
       final split = LeafNode(text.substring(index));
       split.applyStyle(style);
       insertAfter(split);
@@ -205,7 +211,7 @@ abstract base class LeafNode extends Node with StyledNode {
       var mergeWith = node.previous as TextNode;
       if (mergeWith.style == node.style) {
         final combinedValue = mergeWith.value + node.value;
-        mergeWith._value = combinedValue;
+        mergeWith._setValue(combinedValue);
         node.unlink();
         node = mergeWith;
       }
@@ -214,7 +220,7 @@ abstract base class LeafNode extends Node with StyledNode {
       var mergeWith = node.next as TextNode;
       if (mergeWith.style == node.style) {
         final combinedValue = node.value + mergeWith.value;
-        node._value = combinedValue;
+        node._setValue(combinedValue);
         mergeWith.unlink();
       }
     }

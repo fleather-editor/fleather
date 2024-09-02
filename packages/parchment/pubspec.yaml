@@ -11,9 +11,9 @@ environment:
 dependencies:
   collection: ^1.18.0
   parchment_delta: ^1.0.0
-  quiver: ^3.2.1
   html: ^0.15.4
+  meta: ^1.12.0
 
 dev_dependencies:
-  test: ^1.25.5
+  test: ^1.25.8
   lints: ^4.0.0

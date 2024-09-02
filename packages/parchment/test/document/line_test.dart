@@ -59,7 +59,10 @@ void main() {
       root.retain(0, 4, boldStyle);
       root.retain(16, 6, boldStyle);
       final line = root.first as LineNode;
+      final lastTextSegment = line.children.last;
+      expect(lastTextSegment.offset, 16);
       final newLine = line.splitAt(10);
+      expect(lastTextSegment.offset, 6);
       expect(line.toPlainText(), 'This house\n');
       expect(newLine.toPlainText(), ' is a circus\n');
     });
@@ -124,9 +127,16 @@ void main() {
     });
 
     test('format line', () {
-      root.insert(0, 'Hello world', null);
+      root.insert(0, 'Hello world\n', null);
+      root.insert(12, 'Second headline\n', null);
       root.retain(11, 1, h1Style);
       root.retain(11, 1, rightStyle);
+
+      final secondHeadline = root.first.next!;
+      expect(secondHeadline.offset, 12);
+
+      root.retain(27, 1, ParchmentStyle().merge(ParchmentAttribute.cl));
+      expect(secondHeadline.offset, 0);
 
       final line = root.first as LineNode;
       expect(line, hasLength(12));

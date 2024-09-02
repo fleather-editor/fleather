@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
-import 'package:quiver/core.dart';
 
 /// Scope of a style attribute, defines context in which an attribute can be
 /// applied.
@@ -254,7 +253,7 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
   }
 
   @override
-  int get hashCode => hash3(key, scope, value);
+  int get hashCode => Object.hash(key, scope, value);
 
   @override
   String toString() => '$key: $value';
@@ -397,8 +396,9 @@ class ParchmentStyle {
 
   @override
   int get hashCode {
-    final hashes = _data.entries.map((entry) => hash2(entry.key, entry.value));
-    return hashObjects(hashes);
+    final hashes =
+        _data.entries.map((entry) => Object.hash(entry.key, entry.value));
+    return Object.hashAll(hashes);
   }
 
   @override

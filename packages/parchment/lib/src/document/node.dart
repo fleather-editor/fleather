@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:meta/meta.dart';
 import 'package:parchment_delta/parchment_delta.dart';
 
 import 'attributes.dart';
@@ -33,24 +34,32 @@ abstract base class Node extends LinkedListEntry<Node> {
   /// `null`.
   bool get mounted => _parent != null;
 
+  int? _offsetCache;
+
   /// Offset in characters of this node relative to [parent] node.
   ///
   /// To get offset of this node in the document see [documentOffset].
   int get offset {
-    if (isFirst) return 0;
+    if (_offsetCache != null) return _offsetCache!;
+
+    if (isFirst) return _offsetCache = 0;
     var offset = 0;
     var node = this;
     do {
       node = node.previous!;
       offset += node.length;
     } while (!node.isFirst);
-    return offset;
+    return _offsetCache = offset;
   }
+
+  int? _documentOffsetCache;
 
   /// Offset in characters of this node in the document.
   int get documentOffset {
+    if (_documentOffsetCache != null) return _documentOffsetCache!;
+
     final parentOffset = (_parent is! RootNode) ? _parent!.documentOffset : 0;
-    return parentOffset + offset;
+    return _documentOffsetCache = parentOffset + offset;
   }
 
   /// Returns `true` if this node contains character at specified [offset] in
@@ -86,6 +95,8 @@ abstract base class Node extends LinkedListEntry<Node> {
     assert(entry._parent == null && _parent != null);
     entry._parent = _parent;
     super.insertBefore(entry);
+    _parent?.invalidateLength();
+    invalidateOffset();
   }
 
   @override
@@ -93,13 +104,31 @@ abstract base class Node extends LinkedListEntry<Node> {
     assert(entry._parent == null && _parent != null);
     entry._parent = _parent;
     super.insertAfter(entry);
+    parent?.invalidateLength();
+    entry.invalidateOffset();
   }
 
   @override
   void unlink() {
     assert(_parent != null);
+    final oldParent = _parent;
+    final oldNext = next;
     _parent = null;
     super.unlink();
+    oldNext?.invalidateOffset();
+    oldParent?.invalidateLength();
+  }
+
+  @mustCallSuper
+  void invalidateOffset() {
+    _offsetCache = null;
+    invalidateDocumentOffset();
+    next?.invalidateOffset();
+  }
+
+  @mustCallSuper
+  void invalidateDocumentOffset() {
+    _documentOffsetCache = null;
   }
 }
 
@@ -163,6 +192,8 @@ abstract base class ContainerNode<T extends Node> extends Node {
     assert(node._parent == null);
     node._parent = this;
     _children.add(node);
+    node.invalidateOffset();
+    invalidateLength();
   }
 
   /// Adds [node] to the beginning of this container children list.
@@ -170,13 +201,20 @@ abstract base class ContainerNode<T extends Node> extends Node {
     assert(node._parent == null);
     node._parent = this;
     _children.addFirst(node);
+    node.invalidateOffset();
+    invalidateLength();
   }
 
   /// Removes [node] from this container.
   void remove(T node) {
     assert(node._parent == this);
     node._parent = null;
-    _children.remove(node);
+    final oldNext = node.next;
+    final removed = _children.remove(node);
+    if (removed) {
+      invalidateLength();
+      oldNext?.invalidateOffset();
+    }
   }
 
   /// Moves children of this node to [newParent].
@@ -222,10 +260,13 @@ abstract base class ContainerNode<T extends Node> extends Node {
   @override
   String toPlainText() => children.map((child) => child.toPlainText()).join();
 
+  int? _length;
+
   /// Content length of this node's children. To get number of children in this
   /// node use [childCount].
   @override
-  int get length => _children.fold(0, (current, node) => current + node.length);
+  int get length => _length ??=
+      _children.fold<int>(0, (current, node) => current + node.length);
 
   @override
   void insert(int index, Object data, ParchmentStyle? style) {
@@ -258,6 +299,20 @@ abstract base class ContainerNode<T extends Node> extends Node {
 
   @override
   String toString() => _children.join('\n');
+
+  @override
+  void invalidateDocumentOffset() {
+    super.invalidateDocumentOffset();
+    for (var child in children) {
+      child.invalidateDocumentOffset();
+    }
+  }
+
+  void invalidateLength() {
+    _length = null;
+    next?.invalidateOffset();
+    parent?.invalidateLength();
+  }
 }
 
 /// Mixin used by nodes that wish to implement [StyledNode] interface.

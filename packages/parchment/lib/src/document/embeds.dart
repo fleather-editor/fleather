@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:quiver/core.dart';
 
 const _dataEquality = DeepCollectionEquality();
 
@@ -60,12 +59,11 @@ class EmbeddableObject {
 
   @override
   int get hashCode {
-    if (_data.isEmpty) return hash2(type, inline);
+    if (_data.isEmpty) return Object.hash(type, inline);
 
-    final dataHash = hashObjects(
-      _data.entries.map((e) => hash2(e.key, e.value)),
-    );
-    return hash3(type, inline, dataHash);
+    final dataHash =
+        Object.hashAll(_data.entries.map((e) => Object.hash(e.key, e.value)));
+    return Object.hash(type, inline, dataHash);
   }
 
   Map<String, dynamic> toJson() {
