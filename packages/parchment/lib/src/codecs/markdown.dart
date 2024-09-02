@@ -409,6 +409,14 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     ParchmentAttribute? currentBlockAttribute;
 
     void handleLine(LineNode node) {
+      if (node.hasBlockEmbed) {
+        if (node.embedNode.value == BlockEmbed.horizontalRule) {
+          _writeHorizontalLineTag(buffer);
+        }
+
+        return;
+      }
+
       for (final attr in node.style.lineAttributes) {
         if (attr.key == ParchmentAttribute.block.key) {
           if (currentBlockAttribute != attr) {
@@ -585,5 +593,9 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
         buffer.write(tag);
       }
     }
+  }
+
+  void _writeHorizontalLineTag(StringBuffer buffer) {
+    buffer.write('---');
   }
 }
