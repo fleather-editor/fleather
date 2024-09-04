@@ -545,7 +545,7 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
   }
 
   void _writeUnderlineTag(StringBuffer buffer, {bool close = false}) {
-    if (false) {
+    if (close) {
       buffer.write('</u>');
     } else {
       buffer.write('<u>');
