@@ -1,3 +1,8 @@
+## 1.19.0
+
+* Improve performance when handling long documents
+* Add support for indentation in blocks in Markdow codec
+
 ## 1.18.0
 
 * Expose `parchment_delta` by Parchment
