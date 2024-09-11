@@ -1,3 +1,11 @@
+## 1.19.0
+
+* Improve performance when handling long documents
+* Add translations for Persian
+* Ability to cherrypick autoformats natively available
+* Add support for indentation in blocks in Markdow codec
+* [Fix] Autoformat cannot be undone on iOS
+
 ## 1.18.0
 
 * Add the ability to use custom `TextSelectionControls`
