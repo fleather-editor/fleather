@@ -399,7 +399,7 @@ _Throttled<T> _throttle<T>({
   required Duration duration,
   required _Throttleable<T> function,
   // If true, calls at the start of the timer.
-  bool leadingEdge = false,
+  bool leadingEdge = true,
 }) {
   Timer? timer;
   bool calledDuringTimer = false;
