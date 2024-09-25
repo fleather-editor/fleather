@@ -1,0 +1,17 @@
+{
+  "@@locale": "nl",
+  "foregroundColorAutomatic": "Automatisch",
+  "backgroundColorNoColor": "Geen kleur",
+  "headingNormal": "Standaard",
+  "headingLevel1": "Kop 1",
+  "headingLevel2": "Kop 2",
+  "headingLevel3": "Kop 3",
+  "headingLevel4": "Kop 4",
+  "headingLevel5": "Kop 5",
+  "headingLevel6": "Kop 6",
+  "addLinkDialogPasteLink": "Een link invoegen",
+  "addLinkDialogApply": "Toepassen",
+  "linkDialogOpen": "Openen",
+  "linkDialogCopy": "Kopiëren",
+  "linkDialogRemove": "Verwijderen"
+}

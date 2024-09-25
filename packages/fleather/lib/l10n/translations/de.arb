@@ -1,0 +1,17 @@
+{
+  "@@locale": "de",
+  "foregroundColorAutomatic": "Automatisch",
+  "backgroundColorNoColor": "Keine Farbe",
+  "headingNormal": "Standard",
+  "headingLevel1": "Überschrift 1",
+  "headingLevel2": "Überschrift 2",
+  "headingLevel3": "Überschrift 3",
+  "headingLevel4": "Überschrift 4",
+  "headingLevel5": "Überschrift 5",
+  "headingLevel6": "Überschrift 6",
+  "addLinkDialogPasteLink": "Einen Link einfügen",
+  "addLinkDialogApply": "Anwenden",
+  "linkDialogOpen": "Öffnen",
+  "linkDialogCopy": "Kopieren",
+  "linkDialogRemove": "Entfernen"
+}
