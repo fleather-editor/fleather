@@ -5,9 +5,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'fleather_localizations_de.g.dart';
 import 'fleather_localizations_en.g.dart';
 import 'fleather_localizations_fa.g.dart';
 import 'fleather_localizations_fr.g.dart';
+import 'fleather_localizations_nl.g.dart';
 
 /// Callers can lookup localized strings with an instance of FleatherLocalizations
 /// returned by `FleatherLocalizations.of(context)`.
@@ -94,9 +96,11 @@ abstract class FleatherLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('de'),
     Locale('en'),
     Locale('fa'),
-    Locale('fr')
+    Locale('fr'),
+    Locale('nl')
   ];
 
   /// Automatically assign a foreground color to the text
@@ -196,7 +200,7 @@ class _FleatherLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'fa', 'fr'].contains(locale.languageCode);
+      <String>['de', 'en', 'fa', 'fr', 'nl'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_FleatherLocalizationsDelegate old) => false;
@@ -205,12 +209,16 @@ class _FleatherLocalizationsDelegate
 FleatherLocalizations lookupFleatherLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'de':
+      return FleatherLocalizationsDe();
     case 'en':
       return FleatherLocalizationsEn();
     case 'fa':
       return FleatherLocalizationsFa();
     case 'fr':
       return FleatherLocalizationsFr();
+    case 'nl':
+      return FleatherLocalizationsNl();
   }
 
   throw FlutterError(
