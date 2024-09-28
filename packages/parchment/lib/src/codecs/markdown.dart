@@ -7,9 +7,14 @@ import '../document/attributes.dart';
 import '../document/block.dart';
 import '../document/leaf.dart';
 import '../document/line.dart';
+import './codec_extensions.dart';
 
 class ParchmentMarkdownCodec extends Codec<ParchmentDocument, String> {
-  const ParchmentMarkdownCodec();
+  // We're adding in custom extensions here. This can be null to not break current implementations.
+  // It will evaluate to a const empty list if null in encoder.
+  final List<EncodeExtension>? extensions;
+
+  const ParchmentMarkdownCodec({this.extensions});
 
   @override
   Converter<String, ParchmentDocument> get decoder =>
@@ -17,7 +22,7 @@ class ParchmentMarkdownCodec extends Codec<ParchmentDocument, String> {
 
   @override
   Converter<ParchmentDocument, String> get encoder =>
-      _ParchmentMarkdownEncoder();
+      _ParchmentMarkdownEncoder(extensions: extensions);
 }
 
 class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
@@ -354,6 +359,13 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
 }
 
 class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
+  // Insert custom extensions if needed
+  final List<EncodeExtension>? extensions;
+
+  const _ParchmentMarkdownEncoder({
+    this.extensions = const [],
+  });
+
   static final simpleBlocks = <ParchmentAttribute, String>{
     ParchmentAttribute.bq: '> ',
     ParchmentAttribute.ul: '* ',
@@ -403,8 +415,6 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     ParchmentAttribute? currentBlockAttribute;
 
     void handleLine(LineNode node) {
-      if (node.hasBlockEmbed) return;
-
       for (final attr in node.style.lineAttributes) {
         if (attr.key == ParchmentAttribute.block.key) {
           if (currentBlockAttribute != attr) {
@@ -419,8 +429,23 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
       }
 
       for (final textNode in node.children) {
-        handleText(lineBuffer, textNode as TextNode, currentInlineStyle);
-        currentInlineStyle = textNode.style;
+        if (textNode is TextNode) {
+          handleText(lineBuffer, textNode, currentInlineStyle);
+          currentInlineStyle = textNode.style;
+        } else if (textNode is EmbedNode) {
+          // Import custom extensions for block and inline embeds.
+          // If there is an extension which matches the extension type and the EmbedBlock type
+          // then we will run the encode function and write the output to the buffer.
+          // Otherwise we'll drop it silently.
+          for (final EncodeExtension extension in extensions ?? []) {
+            if (extension.canEncode(
+                CodecExtensionType.markdown, textNode.value.type)) {
+              // Pass the embeddable object to the extension encode function
+              // Return a string which writes to the encode buffer.
+              lineBuffer.write(extension.encode(textNode.value));
+            }
+          }
+        }
       }
 
       handleText(lineBuffer, TextNode(), currentInlineStyle);
