@@ -1,5 +1,7 @@
 import 'fleather_localizations.g.dart';
 
+// ignore_for_file: type=lint
+
 /// The translations for Persian (`fa`).
 class FleatherLocalizationsFa extends FleatherLocalizations {
   FleatherLocalizationsFa([String locale = 'fa']) : super(locale);

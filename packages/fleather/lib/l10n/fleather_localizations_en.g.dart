@@ -1,5 +1,7 @@
 import 'fleather_localizations.g.dart';
 
+// ignore_for_file: type=lint
+
 /// The translations for English (`en`).
 class FleatherLocalizationsEn extends FleatherLocalizations {
   FleatherLocalizationsEn([String locale = 'en']) : super(locale);
