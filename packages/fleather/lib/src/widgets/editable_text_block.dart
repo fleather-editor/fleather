@@ -256,7 +256,8 @@ class EditableTextBlock extends StatelessWidget {
   void _toggle(LineNode node, bool checked) {
     final attr =
         checked ? ParchmentAttribute.checked : ParchmentAttribute.checked.unset;
-    controller.formatText(node.documentOffset, 0, attr);
+    controller.formatText(node.documentOffset, 0, attr,
+        withoutScroll: controller.skipScrollOnToggleLeading);
   }
 }
 
