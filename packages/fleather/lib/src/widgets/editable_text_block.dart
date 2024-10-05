@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
+import 'package:flutter/services.dart';
 
 import '../../util.dart';
 import '../rendering/editable_text_block.dart';
@@ -74,6 +75,7 @@ class EditableTextBlock extends StatelessWidget {
           node: line,
           spacing: _getSpacingForLine(line, index, count, theme),
           leading: leadingWidgets?[index],
+          trailing: index == 0 ? _buildCopyButton(context, lineNodes) : null,
           indentWidth: _getIndentWidth(line),
           devicePixelRatio: MediaQuery.of(context).devicePixelRatio,
           body: TextLine(
@@ -94,6 +96,31 @@ class EditableTextBlock extends StatelessWidget {
       index++;
     }
     return children.toList(growable: false);
+  }
+
+  Widget? _buildCopyButton(BuildContext context, List<LineNode> lineNodes) {
+    final block = node.style.get(ParchmentAttribute.block);
+    if (block != ParchmentAttribute.block.code) {
+      return null;
+    }
+    return InkWell(
+      onTap: () {
+        List<String> lines = [];
+        lines = lineNodes.map((e) => e.toPlainText().trimRight()).toList();
+        Clipboard.setData(ClipboardData(text: lines.join('\n')));
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(const SnackBar(
+            content: Text('Copy code successfully'),
+            duration: Duration(seconds: 1),
+          ));
+      },
+      child: const Icon(
+        Icons.copy,
+        size: 16.0,
+        color: Colors.grey,
+      ),
+    );
   }
 
   List<Widget>? _buildLeading(
