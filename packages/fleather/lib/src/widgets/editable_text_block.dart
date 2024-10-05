@@ -164,7 +164,7 @@ class EditableTextBlock extends StatelessWidget {
                 number: i + 1,
                 style: theme.code.style
                     .copyWith(color: theme.code.style.color?.withOpacity(0.4)),
-                width: 32.0,
+                width: 42.0,
                 padding: 16.0,
                 withDot: false,
               ))
@@ -191,7 +191,7 @@ class EditableTextBlock extends StatelessWidget {
       leadingWidgets.add(_NumberPoint(
         number: currentIndex + 1,
         style: theme.lists.style,
-        width: 32.0,
+        width: 42.0,
         padding: 8.0,
       ));
       levelsIndexes[currentLevel] = currentIndex;
@@ -210,7 +210,7 @@ class EditableTextBlock extends StatelessWidget {
     if (block == ParchmentAttribute.block.quote) {
       return extraIndent + 16.0;
     } else {
-      return extraIndent + 32.0;
+      return extraIndent + 42.0;
     }
   }
 
