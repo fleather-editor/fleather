@@ -175,10 +175,11 @@ class _TextLineState extends State<TextLine> {
     final isLink = attrs.contains(ParchmentAttribute.link);
     bool isCodeBlock = widget.node.style.get(ParchmentAttribute.block) ==
         ParchmentAttribute.block.code;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return TextSpan(
       text: isCodeBlock ? null : text.value,
-      children: isCodeBlock ? [CodeColor().textSpan(text.value)] : [],
+      children: isCodeBlock ? [CodeColor().textSpan(text.value, isDark)] : [],
       style: _getInlineTextStyle(attrs, widget.node.style, theme),
       recognizer: isLink && canLaunchLinks ? _getRecognizer(segment) : null,
       mouseCursor: isLink && canLaunchLinks ? SystemMouseCursors.click : null,
