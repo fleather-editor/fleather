@@ -14,7 +14,7 @@ import 'editable_box.dart';
 
 const double _kCursorHeightOffset = 2.0; // pixels
 
-enum TextLineSlot { leading, body }
+enum TextLineSlot { leading, body, trailing }
 
 class RenderEditableTextLine extends RenderEditableBox {
   /// Creates new editable paragraph render box.
@@ -167,6 +167,9 @@ class RenderEditableTextLine extends RenderEditableBox {
     if (_body != null) {
       yield _body!;
     }
+    if (_trailing != null) {
+      yield _trailing!;
+    }
   }
 
   RenderBox? get leading => _leading;
@@ -174,6 +177,13 @@ class RenderEditableTextLine extends RenderEditableBox {
 
   set leading(RenderBox? value) {
     _leading = _updateChild(_leading, value, TextLineSlot.leading);
+  }
+
+  RenderBox? get trailing => _trailing;
+  RenderBox? _trailing;
+
+  set trailing(RenderBox? value) {
+    _trailing = _updateChild(_trailing, value, TextLineSlot.trailing);
   }
 
   RenderContentProxyBox? get body => _body;
@@ -573,6 +583,7 @@ class RenderEditableTextLine extends RenderEditableBox {
 
     add(leading, 'leading');
     add(body, 'body');
+    add(trailing, 'trailing');
     return value;
   }
 
@@ -586,8 +597,9 @@ class RenderEditableTextLine extends RenderEditableBox {
     final verticalPadding = _resolvedPadding!.top + _resolvedPadding!.bottom;
     final effectiveHeight = math.max(0.0, height - verticalPadding);
     final leadingWidth = leading?.getMinIntrinsicWidth(effectiveHeight) ?? 0;
+    final trailingWidth = trailing?.getMinIntrinsicWidth(effectiveHeight) ?? 0;
     final bodyWidth = body?.getMinIntrinsicWidth(effectiveHeight) ?? 0;
-    return horizontalPadding + leadingWidth + bodyWidth;
+    return horizontalPadding + leadingWidth + bodyWidth + trailingWidth;
   }
 
   @override
@@ -597,8 +609,9 @@ class RenderEditableTextLine extends RenderEditableBox {
     final verticalPadding = _resolvedPadding!.top + _resolvedPadding!.bottom;
     final effectiveHeight = math.max(0.0, height - verticalPadding);
     final leadingWidth = leading?.getMaxIntrinsicWidth(effectiveHeight) ?? 0;
+    final trailingWidth = trailing?.getMaxIntrinsicWidth(effectiveHeight) ?? 0;
     final bodyWidth = body?.getMaxIntrinsicWidth(effectiveHeight) ?? 0;
-    return horizontalPadding + leadingWidth + bodyWidth;
+    return horizontalPadding + leadingWidth + bodyWidth + trailingWidth;
   }
 
   @override
@@ -642,7 +655,7 @@ class RenderEditableTextLine extends RenderEditableBox {
     _resolvePadding();
     assert(_resolvedPadding != null);
 
-    if (body == null && leading == null) {
+    if (body == null && leading == null && trailing == null) {
       size = constraints.constrain(Size(
         _resolvedPadding!.left + _resolvedPadding!.right,
         _resolvedPadding!.top + _resolvedPadding!.bottom,
@@ -672,6 +685,18 @@ class RenderEditableTextLine extends RenderEditableBox {
       parentData.offset = Offset(dxOffset, _resolvedPadding!.top);
     }
 
+    if (trailing != null) {
+      final trailingConstraints = innerConstraints.copyWith(
+          minWidth: indentWidth,
+          maxWidth: indentWidth,
+          maxHeight: body!.size.height);
+      trailing!.layout(trailingConstraints, parentUsesSize: true);
+      final parentData = trailing!.parentData as BoxParentData;
+      final dxOffset =
+          textDirection == TextDirection.rtl ? 0.0 : body!.size.width;
+      parentData.offset = Offset(dxOffset, _resolvedPadding!.top);
+    }
+
     size = constraints.constrain(Size(
       _resolvedPadding!.left + body!.size.width + _resolvedPadding!.right,
       _resolvedPadding!.top + body!.size.height + _resolvedPadding!.bottom,
@@ -695,6 +720,12 @@ class RenderEditableTextLine extends RenderEditableBox {
       final parentData = leading!.parentData as BoxParentData;
       final effectiveOffset = offset + parentData.offset;
       context.paintChild(leading!, effectiveOffset);
+    }
+
+    if (trailing != null) {
+      final parentData = trailing!.parentData as BoxParentData;
+      final effectiveOffset = offset + parentData.offset;
+      context.paintChild(trailing!, effectiveOffset);
     }
 
     if (body != null) {
@@ -803,6 +834,16 @@ class RenderEditableTextLine extends RenderEditableBox {
         position: position,
         hitTest: (result, transformed) =>
             leading!.hitTest(result, position: transformed),
+      );
+      if (isHit) return true;
+    }
+    if (trailing != null) {
+      final childParentData = trailing!.parentData as BoxParentData;
+      final isHit = result.addWithPaintOffset(
+        offset: childParentData.offset,
+        position: position,
+        hitTest: (result, transformed) =>
+            trailing!.hitTest(result, position: transformed),
       );
       if (isHit) return true;
     }

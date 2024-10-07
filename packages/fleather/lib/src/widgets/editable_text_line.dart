@@ -17,6 +17,9 @@ class EditableTextLine extends RenderObjectWidget {
   /// A widget to display before the body.
   final Widget? leading;
 
+  /// A widget to display after the body.
+  final Widget? trailing;
+
   /// The primary rich text content of this widget. Usually [TextLine] widget.
   final Widget body;
 
@@ -45,6 +48,7 @@ class EditableTextLine extends RenderObjectWidget {
     required this.hasFocus,
     required this.devicePixelRatio,
     this.leading,
+    this.trailing, // 添加 trailing 参数
     this.indentWidth = 0.0,
     this.spacing = const VerticalSpacing(),
   });
@@ -134,6 +138,7 @@ class _RenderEditableTextLineElement extends RenderObjectElement {
     super.mount(parent, newSlot);
     _mountChild(widget.leading, TextLineSlot.leading);
     _mountChild(widget.body, TextLineSlot.body);
+    _mountChild(widget.trailing, TextLineSlot.trailing); // 添加 trailing
   }
 
   void _updateChild(Widget? widget, TextLineSlot slot) {
@@ -153,12 +158,16 @@ class _RenderEditableTextLineElement extends RenderObjectElement {
     assert(widget == newWidget);
     _updateChild(widget.leading, TextLineSlot.leading);
     _updateChild(widget.body, TextLineSlot.body);
+    _updateChild(widget.trailing, TextLineSlot.trailing); // 添加 trailing
   }
 
   void _updateRenderObject(RenderObject? child, TextLineSlot? slot) {
     switch (slot) {
       case TextLineSlot.leading:
         renderObject.leading = child as RenderBox?;
+        break;
+      case TextLineSlot.trailing:
+        renderObject.trailing = child as RenderBox?;
         break;
       case TextLineSlot.body:
         renderObject.body = child as RenderContentProxyBox?;

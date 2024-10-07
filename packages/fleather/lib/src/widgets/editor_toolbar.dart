@@ -851,6 +851,7 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
     bool hideHorizontalRule = false,
     bool hideDirection = false,
     bool hideUndoRedo = false,
+    VoidCallback? onImagePressed,
     List<Widget> leading = const <Widget>[],
     List<Widget> trailing = const <Widget>[],
     bool hideAlignment = false,
@@ -1122,6 +1123,14 @@ class FleatherToolbar extends StatefulWidget implements PreferredSizeWidget {
 
         Visibility(
             visible: !hideLink, child: LinkStyleButton(controller: controller)),
+        Visibility(
+          visible: onImagePressed != null,
+          child: FLIconButton(
+            size: 32,
+            onPressed: onImagePressed,
+            icon: const Icon(Icons.image_outlined, size: 18),
+          ),
+        ),
         Visibility(
           visible: !hideHorizontalRule,
           child: InsertEmbedButton(
