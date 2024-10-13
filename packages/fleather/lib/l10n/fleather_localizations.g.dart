@@ -9,8 +9,6 @@ import 'fleather_localizations_en.g.dart';
 import 'fleather_localizations_fa.g.dart';
 import 'fleather_localizations_fr.g.dart';
 
-// ignore_for_file: type=lint
-
 /// Callers can lookup localized strings with an instance of FleatherLocalizations
 /// returned by `FleatherLocalizations.of(context)`.
 ///
