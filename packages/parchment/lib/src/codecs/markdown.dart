@@ -530,6 +530,8 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
       _writeUnderlineTag(buffer, close: close);
     } else if (strict) {
       throw ArgumentError('Cannot handle $attribute');
+    } else {
+      _writeObjectTag(buffer);
     }
   }
 
@@ -542,7 +544,7 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
   }
 
   void _writeUnderlineTag(StringBuffer buffer, {bool close = false}) {
-    if (false) {
+    if (close) {
       buffer.write('</u>');
     } else {
       buffer.write('<u>');
@@ -594,5 +596,9 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
 
   void _writeHorizontalLineTag(StringBuffer buffer) {
     buffer.write('---');
+  }
+
+  void _writeObjectTag(StringBuffer buffer) {
+    buffer.write('[object]');
   }
 }
