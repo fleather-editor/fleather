@@ -29,7 +29,7 @@ class FleatherTheme extends InheritedWidget {
   }
 
   /// The data from the closest [FleatherTheme] instance that encloses the given
-  /// context.
+  /// [context].
   ///
   /// Returns `null` if there is no [FleatherTheme] in the given build context
   /// and [nullOk] is set to `true`. If [nullOk] is set to `false` (default)
@@ -37,8 +37,10 @@ class FleatherTheme extends InheritedWidget {
   static FleatherThemeData? of(BuildContext context, {bool nullOk = false}) {
     final widget = context.dependOnInheritedWidgetOfExactType<FleatherTheme>();
     if (widget == null && nullOk) return null;
-    assert(widget != null,
-        '$FleatherTheme.of() called with a context that does not contain a FleatherTheme.');
+    assert(
+      widget != null,
+      '${FleatherTheme.of} called with a context that does not contain a $FleatherTheme.',
+    );
     return widget!.data;
   }
 }
