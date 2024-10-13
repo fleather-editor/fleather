@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:parchment/parchment.dart';
+import '../../parchment.dart';
 
 class ParchmentMarkdownCodec extends Codec<ParchmentDocument, String> {
   const ParchmentMarkdownCodec({this.strictEncoding = true});
@@ -11,6 +11,9 @@ class ParchmentMarkdownCodec extends Codec<ParchmentDocument, String> {
   /// not natively supported by the Markdown syntax exist, an exception will be
   /// thrown. Otherwise, they will be converted in the best way possible
   /// (for example with HTML tags, plain text or placeholders).
+  ///
+  /// Currently supported attributes:
+  ///   - Underline with `<u>...</u>`
   final bool strictEncoding;
 
   @override
@@ -410,8 +413,11 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
 
     void handleLine(LineNode node) {
       if (node.hasBlockEmbed) {
-        if (node.embedNode.value == BlockEmbed.horizontalRule) {
+        if ((node.children.single as EmbedNode).value ==
+            BlockEmbed.horizontalRule) {
           _writeHorizontalLineTag(buffer);
+        } else {
+          buffer.write('[object]');
         }
 
         return;
@@ -498,11 +504,8 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     return buffer.toString();
   }
 
-  void _writeAttribute(
-    StringBuffer buffer,
-    ParchmentAttribute? attribute, {
-    bool close = false,
-  }) {
+  void _writeAttribute(StringBuffer buffer, ParchmentAttribute? attribute,
+      {bool close = false}) {
     if (attribute == ParchmentAttribute.bold) {
       _writeBoldTag(buffer);
     } else if (attribute == ParchmentAttribute.italic) {
@@ -512,19 +515,13 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     } else if (attribute == ParchmentAttribute.strikethrough) {
       _writeStrikeThoughTag(buffer);
     } else if (attribute?.key == ParchmentAttribute.link.key) {
-      _writeLinkTag(
-        buffer,
-        attribute as ParchmentAttribute<String>,
-        close: close,
-      );
+      _writeLinkTag(buffer, attribute as ParchmentAttribute<String>,
+          close: close);
     } else if (attribute?.key == ParchmentAttribute.heading.key) {
       _writeHeadingTag(buffer, attribute as ParchmentAttribute<int>);
     } else if (attribute?.key == ParchmentAttribute.block.key) {
-      _writeBlockTag(
-        buffer,
-        attribute as ParchmentAttribute<String>,
-        close: close,
-      );
+      _writeBlockTag(buffer, attribute as ParchmentAttribute<String>,
+          close: close);
     } else if (attribute?.key == ParchmentAttribute.checked.key) {
       // no-op already handled in handleBlock
     } else if (attribute?.key == ParchmentAttribute.indent.key) {

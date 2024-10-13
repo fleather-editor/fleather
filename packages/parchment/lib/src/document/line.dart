@@ -26,12 +26,6 @@ final class LineNode extends ContainerNode<LeafNode> with StyledNode {
     return false;
   }
 
-  EmbedNode get embedNode {
-    assert(hasBlockEmbed);
-
-    return children.single as EmbedNode;
-  }
-
   /// Returns next [LineNode] or `null` if this is the last line in the document.
   LineNode? get nextLine {
     if (isLast) {
