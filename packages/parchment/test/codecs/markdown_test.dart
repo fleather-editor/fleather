@@ -144,6 +144,20 @@ void main() {
       runFor('~~strike through~~\n\n', true);
     });
 
+    test('underline', () {
+      final delta = Delta()
+        ..insert('an ')
+        ..insert('underlined', ParchmentAttribute.underline.toJson())
+        ..insert(' text')
+        ..insert('\n');
+
+      final result =
+          parchmentMarkdownNotStrict.encode(ParchmentDocument.fromDelta(delta));
+      final expected = 'an <u>underlined</u> text\n\n';
+
+      expect(result, expected);
+    });
+
     test('intersecting inline styles', () {
       final markdown = 'This **house _is a_ circus**\n\n';
       final document = parchmentMarkdown.decode(markdown);
