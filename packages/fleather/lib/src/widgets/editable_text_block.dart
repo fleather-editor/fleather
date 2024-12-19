@@ -256,6 +256,9 @@ class EditableTextBlock extends StatelessWidget {
   void _toggle(LineNode node, bool checked) {
     final attr =
         checked ? ParchmentAttribute.checked : ParchmentAttribute.checked.unset;
+    controller.updateSelection(
+        TextSelection.collapsed(offset: node.documentOffset),
+        source: ChangeSource.local);
     controller.formatText(node.documentOffset, 0, attr);
   }
 }
