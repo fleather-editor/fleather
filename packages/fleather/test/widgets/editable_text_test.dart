@@ -95,6 +95,28 @@ void main() {
             Operation.insert('\n', {'block': 'cl', 'checked': true}));
       });
 
+      testWidgets('check list toggle update selection', (tester) async {
+        const textPreceedingCheckBox = 'some text\n';
+        final delta = Delta()
+          ..insert(textPreceedingCheckBox)
+          ..insert('an item')
+          ..insert('\n', {'block': 'cl'});
+        final editor = EditorSandBox(
+            tester: tester, document: ParchmentDocument.fromDelta(delta));
+        await editor.pump();
+        expect(find.byType(FleatherCheckbox), findsOneWidget);
+        await editor.updateSelection(base: 0, extent: 0);
+
+        await tester.tap(find.byType(FleatherCheckbox));
+        await tester.pumpAndSettle(throttleDuration);
+        expect(editor.document.toDelta().last,
+            Operation.insert('\n', {'block': 'cl', 'checked': true}));
+        expect(
+            editor.controller.selection,
+            const TextSelection.collapsed(
+                offset: textPreceedingCheckBox.length));
+      });
+
       testWidgets('bullet list', (tester) async {
         final delta = Delta()
           ..insert('an item')
