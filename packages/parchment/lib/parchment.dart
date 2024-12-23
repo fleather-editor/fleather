@@ -1,5 +1,5 @@
 /// Rich text document model for Fleather editor.
-library parchment;
+library;
 
 export 'package:parchment_delta/parchment_delta.dart';
 

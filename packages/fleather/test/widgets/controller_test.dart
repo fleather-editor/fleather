@@ -1,5 +1,6 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:fleather/fleather.dart';
+import 'package:fleather/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -131,10 +132,16 @@ void main() {
       controller.formatText(0, 0, ParchmentAttribute.underline);
       controller.formatText(0, 0, ParchmentAttribute.strikethrough);
       controller.formatText(0, 0, ParchmentAttribute.inlineCode);
-      controller.formatText(0, 0,
-          ParchmentAttribute.backgroundColor.withColor(Colors.black.value));
-      controller.formatText(0, 0,
-          ParchmentAttribute.foregroundColor.withColor(Colors.black.value));
+      controller.formatText(
+          0,
+          0,
+          ParchmentAttribute.backgroundColor
+              .withColor(colorTo32BitValue(Colors.black)));
+      controller.formatText(
+          0,
+          0,
+          ParchmentAttribute.foregroundColor
+              .withColor(colorTo32BitValue(Colors.black)));
       expect(
           controller.toggledStyles,
           ParchmentStyle.fromJson({
@@ -144,10 +151,10 @@ void main() {
             ...ParchmentAttribute.strikethrough.toJson(),
             ...ParchmentAttribute.inlineCode.toJson(),
             ...ParchmentAttribute.backgroundColor
-                .withColor(Colors.black.value)
+                .withColor(colorTo32BitValue(Colors.black))
                 .toJson(),
             ...ParchmentAttribute.foregroundColor
-                .withColor(Colors.black.value)
+                .withColor(colorTo32BitValue(Colors.black))
                 .toJson(),
           }));
     });

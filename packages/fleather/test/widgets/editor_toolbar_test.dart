@@ -1,4 +1,5 @@
 import 'package:fleather/fleather.dart';
+import 'package:fleather/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -355,7 +356,7 @@ void main() {
           .last);
       await tester.pumpAndSettle(throttleDuration);
       expect(controller.document.toDelta().first,
-          Operation.insert('Hello', {'bg': Colors.black.value}));
+          Operation.insert('Hello', {'bg': colorTo32BitValue(Colors.black)}));
 
       final editor = tester.state<RawEditorState>(find.byType(RawEditor));
       expect(editor.effectiveFocusNode.hasFocus, true);
@@ -390,7 +391,7 @@ void main() {
           .last);
       await tester.pumpAndSettle(throttleDuration);
       expect(controller.document.toDelta().first,
-          Operation.insert('Hello', {'fg': Colors.black.value}));
+          Operation.insert('Hello', {'fg': colorTo32BitValue(Colors.black)}));
 
       final editor = tester.state<RawEditorState>(find.byType(RawEditor));
       expect(editor.effectiveFocusNode.hasFocus, true);

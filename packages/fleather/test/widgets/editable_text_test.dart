@@ -176,14 +176,14 @@ void main() {
   group('Inline format', () {
     testWidgets('Text color', (tester) async {
       final delta = Delta()
-        ..insert('colore text', {'fg': 4278237952})
+        ..insert('colore text', {'fg': 0xff245284})
         ..insert('\n');
       final editor = EditorSandBox(
           tester: tester, document: ParchmentDocument.fromDelta(delta));
       await editor.pump();
       final widget = tester.widget<RichText>(find.byType(RichText));
-      expect((widget.text as TextSpan).children?[0].style?.color?.value,
-          4278237952);
+      expect((widget.text as TextSpan).children?[0].style?.color,
+          Color(0xff245284));
     });
   });
 }

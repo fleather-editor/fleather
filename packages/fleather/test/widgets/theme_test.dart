@@ -46,7 +46,8 @@ void main() {
             spacing: const VerticalSpacing(top: 6, bottom: 2)),
         code: TextBlockTheme(
             style: TextStyle(
-                color: Colors.blue.shade900.withOpacity(0.9), fontSize: 13.0),
+                color: Colors.blue.shade900.withValues(alpha: 0.9),
+                fontSize: 13.0),
             spacing: const VerticalSpacing(top: 6.0, bottom: 10.0)),
         horizontalRule:
             HorizontalRuleThemeData(height: 2, thickness: 2, color: Colors.red),
@@ -92,7 +93,8 @@ void main() {
             spacing: const VerticalSpacing(top: 4, bottom: 4)),
         code: TextBlockTheme(
             style: TextStyle(
-                color: Colors.blue.shade800.withOpacity(0.9), fontSize: 12.0),
+                color: Colors.blue.shade800.withValues(alpha: 0.9),
+                fontSize: 12.0),
             spacing: const VerticalSpacing(top: 4.0, bottom: 8.0)),
         horizontalRule: HorizontalRuleThemeData(
             height: 4, thickness: 4, color: Colors.green),

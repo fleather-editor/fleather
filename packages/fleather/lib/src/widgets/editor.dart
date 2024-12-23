@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:math';
 
@@ -63,7 +64,6 @@ Widget defaultSpellCheckMenuBuilder(
     case TargetPlatform.linux:
     case TargetPlatform.windows:
     case TargetPlatform.fuchsia:
-    default:
       throw UnsupportedError('Only iOS and Android support spell check');
   }
 }
@@ -423,7 +423,7 @@ class _FleatherEditorState extends State<FleatherEditor>
         cursorOpacityAnimates = true;
         cursorColor = selectionTheme.cursorColor ?? cupertinoTheme.primaryColor;
         selectionColor = selectionTheme.selectionColor ??
-            cupertinoTheme.primaryColor.withOpacity(0.40);
+            cupertinoTheme.primaryColor.withValues(alpha: 0.40);
         cursorRadius = const Radius.circular(2.0);
         cursorOffset = Offset(
             iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
@@ -437,7 +437,7 @@ class _FleatherEditorState extends State<FleatherEditor>
         cursorOpacityAnimates = false;
         cursorColor = selectionTheme.cursorColor ?? cupertinoTheme.primaryColor;
         selectionColor = selectionTheme.selectionColor ??
-            cupertinoTheme.primaryColor.withOpacity(0.40);
+            cupertinoTheme.primaryColor.withValues(alpha: 0.40);
         cursorRadius ??= const Radius.circular(2.0);
         cursorOffset = Offset(
             iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
@@ -451,7 +451,7 @@ class _FleatherEditorState extends State<FleatherEditor>
         cursorOpacityAnimates = false;
         cursorColor = selectionTheme.cursorColor ?? theme.colorScheme.primary;
         selectionColor = selectionTheme.selectionColor ??
-            theme.colorScheme.primary.withOpacity(0.40);
+            theme.colorScheme.primary.withValues(alpha: 0.40);
         break;
 
       case TargetPlatform.linux:
@@ -462,7 +462,7 @@ class _FleatherEditorState extends State<FleatherEditor>
         cursorOpacityAnimates = false;
         cursorColor = selectionTheme.cursorColor ?? theme.colorScheme.primary;
         selectionColor = selectionTheme.selectionColor ??
-            theme.colorScheme.primary.withOpacity(0.40);
+            theme.colorScheme.primary.withValues(alpha: 0.40);
         break;
     }
 

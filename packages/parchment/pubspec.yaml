@@ -6,14 +6,14 @@ repository: https://github.com/fleather-editor/fleather
 issue_tracker: https://github.com/fleather-editor/fleather/issues
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.6.0 <4.0.0"
 
 dependencies:
-  collection: ^1.18.0
+  collection: ^1.19.0
   parchment_delta: ^1.0.0
-  html: ^0.15.4
-  meta: ^1.12.0
+  html: ^0.15.5
+  meta: ^1.15.0
 
 dev_dependencies:
-  test: ^1.25.8
-  lints: ^4.0.0
+  test: ^1.25.14
+  lints: ^5.1.1
