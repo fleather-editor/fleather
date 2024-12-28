@@ -1,3 +1,8 @@
+## 1.20.0
+
+* Upgrade to Flutter 3.27
+* Add translations for Dutch and German
+
 ## 1.19.0
 
 * Improve performance when handling long documents
