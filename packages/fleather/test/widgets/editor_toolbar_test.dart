@@ -356,7 +356,7 @@ void main() {
           .last);
       await tester.pumpAndSettle(throttleDuration);
       expect(controller.document.toDelta().first,
-          Operation.insert('Hello', {'bg': colorTo32BitValue(Colors.black)}));
+          Operation.insert('Hello', {'bg': Colors.black.value32Bits}));
 
       final editor = tester.state<RawEditorState>(find.byType(RawEditor));
       expect(editor.effectiveFocusNode.hasFocus, true);
@@ -391,7 +391,7 @@ void main() {
           .last);
       await tester.pumpAndSettle(throttleDuration);
       expect(controller.document.toDelta().first,
-          Operation.insert('Hello', {'fg': colorTo32BitValue(Colors.black)}));
+          Operation.insert('Hello', {'fg': Colors.black.value32Bits}));
 
       final editor = tester.state<RawEditorState>(find.byType(RawEditor));
       expect(editor.effectiveFocusNode.hasFocus, true);

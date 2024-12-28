@@ -54,11 +54,12 @@ bool isDataOnlyNewLines(Object data) {
   return RegExp('^(\n)+\$').hasMatch(data);
 }
 
-int _floatToInt8(double x) => (x * 255.0).round() & 0xff;
+extension Color32BitsExtension on Color {
+  int _floatToInt8(double x) => (x * 255.0).round() & 0xff;
 
-int colorTo32BitValue(Color color) {
-  return _floatToInt8(color.a) << 24 |
-      _floatToInt8(color.r) << 16 |
-      _floatToInt8(color.g) << 8 |
-      _floatToInt8(color.b) << 0;
+  int get value32Bits =>
+      _floatToInt8(a) << 24 |
+      _floatToInt8(r) << 16 |
+      _floatToInt8(g) << 8 |
+      _floatToInt8(b) << 0;
 }

@@ -136,12 +136,12 @@ void main() {
           0,
           0,
           ParchmentAttribute.backgroundColor
-              .withColor(colorTo32BitValue(Colors.black)));
+              .withColor(Colors.black.value32Bits));
       controller.formatText(
           0,
           0,
           ParchmentAttribute.foregroundColor
-              .withColor(colorTo32BitValue(Colors.black)));
+              .withColor(Colors.black.value32Bits));
       expect(
           controller.toggledStyles,
           ParchmentStyle.fromJson({
@@ -151,10 +151,10 @@ void main() {
             ...ParchmentAttribute.strikethrough.toJson(),
             ...ParchmentAttribute.inlineCode.toJson(),
             ...ParchmentAttribute.backgroundColor
-                .withColor(colorTo32BitValue(Colors.black))
+                .withColor(Colors.black.value32Bits)
                 .toJson(),
             ...ParchmentAttribute.foregroundColor
-                .withColor(colorTo32BitValue(Colors.black))
+                .withColor(Colors.black.value32Bits)
                 .toJson(),
           }));
     });

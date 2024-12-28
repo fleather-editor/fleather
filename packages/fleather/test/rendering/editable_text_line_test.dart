@@ -164,8 +164,8 @@ void main() {
       expect(paintingContext.canvas.drawnRect!.width, greaterThan(100));
       expect(paintingContext.canvas.drawnRect!.height, greaterThan(10));
       expect(paintingContext.canvas.drawnRectPaint!.style, PaintingStyle.fill);
-      expect(colorTo32BitValue(paintingContext.canvas.drawnRectPaint!.color),
-          colorTo32BitValue(const Color(0xffff00000)));
+      expect(paintingContext.canvas.drawnRectPaint!.color.value32Bits,
+          const Color(0xffff00000).value32Bits);
     });
   });
 }

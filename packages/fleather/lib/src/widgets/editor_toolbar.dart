@@ -474,7 +474,7 @@ class _ColorButtonState extends State<ColorButton> {
           final selectedColor = await (widget.pickColor ?? _defaultPickColor)(
               context, widget.nullColorLabel);
           final attribute = selectedColor != null
-              ? widget.attributeKey.withColor(colorTo32BitValue(selectedColor))
+              ? widget.attributeKey.withColor(selectedColor.value32Bits)
               : widget.attributeKey.unset;
           widget.controller.formatSelection(attribute);
           toolbar.requestKeyboard();
