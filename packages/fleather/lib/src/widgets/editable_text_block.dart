@@ -135,8 +135,8 @@ class EditableTextBlock extends StatelessWidget {
       children
           .mapIndexed((i, _) => _NumberPoint(
                 number: i + 1,
-                style: theme.code.style
-                    .copyWith(color: theme.code.style.color?.withOpacity(0.4)),
+                style: theme.code.style.copyWith(
+                    color: theme.code.style.color?.withValues(alpha: 0.4)),
                 width: 32.0,
                 padding: 16.0,
                 withDot: false,

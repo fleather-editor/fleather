@@ -1,5 +1,5 @@
 /// Utility functions for Fleather.
-library fleather.util;
+library;
 
 import 'dart:math' as math;
 import 'dart:ui';
@@ -52,4 +52,14 @@ TextDirection getDirectionOfNode(StyledNode node) {
 bool isDataOnlyNewLines(Object data) {
   if (data is! String || data.isEmpty) return false;
   return RegExp('^(\n)+\$').hasMatch(data);
+}
+
+extension Color32BitsExtension on Color {
+  int _floatToInt8(double x) => (x * 255.0).round() & 0xff;
+
+  int get value32Bits =>
+      _floatToInt8(a) << 24 |
+      _floatToInt8(r) << 16 |
+      _floatToInt8(g) << 8 |
+      _floatToInt8(b) << 0;
 }

@@ -146,7 +146,9 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
     }
     // block code
     if (p.contains(ParchmentAttribute.code) &&
-        c.contains(ParchmentAttribute.code)) return true;
+        c.contains(ParchmentAttribute.code)) {
+      return true;
+    }
     return false;
   }
 

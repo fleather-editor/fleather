@@ -228,7 +228,7 @@ class CursorController extends ChangeNotifier {
 
   void _onCursorColorTick() {
     _cursorColor.value =
-        _style.color.withOpacity(_cursorBlinkOpacityController.value);
+        _style.color.withValues(alpha: _cursorBlinkOpacityController.value);
     cursorBlink.value =
         showCursor.value && _cursorBlinkOpacityController.value > 0;
   }

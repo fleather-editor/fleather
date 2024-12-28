@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:fleather/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
@@ -473,7 +474,7 @@ class _ColorButtonState extends State<ColorButton> {
           final selectedColor = await (widget.pickColor ?? _defaultPickColor)(
               context, widget.nullColorLabel);
           final attribute = selectedColor != null
-              ? widget.attributeKey.withColor(selectedColor.value)
+              ? widget.attributeKey.withColor(selectedColor.value32Bits)
               : widget.attributeKey.unset;
           widget.controller.formatSelection(attribute);
           toolbar.requestKeyboard();

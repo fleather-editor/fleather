@@ -152,7 +152,7 @@ class FleatherThemeData {
 
     final inlineCodeStyle = TextStyle(
       fontSize: 14,
-      color: themeData.colorScheme.primary.withOpacity(0.8),
+      color: themeData.colorScheme.primary.withValues(alpha: 0.8),
       fontFamily: fontFamily,
     );
 
@@ -187,7 +187,7 @@ class FleatherThemeData {
       heading1: TextBlockTheme(
         style: defaultStyle.style.copyWith(
           fontSize: 34.0,
-          color: defaultStyle.style.color?.withOpacity(0.70),
+          color: defaultStyle.style.color?.withValues(alpha: 0.70),
           height: 1.15,
           fontWeight: FontWeight.w300,
         ),
@@ -196,7 +196,7 @@ class FleatherThemeData {
       heading2: TextBlockTheme(
         style: TextStyle(
           fontSize: 24.0,
-          color: defaultStyle.style.color?.withOpacity(0.70),
+          color: defaultStyle.style.color?.withValues(alpha: 0.70),
           height: 1.15,
           fontWeight: FontWeight.normal,
         ),
@@ -205,7 +205,7 @@ class FleatherThemeData {
       heading3: TextBlockTheme(
         style: TextStyle(
           fontSize: 20.0,
-          color: defaultStyle.style.color?.withOpacity(0.70),
+          color: defaultStyle.style.color?.withValues(alpha: 0.70),
           height: 1.25,
           fontWeight: FontWeight.w500,
         ),
@@ -214,7 +214,7 @@ class FleatherThemeData {
       heading4: TextBlockTheme(
         style: TextStyle(
           fontSize: 18,
-          color: defaultStyle.style.color?.withOpacity(0.50),
+          color: defaultStyle.style.color?.withValues(alpha: 0.50),
           height: 1.25,
           fontWeight: FontWeight.w500,
         ),
@@ -223,7 +223,7 @@ class FleatherThemeData {
       heading5: TextBlockTheme(
         style: TextStyle(
           fontSize: 16.0,
-          color: defaultStyle.style.color?.withOpacity(0.70),
+          color: defaultStyle.style.color?.withValues(alpha: 0.70),
           height: 1.25,
           fontWeight: FontWeight.w500,
           decoration: TextDecoration.underline,
@@ -233,7 +233,7 @@ class FleatherThemeData {
       heading6: TextBlockTheme(
         style: TextStyle(
             fontSize: 16.0,
-            color: defaultStyle.style.color?.withOpacity(0.50),
+            color: defaultStyle.style.color?.withValues(alpha: 0.50),
             height: 1.25,
             fontWeight: FontWeight.w500),
         spacing: const VerticalSpacing(bottom: 0.0, top: 8.0),
@@ -244,7 +244,7 @@ class FleatherThemeData {
         lineSpacing: const VerticalSpacing(bottom: 0),
       ),
       quote: TextBlockTheme(
-        style: TextStyle(color: baseStyle.color?.withOpacity(0.6)),
+        style: TextStyle(color: baseStyle.color?.withValues(alpha: 0.6)),
         spacing: baseSpacing,
         lineSpacing: const VerticalSpacing(top: 6, bottom: 2),
         decoration: BoxDecoration(
@@ -258,7 +258,7 @@ class FleatherThemeData {
       ),
       code: TextBlockTheme(
         style: TextStyle(
-          color: themeData.colorScheme.primary.withOpacity(0.8),
+          color: themeData.colorScheme.primary.withValues(alpha: 0.8),
           fontFamily: fontFamily,
           fontSize: 13.0,
           height: 1.4,

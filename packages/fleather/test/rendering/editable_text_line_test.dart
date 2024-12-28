@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/rendering/editable_text_line.dart';
 import 'package:fleather/src/rendering/paragraph_proxy.dart';
+import 'package:fleather/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -163,8 +164,8 @@ void main() {
       expect(paintingContext.canvas.drawnRect!.width, greaterThan(100));
       expect(paintingContext.canvas.drawnRect!.height, greaterThan(10));
       expect(paintingContext.canvas.drawnRectPaint!.style, PaintingStyle.fill);
-      expect(paintingContext.canvas.drawnRectPaint!.color,
-          const Color(0xffff00000));
+      expect(paintingContext.canvas.drawnRectPaint!.color.value32Bits,
+          const Color(0xffff00000).value32Bits);
     });
   });
 }

@@ -1,5 +1,7 @@
 import 'fleather_localizations.g.dart';
 
+// ignore_for_file: type=lint
+
 /// The translations for French (`fr`).
 class FleatherLocalizationsFr extends FleatherLocalizations {
   FleatherLocalizationsFr([String locale = 'fr']) : super(locale);

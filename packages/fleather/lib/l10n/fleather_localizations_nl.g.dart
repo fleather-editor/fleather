@@ -1,6 +1,8 @@
 import 'fleather_localizations.g.dart';
 
-/// The translations for Dutch (`nl`).
+// ignore_for_file: type=lint
+
+/// The translations for Dutch Flemish (`nl`).
 class FleatherLocalizationsNl extends FleatherLocalizations {
   FleatherLocalizationsNl([String locale = 'nl']) : super(locale);
 

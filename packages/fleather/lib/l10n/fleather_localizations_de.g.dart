@@ -1,5 +1,7 @@
 import 'fleather_localizations.g.dart';
 
+// ignore_for_file: type=lint
+
 /// The translations for German (`de`).
 class FleatherLocalizationsDe extends FleatherLocalizations {
   FleatherLocalizationsDe([String locale = 'de']) : super(locale);

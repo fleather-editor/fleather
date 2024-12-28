@@ -499,7 +499,7 @@ class _CheckboxDefaultsM3 extends CheckboxThemeData {
   WidgetStateProperty<Color> get fillColor {
     return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
       if (states.contains(WidgetState.disabled)) {
-        return _colors.onSurface.withOpacity(0.38);
+        return _colors.onSurface.withValues(alpha: 0.38);
       }
       if (states.contains(WidgetState.error)) {
         return _colors.error;
@@ -546,35 +546,35 @@ class _CheckboxDefaultsM3 extends CheckboxThemeData {
     return WidgetStateProperty.resolveWith((Set<WidgetState> states) {
       if (states.contains(WidgetState.error)) {
         if (states.contains(WidgetState.pressed)) {
-          return _colors.error.withOpacity(0.12);
+          return _colors.error.withValues(alpha: 0.12);
         }
         if (states.contains(WidgetState.hovered)) {
-          return _colors.error.withOpacity(0.08);
+          return _colors.error.withValues(alpha: 0.08);
         }
         if (states.contains(WidgetState.focused)) {
-          return _colors.error.withOpacity(0.12);
+          return _colors.error.withValues(alpha: 0.12);
         }
       }
       if (states.contains(WidgetState.selected)) {
         if (states.contains(WidgetState.pressed)) {
-          return _colors.onSurface.withOpacity(0.12);
+          return _colors.onSurface.withValues(alpha: 0.12);
         }
         if (states.contains(WidgetState.hovered)) {
-          return _colors.primary.withOpacity(0.08);
+          return _colors.primary.withValues(alpha: 0.08);
         }
         if (states.contains(WidgetState.focused)) {
-          return _colors.primary.withOpacity(0.12);
+          return _colors.primary.withValues(alpha: 0.12);
         }
         return Colors.transparent;
       }
       if (states.contains(WidgetState.pressed)) {
-        return _colors.primary.withOpacity(0.12);
+        return _colors.primary.withValues(alpha: 0.12);
       }
       if (states.contains(WidgetState.hovered)) {
-        return _colors.onSurface.withOpacity(0.08);
+        return _colors.onSurface.withValues(alpha: 0.08);
       }
       if (states.contains(WidgetState.focused)) {
-        return _colors.onSurface.withOpacity(0.12);
+        return _colors.onSurface.withValues(alpha: 0.12);
       }
       return Colors.transparent;
     });

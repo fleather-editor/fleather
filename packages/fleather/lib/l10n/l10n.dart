@@ -1,4 +1,4 @@
-library l10n;
+library;
 
 export 'fleather_localizations.g.dart';
 export 'utils.dart';

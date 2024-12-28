@@ -738,13 +738,13 @@ class RenderEditableTextLine extends RenderEditableBox {
     final background = node.style.get(ParchmentAttribute.backgroundColor);
     if (!isInlineCode && background == null) return;
 
-    final Color color;
+    Color? color;
     if (isInlineCode) {
-      color = _inlineCodeTheme.backgroundColor ?? Colors.transparent;
-    } else {
-      color = Color(background?.value ?? Colors.transparent.value);
+      color = _inlineCodeTheme.backgroundColor;
+    } else if (background?.value case final int value) {
+      color = Color(value);
     }
-    if (color == Colors.transparent) return;
+    if (color == null || color == Colors.transparent) return;
 
     final textRange = TextSelection(
         baseOffset: node.offset, extentOffset: node.offset + node.length);
