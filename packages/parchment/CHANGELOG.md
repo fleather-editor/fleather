@@ -1,7 +1,11 @@
+## 1.20.0
+
+* Upgrade to Dart 3.6.0
+
 ## 1.19.0
 
 * Improve performance when handling long documents
-* Add support for indentation in blocks in Markdow codec
+* Add support for indentation in blocks in Markdown codec
 
 ## 1.18.0
 
