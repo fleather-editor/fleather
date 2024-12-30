@@ -7,6 +7,9 @@ import 'src/codecs/html.dart';
 export 'src/codecs/markdown.dart';
 export 'src/codecs/html.dart';
 
+// Extensions for Markdown and HTML codecs
+export 'src/codecs/codec_extensions.dart';
+
 /// Markdown codec for Parchment documents.
 const parchmentMarkdown = ParchmentMarkdownCodec();
 

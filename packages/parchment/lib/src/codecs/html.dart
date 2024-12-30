@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:html/dom.dart' as html;
 import 'package:html/parser.dart';
+import 'package:parchment/codecs.dart';
 import 'package:parchment_delta/parchment_delta.dart';
 
 import '../document.dart';
@@ -56,7 +57,10 @@ const _indentWidthInPx = 32;
 /// <br>
 /// *NB2: a single line of text with only inline attributes will not be surrounded with `<p>`*
 class ParchmentHtmlCodec extends Codec<ParchmentDocument, String> {
-  const ParchmentHtmlCodec();
+  // We're adding in custom extensions here. This can be null to not break current implementations.
+  // It will evaluate to a const empty list if null in encoder.
+  final List<EncodeExtension>? extensions;
+  const ParchmentHtmlCodec({this.extensions});
 
   @override
   Converter<String, ParchmentDocument> get decoder =>
@@ -64,7 +68,7 @@ class ParchmentHtmlCodec extends Codec<ParchmentDocument, String> {
 
   @override
   Converter<ParchmentDocument, String> get encoder =>
-      const _ParchmentHtmlEncoder();
+      _ParchmentHtmlEncoder(extensions: extensions);
 }
 
 // Mutable record for the state of the encoder
@@ -101,7 +105,12 @@ class _EncoderState {
 // These can be code or lists.
 // These behave almost as line tags except there can be nested blocks
 class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
-  const _ParchmentHtmlEncoder();
+  // Insert custom extensions if needed
+  final List<EncodeExtension>? extensions;
+
+  const _ParchmentHtmlEncoder({
+    this.extensions = const [],
+  });
 
   static const _htmlElementEscape = HtmlEscape(HtmlEscapeMode.element);
   static final _brPrEolRegex = RegExp(r'<br></p>$');
@@ -485,6 +494,15 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
     if (op.data is Map<String, dynamic>) {
       final data = op.data as Map<String, dynamic>;
       final embeddable = EmbeddableObject.fromJson(data);
+
+      // We're going to loop through our custom encoder extensions here to see if we can encode this block.
+      for (final EncodeExtension extension in extensions ?? []) {
+        if (extension.canEncode(CodecExtensionType.html, embeddable.type)) {
+          buffer.write(extension.encode(embeddable));
+          return;
+        }
+      }
+
       if (embeddable is BlockEmbed) {
         if (embeddable.type == 'hr') {
           buffer.write('<hr>');
