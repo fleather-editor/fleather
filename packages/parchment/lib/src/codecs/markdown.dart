@@ -101,9 +101,9 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
       return true;
     }
 
-    if (_handleOrderedList(line, delta, style) ||
-        _handleUnorderedList(line, delta, style) ||
-        _handleCheckList(line, delta, style)) {
+    if (_handleCheckList(line, delta, style) ||
+        _handleOrderedList(line, delta, style) ||
+        _handleUnorderedList(line, delta, style)) {
       return true;
     }
 
