@@ -347,12 +347,17 @@ void main() {
     });
 
     test('ul', () {
-      var markdown = '* a bullet point\n* another bullet point\n\n';
+      var markdown =
+          '* a bullet point\n* another bullet point\n- list with -\n + list with +\n';
       final act = parchmentMarkdown.decode(markdown).toDelta();
       final exp = Delta()
         ..insert('a bullet point')
         ..insert('\n', {'block': 'ul'})
         ..insert('another bullet point')
+        ..insert('\n', {'block': 'ul'})
+        ..insert('list with -')
+        ..insert('\n', {'block': 'ul'})
+        ..insert('list with +')
         ..insert('\n', {'block': 'ul'});
       expect(act, exp);
     });
@@ -586,6 +591,22 @@ void main() {
       runFor(ParchmentAttribute.ol, 'List item', '1. List item\n\n');
       runFor(ParchmentAttribute.bq, 'List item', '> List item\n\n');
       runFor(ParchmentAttribute.code, 'List item', '```\nList item\n```\n\n');
+    });
+
+    test('ul', () {
+      final delta = Delta()
+        ..insert('Hello')
+        ..insert('\n', ParchmentAttribute.ul.toJson());
+      expect(parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta)),
+          '* Hello\n\n');
+      expect(
+          ParchmentMarkdownCodec(unorderedListToken: '-')
+              .encode(ParchmentDocument.fromDelta(delta)),
+          '- Hello\n\n');
+      expect(
+          ParchmentMarkdownCodec(unorderedListToken: '+')
+              .encode(ParchmentDocument.fromDelta(delta)),
+          '+ Hello\n\n');
     });
 
     test('ol', () {
