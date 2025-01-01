@@ -9,7 +9,9 @@ import '../document/leaf.dart';
 import '../document/line.dart';
 
 class ParchmentMarkdownCodec extends Codec<ParchmentDocument, String> {
-  const ParchmentMarkdownCodec();
+  final String unorderedListToken;
+
+  const ParchmentMarkdownCodec({this.unorderedListToken = '*'});
 
   @override
   Converter<String, ParchmentDocument> get decoder =>
@@ -17,7 +19,7 @@ class ParchmentMarkdownCodec extends Codec<ParchmentDocument, String> {
 
   @override
   Converter<ParchmentDocument, String> get encoder =>
-      _ParchmentMarkdownEncoder();
+      _ParchmentMarkdownEncoder(unorderedListToken: unorderedListToken);
 }
 
 class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
@@ -36,7 +38,7 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
   );
 
   static final _linkRegExp = RegExp(r'\[(.+?)\]\(([^)]+)\)');
-  static final _ulRegExp = RegExp(r'^( *)\* +(.*)');
+  static final _ulRegExp = RegExp(r'^( *)[(-|*|+)] +(.*)');
   static final _olRegExp = RegExp(r'^( *)\d+[.)] +(.*)');
   static final _clRegExp = RegExp(r'^( *)- +\[( |x|X)\] +(.*)');
   static final _bqRegExp = RegExp(r'^> *(.*)');
@@ -354,9 +356,13 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
 }
 
 class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
-  static final simpleBlocks = <ParchmentAttribute, String>{
+  final String unorderedListToken;
+
+  _ParchmentMarkdownEncoder({required this.unorderedListToken});
+
+  late final simpleBlocks = <ParchmentAttribute, String>{
     ParchmentAttribute.bq: '> ',
-    ParchmentAttribute.ul: '* ',
+    ParchmentAttribute.ul: '$unorderedListToken ',
     ParchmentAttribute.ol: '. ',
   };
 
