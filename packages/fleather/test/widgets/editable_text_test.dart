@@ -114,6 +114,26 @@ void main() {
         await editor.pump();
         expect(find.text('1.', findRichText: true), findsOneWidget);
       });
+
+      testWidgets('multi-level numbered list', (tester) async {
+        final delta = Delta()
+          ..insert('an item')
+          ..insert('\n', {'block': 'ul'})
+          ..insert('1')
+          ..insert('\n', {'indent': 1, 'block': 'ol'})
+          ..insert('1.1')
+          ..insert('\n', {'block': 'ol'})
+          ..insert('2')
+          ..insert('\n');
+        final editor = EditorSandBox(
+            tester: tester, document: ParchmentDocument.fromDelta(delta));
+        await editor.pump();
+        expect(find.text('1.', findRichText: true), findsNWidgets(2));
+      });
+
+      /*
+      [{"insert":"Example "},{"insert":"\n","attributes":{"heading":1}},{"insert":"Test"},{"insert":"\n","attributes":{"block":"ul"}},{"insert":"Other"},{"insert":"\n","attributes":{"indent":1}},{"insert":"Another level"},{"insert":"\n","attributes":{"indent":2,"block":"ol"}},{"insert":"Some stuff"},{"insert":"\n","attributes":{"indent":1,"block":"ol"}}]
+      */
     });
 
     testWidgets('headings', (tester) async {
