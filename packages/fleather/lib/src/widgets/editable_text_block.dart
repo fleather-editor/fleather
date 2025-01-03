@@ -156,7 +156,8 @@ class EditableTextBlock extends StatelessWidget {
       if (lastLevel != null) {
         if (lastLevel == currentLevel) {
           currentIndex = levelsIndexes[lastLevel]! + 1;
-        } else if (lastLevel > currentLevel) {
+        } else if (levelsIndexes.containsKey(currentLevel) &&
+            lastLevel > currentLevel) {
           currentIndex = levelsIndexes[currentLevel]! + 1;
         }
       }
