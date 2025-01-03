@@ -9,7 +9,9 @@ import '../../util.dart';
 import 'autoformats.dart';
 import 'history.dart';
 
-/// List of style keys which can be toggled for insertion
+/// @docImport 'checkbox.dart';
+
+// List of style keys which can be toggled for insertion
 List<String> _toggleableStyleKeys = [
   ParchmentAttribute.bold.key,
   ParchmentAttribute.italic.key,
@@ -34,7 +36,7 @@ class FleatherController extends ChangeNotifier {
 
   ParchmentDocument _document;
 
-  /// Doument managed by this controller.
+  /// Document managed by this controller.
   ParchmentDocument get document => _document;
 
   // A list of changes applied to this doc. The changes could be undone or redone.
@@ -206,7 +208,16 @@ class FleatherController extends ChangeNotifier {
     return true;
   }
 
-  void formatText(int index, int length, ParchmentAttribute attribute) {
+  /// Update format of [length] characters in the document starting at [index]
+  /// with the provided [attribute].
+  ///
+  /// If [notify] is `true`, the controller will notify widgets to update
+  /// accordingly; otherwise widgets will not update, this is useful when
+  /// we do not want a widget to update the document without triggering a
+  /// rebuild if the editor (e.g.: [FleatherCheckbox] toggling should not cause
+  /// scrolling to cursor).
+  void formatText(int index, int length, ParchmentAttribute attribute,
+      {bool notify = true}) {
     final change = document.format(index, length, attribute);
     // _lastChangeSource = ChangeSource.local;
     const source = ChangeSource.local;
@@ -227,7 +238,7 @@ class FleatherController extends ChangeNotifier {
       _updateSelectionSilent(adjustedSelection, source: source);
     }
     _updateHistory();
-    notifyListeners();
+    if (notify) notifyListeners();
   }
 
   /// Formats current selection with [attribute].

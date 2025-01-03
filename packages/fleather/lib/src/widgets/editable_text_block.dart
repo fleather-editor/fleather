@@ -256,7 +256,7 @@ class EditableTextBlock extends StatelessWidget {
   void _toggle(LineNode node, bool checked) {
     final attr =
         checked ? ParchmentAttribute.checked : ParchmentAttribute.checked.unset;
-    controller.formatText(node.documentOffset, 0, attr);
+    controller.formatText(node.documentOffset, 0, attr, notify: false);
   }
 }
 
@@ -347,7 +347,7 @@ class _BulletPoint extends StatelessWidget {
   }
 }
 
-class _CheckboxPoint extends StatelessWidget {
+class _CheckboxPoint extends StatefulWidget {
   const _CheckboxPoint({
     required this.value,
     required this.enabled,
@@ -359,13 +359,33 @@ class _CheckboxPoint extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   @override
+  State<_CheckboxPoint> createState() => _CheckboxPointState();
+}
+
+class _CheckboxPointState extends State<_CheckboxPoint> {
+  late bool value = widget.value;
+
+  @override
+  void didUpdateWidget(covariant _CheckboxPoint oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (value != widget.value) {
+      setState(() => value = widget.value);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       alignment: AlignmentDirectional.topEnd,
       padding: const EdgeInsetsDirectional.only(top: 2.0, end: 12.0),
       child: FleatherCheckbox(
         value: value,
-        onChanged: enabled ? (_) => onChanged(!value) : null,
+        onChanged: widget.enabled
+            ? (_) {
+                widget.onChanged(!value);
+                setState(() => value = !value);
+              }
+            : null,
       ),
     );
   }
