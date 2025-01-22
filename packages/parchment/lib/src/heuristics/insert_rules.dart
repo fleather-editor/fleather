@@ -211,7 +211,14 @@ class AutoExitBlockRule extends InsertRule {
     // Here we now know that the line after `target` is not in the same block
     // therefore we can exit this block.
     final attributes = target.attributes ?? <String, dynamic>{};
-    attributes.addAll(ParchmentAttribute.block.unset.toJson());
+    final indent = attributes[ParchmentAttribute.indent.key];
+
+    // Unindent if this block is indented else unset the block attribute
+    if (indent != null && indent > 0) {
+      attributes[ParchmentAttribute.indent.key] = indent - 1;
+    } else {
+      attributes.addAll(ParchmentAttribute.block.unset.toJson());
+    }
     return Delta()
       ..retain(index)
       ..retain(1, attributes);

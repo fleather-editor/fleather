@@ -175,6 +175,20 @@ void main() {
       final actual = rule.apply(doc, 7, '\n');
       expect(actual, isNull);
     });
+
+     test('should unindent multi level list when rule is applied', () {
+      final doc = Delta()
+        ..insert('Item 1')
+        ..insert('\n', {'indent': 1, 'block': 'ul'})
+        ..insert('Item 2')
+        ..insert('\n\n', {'indent': 2, 'block': 'ul'});
+      final actual = rule.apply(doc, 14, '\n');
+      expect(actual, isNotNull);
+      final expected = Delta()
+        ..retain(14)
+        ..retain(1, {'indent': 1, 'block': 'ul'});
+      expect(actual, expected);
+    });
   });
 
   group('$PreserveInlineStylesRule', () {
