@@ -1286,6 +1286,14 @@ class RawEditorState extends EditorState
     if (data == null || data.isEmpty) {
       return;
     }
+    final isValidUrl =
+        Uri.tryParse(data.plainText ?? '')?.hasAbsolutePath ?? false;
+
+    if (isValidUrl) {
+      widget.controller
+          .formatSelection(ParchmentAttribute.link.fromString(data.plainText!));
+      return;
+    }
 
     Delta pasteDelta = Delta();
     pasteDelta.retain(selection.baseOffset);
