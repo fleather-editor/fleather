@@ -1277,6 +1277,7 @@ class RawEditorState extends EditorState
       return;
     }
     final TextSelection selection = textEditingValue.selection;
+    final selectionLength = selection.extentOffset - selection.baseOffset;
     if (!selection.isValid) {
       return;
     }
@@ -1289,7 +1290,7 @@ class RawEditorState extends EditorState
     final isValidUrl =
         Uri.tryParse(data.plainText ?? '')?.hasAbsolutePath ?? false;
 
-    if (isValidUrl) {
+    if (isValidUrl && selectionLength > 0) {
       widget.controller
           .formatSelection(ParchmentAttribute.link.fromString(data.plainText!));
       return;
@@ -1297,7 +1298,7 @@ class RawEditorState extends EditorState
 
     Delta pasteDelta = Delta();
     pasteDelta.retain(selection.baseOffset);
-    pasteDelta.delete(selection.extentOffset - selection.baseOffset);
+    pasteDelta.delete(selectionLength);
 
     if (data.hasDelta) {
       pasteDelta = pasteDelta.concat(data.delta!);
