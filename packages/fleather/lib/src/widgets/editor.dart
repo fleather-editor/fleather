@@ -1628,9 +1628,10 @@ class RawEditorState extends EditorState
   }
 
   void _onChangedClipboardStatus() {
-    setState(() {
+    if (mounted) {
       // Inform the widget that the value of clipboardStatus has changed.
-    });
+      setState(() {});
+    }
   }
 
   Future<LinkMenuAction> _linkActionPicker(Node linkNode) async {
