@@ -1,3 +1,9 @@
+## 1.20.1
+
+* [Fix] markdown decoder not recognizing all ul tokens
+* [Fix] scroll jumps when toggling checkbox
+* [Fix] null check on null value error in _onChangedClipboardStatus
+
 ## 1.20.0
 
 * Upgrade to Flutter 3.27

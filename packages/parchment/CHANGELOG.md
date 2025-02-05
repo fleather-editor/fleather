@@ -1,3 +1,7 @@
+## 1.20.1
+
+* [Fix] markdown decoder not recognizing all ul tokens
+
 ## 1.20.0
 
 * Upgrade to Dart 3.6.0
