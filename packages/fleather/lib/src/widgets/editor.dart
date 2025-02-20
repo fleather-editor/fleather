@@ -507,6 +507,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       showSelectionHandles: _showSelectionHandles,
       onSelectionChanged: _handleSelectionChanged,
       selectionControls: textSelectionControls,
+      contextMenuBuilder: widget.contextMenuBuilder,
     );
 
     child = FleatherShortcuts(
