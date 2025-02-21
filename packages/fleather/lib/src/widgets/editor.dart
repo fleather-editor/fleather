@@ -1303,7 +1303,10 @@ class RawEditorState extends EditorState
     if (data.hasDelta) {
       pasteDelta = pasteDelta.concat(data.delta!);
     } else {
-      pasteDelta.insert(data.plainText!);
+      final attributes = isValidUrl
+          ? ParchmentAttribute.link.fromString(data.plainText!)
+          : null;
+      pasteDelta.insert(data.plainText!, attributes?.toJson());
     }
 
     controller.compose(pasteDelta,
