@@ -507,6 +507,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       showSelectionHandles: _showSelectionHandles,
       onSelectionChanged: _handleSelectionChanged,
       selectionControls: textSelectionControls,
+      contextMenuBuilder: widget.contextMenuBuilder,
     );
 
     child = FleatherShortcuts(
@@ -1637,9 +1638,10 @@ class RawEditorState extends EditorState
   }
 
   void _onChangedClipboardStatus() {
-    setState(() {
+    if (mounted) {
       // Inform the widget that the value of clipboardStatus has changed.
-    });
+      setState(() {});
+    }
   }
 
   Future<LinkMenuAction> _linkActionPicker(Node linkNode) async {
