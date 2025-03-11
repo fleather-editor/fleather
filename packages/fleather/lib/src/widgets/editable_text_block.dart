@@ -218,10 +218,10 @@ class EditableTextBlock extends StatelessWidget {
       if (block == ParchmentAttribute.block.quote) {
         lineSpacing = theme.quote.lineSpacing;
       } else if (block == ParchmentAttribute.block.numberList ||
-          block == ParchmentAttribute.block.bulletList) {
+          block == ParchmentAttribute.block.bulletList ||
+          block == ParchmentAttribute.block.checkList) {
         lineSpacing = theme.lists.lineSpacing;
-      } else if (block == ParchmentAttribute.block.code ||
-          block == ParchmentAttribute.block.code) {
+      } else if (block == ParchmentAttribute.block.code) {
         lineSpacing = theme.lists.lineSpacing;
       }
       top = lineSpacing?.top;
