@@ -1278,6 +1278,7 @@ class RawEditorState extends EditorState
       return;
     }
     final TextSelection selection = textEditingValue.selection;
+    final selectionLength = selection.extentOffset - selection.baseOffset;
     if (!selection.isValid) {
       return;
     }
@@ -1287,15 +1288,26 @@ class RawEditorState extends EditorState
     if (data == null || data.isEmpty) {
       return;
     }
+    final isValidUrl =
+        Uri.tryParse(data.plainText ?? '')?.hasAbsolutePath ?? false;
+
+    if (isValidUrl && selectionLength > 0) {
+      widget.controller
+          .formatSelection(ParchmentAttribute.link.fromString(data.plainText!));
+      return;
+    }
 
     Delta pasteDelta = Delta();
     pasteDelta.retain(selection.baseOffset);
-    pasteDelta.delete(selection.extentOffset - selection.baseOffset);
+    pasteDelta.delete(selectionLength);
 
     if (data.hasDelta) {
       pasteDelta = pasteDelta.concat(data.delta!);
     } else {
-      pasteDelta.insert(data.plainText!);
+      final attributes = isValidUrl
+          ? ParchmentAttribute.link.fromString(data.plainText!)
+          : null;
+      pasteDelta.insert(data.plainText!, attributes?.toJson());
     }
 
     controller.compose(pasteDelta,
