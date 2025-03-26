@@ -138,7 +138,7 @@ class EditableTextBlock extends StatelessWidget {
                 style: theme.code.style.copyWith(
                     color: theme.code.style.color?.withValues(alpha: 0.4)),
                 width: 32.0,
-                padding: 16.0,
+                padding: 8,
                 withDot: false,
               ))
           .toList();
