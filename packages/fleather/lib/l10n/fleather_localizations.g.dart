@@ -9,6 +9,7 @@ import 'fleather_localizations_de.g.dart';
 import 'fleather_localizations_en.g.dart';
 import 'fleather_localizations_fa.g.dart';
 import 'fleather_localizations_fr.g.dart';
+import 'fleather_localizations_ko.g.dart';
 import 'fleather_localizations_nl.g.dart';
 
 // ignore_for_file: type=lint
@@ -102,6 +103,7 @@ abstract class FleatherLocalizations {
     Locale('en'),
     Locale('fa'),
     Locale('fr'),
+    Locale('ko'),
     Locale('nl')
   ];
 
@@ -201,8 +203,14 @@ class _FleatherLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['de', 'en', 'fa', 'fr', 'nl'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+        'de',
+        'en',
+        'fa',
+        'fr',
+        'ko',
+        'nl'
+      ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_FleatherLocalizationsDelegate old) => false;
@@ -219,6 +227,8 @@ FleatherLocalizations lookupFleatherLocalizations(Locale locale) {
       return FleatherLocalizationsFa();
     case 'fr':
       return FleatherLocalizationsFr();
+    case 'ko':
+      return FleatherLocalizationsKo();
     case 'nl':
       return FleatherLocalizationsNl();
   }
