@@ -1,0 +1,59 @@
+{
+  "@@locale": "ko",
+  "foregroundColorAutomatic": "자동",
+  "@foregroundColorAutomatic": {
+    "description": "글자 색상을 자동으로 지정"
+  },
+  "backgroundColorNoColor": "없음",
+  "@backgroundColorNoColor": {
+    "description": "배경 색상을 없음으로 지정"
+  },
+  "headingNormal": "표준",
+  "@headingNormal": {
+    "description": "표준 단락"
+  },
+  "headingLevel1": "제목 1",
+  "@headingLevel1": {
+    "description": "제목 1 단락"
+  },
+  "headingLevel2": "제목 2",
+  "@headingLevel2": {
+    "description": "제목 2 단락"
+  },
+  "headingLevel3": "제목 3",
+  "@headingLevel3": {
+    "description": "제목 3 단락"
+  },
+  "headingLevel4": "제목 4",
+  "@headingLevel4": {
+    "description": "제목 4 단락"
+  },
+  "headingLevel5": "제목 5",
+  "@headingLevel5": {
+    "description": "제목 5 단락"
+  },
+  "headingLevel6": "제목 6",
+  "@headingLevel6": {
+    "description": "제목 6 단락"
+  },
+  "addLinkDialogPasteLink": "URL을 붙여넣으세요",
+  "@addLinkDialogPasteLink": {
+    "description": "삽입할 링크를 입력하는 다이얼로그 내 텍스트 필드에 들어갈 설명"
+  },
+  "addLinkDialogApply": "붙여넣기",
+  "@addLinkDialogApply": {
+    "description": "링크 다이얼로그를 확인 할 버튼 설명"
+  },
+  "linkDialogOpen": "링크 열기",
+  "@linkDialogOpen": {
+    "description": "링크 열기"
+  },
+  "linkDialogCopy": "링크 복사",
+  "@linkDialogCopy": {
+    "description": "링크 복사"
+  },
+  "linkDialogRemove": "링크 제거",
+  "@linkDialogRemove": {
+    "description": "링크 제거"
+  }
+}
