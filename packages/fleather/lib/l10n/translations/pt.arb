@@ -1,0 +1,59 @@
+{
+  "@@locale": "pt",
+  "foregroundColorAutomatic": "Automático",
+  "@foregroundColorAutomatic": {
+    "description": "Atribui automaticamente uma cor de primeiro plano ao texto"
+  },
+  "backgroundColorNoColor": "Sem cor",
+  "@backgroundColorNoColor": {
+    "description": "Não atribui cor de fundo ao texto"
+  },
+  "headingNormal": "Normal",
+  "@headingNormal": {
+    "description": "Estilo de texto de cabeçalho normal"
+  },
+  "headingLevel1": "Cabeçalho 1",
+  "@headingLevel1": {
+    "description": "Estilo de texto para cabeçalho nível 1"
+  },
+  "headingLevel2": "Cabeçalho 2",
+  "@headingLevel2": {
+    "description": "Estilo de texto para cabeçalho nível 2"
+  },
+  "headingLevel3": "Cabeçalho 3",
+  "@headingLevel3": {
+    "description": "Estilo de texto para cabeçalho nível 3"
+  },
+  "headingLevel4": "Cabeçalho 4",
+  "@headingLevel4": {
+    "description": "Estilo de texto para cabeçalho nível 4"
+  },
+  "headingLevel5": "Cabeçalho 5",
+  "@headingLevel5": {
+    "description": "Estilo de texto para cabeçalho nível 5"
+  },
+  "headingLevel6": "Cabeçalho 6",
+  "@headingLevel6": {
+    "description": "Estilo de texto para cabeçalho nível 6"
+  },
+  "addLinkDialogPasteLink": "Colar uma ligação",
+  "@addLinkDialogPasteLink": {
+    "description": "Rótulo para o campo de entrada de ligação na caixa de diálogo de adicionar ligação"
+  },
+  "addLinkDialogApply": "Aplicar",
+  "@addLinkDialogApply": {
+    "description": "Rótulo para o botão de confirmação na caixa de diálogo de ligação"
+  },
+  "linkDialogOpen": "Abrir",
+  "@linkDialogOpen": {
+    "description": "Abrir a ligação"
+  },
+  "linkDialogCopy": "Copiar",
+  "@linkDialogCopy": {
+    "description": "Copiar a ligação"
+  },
+  "linkDialogRemove": "Remover",
+  "@linkDialogRemove": {
+    "description": "Remover a ligação"
+  }
+}
