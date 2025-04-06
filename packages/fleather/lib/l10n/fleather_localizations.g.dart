@@ -11,6 +11,7 @@ import 'fleather_localizations_fa.g.dart';
 import 'fleather_localizations_fr.g.dart';
 import 'fleather_localizations_ko.g.dart';
 import 'fleather_localizations_nl.g.dart';
+import 'fleather_localizations_pt.g.dart';
 
 // ignore_for_file: type=lint
 
@@ -99,12 +100,14 @@ abstract class FleatherLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('pt', 'BR'),
     Locale('de'),
     Locale('en'),
     Locale('fa'),
     Locale('fr'),
     Locale('ko'),
-    Locale('nl')
+    Locale('nl'),
+    Locale('pt')
   ];
 
   /// Automatically assign a foreground color to the text
@@ -204,6 +207,7 @@ class _FleatherLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) => <String>[
+        'pt',
         'de',
         'en',
         'fa',
@@ -217,8 +221,22 @@ class _FleatherLocalizationsDelegate
 }
 
 FleatherLocalizations lookupFleatherLocalizations(Locale locale) {
+  // Lookup logic when language+country codes are specified.
+  switch (locale.languageCode) {
+    case 'pt':
+      {
+        switch (locale.countryCode) {
+          case 'BR':
+            return FleatherLocalizationsPtBr();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'pt':
+      return FleatherLocalizationsPt();
     case 'de':
       return FleatherLocalizationsDe();
     case 'en':

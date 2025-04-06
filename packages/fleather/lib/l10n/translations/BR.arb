@@ -1,0 +1,59 @@
+{
+  "@@locale": "pt_BR",
+  "foregroundColorAutomatic": "Automático",
+  "@foregroundColorAutomatic": {
+    "description": "Atribui automaticamente uma cor de primeiro plano ao texto"
+  },
+  "backgroundColorNoColor": "Sem cor",
+  "@backgroundColorNoColor": {
+    "description": "Não atribui cor de fundo ao texto"
+  },
+  "headingNormal": "Normal",
+  "@headingNormal": {
+    "description": "Estilo de texto de cabeçalho normal"
+  },
+  "headingLevel1": "Título 1",
+  "@headingLevel1": {
+    "description": "Estilo de texto para título nível 1"
+  },
+  "headingLevel2": "Título 2",
+  "@headingLevel2": {
+    "description": "Estilo de texto para título nível 2"
+  },
+  "headingLevel3": "Título 3",
+  "@headingLevel3": {
+    "description": "Estilo de texto para título nível 3"
+  },
+  "headingLevel4": "Título 4",
+  "@headingLevel4": {
+    "description": "Estilo de texto para título nível 4"
+  },
+  "headingLevel5": "Título 5",
+  "@headingLevel5": {
+    "description": "Estilo de texto para título nível 5"
+  },
+  "headingLevel6": "Título 6",
+  "@headingLevel6": {
+    "description": "Estilo de texto para título nível 6"
+  },
+  "addLinkDialogPasteLink": "Cole um link",
+  "@addLinkDialogPasteLink": {
+    "description": "Rótulo para o campo de entrada de link na caixa de diálogo de adicionar link"
+  },
+  "addLinkDialogApply": "Aplicar",
+  "@addLinkDialogApply": {
+    "description": "Rótulo para o botão de confirmação na caixa de diálogo de link"
+  },
+  "linkDialogOpen": "Abrir",
+  "@linkDialogOpen": {
+    "description": "Abrir o link"
+  },
+  "linkDialogCopy": "Copiar",
+  "@linkDialogCopy": {
+    "description": "Copiar o link"
+  },
+  "linkDialogRemove": "Remover",
+  "@linkDialogRemove": {
+    "description": "Remover o link"
+  }
+}
