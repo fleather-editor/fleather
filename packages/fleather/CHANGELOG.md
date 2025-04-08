@@ -1,5 +1,14 @@
 ## 1.20.1
 
+* Add Portuguese & Brazilian Portuguese support
+* Add Korean support
+* Upgrade to Flutter 3.29
+* `contextMenuBuilder` can be overridden
+* [Fix] Inappropriate leading numbers in code block
+* [Fix] Theme not being applied to checklist
+
+## 1.20.1
+
 * [Fix] markdown decoder not recognizing all ul tokens
 * [Fix] scroll jumps when toggling checkbox
 * [Fix] null check on null value error in _onChangedClipboardStatus
