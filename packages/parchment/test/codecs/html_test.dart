@@ -1098,7 +1098,8 @@ void main() {
         final doc = ParchmentDocument.fromJson([
           {'insert': '\n'}
         ]);
-        doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
+        doc.insert(
+            0, BlockEmbed.image({'source': 'http://fake.link/image.png'}));
 
         expect(codec.encode(doc), html);
       });
@@ -1718,18 +1719,28 @@ void main() {
           {'insert': '\n'}
         ]);
         doc.insert(0, 'a');
-        doc.insert(0, BlockEmbed.image('http://another.fake.link/image.png'));
-        doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
+        doc.insert(0,
+            BlockEmbed.image({'source': 'http://another.fake.link/image.png'}));
+        doc.insert(
+            0, BlockEmbed.image({'source': 'http://fake.link/image.png'}));
         doc.insert(0, BlockEmbed.horizontalRule);
         expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
       test('Image', () {
-        final html = '<img src="http://fake.link/image.png">';
+        final html =
+            '<img src="http://fake.link/image.png" width="100" height="100" alt="image">';
         final doc = ParchmentDocument.fromJson([
           {'insert': '\n'}
         ]);
-        doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
+        doc.insert(
+            0,
+            BlockEmbed.image({
+              'source': 'http://fake.link/image.png',
+              'width': 100,
+              'height': 100,
+              'alt': 'image'
+            }));
 
         expect(codec.decode(html).toDelta(), doc.toDelta());
       });
