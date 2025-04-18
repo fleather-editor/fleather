@@ -176,7 +176,7 @@ void main() {
       expect(actual, isNull);
     });
 
-     test('should unindent multi level list when rule is applied', () {
+    test('should unindent multi level list when rule is applied', () {
       final doc = Delta()
         ..insert('Item 1')
         ..insert('\n', {'indent': 1, 'block': 'ul'})
