@@ -36,6 +36,10 @@ class FleatherShortcuts extends Shortcuts {
         ToggleItalicStyleIntent(),
     SingleActivator(LogicalKeyboardKey.keyU, control: true):
         ToggleUnderlineStyleIntent(),
+    SingleActivator(LogicalKeyboardKey.tab, control: false):
+        AddIndentationIntent(),
+    SingleActivator(LogicalKeyboardKey.tab, shift: true):
+        RemoveIndentationIntent()
   };
 
   static const Map<ShortcutActivator, Intent> _macShortcuts =
@@ -46,6 +50,10 @@ class FleatherShortcuts extends Shortcuts {
         ToggleItalicStyleIntent(),
     SingleActivator(LogicalKeyboardKey.keyU, meta: true):
         ToggleUnderlineStyleIntent(),
+    SingleActivator(LogicalKeyboardKey.tab, control: false):
+        AddIndentationIntent(),
+    SingleActivator(LogicalKeyboardKey.tab, shift: true):
+        RemoveIndentationIntent()
   };
 }
 
@@ -59,6 +67,14 @@ class ToggleItalicStyleIntent extends Intent {
 
 class ToggleUnderlineStyleIntent extends Intent {
   const ToggleUnderlineStyleIntent();
+}
+
+class AddIndentationIntent extends Intent {
+  const AddIndentationIntent();
+}
+
+class RemoveIndentationIntent extends Intent {
+  const RemoveIndentationIntent();
 }
 
 class FleatherActions extends Actions {
@@ -76,7 +92,32 @@ class FleatherActions extends Actions {
         _ToggleInlineStyleAction(ParchmentAttribute.italic),
     ToggleUnderlineStyleIntent:
         _ToggleInlineStyleAction(ParchmentAttribute.underline),
+    AddIndentationIntent: _AddRemoveIndentationAction(addIndentation: true),
+    RemoveIndentationIntent: _AddRemoveIndentationAction(addIndentation: false)
   };
+}
+
+class _AddRemoveIndentationAction extends ContextAction<Intent> {
+  final bool addIndentation;
+
+  _AddRemoveIndentationAction({required this.addIndentation});
+
+  @override
+  Object? invoke(Intent intent, [BuildContext? context]) {
+    final editorState = context!.findAncestorStateOfType<RawEditorState>()!;
+    final style = editorState.controller.getSelectionStyle();
+    final indentLevel = style.get(ParchmentAttribute.indent)?.value ?? 0;
+    if (indentLevel == 0 && !addIndentation) {
+      return null;
+    }
+    if (indentLevel == 1 && !addIndentation) {
+      editorState.controller.formatSelection(ParchmentAttribute.indent.unset);
+    } else {
+      editorState.controller.formatSelection(ParchmentAttribute.indent
+          .withLevel(indentLevel + (addIndentation ? 1 : -1)));
+    }
+    return null;
+  }
 }
 
 class _ToggleInlineStyleAction extends ContextAction<Intent> {
