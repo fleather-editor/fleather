@@ -152,6 +152,9 @@ class PreserveLineFormatOnNewLineRule extends InsertRule {
 /// Heuristic rule to exit current block when user inserts two consecutive
 /// newlines.
 ///
+/// If bloc is a list or checklist with indent level greater than 1, heuristic
+/// rules will de-indent current line.
+///
 /// This rule is only applied when the cursor is on the last line of a block.
 /// When the cursor is in the middle of a block we allow adding empty lines
 /// and preserving the block's style.
