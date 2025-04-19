@@ -55,6 +55,62 @@ void main() {
       tester.view.viewInsets = FakeViewPadding.zero;
     });
 
+    group('Cursor offset to text position', () {
+      MaterialApp widgetWithPadding(
+          FleatherController controller, EdgeInsetsGeometry padding) {
+        final editor = MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                FleatherToolbar.basic(controller: controller),
+                Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+                Expanded(
+                  child: FleatherEditor(
+                    controller: controller,
+                    padding: padding,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+        return editor;
+      }
+
+      testWidgets('Cursor offset to text position', (tester) async {
+        final delta = Delta()..insert('Super\n');
+        final controller =
+            FleatherController(document: ParchmentDocument.fromDelta(delta));
+        final editor =
+            widgetWithPadding(controller, EdgeInsets.only(left: 20, right: 16));
+        await tester.pumpWidget(editor);
+        final renderEditor =
+            tester.state<EditorState>(find.byType(RawEditor)).renderEditor;
+        final curserCenter =
+            renderEditor.getLocalRectForCaret(TextPosition(offset: 5)).center;
+        final position = renderEditor
+            .getPositionForOffset(renderEditor.localToGlobal(curserCenter));
+        expect(position.offset, 5);
+      });
+
+      testWidgets('Directional padding - Cursor offset to text position',
+          (tester) async {
+        final delta = Delta()..insert('Super\n');
+        final controller =
+            FleatherController(document: ParchmentDocument.fromDelta(delta));
+        MaterialApp editor = widgetWithPadding(
+            controller, EdgeInsetsDirectional.only(start: 20, end: 16));
+        await tester.pumpWidget(editor);
+        final renderEditor =
+            tester.state<EditorState>(find.byType(RawEditor)).renderEditor;
+        final curserCenter =
+            renderEditor.getLocalRectForCaret(TextPosition(offset: 5)).center;
+        final position = renderEditor
+            .getPositionForOffset(renderEditor.localToGlobal(curserCenter));
+        expect(position.offset, 5);
+      });
+    });
+
     testWidgets(
         'Scrolls to reveal the bottom end of cursor when keyboard pops up and cursor is bigger than screen',
         (tester) async {

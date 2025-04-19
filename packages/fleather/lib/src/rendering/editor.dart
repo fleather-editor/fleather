@@ -187,7 +187,17 @@ class RenderEditor extends RenderEditableContainerBox
     markNeedsSemanticsUpdate();
   }
 
-  Offset get paintOffset => Offset(0.0, -offset.pixels);
+  Offset get paintOffset {
+    final double dx;
+    if (padding is EdgeInsets) {
+      dx = (padding as EdgeInsets).left;
+    } else if (padding is EdgeInsetsDirectional) {
+      dx = (padding as EdgeInsetsDirectional).start;
+    } else {
+      dx = 0.0;
+    }
+    return Offset(-dx, -offset.pixels);
+  }
 
   ViewportOffset get offset => _offset;
   ViewportOffset _offset;
