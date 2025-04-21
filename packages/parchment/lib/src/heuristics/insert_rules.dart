@@ -152,6 +152,9 @@ class PreserveLineFormatOnNewLineRule extends InsertRule {
 /// Heuristic rule to exit current block when user inserts two consecutive
 /// newlines.
 ///
+/// If bloc is a list or checklist with indent level greater than 1, heuristic
+/// rules will de-indent current line.
+///
 /// This rule is only applied when the cursor is on the last line of a block.
 /// When the cursor is in the middle of a block we allow adding empty lines
 /// and preserving the block's style.
@@ -211,7 +214,14 @@ class AutoExitBlockRule extends InsertRule {
     // Here we now know that the line after `target` is not in the same block
     // therefore we can exit this block.
     final attributes = target.attributes ?? <String, dynamic>{};
-    attributes.addAll(ParchmentAttribute.block.unset.toJson());
+    final indent = attributes[ParchmentAttribute.indent.key];
+
+    // Unindent if this block is indented else unset the block attribute
+    if (indent != null && indent > 0) {
+      attributes[ParchmentAttribute.indent.key] = indent - 1;
+    } else {
+      attributes.addAll(ParchmentAttribute.block.unset.toJson());
+    }
     return Delta()
       ..retain(index)
       ..retain(1, attributes);
