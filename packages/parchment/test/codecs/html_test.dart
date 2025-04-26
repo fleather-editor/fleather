@@ -546,6 +546,45 @@ void main() {
         expect(codec.encode(doc),
             '<ul><li>Hello World!</li><li>This is Fleather!</li></ul>');
       });
+
+      test('Successive list', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Hello World!'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+          {'insert': 'This is Fleather!'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+          {'insert': '\nHello World!'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ul'}
+          },
+          {'insert': 'This is Fleather!'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ul'}
+          }
+        ]);
+
+        expect(
+          codec.encode(doc),
+          '<ol>'
+          '<li>Hello World!</li>'
+          '<li>This is Fleather!</li>'
+          '</ol>'
+          '<p><br></p>'
+          '<ul>'
+          '<li>Hello World!</li>'
+          '<li>This is Fleather!</li>'
+          '</ul>',
+        );
+      });
+
       test('Checklist', () {
         final doc = ParchmentDocument.fromJson([
           {'insert': 'item'},
@@ -1001,11 +1040,30 @@ void main() {
           },
           {'insert': 'No longer in list\n'}
         ]);
-        expect(codec.encode(doc),
-            '<p>Test</p><ol><li>Level 1 - 1</li><li>Level 1 - 2</li><ol><li>Level 2 - 1</li><li>Level 2 - 2</li><ol><li>Level 3 - 1</li><li>Level 3 - 2</li><ol><li>Level 4 - 1</li><li>Level 4 - 2</li></ol></ol></ol></ol><p>No longer in list</p>');
+        expect(
+          codec.encode(doc),
+          '<p>Test</p>'
+          '<ol>'
+          '<li>Level 1 - 1</li>'
+          '<li>Level 1 - 2</li>'
+          '<ol>'
+          '<li>Level 2 - 1</li>'
+          '<li>Level 2 - 2</li>'
+          '<ol>'
+          '<li>Level 3 - 1</li>'
+          '<li>Level 3 - 2</li>'
+          '<ol>'
+          '<li>Level 4 - 1</li>'
+          '<li>Level 4 - 2</li>'
+          '</ol>'
+          '</ol>'
+          '</ol>'
+          '</ol>'
+          '<p>No longer in list</p>',
+        );
       });
 
-      test('Multiple Multi-level lists', () {
+      test('Multiple multi-level lists', () {
         final doc = ParchmentDocument.fromJson([
           {'insert': 'Test\n'},
           {'insert': 'Level 1 - 1'},
@@ -1042,6 +1100,118 @@ void main() {
         ]);
         expect(codec.encode(doc),
             '<p>Test</p><ol><li>Level 1 - 1</li><li>Level 1 - 2</li><ol><li>Level 2 - 1</li><li>Level 2 - 2</li></ol></ol><p>No longer in list</p><ol><li>In a new list - 1</li><li>In a new list - 2</li></ol>');
+      });
+
+      test('Successive multi-level lists', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Unordered'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ul'}
+          },
+          {'insert': 'Sub - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 1}
+          },
+          {'insert': 'Ordered - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+          {'insert': 'Sub - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ul', 'indent': 1}
+          },
+          {'insert': 'Sub - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ul', 'indent': 1}
+          },
+          {'insert': 'Ordered - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          }
+        ]);
+        expect(
+          codec.encode(doc),
+          '<ul>'
+          '<li>Unordered</li>'
+          '<ol>'
+          '<li>Sub - 1</li>'
+          '</ol>'
+          '</ul>'
+          '<ol>'
+          '<li>Ordered - 1</li>'
+          '<ul>'
+          '<li>Sub - 1</li>'
+          '<li>Sub - 2</li>'
+          '</ul>'
+          '<li>Ordered - 2</li>'
+          '</ol>',
+        );
+      });
+
+      test('Separated multi-level lists', () {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Unordered'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ul'}
+          },
+          {'insert': 'Sub - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 1}
+          },
+          {'insert': 'Sub - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 1}
+          },
+          {'insert': '\n'},
+          {'insert': 'Ordered - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+          {'insert': 'Sub - 1'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 1}
+          },
+          {'insert': 'Sub - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol', 'indent': 1}
+          },
+          {'insert': 'Ordered - 2'},
+          {
+            'insert': '\n',
+            'attributes': {'block': 'ol'}
+          },
+        ]);
+        expect(
+          codec.encode(doc),
+          '<ul>'
+          '<li>Unordered</li>'
+          '<ol>'
+          '<li>Sub - 1</li>'
+          '<li>Sub - 2</li>'
+          '</ol>'
+          '</ul>'
+          '<p><br></p>'
+          '<ol>'
+          '<li>Ordered - 1</li>'
+          '<ol>'
+          '<li>Sub - 1</li>'
+          '<li>Sub - 2</li>'
+          '</ol>'
+          '<li>Ordered - 2</li>'
+          '</ol>',
+        );
       });
 
       test('Paragraph with margin', () {
