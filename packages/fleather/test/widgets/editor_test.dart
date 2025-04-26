@@ -943,6 +943,35 @@ void main() {
         expect(magnifier, findsNothing);
       });
 
+      testWidgets('iOS dragging selection start past end handle swaps handles',
+          (tester) async {
+        final document = ParchmentDocument.fromJson([
+          {'insert': 'Some piece of text\n'}
+        ]);
+        final editor =
+            EditorSandBox(tester: tester, document: document, autofocus: true);
+        await editor.pump();
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(10, -1));
+        await tester.tapAt(tester.getBottomLeft(find.byType(FleatherEditor)) +
+            const Offset(10, -1));
+        await tester.pump();
+        final handleOverlays = find.byType(SelectionHandleOverlay);
+        expect(handleOverlays, findsNWidgets(2));
+        final startHandle = find.descendant(
+            of: handleOverlays.first, matching: find.byType(SizedBox));
+        final endHandle = find.descendant(
+            of: handleOverlays.last, matching: find.byType(SizedBox));
+        expect(endHandle, findsOneWidget);
+        final gesture =
+            await tester.startGesture(tester.getCenter(startHandle));
+        await gesture.moveBy(const Offset(100, 0));
+        await tester.pump();
+        await gesture.up();
+        await tester.pump();
+        expect(editor.controller.selection.start, 4);
+      }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
+
       testWidgets('drag selection start handle shows magnifier',
           (tester) async {
         final document = ParchmentDocument.fromJson([

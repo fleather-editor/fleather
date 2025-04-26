@@ -698,6 +698,12 @@ class RenderEditor extends RenderEditableContainerBox
         super.paint,
         Offset.zero,
       );
+    } else if (selection.isCollapsed) {
+      context.pushLayer(
+        LeaderLayer(link: endHandleLayerLink, offset: startPoint + paintOffset),
+        super.paint,
+        Offset.zero,
+      );
     }
   }
 
