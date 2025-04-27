@@ -2,7 +2,10 @@
 [![codecov](https://codecov.io/gh/fleather-editor/fleather/branch/master/graph/badge.svg?token=JRNFZ218FY)](https://codecov.io/gh/fleather-editor/fleather)
 [![pub package](https://img.shields.io/pub/v/fleather.svg)](https://pub.dartlang.org/packages/fleather)
 
-![banner](https://github.com/fleather-editor/fleather/raw/update_readme/packages/fleather/images/banner.png)
+<div style="text-align:center">
+    <img src="https://github.com/fleather-editor/fleather/raw/update_readme/packages/fleather/images/banner.png" height="250">
+</div>
+
 Soft and gentle rich text editing for Flutter applications based on [Zefyr](https://github.com/memspace/zefyr). It uses a document model named [Parchment](https://github.com/fleather-editor/fleather/tree/master/packages/parchment) based on [Notus](https://github.com/memspace/zefyr/tree/master/packages/notus).
 
 <img src="https://github.com/fleather-editor/fleather/raw/update_readme/packages/fleather/images/screenshot.png" width="600">
