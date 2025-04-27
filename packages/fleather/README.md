@@ -56,8 +56,3 @@ Column(
 
 ## Migration
 For migration guides check out [MIGRATION.md](https://github.com/fleather-editor/fleather/blob/master/MIGRATION.md).
-
-## Credits
-
-* [Zefyr](https://github.com/memspace/zefyr) contributors
-* [Mohammadreza Ziadzadeh](https://github.com/moharnadreza) for banner
