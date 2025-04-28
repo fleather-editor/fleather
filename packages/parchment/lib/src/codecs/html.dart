@@ -551,10 +551,22 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
           return;
         }
         if (embeddable.type == 'image') {
-          // Force the image to fit within any max. width that might be set. If
-          // no width or max-width is set on an outer block, then this does nothing.
-          buffer.write(
-              '<img src="${embeddable.data['source']}" style="max-width: 100%; object-fit: contain;">');
+          final attributes = StringBuffer();
+          if (embeddable.data['width'] != null) {
+            attributes.write(' width="${embeddable.data['width']}"');
+          }
+          if (embeddable.data['height'] != null) {
+            attributes.write(' height="${embeddable.data['height']}"');
+          }
+          if (embeddable.data['alt'] != null) {
+            attributes.write(' alt="${embeddable.data['alt']}"');
+          }
+          if (embeddable.data['style'] != null) {
+            attributes.write(' style="${embeddable.data['style']}"');
+          } else {
+            attributes.write(' style="max-width: 100%; object-fit: contain;"');
+          }
+          buffer.write('<img src="${embeddable.data['source']}"$attributes>');
           return;
         }
       }
@@ -958,8 +970,19 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
         return delta;
       }
       if (node.localName == 'img') {
-        final src = node.attributes['src'] ?? '';
-        delta.insert(BlockEmbed.image(src).toJson());
+        final String src = node.attributes['src'] ?? '';
+        final int? width = int.tryParse(node.attributes['width'] ?? '');
+        final int? height = int.tryParse(node.attributes['height'] ?? '');
+        final String? alt = node.attributes['alt'];
+        final String? style = node.attributes['style'];
+
+        final Map<String, dynamic> data = {'source': src};
+        if (width != null) data['width'] = width;
+        if (height != null) data['height'] = height;
+        if (alt != null) data['alt'] = alt;
+        if (style != null) data['style'] = style;
+
+        delta.insert(BlockEmbed.image(data).toJson());
         // <img> can be enclosed in a <p> element, but
         // we only want to support <p> with only one node (<img>)
         if (node.parent is html.Element &&
