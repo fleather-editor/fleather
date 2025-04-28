@@ -187,17 +187,7 @@ class RenderEditor extends RenderEditableContainerBox
     markNeedsSemanticsUpdate();
   }
 
-  Offset get paintOffset {
-    final double dx;
-    if (padding is EdgeInsets) {
-      dx = (padding as EdgeInsets).left;
-    } else if (padding is EdgeInsetsDirectional) {
-      dx = (padding as EdgeInsetsDirectional).start;
-    } else {
-      dx = 0.0;
-    }
-    return Offset(-dx, -offset.pixels);
-  }
+  Offset get paintOffset => Offset(0.0, -offset.pixels);
 
   ViewportOffset get offset => _offset;
   ViewportOffset _offset;
@@ -762,8 +752,8 @@ class RenderEditor extends RenderEditableContainerBox
     final childLocalRect = targetChild.getLocalRectForCaret(localPosition);
 
     final boxParentData = targetChild.parentData as BoxParentData;
-    return childLocalRect
-        .shift(Offset(0, boxParentData.offset.dy + paintOffset.dy));
+    return childLocalRect.shift(Offset(
+        resolvedPadding!.left, boxParentData.offset.dy + paintOffset.dy));
   }
 
   // Start floating cursor
