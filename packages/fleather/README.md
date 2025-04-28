@@ -3,7 +3,7 @@
 [![pub package](https://img.shields.io/pub/v/fleather.svg)](https://pub.dartlang.org/packages/fleather)
 
 # Fleather
-![banner](https://github.com/fleather-editor/fleather/raw/update_readme/packages/fleather/images/banner.png)
+![banner](https://github.com/fleather-editor/fleather/raw/master/packages/fleather/images/banner.png)
 
 Soft and gentle rich text editing for Flutter applications based on [Zefyr](https://github.com/memspace/zefyr). It uses a document model named [Parchment](https://github.com/fleather-editor/fleather/tree/master/packages/parchment) based on [Notus](https://github.com/memspace/zefyr/tree/master/packages/notus).
 
