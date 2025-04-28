@@ -1,4 +1,11 @@
-## 1.20.1
+## 1.22.0
+
+* `tab` (resp. `shift+ tab`) indents (resp. un-indents) line
+* `AutoExitRule` un-indents lists
+* iOS selection improvements
+* [Fix] iOS floating cursor wrongly position when editor has padding
+
+## 1.21.0
 
 * Add Portuguese & Brazilian Portuguese support
 * Add Korean support

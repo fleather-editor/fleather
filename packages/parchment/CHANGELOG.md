@@ -1,3 +1,7 @@
+## 1.22.0
+
+* [Fix] HTML encoding when multi-levels lists are followed by other lists or a plain paragraph
+
 ## 1.21.0
 
 * Upgrade to Dart 3.7
