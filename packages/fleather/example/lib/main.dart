@@ -163,14 +163,25 @@ class _HomePageState extends State<HomePage> {
         image = FileImage(File(node.value.data['source']));
       } else if (sourceType == 'url') {
         image = NetworkImage(node.value.data['source']);
+      } else if (sourceType == 'data') {
+        // source: 'data:image/jpeg;base64, LzlqLzRBQ... <!-- Base64 data -->'
+        RegExp regex = RegExp(
+          r'^data:image\/(png|jpe?g|gif|bmp|webp);base64,',
+          caseSensitive: false,
+        );
+        if (regex.hasMatch(node.value.data['source'])) {
+          String base64Image =
+              node.value.data['source'].replaceFirst(regex, '');
+          image = MemoryImage(base64Decode(base64Image));
+        }
       }
       if (image != null) {
         return Padding(
           // Caret takes 2 pixels, hence not symmetric padding values.
           padding: const EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
           child: Container(
-            width: 300,
-            height: 300,
+            width: node.value.data['width'] ?? 300,
+            height: node.value.data['height'] ?? 300,
             decoration: BoxDecoration(
               image: DecorationImage(image: image, fit: BoxFit.cover),
             ),
