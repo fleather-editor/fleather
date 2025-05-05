@@ -1262,13 +1262,27 @@ void main() {
     });
 
     group('Embeds', () {
-      test('Image', () {
+      test('Image (default style)', () {
         final html =
             '<img src="http://fake.link/image.png" style="max-width: 100%; object-fit: contain;">';
         final doc = ParchmentDocument.fromJson([
           {'insert': '\n'}
         ]);
         doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
+
+        expect(codec.encode(doc), html);
+      });
+
+      test('Image', () {
+        final html =
+            '<img src="http://fake.link/image.png" style="max-width: 100%; object-fit: cover;">';
+        final doc = ParchmentDocument.fromJson([
+          {'insert': '\n'}
+        ]);
+        doc.insert(
+            0,
+            BlockEmbed.image('http://fake.link/image.png',
+                data: {'style': 'max-width: 100%; object-fit: cover;'}));
 
         expect(codec.encode(doc), html);
       });
@@ -1894,12 +1908,27 @@ void main() {
         expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
-      test('Image', () {
+      test('Image (no style)', () {
         final html = '<img src="http://fake.link/image.png">';
         final doc = ParchmentDocument.fromJson([
           {'insert': '\n'}
         ]);
         doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
+        expect(codec.decode(html).toDelta(), doc.toDelta());
+      });
+
+      test('Image', () {
+        final html =
+            '<img src="http://fake.link/image.png" width="100" height="100">';
+        final doc = ParchmentDocument.fromJson([
+          {'insert': '\n'}
+        ]);
+        doc.insert(
+            0,
+            BlockEmbed.image('http://fake.link/image.png', data: {
+              'width': 100,
+              'height': 100,
+            }));
 
         expect(codec.decode(html).toDelta(), doc.toDelta());
       });
