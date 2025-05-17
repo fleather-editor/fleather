@@ -7,8 +7,6 @@
 
 Soft and gentle rich text editing for Flutter applications based on [Zefyr](https://github.com/memspace/zefyr). It uses a document model named [Parchment](https://github.com/fleather-editor/fleather/tree/master/packages/parchment) based on [Notus](https://github.com/memspace/zefyr/tree/master/packages/notus).
 
-**👉 Live demo [here](https://fleather-editor.github.io/demo).**
-
 ## Features
 * Works on Android, iOS, Web, macOS, Linux and Windows
 * Inline attributes like **bold**, *italic*, ~~strikethrough~~ and etc.
