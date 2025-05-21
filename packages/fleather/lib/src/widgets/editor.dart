@@ -1395,6 +1395,7 @@ class RawEditorState extends EditorState
       _didAutoFocus = true;
     }
     performSpellCheck(widget.controller.plainTextEditingValue.text);
+    updateConnectionConfig();
   }
 
   @override
