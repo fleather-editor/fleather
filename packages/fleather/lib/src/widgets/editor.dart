@@ -388,7 +388,7 @@ class _FleatherEditorState extends State<FleatherEditor>
     }
 
     if (cause == SelectionChangedCause.longPress ||
-        cause == SelectionChangedCause.scribble) {
+        cause == SelectionChangedCause.stylusHandwriting) {
       return true;
     }
 
