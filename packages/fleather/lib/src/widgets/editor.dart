@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart' hide SystemContextMenu;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SystemContextMenu;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +25,7 @@ import 'history.dart';
 import 'keyboard_listener.dart';
 import 'link.dart';
 import 'shortcuts.dart';
+import 'system_context_menu.dart';
 import 'text_line.dart';
 import 'text_selection.dart';
 import 'theme.dart';
@@ -40,16 +41,21 @@ class _WebClipboardStatusNotifier extends ClipboardStatusNotifier {
 /// Widget builder function for context menu in [FleatherEditor].
 typedef FleatherContextMenuBuilder = Widget Function(
   BuildContext context,
-  EditorState editableTextState,
+  EditorState editorState,
 );
 
 /// Default implementation of a widget builder function for context menu.
 Widget defaultContextMenuBuilder(
-        BuildContext context, EditorState editorState) =>
-    AdaptiveTextSelectionToolbar.buttonItems(
-      buttonItems: editorState.contextMenuButtonItems,
-      anchors: editorState.contextMenuAnchors,
-    );
+    BuildContext context, EditorState editorState) {
+  if (defaultTargetPlatform == TargetPlatform.iOS &&
+      SystemContextMenu.isSupported(context)) {
+    return SystemContextMenu.editor(editorState: editorState);
+  }
+  return AdaptiveTextSelectionToolbar.buttonItems(
+    buttonItems: editorState.contextMenuButtonItems,
+    anchors: editorState.contextMenuAnchors,
+  );
+}
 
 Widget defaultSpellCheckMenuBuilder(
     BuildContext context, EditorState editorState) {
@@ -865,6 +871,9 @@ abstract class EditorState extends State<RawEditor>
   /// Shows toolbar with spell check suggestions of misspelled words that are
   /// available for click-and-replace.
   bool showSpellCheckSuggestionsToolbar();
+
+  /// Gets the line heights at the start and end of the selection.
+  ({double startGlyphHeight, double endGlyphHeight}) getGlyphHeights();
 
   /// Finds specified [SuggestionSpan] that matches the provided index using
   /// binary search.
@@ -2061,6 +2070,19 @@ class RawEditorState extends EditorState
     // TODO: implement removeTextPlaceholder
   }
 
+  /// Gets the line heights at the start and end of the selection.
+  @override
+  ({double startGlyphHeight, double endGlyphHeight}) getGlyphHeights() {
+    final selection = textEditingValue.selection;
+    final baseLineHeight = renderEditor.preferredLineHeight(selection.base);
+    final extentLineHeight = renderEditor.preferredLineHeight(selection.extent);
+    final smallestLineHeight = math.min(baseLineHeight, extentLineHeight);
+    return (
+      startGlyphHeight: smallestLineHeight,
+      endGlyphHeight: smallestLineHeight
+    );
+  }
+
   /// Returns the anchor points for the default context menu.
   @override
   TextSelectionToolbarAnchors get contextMenuAnchors {
@@ -2073,13 +2095,14 @@ class RawEditorState extends EditorState
     final List<TextSelectionPoint> endpoints =
         renderEditor.getEndpointsForSelection(selection);
 
-    final baseLineHeight = renderEditor.preferredLineHeight(selection.base);
-    final extentLineHeight = renderEditor.preferredLineHeight(selection.extent);
-    final smallestLineHeight = math.min(baseLineHeight, extentLineHeight);
+    final (
+      startGlyphHeight: double startGlyphHeight,
+      endGlyphHeight: double endGlyphHeight
+    ) = getGlyphHeights();
 
     return _textSelectionToolbarAnchorsFromSelection(
-        startGlyphHeight: smallestLineHeight,
-        endGlyphHeight: smallestLineHeight,
+        startGlyphHeight: startGlyphHeight,
+        endGlyphHeight: endGlyphHeight,
         selectionEndpoints: endpoints);
   }
 
