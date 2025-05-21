@@ -24,7 +24,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  collection: ^1.19.0
+  collection: ^1.19.1
   parchment_delta: ^1.0.0
   parchment: ^1.22.0
   intl: ">=0.19.0 <0.21.0"
@@ -37,6 +37,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  fake_async: ^1.3.1
+  fake_async: ^1.3.3
   mocktail: ^1.0.4
-  meta: ^1.15.0
+  meta: ^1.16.0
