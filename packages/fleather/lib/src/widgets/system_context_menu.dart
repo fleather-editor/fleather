@@ -21,21 +21,12 @@ class SystemContextMenu extends StatefulWidget {
     required EditorState editorState,
     List<IOSSystemContextMenuItem>? items,
   }) {
-    final (
-      startGlyphHeight: double startGlyphHeight,
-      endGlyphHeight: double endGlyphHeight
-    ) = editorState.getGlyphHeights();
+    final anchors = editorState.contextMenuAnchors;
 
     return SystemContextMenu._(
       key: key,
-      anchor: TextSelectionToolbarAnchors.getSelectionRect(
-        editorState.renderEditor,
-        startGlyphHeight,
-        endGlyphHeight,
-        editorState.renderEditor.getEndpointsForSelection(
-          editorState.textEditingValue.selection,
-        ),
-      ),
+      anchor: Rect.fromPoints(anchors.primaryAnchor,
+          anchors.secondaryAnchor ?? anchors.primaryAnchor),
       items: items ?? getDefaultItems(editorState),
       onSystemHide: editorState.hideToolbar,
     );
