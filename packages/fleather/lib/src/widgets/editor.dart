@@ -872,9 +872,6 @@ abstract class EditorState extends State<RawEditor>
   /// available for click-and-replace.
   bool showSpellCheckSuggestionsToolbar();
 
-  /// Gets the line heights at the start and end of the selection.
-  ({double startGlyphHeight, double endGlyphHeight}) getGlyphHeights();
-
   /// Finds specified [SuggestionSpan] that matches the provided index using
   /// binary search.
   ///
@@ -2070,19 +2067,6 @@ class RawEditorState extends EditorState
     // TODO: implement removeTextPlaceholder
   }
 
-  /// Gets the line heights at the start and end of the selection.
-  @override
-  ({double startGlyphHeight, double endGlyphHeight}) getGlyphHeights() {
-    final selection = textEditingValue.selection;
-    final baseLineHeight = renderEditor.preferredLineHeight(selection.base);
-    final extentLineHeight = renderEditor.preferredLineHeight(selection.extent);
-    final smallestLineHeight = math.min(baseLineHeight, extentLineHeight);
-    return (
-      startGlyphHeight: smallestLineHeight,
-      endGlyphHeight: smallestLineHeight
-    );
-  }
-
   /// Returns the anchor points for the default context menu.
   @override
   TextSelectionToolbarAnchors get contextMenuAnchors {
@@ -2095,14 +2079,13 @@ class RawEditorState extends EditorState
     final List<TextSelectionPoint> endpoints =
         renderEditor.getEndpointsForSelection(selection);
 
-    final (
-      startGlyphHeight: double startGlyphHeight,
-      endGlyphHeight: double endGlyphHeight
-    ) = getGlyphHeights();
+    final baseLineHeight = renderEditor.preferredLineHeight(selection.base);
+    final extentLineHeight = renderEditor.preferredLineHeight(selection.extent);
+    final smallestLineHeight = math.min(baseLineHeight, extentLineHeight);
 
     return _textSelectionToolbarAnchorsFromSelection(
-        startGlyphHeight: startGlyphHeight,
-        endGlyphHeight: endGlyphHeight,
+        startGlyphHeight: smallestLineHeight,
+        endGlyphHeight: smallestLineHeight,
         selectionEndpoints: endpoints);
   }
 
