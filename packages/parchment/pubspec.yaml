@@ -9,11 +9,11 @@ environment:
   sdk: ">=3.6.0 <4.0.0"
 
 dependencies:
-  collection: ^1.19.0
+  collection: ^1.19.1
   parchment_delta: ^1.0.0
-  html: ^0.15.5
-  meta: ^1.15.0
+  html: ^0.15.6
+  meta: ^1.16.0
 
 dev_dependencies:
-  test: ^1.25.14
-  lints: ^5.1.1
+  test: ^1.26.1
+  lints: ^6.0.0

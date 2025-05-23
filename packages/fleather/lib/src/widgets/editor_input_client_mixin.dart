@@ -76,6 +76,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
         enableInteractiveSelection: widget.enableInteractiveSelection,
         keyboardAppearance: widget.keyboardAppearance,
         textCapitalization: widget.textCapitalization,
+        viewId: viewId,
       );
 
   /// Closes input connection if it's currently open. Otherwise does nothing.
