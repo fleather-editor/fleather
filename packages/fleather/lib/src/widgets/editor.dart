@@ -838,6 +838,8 @@ abstract class EditorState extends State<RawEditor>
 
   FleatherThemeData get themeData;
 
+  int get viewId;
+
   /// Controls the floating cursor animation when it is released.
   /// The floating cursor is animated to merge with the regular cursor.
   AnimationController get floatingCursorResetController;
@@ -933,6 +935,9 @@ class RawEditorState extends EditorState
 
   @override
   ClipboardStatusNotifier get clipboardStatus => widget.clipboardStatus;
+
+  @override
+  int get viewId => View.of(context).viewId;
 
   final LayerLink _toolbarLayerLink = LayerLink();
   final LayerLink _startHandleLayerLink = LayerLink();
