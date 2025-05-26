@@ -18,6 +18,7 @@ class EditorSandBox {
     FakeSpellCheckService? spellCheckService,
     ClipboardManager clipboardManager = const PlainTextClipboardManager(),
     FleatherEmbedBuilder embedBuilder = defaultFleatherEmbedBuilder,
+    TransitionBuilder? appBuilder,
   }) {
     focusNode ??= FocusNode();
     document ??= ParchmentDocument.fromDelta(delta);
@@ -36,7 +37,7 @@ class EditorSandBox {
     if (fleatherTheme != null) {
       widget = FleatherTheme(data: fleatherTheme, child: widget);
     }
-    widget = MaterialApp(home: widget);
+    widget = MaterialApp(home: widget, builder: appBuilder);
 
     return EditorSandBox._(tester, focusNode, document, controller, widget,
         spellCheckService: spellCheckService);

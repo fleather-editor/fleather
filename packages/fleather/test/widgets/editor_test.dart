@@ -2,10 +2,11 @@ import 'package:fleather/fleather.dart';
 import 'package:fleather/src/services/spell_check_suggestions_toolbar.dart';
 import 'package:fleather/src/widgets/checkbox.dart';
 import 'package:fleather/src/widgets/keyboard_listener.dart';
+import 'package:fleather/src/widgets/system_context_menu.dart';
 import 'package:fleather/src/widgets/text_selection.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart' hide SystemContextMenu;
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SystemContextMenu;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -352,6 +353,54 @@ void main() {
       await tester.pumpAndSettle(throttleDuration);
       expect(editor.document.toPlainText(), '$clipboardText\n');
     });
+
+    testWidgets('Uses system context menu on iOS if supported', (tester) async {
+      // if Clipboard not initialize (status 'unknown'), an shrunken toolbar appears
+      prepareClipboard();
+
+      final editor = EditorSandBox(
+        tester: tester,
+        document: ParchmentDocument(),
+        autofocus: true,
+        appBuilder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(supportsShowingSystemContextMenu: true),
+          child: child!,
+        ),
+      );
+      await editor.pump();
+
+      expect(find.text('Paste'), findsNothing);
+      await tester.longPress(find.byType(FleatherEditor));
+      await tester.pump();
+
+      expect(find.byType(SystemContextMenu), findsOneWidget);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
+
+    testWidgets(
+        'Uses adaptive context menu if platform is not iOS or is iOS but system context menu is not supported',
+        (tester) async {
+      // if Clipboard not initialize (status 'unknown'), an shrunken toolbar appears
+      prepareClipboard();
+
+      final editor = EditorSandBox(
+        tester: tester,
+        document: ParchmentDocument(),
+        autofocus: true,
+        appBuilder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(supportsShowingSystemContextMenu: false),
+          child: child!,
+        ),
+      );
+      await editor.pump();
+
+      expect(find.text('Paste'), findsNothing);
+      await tester.longPress(find.byType(FleatherEditor));
+      await tester.pump();
+
+      expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+    }, variant: TargetPlatformVariant.all());
 
     testWidgets('ability to paste upon double-tap on an empty document',
         (tester) async {
