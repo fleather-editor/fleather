@@ -14,12 +14,6 @@ class MockRawEditor extends Mock implements RawEditor {
       super.toString();
 }
 
-class MockBuildContext extends Mock implements BuildContext {
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) =>
-      super.toString();
-}
-
 class MockEditorState extends Mock implements EditorState {
   @override
   RenderEditor renderEditor = RenderEditor(
@@ -96,7 +90,6 @@ void main() {
   group('updateEditingValueWithDeltas', () {
     late MockRawEditorState editorState;
     late RawEditor rawEditor;
-    late BuildContext context;
     late FleatherController controller;
     final initialTextEditingValue = MockTextEditingValue();
 
@@ -104,9 +97,7 @@ void main() {
       editorState = MockRawEditorState();
       rawEditor = MockRawEditor();
       controller = MockFleatherController();
-      context = MockBuildContext();
       when(() => editorState.widget).thenReturn(rawEditor);
-      when(() => editorState.context).thenReturn(context);
       when(() => editorState.viewId).thenReturn(0);
       when(() => editorState.textEditingValue)
           .thenReturn(initialTextEditingValue);
