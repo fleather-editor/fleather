@@ -1,3 +1,8 @@
+## 1.23.0
+
+* Use system context menu on iOS
+* Upgrade to Flutter 3.32.0
+
 ## 1.22.0
 
 * `tab` (resp. `shift+ tab`) indents (resp. un-indents) line
