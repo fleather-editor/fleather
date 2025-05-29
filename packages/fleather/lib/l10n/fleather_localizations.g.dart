@@ -68,7 +68,7 @@ import 'fleather_localizations_pt.g.dart';
 /// property.
 abstract class FleatherLocalizations {
   FleatherLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -94,11 +94,11 @@ abstract class FleatherLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -210,14 +210,14 @@ class _FleatherLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) => <String>[
-    'pt',
-    'de',
-    'en',
-    'fa',
-    'fr',
-    'ko',
-    'nl',
-  ].contains(locale.languageCode);
+        'pt',
+        'de',
+        'en',
+        'fa',
+        'fr',
+        'ko',
+        'nl',
+      ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_FleatherLocalizationsDelegate old) => false;
