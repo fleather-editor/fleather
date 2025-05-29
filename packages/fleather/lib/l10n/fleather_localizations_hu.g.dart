@@ -6,7 +6,7 @@ import 'fleather_localizations.g.dart';
 
 /// The translations for Hungarian (`hu`).
 class FleatherLocalizationsHu extends FleatherLocalizations {
-  FleatherLocalizationsEn([String locale = 'hu']) : super(locale);
+  FleatherLocalizationsHu([String locale = 'hu']) : super(locale);
 
   @override
   String get foregroundColorAutomatic => 'Automatikus';
