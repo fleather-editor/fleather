@@ -1,0 +1,59 @@
+{
+  "@@locale": "hu",
+  "foregroundColorAutomatic": "Automatikus",
+  "@foregroundColorAutomatic": {
+    "description": "Automatikusan rendel előtérszínt a szöveghez"
+  },
+  "backgroundColorNoColor": "Nincs szín",
+  "@backgroundColorNoColor": {
+    "description": "Nem rendel háttérszínt a szöveghez"
+  },
+  "headingNormal": "Normál",
+  "@headingNormal": {
+    "description": "Normál címsor szövegstílus"
+  },
+  "headingLevel1": "1. szintű címsor",
+  "@headingLevel1": {
+    "description": "1. szintű címsor szövegstílus"
+  },
+  "headingLevel2": "2. szintű címsor",
+  "@headingLevel2": {
+    "description": "2. szintű címsor szövegstílus"
+  },
+  "headingLevel3": "3. szintű címsor",
+  "@headingLevel3": {
+    "description": "3. szintű címsor szövegstílus"
+  },
+  "headingLevel4": "4. szintű címsor",
+  "@headingLevel4": {
+    "description": "4. szintű címsor szövegstílus"
+  },
+  "headingLevel5": "5. szintű címsor",
+  "@headingLevel5": {
+    "description": "5. szintű címsor szövegstílus"
+  },
+  "headingLevel6": "6. szintű címsor",
+  "@headingLevel6": {
+    "description": "6. szintű címsor szövegstílus"
+  },
+  "addLinkDialogPasteLink": "Link beillesztése",
+  "@addLinkDialogPasteLink": {
+    "description": "Címke a link szövegmező beviteli dekorációjához a link hozzáadása párbeszédpanelen"
+  },
+  "addLinkDialogApply": "Alkalmaz",
+  "@addLinkDialogApply": {
+    "description": "Címke a megerősítő gombhoz a link párbeszédpanelen"
+  },
+  "linkDialogOpen": "Megnyitás",
+  "@linkDialogOpen": {
+    "description": "Link megnyitása"
+  },
+  "linkDialogCopy": "Másolás",
+  "@linkDialogCopy": {
+    "description": "Link másolása"
+  },
+  "linkDialogRemove": "Eltávolítás",
+  "@linkDialogRemove": {
+    "description": "Link eltávolítása"
+  }
+}
