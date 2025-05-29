@@ -68,13 +68,15 @@ import 'fleather_localizations_pt.g.dart';
 /// property.
 abstract class FleatherLocalizations {
   FleatherLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
   static FleatherLocalizations? of(BuildContext context) {
     return Localizations.of<FleatherLocalizations>(
-        context, FleatherLocalizations);
+      context,
+      FleatherLocalizations,
+    );
   }
 
   static const LocalizationsDelegate<FleatherLocalizations> delegate =
@@ -92,11 +94,11 @@ abstract class FleatherLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -107,7 +109,7 @@ abstract class FleatherLocalizations {
     Locale('fr'),
     Locale('ko'),
     Locale('nl'),
-    Locale('pt')
+    Locale('pt'),
   ];
 
   /// Automatically assign a foreground color to the text
@@ -202,19 +204,20 @@ class _FleatherLocalizationsDelegate
   @override
   Future<FleatherLocalizations> load(Locale locale) {
     return SynchronousFuture<FleatherLocalizations>(
-        lookupFleatherLocalizations(locale));
+      lookupFleatherLocalizations(locale),
+    );
   }
 
   @override
   bool isSupported(Locale locale) => <String>[
-        'pt',
-        'de',
-        'en',
-        'fa',
-        'fr',
-        'ko',
-        'nl'
-      ].contains(locale.languageCode);
+    'pt',
+    'de',
+    'en',
+    'fa',
+    'fr',
+    'ko',
+    'nl',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_FleatherLocalizationsDelegate old) => false;
@@ -252,8 +255,9 @@ FleatherLocalizations lookupFleatherLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'FleatherLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'FleatherLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }
