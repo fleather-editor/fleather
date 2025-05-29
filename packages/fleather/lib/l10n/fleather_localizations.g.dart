@@ -12,6 +12,7 @@ import 'fleather_localizations_fr.g.dart';
 import 'fleather_localizations_ko.g.dart';
 import 'fleather_localizations_nl.g.dart';
 import 'fleather_localizations_pt.g.dart';
+import 'fleather_localizations_hu.g.dart';
 
 // ignore_for_file: type=lint
 
@@ -107,7 +108,8 @@ abstract class FleatherLocalizations {
     Locale('fr'),
     Locale('ko'),
     Locale('nl'),
-    Locale('pt')
+    Locale('pt'),
+    Locale('hu')
   ];
 
   /// Automatically assign a foreground color to the text
@@ -213,7 +215,8 @@ class _FleatherLocalizationsDelegate
         'fa',
         'fr',
         'ko',
-        'nl'
+        'nl',
+        'hu'
       ].contains(locale.languageCode);
 
   @override
@@ -249,6 +252,8 @@ FleatherLocalizations lookupFleatherLocalizations(Locale locale) {
       return FleatherLocalizationsKo();
     case 'nl':
       return FleatherLocalizationsNl();
+    case 'hu':
+      return FleatherLocalizationsHu();
   }
 
   throw FlutterError(
