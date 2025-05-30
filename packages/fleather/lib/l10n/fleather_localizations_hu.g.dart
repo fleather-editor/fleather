@@ -18,22 +18,22 @@ class FleatherLocalizationsHu extends FleatherLocalizations {
   String get headingNormal => 'Normál';
 
   @override
-  String get headingLevel1 => 'Cím 1';
+  String get headingLevel1 => '1. szintű címsor';
 
   @override
-  String get headingLevel2 => 'Cím 2';
+  String get headingLevel2 => '2. szintű címsor';
 
   @override
-  String get headingLevel3 => 'Cím 3';
+  String get headingLevel3 => '3. szintű címsor';
 
   @override
-  String get headingLevel4 => 'Cím 4';
+  String get headingLevel4 => '4. szintű címsor';
 
   @override
-  String get headingLevel5 => 'Cím 5';
+  String get headingLevel5 => '5. szintű címsor';
 
   @override
-  String get headingLevel6 => 'Cím 6';
+  String get headingLevel6 => '6. szintű címsor';
 
   @override
   String get addLinkDialogPasteLink => 'Link beillesztése';
@@ -42,11 +42,11 @@ class FleatherLocalizationsHu extends FleatherLocalizations {
   String get addLinkDialogApply => 'Alkalmaz';
 
   @override
-  String get linkDialogOpen => 'Megnyítás';
+  String get linkDialogOpen => 'Megnyitás';
 
   @override
   String get linkDialogCopy => 'Másolás';
 
   @override
-  String get linkDialogRemove => 'Törlés';
+  String get linkDialogRemove => 'Eltávolítás';
 }

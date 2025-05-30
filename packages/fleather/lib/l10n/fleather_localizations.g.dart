@@ -9,10 +9,10 @@ import 'fleather_localizations_de.g.dart';
 import 'fleather_localizations_en.g.dart';
 import 'fleather_localizations_fa.g.dart';
 import 'fleather_localizations_fr.g.dart';
+import 'fleather_localizations_hu.g.dart';
 import 'fleather_localizations_ko.g.dart';
 import 'fleather_localizations_nl.g.dart';
 import 'fleather_localizations_pt.g.dart';
-import 'fleather_localizations_hu.g.dart';
 
 // ignore_for_file: type=lint
 
@@ -75,7 +75,9 @@ abstract class FleatherLocalizations {
 
   static FleatherLocalizations? of(BuildContext context) {
     return Localizations.of<FleatherLocalizations>(
-        context, FleatherLocalizations);
+      context,
+      FleatherLocalizations,
+    );
   }
 
   static const LocalizationsDelegate<FleatherLocalizations> delegate =
@@ -106,10 +108,10 @@ abstract class FleatherLocalizations {
     Locale('en'),
     Locale('fa'),
     Locale('fr'),
+    Locale('hu'),
     Locale('ko'),
     Locale('nl'),
     Locale('pt'),
-    Locale('hu')
   ];
 
   /// Automatically assign a foreground color to the text
@@ -204,7 +206,8 @@ class _FleatherLocalizationsDelegate
   @override
   Future<FleatherLocalizations> load(Locale locale) {
     return SynchronousFuture<FleatherLocalizations>(
-        lookupFleatherLocalizations(locale));
+      lookupFleatherLocalizations(locale),
+    );
   }
 
   @override
@@ -214,9 +217,9 @@ class _FleatherLocalizationsDelegate
         'en',
         'fa',
         'fr',
+        'hu',
         'ko',
         'nl',
-        'hu'
       ].contains(locale.languageCode);
 
   @override
@@ -248,17 +251,18 @@ FleatherLocalizations lookupFleatherLocalizations(Locale locale) {
       return FleatherLocalizationsFa();
     case 'fr':
       return FleatherLocalizationsFr();
+    case 'hu':
+      return FleatherLocalizationsHu();
     case 'ko':
       return FleatherLocalizationsKo();
     case 'nl':
       return FleatherLocalizationsNl();
-    case 'hu':
-      return FleatherLocalizationsHu();
   }
 
   throw FlutterError(
-      'FleatherLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'FleatherLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }
