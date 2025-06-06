@@ -75,9 +75,7 @@ abstract class FleatherLocalizations {
 
   static FleatherLocalizations? of(BuildContext context) {
     return Localizations.of<FleatherLocalizations>(
-      context,
-      FleatherLocalizations,
-    );
+        context, FleatherLocalizations);
   }
 
   static const LocalizationsDelegate<FleatherLocalizations> delegate =
@@ -111,7 +109,7 @@ abstract class FleatherLocalizations {
     Locale('hu'),
     Locale('ko'),
     Locale('nl'),
-    Locale('pt'),
+    Locale('pt')
   ];
 
   /// Automatically assign a foreground color to the text
@@ -206,8 +204,7 @@ class _FleatherLocalizationsDelegate
   @override
   Future<FleatherLocalizations> load(Locale locale) {
     return SynchronousFuture<FleatherLocalizations>(
-      lookupFleatherLocalizations(locale),
-    );
+        lookupFleatherLocalizations(locale));
   }
 
   @override
@@ -219,7 +216,7 @@ class _FleatherLocalizationsDelegate
         'fr',
         'hu',
         'ko',
-        'nl',
+        'nl'
       ].contains(locale.languageCode);
 
   @override
@@ -260,9 +257,8 @@ FleatherLocalizations lookupFleatherLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'FleatherLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'FleatherLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }
