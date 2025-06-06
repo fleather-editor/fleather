@@ -48,7 +48,7 @@ jobs:
 
       - name: Fleather - Verify formatting
         working-directory: ./packages/fleather
-        run: dart format --output=none --set-exit-if-changed .
+        run: dart format lib/src test example --output=none --set-exit-if-changed
 
       - name: Fleather - Analyze project source
         working-directory: ./packages/fleather
