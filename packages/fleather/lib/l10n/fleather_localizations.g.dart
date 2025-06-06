@@ -9,6 +9,7 @@ import 'fleather_localizations_de.g.dart';
 import 'fleather_localizations_en.g.dart';
 import 'fleather_localizations_fa.g.dart';
 import 'fleather_localizations_fr.g.dart';
+import 'fleather_localizations_hu.g.dart';
 import 'fleather_localizations_ko.g.dart';
 import 'fleather_localizations_nl.g.dart';
 import 'fleather_localizations_pt.g.dart';
@@ -107,6 +108,7 @@ abstract class FleatherLocalizations {
     Locale('en'),
     Locale('fa'),
     Locale('fr'),
+    Locale('hu'),
     Locale('ko'),
     Locale('nl'),
     Locale('pt'),
@@ -215,6 +217,7 @@ class _FleatherLocalizationsDelegate
         'en',
         'fa',
         'fr',
+        'hu',
         'ko',
         'nl',
       ].contains(locale.languageCode);
@@ -248,6 +251,8 @@ FleatherLocalizations lookupFleatherLocalizations(Locale locale) {
       return FleatherLocalizationsFa();
     case 'fr':
       return FleatherLocalizationsFr();
+    case 'hu':
+      return FleatherLocalizationsHu();
     case 'ko':
       return FleatherLocalizationsKo();
     case 'nl':
