@@ -362,6 +362,16 @@ void main() {
       expect(act, exp);
     });
 
+    test('no ol with bold using \'*\'', () {
+      final markdown = 'I am **markdown** text';
+      final act = parchmentMarkdown.decode(markdown).toDelta();
+      final exp = Delta()
+        ..insert('I am ')
+        ..insert('markdown', {'b': true})
+        ..insert(' text\n');
+      expect(act, exp);
+    });
+
     test('ol', () {
       var markdown = '1. Hello\n2. This is a\n3. List\n\n';
       final act = parchmentMarkdown.decode(markdown).toDelta();

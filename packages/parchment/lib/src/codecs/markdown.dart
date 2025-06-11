@@ -38,7 +38,7 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
   );
 
   static final _linkRegExp = RegExp(r'\[(.+?)\]\(([^)]+)\)');
-  static final _ulRegExp = RegExp(r'^( *)[(-|*|+)] +(.*)');
+  static final _ulRegExp = RegExp(r'^( *)[-*+] +(.*)');
   static final _olRegExp = RegExp(r'^( *)\d+[.)] +(.*)');
   static final _clRegExp = RegExp(r'^( *)- +\[( |x|X)\] +(.*)');
   static final _bqRegExp = RegExp(r'^> *(.*)');
