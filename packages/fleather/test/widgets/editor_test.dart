@@ -378,6 +378,33 @@ void main() {
     }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 
     testWidgets(
+        'Does not use system context menu on iOS when editor is read-only',
+        (tester) async {
+      // if Clipboard not initialize (status 'unknown'), an shrunken toolbar appears
+      prepareClipboard();
+
+      final editor = EditorSandBox(
+        tester: tester,
+        document: ParchmentDocument(),
+        autofocus: true,
+        appBuilder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(supportsShowingSystemContextMenu: true),
+          child: child!,
+        ),
+      );
+      await editor.pump();
+      await editor.disable();
+
+      expect(find.text('Paste'), findsNothing);
+      await tester.longPress(find.byType(FleatherEditor));
+      await tester.pump();
+
+      expect(find.byType(SystemContextMenu), findsNothing);
+      expect(find.byType(AdaptiveTextSelectionToolbar), findsOneWidget);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
+
+    testWidgets(
         'Uses adaptive context menu if platform is not iOS or is iOS but system context menu is not supported',
         (tester) async {
       // if Clipboard not initialize (status 'unknown'), an shrunken toolbar appears

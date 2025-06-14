@@ -48,7 +48,8 @@ typedef FleatherContextMenuBuilder = Widget Function(
 Widget defaultContextMenuBuilder(
     BuildContext context, EditorState editorState) {
   if (defaultTargetPlatform == TargetPlatform.iOS &&
-      SystemContextMenu.isSupported(context)) {
+      SystemContextMenu.isSupported(context) &&
+      !editorState.widget.readOnly) {
     return SystemContextMenu.editor(editorState: editorState);
   }
   return AdaptiveTextSelectionToolbar.buttonItems(
