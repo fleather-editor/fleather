@@ -5,6 +5,7 @@ import 'package:parchment_delta/parchment_delta.dart';
 import '../document.dart';
 import '../document/attributes.dart';
 import '../document/block.dart';
+import '../document/embeds.dart';
 import '../document/leaf.dart';
 import '../document/line.dart';
 
@@ -38,6 +39,7 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
   );
 
   static final _linkRegExp = RegExp(r'\[(.+?)\]\(([^)]+)\)');
+  static final _imageRegExp = RegExp(r'!\[([^\]]*)\]\(([^)]+)\)');
   static final _ulRegExp = RegExp(r'^( *)[-*+] +(.*)');
   static final _olRegExp = RegExp(r'^( *)\d+[.)] +(.*)');
   static final _clRegExp = RegExp(r'^( *)- +\[( |x|X)\] +(.*)');
@@ -64,6 +66,9 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
       return;
     }
 
+    if (_handleImage(line, delta, style)) {
+      return;
+    }
     if (_handleBlockQuote(line, delta, style)) {
       return;
     }
@@ -84,6 +89,21 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
             ParchmentStyle().putAll(style?.lineAttributes ?? []));
       }
     }
+  }
+
+  bool _handleImage(String line, Delta delta, [ParchmentStyle? style]) {
+    final match = _imageRegExp.matchAsPrefix(line);
+    if (match != null) {
+      final imageUrl = match.group(2);
+      if (imageUrl != null) {
+        // Create an image block embed
+        final imageEmbed = BlockEmbed.image(imageUrl);
+        delta.insert(imageEmbed);
+        delta.insert('\n');
+        return true;
+      }
+    }
+    return false;
   }
 
   // Markdown supports headings and blocks within blocks (except for within code)
@@ -409,7 +429,22 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     ParchmentAttribute? currentBlockAttribute;
 
     void handleLine(LineNode node) {
-      if (node.hasBlockEmbed) return;
+      if (node.hasBlockEmbed) {
+        // Handle image embeds specifically
+        if (node.children.length == 1 &&
+            node.children.single is EmbedNode &&
+            (node.children.single as EmbedNode).value.type == 'image') {
+          final embedNode = node.children.single as EmbedNode;
+          final imageEmbed = embedNode.value;
+          final source = imageEmbed.data['source'] as String?;
+          if (source != null) {
+            lineBuffer.write('![]($source)');
+            buffer.write(lineBuffer);
+            lineBuffer.clear();
+          }
+        }
+        return;
+      }
 
       for (final attr in node.style.lineAttributes) {
         if (attr.key == ParchmentAttribute.block.key) {
