@@ -335,6 +335,7 @@ class FleatherThemeData {
       lists: other.lists,
       quote: other.quote,
       code: other.code,
+      horizontalRuleThemeData: other.horizontalRule,
     );
   }
 }
