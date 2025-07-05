@@ -1,6 +1,6 @@
 name: parchment
 description: Platform-agnostic rich text document model based on Delta format and used in Fleather editor.
-version: 1.22.0
+version: 1.24.0
 homepage: https://fleather-editor.github.io
 repository: https://github.com/fleather-editor/fleather
 issue_tracker: https://github.com/fleather-editor/fleather/issues
