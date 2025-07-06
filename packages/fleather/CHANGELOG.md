@@ -1,4 +1,4 @@
-## 1.24.0
+## 1.24.0+1
 
 * Use Flutter context menu when read-only on iOS
 * Add translations for Hungarian
