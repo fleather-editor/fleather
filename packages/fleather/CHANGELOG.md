@@ -1,3 +1,10 @@
+## 1.24.0
+
+* Use Flutter context menu when read-only on iOS
+* Add translations for Hungarian
+* [Fix] `merge` method not applying horizontal rule theme data
+* [Fix] regex for ul in Markdown decoder
+
 ## 1.23.0
 
 * Use system context menu on iOS
