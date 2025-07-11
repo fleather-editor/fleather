@@ -15,7 +15,7 @@ Soft and gentle rich text editing for Flutter applications based on [Zefyr](http
 * Supports inline and block embeds
 * Markdown-inspired semantics
 * Supports markdown shortcuts
-* Using [Quill.js Delta](https://quilljs.com/docs/delta) as underlying data format by [Parchment](packages/parchment/README.md), Fleather is ready for collaborative editing using [OT](https://en.wikipedia.org/wiki/Operational_transformation) (Not provided as a built-in functionality)
+* Using [Quill.js Delta](https://quilljs.com/docs/delta) as underlying data format by [Parchment](https://github.com/fleather-editor/fleather/blob/master/packages/parchment/README.md), Fleather is ready for collaborative editing using [OT](https://en.wikipedia.org/wiki/Operational_transformation) (Not provided as a built-in functionality)
 
 **Full documentation can be found [here](https://fleather-editor.github.io/docs/getting-started/quick-start/).**
 
