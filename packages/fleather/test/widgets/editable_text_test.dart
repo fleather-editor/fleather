@@ -137,6 +137,22 @@ void main() {
         await editor.pump();
         expect(find.text('1.', findRichText: true), findsOneWidget);
       });
+
+      testWidgets('multi list', (tester) async {
+        final delta = Delta()
+          ..insert('numbered1')
+          ..insert('\n', {'block': 'ol'})
+          ..insert('bullet_with_indent')
+          ..insert('\n', {'block': 'ul', 'indent': 1})
+          ..insert('numbered_with_more_indent')
+          ..insert('\n', {'block': 'ol', 'indent': 2})
+          ..insert('numbered_with_indent')
+          ..insert('\n', {'block': 'ol', 'indent': 1});
+        final editor = EditorSandBox(
+            tester: tester, document: ParchmentDocument.fromDelta(delta));
+        await editor.pump();
+        expect(find.text('1.', findRichText: true), findsNWidgets(3));
+      });
     });
 
     testWidgets('headings', (tester) async {
