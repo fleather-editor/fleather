@@ -27,6 +27,7 @@ class MockEditorState extends Mock implements EditorState {
       startHandleLayerLink: LayerLink(),
       endHandleLayerLink: LayerLink(),
       padding: EdgeInsets.zero,
+      textWidthBasis: TextWidthBasis.parent,
       cursorController: CursorController(
           showCursor: ValueNotifier(true),
           style: const CursorStyle(

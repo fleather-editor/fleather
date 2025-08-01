@@ -123,6 +123,7 @@ class _TextLineState extends State<TextLine> {
       final embed = widget.node.children.single as EmbedNode;
       return EmbedProxy(child: widget.embedBuilder(context, embed));
     }
+    final editorState = context.findAncestorStateOfType<RawEditorState>()!;
     final text = buildText(context, widget.node);
     final textAlign = getTextAlign(widget.node);
     final strutStyle = StrutStyle.fromTextStyle(text.style!);
@@ -136,6 +137,7 @@ class _TextLineState extends State<TextLine> {
         text: text,
         textAlign: textAlign,
         strutStyle: strutStyle,
+        textWidthBasis: editorState.widget.textWidthBasis,
         textScaler: MediaQuery.textScalerOf(context),
       ),
     );
