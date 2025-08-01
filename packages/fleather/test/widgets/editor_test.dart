@@ -296,7 +296,7 @@ void main() {
       await editor.pumpAndTap();
       await editor.updateSelection(base: 0, extent: 3);
       await editor.disable();
-      final widget = tester.widget(find.byType(FleatherField)) as FleatherField;
+      final widget = tester.widget<FleatherField>(find.byType(FleatherField));
       expect(widget.readOnly, true);
     });
 
@@ -454,6 +454,48 @@ void main() {
           MaterialApp(home: FleatherEditor(controller: FleatherController()));
       await tester.pumpWidget(widget);
       // Fails if thrown
+    });
+
+    group('TextWidthBasis', () {
+      testWidgets('shrink editor to content size in read only', (tester) async {
+        final editor = EditorSandBox(
+          useField: false,
+          tester: tester,
+          document: ParchmentDocument.fromJson([
+            {'insert': 'a\n'}
+          ]),
+          autofocus: true,
+          // Scrollable forces expansion of editor
+          scrollable: false,
+          readOnly: true,
+          // We don't want to show cursor (will cause error if not scrollable)
+          showCursor: false,
+          textWidthBasis: TextWidthBasis.longestLine,
+        );
+        await editor.pump();
+        final state = tester.state<RawEditorState>(find.byType(RawEditor));
+        expect(state.renderEditor.size.width,
+            lessThan(MediaQuery.of(state.context).size.width / 2));
+      });
+
+      testWidgets(
+          'expands editor in edition mode, regardless of textWidthBasis',
+          (tester) async {
+        final editor = EditorSandBox(
+          useField: false,
+          tester: tester,
+          document: ParchmentDocument.fromJson([
+            {'insert': 'a\n'}
+          ]),
+          autofocus: true,
+          readOnly: false,
+          textWidthBasis: TextWidthBasis.longestLine,
+        );
+        await editor.pump();
+        final state = tester.state<RawEditorState>(find.byType(RawEditor));
+        expect(state.renderEditor.size.width,
+            MediaQuery.of(state.context).size.width);
+      });
     });
 
     testWidgets('Copy intent sends data to clipboard manager', (tester) async {

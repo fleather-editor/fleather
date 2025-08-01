@@ -91,6 +91,12 @@ class FleatherField extends StatefulWidget {
   /// the text field from the clipboard.
   final bool enableInteractiveSelection;
 
+  /// Defines how to measure the width of the rendered when [readOnly] is `true`
+  /// text. Otherwise the value is ignored and forced to [TextWidthBasis.parent]
+  ///
+  /// Default to [TextWidthBasis.parent].
+  final TextWidthBasis textWidthBasis;
+
   /// The minimum height to be occupied by this editor.
   ///
   /// This only has effect if [scrollable] is set to `true` and [expands] is
@@ -192,6 +198,7 @@ class FleatherField extends StatefulWidget {
     this.autocorrect = true,
     this.enableSuggestions = true,
     this.enableInteractiveSelection = true,
+    this.textWidthBasis = TextWidthBasis.parent,
     this.minHeight,
     this.maxHeight,
     this.expands = false,
@@ -264,6 +271,7 @@ class _FleatherFieldState extends State<FleatherField> {
       autocorrect: widget.autocorrect,
       enableSuggestions: widget.enableSuggestions,
       enableInteractiveSelection: widget.enableInteractiveSelection,
+      textWidthBasis: widget.textWidthBasis,
       minHeight: widget.minHeight,
       maxHeight: widget.maxHeight,
       expands: widget.expands,
