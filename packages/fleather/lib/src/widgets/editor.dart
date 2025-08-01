@@ -182,10 +182,11 @@ class FleatherEditor extends StatefulWidget {
   /// the text field from the clipboard.
   final bool enableInteractiveSelection;
 
-  /// Defines how to measure the width of the rendered when [readOnly] is `true`
-  /// text. Otherwise the value is ignored and forced to [TextWidthBasis.parent]
+  /// Defines how to measure the width of the rendered text when [readOnly] is
+  /// `true`. Otherwise the value is ignored and forced to
+  /// [TextWidthBasis.parent]
   ///
-  /// Default to [TextWidthBasis.parent].
+  /// Defaults to [TextWidthBasis.parent].
   final TextWidthBasis textWidthBasis;
 
   /// The minimum height to be occupied by this editor.
@@ -982,6 +983,9 @@ class RawEditorState extends EditorState
     return result!;
   }
 
+  TextWidthBasis get _textWidthBasis =>
+      widget.readOnly ? widget.textWidthBasis : TextWidthBasis.parent;
+
   /// The renderer for this widget's editor descendant.
   ///
   /// This property is typically used to notify the renderer of input gestures.
@@ -1718,10 +1722,6 @@ class RawEditorState extends EditorState
 
     final Widget child;
 
-    // In edition mode, force to TextWidthBasis.parent
-    final textWidthBasis =
-        widget.readOnly ? widget.textWidthBasis : TextWidthBasis.parent;
-
     if (widget.scrollable) {
       child = Scrollable(
         key: _scrollableKey,
@@ -1748,7 +1748,7 @@ class RawEditorState extends EditorState
             padding: widget.padding,
             maxContentWidth: widget.maxContentWidth,
             cursorController: _cursorController,
-            textWidthBasis: textWidthBasis,
+            textWidthBasis: _textWidthBasis,
             children: _buildChildren(context),
           ),
         ),
@@ -1770,7 +1770,7 @@ class RawEditorState extends EditorState
             onSelectionChanged: _handleSelectionChanged,
             padding: widget.padding,
             maxContentWidth: widget.maxContentWidth,
-            textWidthBasis: textWidthBasis,
+            textWidthBasis: _textWidthBasis,
             children: _buildChildren(context),
           ),
         ),
@@ -1826,6 +1826,7 @@ class RawEditorState extends EditorState
               embedBuilder: widget.embedBuilder,
               linkActionPicker: _linkActionPicker,
               onLaunchUrl: widget.onLaunchUrl,
+              textWidthBasis: widget.textWidthBasis,
             ),
             hasFocus: _hasFocus,
             devicePixelRatio: MediaQuery.of(context).devicePixelRatio,
@@ -1843,6 +1844,7 @@ class RawEditorState extends EditorState
             cursorController: _cursorController,
             selection: widget.controller.selection,
             selectionColor: widget.selectionColor,
+            textWidthBasis: _textWidthBasis,
             enableInteractiveSelection: widget.enableInteractiveSelection,
             hasFocus: _hasFocus,
             contentPadding: (block == ParchmentAttribute.block.code)

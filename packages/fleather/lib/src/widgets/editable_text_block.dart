@@ -19,6 +19,7 @@ class EditableTextBlock extends StatelessWidget {
   final bool readOnly;
   final VerticalSpacing spacing;
   final CursorController cursorController;
+  final TextWidthBasis textWidthBasis;
   final TextSelection selection;
   final Color selectionColor;
   final bool enableInteractiveSelection;
@@ -35,6 +36,7 @@ class EditableTextBlock extends StatelessWidget {
     required this.readOnly,
     required this.spacing,
     required this.cursorController,
+    required this.textWidthBasis,
     required this.selection,
     required this.selectionColor,
     required this.enableInteractiveSelection,
@@ -83,6 +85,7 @@ class EditableTextBlock extends StatelessWidget {
             embedBuilder: embedBuilder,
             linkActionPicker: linkActionPicker,
             onLaunchUrl: onLaunchUrl,
+            textWidthBasis: textWidthBasis,
           ),
           cursorController: cursorController,
           selection: selection,

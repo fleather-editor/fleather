@@ -91,10 +91,11 @@ class FleatherField extends StatefulWidget {
   /// the text field from the clipboard.
   final bool enableInteractiveSelection;
 
-  /// Defines how to measure the width of the rendered when [readOnly] is `true`
-  /// text. Otherwise the value is ignored and forced to [TextWidthBasis.parent]
+  /// Defines how to measure the width of the rendered text when [readOnly] is
+  /// `true`. Otherwise the value is ignored and forced to
+  /// [TextWidthBasis.parent]
   ///
-  /// Default to [TextWidthBasis.parent].
+  /// Defaults to [TextWidthBasis.parent].
   final TextWidthBasis textWidthBasis;
 
   /// The minimum height to be occupied by this editor.
