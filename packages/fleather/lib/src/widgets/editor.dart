@@ -182,6 +182,13 @@ class FleatherEditor extends StatefulWidget {
   /// the text field from the clipboard.
   final bool enableInteractiveSelection;
 
+  /// Defines how to measure the width of the rendered text when [readOnly] is
+  /// `true`. Otherwise the value is ignored and forced to
+  /// [TextWidthBasis.parent]
+  ///
+  /// Defaults to [TextWidthBasis.parent].
+  final TextWidthBasis textWidthBasis;
+
   /// The minimum height to be occupied by this editor.
   ///
   /// This only has effect if [scrollable] is set to `true` and [expands] is
@@ -309,6 +316,7 @@ class FleatherEditor extends StatefulWidget {
       this.autocorrect = true,
       this.enableSuggestions = true,
       this.enableInteractiveSelection = true,
+      this.textWidthBasis = TextWidthBasis.parent,
       this.minHeight,
       this.maxHeight,
       this.maxContentWidth,
@@ -486,6 +494,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       readOnly: widget.readOnly,
       enableSuggestions: widget.enableSuggestions,
       enableInteractiveSelection: widget.enableInteractiveSelection,
+      textWidthBasis: widget.textWidthBasis,
       minHeight: widget.minHeight,
       maxHeight: widget.maxHeight,
       maxContentWidth: widget.maxContentWidth,
@@ -589,6 +598,7 @@ class RawEditor extends StatefulWidget {
     this.autocorrect = true,
     this.enableSuggestions = true,
     this.enableInteractiveSelection = true,
+    this.textWidthBasis = TextWidthBasis.parent,
     this.minHeight,
     this.maxHeight,
     this.maxContentWidth,
@@ -715,6 +725,9 @@ class RawEditor extends StatefulWidget {
   ///
   ///  * [TextCapitalization], for a description of each capitalization behavior.
   final TextCapitalization textCapitalization;
+
+  /// Defines how to measure the width of the rendered text.
+  final TextWidthBasis textWidthBasis;
 
   /// The maximum height this editor can have.
   ///
@@ -969,6 +982,9 @@ class RawEditorState extends EditorState
         '$runtimeType created without a textDirection and with no ambient Directionality.');
     return result!;
   }
+
+  TextWidthBasis get _textWidthBasis =>
+      widget.readOnly ? widget.textWidthBasis : TextWidthBasis.parent;
 
   /// The renderer for this widget's editor descendant.
   ///
@@ -1732,6 +1748,7 @@ class RawEditorState extends EditorState
             padding: widget.padding,
             maxContentWidth: widget.maxContentWidth,
             cursorController: _cursorController,
+            textWidthBasis: _textWidthBasis,
             children: _buildChildren(context),
           ),
         ),
@@ -1753,6 +1770,7 @@ class RawEditorState extends EditorState
             onSelectionChanged: _handleSelectionChanged,
             padding: widget.padding,
             maxContentWidth: widget.maxContentWidth,
+            textWidthBasis: _textWidthBasis,
             children: _buildChildren(context),
           ),
         ),
@@ -1808,6 +1826,7 @@ class RawEditorState extends EditorState
               embedBuilder: widget.embedBuilder,
               linkActionPicker: _linkActionPicker,
               onLaunchUrl: widget.onLaunchUrl,
+              textWidthBasis: widget.textWidthBasis,
             ),
             hasFocus: _hasFocus,
             devicePixelRatio: MediaQuery.of(context).devicePixelRatio,
@@ -1825,6 +1844,7 @@ class RawEditorState extends EditorState
             cursorController: _cursorController,
             selection: widget.controller.selection,
             selectionColor: widget.selectionColor,
+            textWidthBasis: _textWidthBasis,
             enableInteractiveSelection: widget.enableInteractiveSelection,
             hasFocus: _hasFocus,
             contentPadding: (block == ParchmentAttribute.block.code)
@@ -2182,6 +2202,7 @@ class _Editor extends MultiChildRenderObjectWidget {
     required this.endHandleLayerLink,
     required this.onSelectionChanged,
     required this.cursorController,
+    required this.textWidthBasis,
     this.padding = EdgeInsets.zero,
     this.maxContentWidth,
   });
@@ -2196,6 +2217,7 @@ class _Editor extends MultiChildRenderObjectWidget {
   final TextSelectionChangedHandler onSelectionChanged;
   final EdgeInsetsGeometry padding;
   final double? maxContentWidth;
+  final TextWidthBasis textWidthBasis;
   final CursorController cursorController;
 
   @override
@@ -2212,6 +2234,7 @@ class _Editor extends MultiChildRenderObjectWidget {
       cursorController: cursorController,
       padding: padding,
       maxContentWidth: maxContentWidth,
+      textWidthBasis: textWidthBasis,
     );
   }
 
@@ -2229,6 +2252,7 @@ class _Editor extends MultiChildRenderObjectWidget {
     renderObject.onSelectionChanged = onSelectionChanged;
     renderObject.padding = padding;
     renderObject.maxContentWidth = maxContentWidth;
+    renderObject.textWidthBasis = textWidthBasis;
   }
 }
 

@@ -26,6 +26,7 @@ class TextLine extends StatefulWidget {
   final FleatherEmbedBuilder embedBuilder;
   final ValueChanged<String?>? onLaunchUrl;
   final LinkActionPicker linkActionPicker;
+  final TextWidthBasis textWidthBasis;
 
   const TextLine({
     super.key,
@@ -35,6 +36,7 @@ class TextLine extends StatefulWidget {
     required this.embedBuilder,
     required this.onLaunchUrl,
     required this.linkActionPicker,
+    required this.textWidthBasis,
   });
 
   @override
@@ -136,6 +138,7 @@ class _TextLineState extends State<TextLine> {
         text: text,
         textAlign: textAlign,
         strutStyle: strutStyle,
+        textWidthBasis: widget.textWidthBasis,
         textScaler: MediaQuery.textScalerOf(context),
       ),
     );
