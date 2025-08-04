@@ -107,6 +107,9 @@ class FleatherThemeData {
   /// Style theme for horizontal rule.
   final HorizontalRuleThemeData horizontalRule;
 
+  /// Strut style
+  final StrutStyle? strutStyle;
+
   FleatherThemeData({
     required this.bold,
     required this.italic,
@@ -125,6 +128,7 @@ class FleatherThemeData {
     required this.quote,
     required this.code,
     required this.horizontalRule,
+    this.strutStyle,
   });
 
   factory FleatherThemeData.fallback(BuildContext context) {
@@ -295,6 +299,7 @@ class FleatherThemeData {
     TextBlockTheme? quote,
     TextBlockTheme? code,
     HorizontalRuleThemeData? horizontalRuleThemeData,
+    StrutStyle? strutStyle,
   }) {
     return FleatherThemeData(
       bold: bold ?? this.bold,
@@ -314,6 +319,7 @@ class FleatherThemeData {
       quote: quote ?? this.quote,
       code: code ?? this.code,
       horizontalRule: horizontalRuleThemeData ?? horizontalRule,
+      strutStyle: strutStyle ?? this.strutStyle,
     );
   }
 
@@ -336,6 +342,7 @@ class FleatherThemeData {
       quote: other.quote,
       code: other.code,
       horizontalRuleThemeData: other.horizontalRule,
+      strutStyle: other.strutStyle,
     );
   }
 }
