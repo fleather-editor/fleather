@@ -36,6 +36,7 @@ class AutoFormats {
       const MarkdownInlineShortcuts(),
       const MarkdownLineShortcuts(),
       const AutoTextDirection(),
+      const EmojiShortcuts(),
       ...?additionalFormats,
     ]);
   }
@@ -436,5 +437,79 @@ class AutoTextDirection extends AutoFormat {
     document.compose(change, ChangeSource.local);
     return AutoFormatResult(
         change: change, undo: undo, undoPositionCandidate: position);
+  }
+}
+
+class EmojiShortcuts extends AutoFormat {
+  static final _shortcutsRegex = RegExp(
+      r'(:\))|(;\))|(:\()|(B\))|(:D)|(D:)|(:d)|(;p)|(:p)|(:o)|(:s)|(:x)|(:\|)|(:/)|(:\[)|(:>)|(:@)|(:\*)|(:!)|(o:\))|(>:-o)|(>:-\))|(:3)|(\(y\))|(\(n\))|(<3)');
+
+  // Inspired by Apple shortcuts
+  static const _emojiShortcut = {
+    ':)': '😊',
+    ';)': '😉',
+    ':(': '😟',
+    'B)': '😎',
+    ':D': '😃',
+    'D:': '😩',
+    ':d': '😋',
+    ';p': '😜',
+    ':p': '😛',
+    ':o': '😮',
+    ':s': '😖',
+    ':x': '😶',
+    ':|': '😐',
+    ':/': '😕',
+    ':[': '😳',
+    ':>': '😏',
+    ':@': '😷',
+    ':*': '😘',
+    ':!': '😬',
+    'o:)': '😇',
+    '>:-o': '😠',
+    '>:-)': '😈',
+    ':3': '😺',
+    '(y)': '👍',
+    '(n)': '👎',
+    '<3': '❤️',
+  };
+
+  const EmojiShortcuts();
+
+  @override
+  AutoFormatResult? apply(
+      ParchmentDocument document, int position, String data) {
+    // This rule applies to a space or newline inserted after a link, so we can ignore
+    // everything else.
+    if (data != ' ' && data != '\n') return null;
+
+    final documentDelta = document.toDelta();
+    final iter = DeltaIterator(documentDelta);
+    final previous = iter.skip(position);
+    // No previous operation means nothing to analyze.
+    if (previous == null || previous.data is! String) return null;
+    final previousText = previous.data as String;
+
+    // Split text of previous operation in lines and words and take the last
+    // word to test.
+    final candidate = previousText.split('\n').last.split(' ').last;
+    final match = _shortcutsRegex.firstMatch(candidate);
+    if (match == null) return null;
+    final shortcut = match.group(0)!;
+    final emoji = _emojiShortcut[shortcut]!;
+    final change = Delta()
+      ..retain(position - candidate.length)
+      ..delete(shortcut.length + 1 /* inserted space should be removed */)
+      ..insert('$emoji ');
+
+    final undo = change.invert(documentDelta);
+    document.compose(change, ChangeSource.local);
+    return AutoFormatResult(
+        change: change,
+        selection: TextSelection.collapsed(
+            offset: position - shortcut.length + emoji.length + 1),
+        undo: undo,
+        undoPositionCandidate: position - shortcut.length + emoji.length,
+        undoSelection: TextSelection.collapsed(offset: position + 1));
   }
 }

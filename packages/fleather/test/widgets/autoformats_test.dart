@@ -273,6 +273,55 @@ void main() {
       expect(autoformats.canUndo, isFalse);
     });
   });
+
+  group('Emoji shortcuts', () {
+    test('Detects 2-characters shortcut', () {
+      final document = ParchmentDocument.fromDelta(Delta()..insert(':) \n'));
+      final performed = autoformats.run(document, 2, ' ');
+      expect(performed, true);
+      expect(autoformats.selection,
+          TextSelection.collapsed(offset: '😊'.length + 1));
+      expect(autoformats.undoPosition, 2);
+      expect(document.toDelta(), Delta()..insert('😊 \n'));
+    });
+
+    test('Detects 3-characters shortcut', () {
+      final document = ParchmentDocument.fromDelta(Delta()..insert('o:) \n'));
+      final performed = autoformats.run(document, 3, ' ');
+      expect(performed, true);
+      expect(autoformats.selection,
+          TextSelection.collapsed(offset: '😇'.length + 1));
+      expect(autoformats.undoPosition, 2);
+      expect(document.toDelta(), Delta()..insert('😇 \n'));
+    });
+
+    test('Detects 4-characters shortcut', () {
+      final document = ParchmentDocument.fromDelta(Delta()..insert('>:-) \n'));
+      final performed = autoformats.run(document, 4, ' ');
+      expect(performed, true);
+      expect(autoformats.selection,
+          TextSelection.collapsed(offset: '😈'.length + 1));
+      expect(autoformats.undoPosition, 2);
+      expect(document.toDelta(), Delta()..insert('😈 \n'));
+    });
+
+    test('No trigger of detection if inserting other than space', () {
+      final document = ParchmentDocument.fromDelta(Delta()..insert(':) \n'));
+      final performed = autoformats.run(document, 2, 'p');
+      expect(performed, false);
+      expect(autoformats.hasActiveSuggestion, isFalse);
+    });
+
+    test('Deleting at candidate position, undoes emoji replacement', () {
+      final document = ParchmentDocument.fromDelta(Delta()..insert(':) \n'));
+      autoformats.run(document, 2, ' ');
+      final undoSelection = autoformats.undoActive(document);
+      expect(undoSelection, TextSelection.collapsed(offset: 3));
+      expect(document.toDelta().length, 1);
+      expect(document.toDelta().first.isInsert, isTrue);
+      expect(document.toDelta().first.data, ':) \n');
+    });
+  });
 }
 
 class FakeAutoFormat extends AutoFormat {
