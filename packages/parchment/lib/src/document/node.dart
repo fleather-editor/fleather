@@ -93,6 +93,7 @@ abstract base class Node extends LinkedListEntry<Node> {
   @override
   void insertBefore(Node entry) {
     assert(entry._parent == null && _parent != null);
+    entry.invalidateOffset();
     entry._parent = _parent;
     super.insertBefore(entry);
     _parent?.invalidateLength();
@@ -102,6 +103,7 @@ abstract base class Node extends LinkedListEntry<Node> {
   @override
   void insertAfter(Node entry) {
     assert(entry._parent == null && _parent != null);
+    entry.invalidateOffset();
     entry._parent = _parent;
     super.insertAfter(entry);
     parent?.invalidateLength();
@@ -343,7 +345,9 @@ base class RootNode extends ContainerNode<ContainerNode<Node>> {
   ContainerNode<Node> get defaultChild => LineNode();
 
   @override
-  void optimize() {/* no-op */}
+  void optimize() {
+    /* no-op */
+  }
 
   @override
   Delta toDelta() => children

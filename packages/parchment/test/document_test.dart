@@ -249,6 +249,26 @@ void main() {
       expect(result, isEmpty);
     });
 
+    test('delete block does not corrupt _offsetCache', () {
+      var delta = Delta()
+        ..insert('Line 1\nLine 2\n')
+        ..insert('\n', {'block': 'ul'});
+      final document = ParchmentDocument.fromDelta(delta,
+          heuristics: ParchmentHeuristics.fallback);
+      var blockLine =
+          (document.root.children.first.next!.next! as BlockNode).first;
+      // Set _offsetCache of LineNode in BlockNode to 0
+      blockLine.containsOffset(14);
+      // Set _offsetCache of 'Line 2' LineNode node to 6
+      var secondLine = document.root.children.first.next!;
+      secondLine.containsOffset(13);
+      expect(secondLine.containsOffset(13), isTrue);
+
+      document.replace(13, 1, '');
+      secondLine = document.root.children.first.next!;
+      expect(secondLine.containsOffset(13), isTrue);
+    });
+
     test('checks for closed state', () {
       final doc = dartconfDoc();
       expect(doc.isClosed, isFalse);
