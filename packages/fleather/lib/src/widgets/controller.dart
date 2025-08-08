@@ -191,9 +191,7 @@ class FleatherController extends ChangeNotifier {
     if (!_autoFormats.hasActiveSuggestion) return true;
 
     if (_autoFormats.canUndo) {
-      final isDeletionOfOneChar = data is String && data.isEmpty && length == 1;
-      if (isDeletionOfOneChar) {
-        // Undo if deleting 1 character after retain of auto-format
+      if (_autoFormats.replacementTriggersUndo(length, data)) {
         if (position == _autoFormats.undoPosition) {
           final undoSelection = _autoFormats.undoActive(document);
           if (undoSelection != null) {
