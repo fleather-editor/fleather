@@ -86,6 +86,8 @@ class _EncoderState {
   bool isSingleLine = true;
 }
 
+const _defaultImageStyle = 'max-width: 100%; object-fit: contain;';
+
 // Inline tags relate directly to ParchmentAttributeScope.inline.
 // While iterating through operations, when within a line, one can only know if
 // the corresponding HTML tag is open. Only when the operation doesn't have the
@@ -561,7 +563,7 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
           if (embeddable.data['style'] != null) {
             attributes.write(' style="${embeddable.data['style']}"');
           } else {
-            attributes.write(' style="max-width: 100%; object-fit: contain;"');
+            attributes.write(' style="$_defaultImageStyle"');
           }
           buffer.write('<img src="${embeddable.data['source']}"$attributes>');
           return;
