@@ -129,8 +129,10 @@ class EditableTextBlock extends StatelessWidget {
           FleatherThemeData theme, List<Node> children) =>
       children
           .map((_) => _BulletPoint(
-              style:
-                  theme.paragraph.style.copyWith(fontWeight: FontWeight.bold)))
+                style:
+                    theme.paragraph.style.copyWith(fontWeight: FontWeight.bold),
+                strutStyle: theme.strutStyle,
+              ))
           .toList();
 
   List<Widget> _buildNumberPointsForCodeBlock(
@@ -143,6 +145,7 @@ class EditableTextBlock extends StatelessWidget {
                 width: 32.0,
                 padding: 8,
                 withDot: false,
+                strutStyle: theme.strutStyle,
               ))
           .toList();
 
@@ -170,6 +173,7 @@ class EditableTextBlock extends StatelessWidget {
         style: theme.lists.style,
         width: 32.0,
         padding: 8.0,
+        strutStyle: theme.strutStyle,
       ));
       levelsIndexes[currentLevel] = currentIndex;
       lastLevel = currentLevel;
@@ -311,11 +315,13 @@ class _NumberPoint extends StatelessWidget {
   final bool withDot;
   final double padding;
   final TextStyle style;
+  final StrutStyle? strutStyle;
 
   const _NumberPoint({
     required this.number,
     required this.width,
     required this.style,
+    this.strutStyle,
     this.withDot = true,
     this.padding = 0.0,
   });
@@ -328,16 +334,22 @@ class _NumberPoint extends StatelessWidget {
       alignment: AlignmentDirectional.topEnd,
       width: width,
       padding: EdgeInsetsDirectional.only(end: padding),
-      child: Text(withDot ? '$number.' : '$number', style: style),
+      child: Text(
+        withDot ? '$number.' : '$number',
+        style: style,
+        strutStyle: strutStyle,
+      ),
     );
   }
 }
 
 class _BulletPoint extends StatelessWidget {
   final TextStyle style;
+  final StrutStyle? strutStyle;
 
   const _BulletPoint({
     required this.style,
+    this.strutStyle,
   });
 
   @override
@@ -346,7 +358,11 @@ class _BulletPoint extends StatelessWidget {
       alignment: AlignmentDirectional.topEnd,
       width: 32,
       padding: const EdgeInsetsDirectional.only(end: 13.0),
-      child: Text('•', style: style),
+      child: Text(
+        '•',
+        style: style,
+        strutStyle: strutStyle,
+      ),
     );
   }
 }

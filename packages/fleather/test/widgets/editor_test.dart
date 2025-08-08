@@ -252,24 +252,67 @@ void main() {
       expect(toolbarTop.dy, greaterThan(90));
     });
 
-    testWidgets('allows merging attribute theme data', (tester) async {
-      var delta = Delta()
-        ..insert(
-          'Website',
-          ParchmentAttribute.link.fromString('https://github.com').toJson(),
-        )
-        ..insert('\n');
-      var doc = ParchmentDocument.fromDelta(delta);
-      final BuildContext context = tester.element(find.byType(Container));
-      var theme = FleatherThemeData.fallback(context)
-          .copyWith(link: const TextStyle(color: Colors.red));
-      var editor =
-          EditorSandBox(tester: tester, document: doc, fleatherTheme: theme);
-      await editor.pumpAndTap();
-      // await tester.pumpAndSettle();
-      final p = tester.widget(find.byType(RichText).first) as RichText;
-      final text = p.text as TextSpan;
-      expect(text.children!.first.style!.color, Colors.red);
+    group('FleatherTheme', () {
+      testWidgets('allows merging attribute theme data', (tester) async {
+        var delta = Delta()
+          ..insert(
+            'Website',
+            ParchmentAttribute.link.fromString('https://github.com').toJson(),
+          )
+          ..insert('\n');
+        var doc = ParchmentDocument.fromDelta(delta);
+        final BuildContext context = tester.element(find.byType(Container));
+        var theme = FleatherThemeData.fallback(context)
+            .copyWith(link: const TextStyle(color: Colors.red));
+        var editor =
+            EditorSandBox(tester: tester, document: doc, fleatherTheme: theme);
+        await editor.pumpAndTap();
+        // await tester.pumpAndSettle();
+        final p = tester.widget(find.byType(RichText).first) as RichText;
+        final text = p.text as TextSpan;
+        expect(text.children!.first.style!.color, Colors.red);
+      });
+
+      Future<void> testStrutUsage(WidgetTester tester, Delta delta) async {
+        var doc = ParchmentDocument.fromDelta(delta);
+        final strutStyle = StrutStyle(
+          leading: 0.2,
+          height: 1.0,
+          forceStrutHeight: true,
+        );
+        final BuildContext context = tester.element(find.byType(Container));
+        var editor = EditorSandBox(
+            tester: tester,
+            document: doc,
+            fleatherTheme: FleatherThemeData.fallback(context).copyWith(
+              strutStyle: strutStyle,
+            ));
+        await editor.pumpAndTap();
+        final p = tester.widget(find.byType(RichText).first) as RichText;
+        expect(p.strutStyle?.leading, strutStyle.leading);
+        expect(p.strutStyle?.height, strutStyle.height);
+        expect(p.strutStyle?.forceStrutHeight, strutStyle.forceStrutHeight);
+      }
+
+      testWidgets('plain text uses StrutStyle', (tester) async {
+        await testStrutUsage(tester, Delta()..insert('Hello world\n'));
+      });
+
+      testWidgets('numbers in lists  uses StrutStyle', (tester) async {
+        await testStrutUsage(
+            tester,
+            Delta()
+              ..insert('Hello world')
+              ..insert('\n', {'block': 'ol'}));
+      });
+
+      testWidgets('bullets in lists  uses StrutStyle', (tester) async {
+        await testStrutUsage(
+            tester,
+            Delta()
+              ..insert('Hello world')
+              ..insert('\n', {'block': 'ul'}));
+      });
     });
 
     testWidgets('changes to controller does not request keyboard',

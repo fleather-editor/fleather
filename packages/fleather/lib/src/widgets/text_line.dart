@@ -125,9 +125,11 @@ class _TextLineState extends State<TextLine> {
       final embed = widget.node.children.single as EmbedNode;
       return EmbedProxy(child: widget.embedBuilder(context, embed));
     }
-    final text = buildText(context, widget.node);
+    final theme = FleatherTheme.of(context)!;
+    final text = buildText(context, widget.node, theme);
     final textAlign = getTextAlign(widget.node);
-    final strutStyle = StrutStyle.fromTextStyle(text.style!);
+    final strutStyle = theme.strutStyle?.inheritFromTextStyle(text.style) ??
+        StrutStyle.fromTextStyle(text.style!);
     return RichTextProxy(
       textStyle: text.style!,
       textAlign: textAlign,
@@ -156,8 +158,8 @@ class _TextLineState extends State<TextLine> {
     return TextAlign.left;
   }
 
-  TextSpan buildText(BuildContext context, LineNode node) {
-    final theme = FleatherTheme.of(context)!;
+  TextSpan buildText(
+      BuildContext context, LineNode node, FleatherThemeData theme) {
     final children = node.children
         .map((node) => _segmentToTextSpan(node, theme))
         .toList(growable: false);
