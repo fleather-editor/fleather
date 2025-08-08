@@ -560,6 +560,8 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
           }
           if (embeddable.data['style'] != null) {
             attributes.write(' style="${embeddable.data['style']}"');
+          } else {
+            attributes.write(' style="max-width: 100%; object-fit: contain;"');
           }
           buffer.write('<img src="${embeddable.data['source']}"$attributes>');
           return;
@@ -975,7 +977,7 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
         if (height != null) data['height'] = height;
         if (style != null) data['style'] = style;
 
-        delta.insert(BlockEmbed.image(source, data).toJson());
+        delta.insert(BlockEmbed.image(source, data: data).toJson());
         // <img> can be enclosed in a <p> element, but
         // we only want to support <p> with only one node (<img>)
         if (node.parent is html.Element &&

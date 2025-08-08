@@ -1262,16 +1262,27 @@ void main() {
     });
 
     group('Embeds', () {
-      test('Image', () {
+      test('Image (default style)', () {
         final html =
             '<img src="http://fake.link/image.png" style="max-width: 100%; object-fit: contain;">';
+        final doc = ParchmentDocument.fromJson([
+          {'insert': '\n'}
+        ]);
+        doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
+
+        expect(codec.encode(doc), html);
+      });
+
+      test('Image', () {
+        final html =
+            '<img src="http://fake.link/image.png" style="max-width: 100%; object-fit: cover;">';
         final doc = ParchmentDocument.fromJson([
           {'insert': '\n'}
         ]);
         doc.insert(
             0,
             BlockEmbed.image('http://fake.link/image.png',
-                {'style': 'max-width: 100%; object-fit: contain;'}));
+                data: {'style': 'max-width: 100%; object-fit: cover;'}));
 
         expect(codec.encode(doc), html);
       });
@@ -1891,10 +1902,18 @@ void main() {
           {'insert': '\n'}
         ]);
         doc.insert(0, 'a');
-        doc.insert(
-            0, BlockEmbed.image('http://another.fake.link/image.png', {}));
-        doc.insert(0, BlockEmbed.image('http://fake.link/image.png', {}));
+        doc.insert(0, BlockEmbed.image('http://another.fake.link/image.png'));
+        doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
         doc.insert(0, BlockEmbed.horizontalRule);
+        expect(codec.decode(html).toDelta(), doc.toDelta());
+      });
+
+      test('Image (no style)', () {
+        final html = '<img src="http://fake.link/image.png">';
+        final doc = ParchmentDocument.fromJson([
+          {'insert': '\n'}
+        ]);
+        doc.insert(0, BlockEmbed.image('http://fake.link/image.png'));
         expect(codec.decode(html).toDelta(), doc.toDelta());
       });
 
@@ -1906,7 +1925,7 @@ void main() {
         ]);
         doc.insert(
             0,
-            BlockEmbed.image('http://fake.link/image.png', {
+            BlockEmbed.image('http://fake.link/image.png', data: {
               'width': 100,
               'height': 100,
             }));
