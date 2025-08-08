@@ -540,7 +540,7 @@ class EmojiShortcuts extends AutoFormat {
     if (!candidate.endsWith(shortcut)) return null;
     final emoji = _emojiShortcut[shortcut]!;
     final change = Delta()
-      ..retain(documentPosition - candidate.length)
+      ..retain(documentPosition - shortcut.length)
       ..delete(shortcut.length)
       ..insert(emoji);
 
@@ -551,8 +551,7 @@ class EmojiShortcuts extends AutoFormat {
         selection: TextSelection.collapsed(
             offset: documentPosition - shortcut.length + emoji.length),
         undo: undo,
-        undoPositionCandidate:
-            documentPosition - shortcut.length + emoji.length,
+        undoPositionCandidate: documentPosition - shortcut.length,
         undoSelection: TextSelection.collapsed(offset: documentPosition),
         undoReplacementTest: (length, data) =>
             data is String && data.isEmpty && length == emoji.length);

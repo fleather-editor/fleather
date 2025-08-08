@@ -281,7 +281,7 @@ void main() {
       expect(performed, true);
       expect(
           autoformats.selection, TextSelection.collapsed(offset: '😊'.length));
-      expect(autoformats.undoPosition, '😊'.length);
+      expect(autoformats.undoPosition, 0);
       expect(document.toDelta(), Delta()..insert('😊\n'));
     });
 
@@ -291,7 +291,7 @@ void main() {
       expect(performed, true);
       expect(
           autoformats.selection, TextSelection.collapsed(offset: '😇'.length));
-      expect(autoformats.undoPosition, '😇'.length);
+      expect(autoformats.undoPosition, 0);
       expect(document.toDelta(), Delta()..insert('😇\n'));
     });
 
@@ -301,7 +301,7 @@ void main() {
       expect(performed, true);
       expect(
           autoformats.selection, TextSelection.collapsed(offset: '😈'.length));
-      expect(autoformats.undoPosition, '😈'.length);
+      expect(autoformats.undoPosition, 0);
       expect(document.toDelta(), Delta()..insert('😈\n'));
     });
 
