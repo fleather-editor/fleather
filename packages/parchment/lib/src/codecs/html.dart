@@ -86,6 +86,8 @@ class _EncoderState {
   bool isSingleLine = true;
 }
 
+const _defaultImageStyle = 'max-width: 100%; object-fit: contain;';
+
 // Inline tags relate directly to ParchmentAttributeScope.inline.
 // While iterating through operations, when within a line, one can only know if
 // the corresponding HTML tag is open. Only when the operation doesn't have the
@@ -551,10 +553,19 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
           return;
         }
         if (embeddable.type == 'image') {
-          // Force the image to fit within any max. width that might be set. If
-          // no width or max-width is set on an outer block, then this does nothing.
-          buffer.write(
-              '<img src="${embeddable.data['source']}" style="max-width: 100%; object-fit: contain;">');
+          final attributes = StringBuffer();
+          if (embeddable.data['width'] != null) {
+            attributes.write(' width="${embeddable.data['width']}"');
+          }
+          if (embeddable.data['height'] != null) {
+            attributes.write(' height="${embeddable.data['height']}"');
+          }
+          if (embeddable.data['style'] != null) {
+            attributes.write(' style="${embeddable.data['style']}"');
+          } else {
+            attributes.write(' style="$_defaultImageStyle"');
+          }
+          buffer.write('<img src="${embeddable.data['source']}"$attributes>');
           return;
         }
       }
@@ -958,8 +969,17 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
         return delta;
       }
       if (node.localName == 'img') {
-        final src = node.attributes['src'] ?? '';
-        delta.insert(BlockEmbed.image(src).toJson());
+        final String source = node.attributes['src'] ?? '';
+        final int? width = int.tryParse(node.attributes['width'] ?? '');
+        final int? height = int.tryParse(node.attributes['height'] ?? '');
+        final String? style = node.attributes['style'];
+
+        final Map<String, dynamic> data = {'source': source};
+        if (width != null) data['width'] = width;
+        if (height != null) data['height'] = height;
+        if (style != null) data['style'] = style;
+
+        delta.insert(BlockEmbed.image(source, data: data).toJson());
         // <img> can be enclosed in a <p> element, but
         // we only want to support <p> with only one node (<img>)
         if (node.parent is html.Element &&
