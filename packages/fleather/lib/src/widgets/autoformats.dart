@@ -4,6 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:parchment/parchment.dart';
 
+typedef UndoReplacementTest = bool Function(int, dynamic);
+
+// Default to deletion of one character
+bool _defaultUndoReplacement(int length, dynamic data) {
+  return data is String && data.isEmpty && length == 1;
+}
+
 /// An [AutoFormat] is responsible for looking backwards for a pattern and
 /// applying a formatting suggestion to a document.
 ///
@@ -36,6 +43,7 @@ class AutoFormats {
       const MarkdownInlineShortcuts(),
       const MarkdownLineShortcuts(),
       const AutoTextDirection(),
+      const EmojiShortcuts(),
       ...?additionalFormats,
     ]);
   }
@@ -56,6 +64,9 @@ class AutoFormats {
   /// `true` if hasActiveSuggestion and undo delta is not empty;
   /// `false` otherwise
   bool get canUndo => hasActiveSuggestion && _activeSuggestion!.undo.isNotEmpty;
+
+  bool replacementTriggersUndo(int length, dynamic data) =>
+      _activeSuggestion!.undoReplacementTest(length, data);
 
   /// Perform detection of auto formats and apply changes to [document].
   ///
@@ -100,7 +111,11 @@ class AutoFormatResult {
     this.undoSelection,
     required this.undo,
     required this.undoPositionCandidate,
+    this.undoReplacementTest = _defaultUndoReplacement,
   });
+
+  /// The [UndoReplacementTest] that triggers this undo of the [AutoFormat]
+  final UndoReplacementTest undoReplacementTest;
 
   /// *Optional* [TextSelection] after applying the auto format.
   ///
@@ -436,5 +451,109 @@ class AutoTextDirection extends AutoFormat {
     document.compose(change, ChangeSource.local);
     return AutoFormatResult(
         change: change, undo: undo, undoPositionCandidate: position);
+  }
+}
+
+class EmojiShortcuts extends AutoFormat {
+  static final _shortcutsRegex = RegExp(
+      r'(:\))|(;\))|(:\()|(B\))|(:D)|(D:)|(:d)|(;p)|(:p)|(:o)|(:s)|(:x)|(:\|)|(:/)|(:\[)|(:>)|(:@)|(:\*)|(:!)|(o:\))|(>:-o)|(>:-\))|(:3)|(\(y\))|(\(n\))|(<3)');
+
+  // Inspired by Apple shortcuts
+  static const _emojiShortcut = {
+    ':)': '😊',
+    ';)': '😉',
+    ':(': '😟',
+    'B)': '😎',
+    ':D': '😃',
+    'D:': '😩',
+    ':d': '😋',
+    ';p': '😜',
+    ':p': '😛',
+    ':o': '😮',
+    ':s': '😖',
+    ':x': '😶',
+    ':|': '😐',
+    ':/': '😕',
+    ':[': '😳',
+    ':>': '😏',
+    ':@': '😷',
+    ':*': '😘',
+    ':!': '😬',
+    'o:)': '😇',
+    '>:-o': '😠',
+    '>:-)': '😈',
+    ':3': '😺',
+    '(y)': '👍',
+    '(n)': '👎',
+    '<3': '❤️',
+  };
+
+  static const Set<String> _triggers = {
+    ')',
+    '(',
+    'D',
+    ':',
+    'd',
+    'p',
+    'o',
+    's',
+    'x',
+    '|',
+    '/',
+    '[',
+    '>',
+    '@',
+    '*',
+    '!',
+    '3'
+  };
+
+  const EmojiShortcuts();
+
+  static bool _isTriggerData(String data) {
+    if (data.length != 1) return false;
+    return _triggers.contains(data);
+  }
+
+  @override
+  AutoFormatResult? apply(
+      ParchmentDocument document, int position, String data) {
+    // This rule applies to suffices of one of the shortcuts, so we can ignore
+    // everything else.
+    if (!_isTriggerData(data)) return null;
+
+    final documentPosition = position + 1;
+    // Document has already processed replacement
+    final documentDelta = document.toDelta();
+    final iter = DeltaIterator(documentDelta);
+    final previous = iter.skip(documentPosition);
+    // No previous operation means nothing to analyze.
+    if (previous == null || previous.data is! String) return null;
+    final previousText = previous.data as String;
+
+    // Split text of previous operation in lines and words and take the last
+    // word to test.
+    final candidate = previousText.split('\n').last.split(' ').last;
+    final match = _shortcutsRegex.firstMatch(candidate);
+    if (match == null) return null;
+    final shortcut = match.group(0)!;
+    if (!candidate.endsWith(shortcut)) return null;
+    final emoji = _emojiShortcut[shortcut]!;
+    final change = Delta()
+      ..retain(documentPosition - shortcut.length)
+      ..delete(shortcut.length)
+      ..insert(emoji);
+
+    final undo = change.invert(documentDelta);
+    document.compose(change, ChangeSource.local);
+    return AutoFormatResult(
+        change: change,
+        selection: TextSelection.collapsed(
+            offset: documentPosition - shortcut.length + emoji.length),
+        undo: undo,
+        undoPositionCandidate: documentPosition - shortcut.length,
+        undoSelection: TextSelection.collapsed(offset: documentPosition),
+        undoReplacementTest: (length, data) =>
+            data is String && data.isEmpty && length == emoji.length);
   }
 }
