@@ -4,10 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:parchment/parchment.dart';
 
+/// A [Function] that tests whether a replacement will trigger an [AutoFormat]
+/// undo.
 typedef UndoReplacementTest = bool Function(int, dynamic);
 
-// Default to deletion of one character
-bool _defaultUndoReplacement(int length, dynamic data) {
+/// Default [UndoReplacementTest] thet is triggered by the deletion of one
+/// character.
+bool defaultUndoReplacement(int length, dynamic data) {
   return data is String && data.isEmpty && length == 1;
 }
 
@@ -15,14 +18,24 @@ bool _defaultUndoReplacement(int length, dynamic data) {
 /// applying a formatting suggestion to a document.
 ///
 /// For example, identifying a link and automatically wrapping it with a link
-/// attribute or applying block formats using Markdown shortcuts
+/// attribute or applying block formats using Markdown shortcuts.
 ///
-/// TODO: adapt to support changes made by a remote source
+/// The method [apply] should be implemented by sub-classes.
+// TODO: adapt to support changes made by a remote source
 abstract class AutoFormat {
   const AutoFormat();
 
   /// Upon insertion of a trigger character, run format detection and apply
-  /// formatting to document
+  /// formatting to document.
+  ///
+  /// [document] is the [ParchmentDocument] **after** the replacement has
+  /// occurred.
+  ///
+  /// [position] is the position of the replacement that resulted in the
+  /// [document]'s state.
+  ///
+  /// [data] is the data of the replacement the resulted in the [document]'s
+  /// state.
   ///
   /// Returns a [AutoFormatResult].
   AutoFormatResult? apply(
@@ -111,7 +124,7 @@ class AutoFormatResult {
     this.undoSelection,
     required this.undo,
     required this.undoPositionCandidate,
-    this.undoReplacementTest = _defaultUndoReplacement,
+    this.undoReplacementTest = defaultUndoReplacement,
   });
 
   /// The [UndoReplacementTest] that triggers this undo of the [AutoFormat]
@@ -488,6 +501,7 @@ class EmojiShortcuts extends AutoFormat {
     '<3': '❤️',
   };
 
+  // Last character of emoji shortcuts triggers the autoformat
   static const Set<String> _triggers = {
     ')',
     '(',
