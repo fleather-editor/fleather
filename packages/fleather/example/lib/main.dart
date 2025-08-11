@@ -180,8 +180,8 @@ class _HomePageState extends State<HomePage> {
           // Caret takes 2 pixels, hence not symmetric padding values.
           padding: const EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
           child: Container(
-            width: node.value.data['width'] ?? 300,
-            height: node.value.data['height'] ?? 300,
+            width: (node.value.data['width'] as num?)?.toDouble() ?? 300,
+            height: (node.value.data['height'] as num?)?.toDouble() ?? 300,
             decoration: BoxDecoration(
               image: DecorationImage(image: image, fit: BoxFit.cover),
             ),
