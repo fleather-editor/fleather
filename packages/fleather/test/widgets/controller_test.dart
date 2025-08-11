@@ -475,6 +475,36 @@ void main() {
             const TextSelection.collapsed(
                 offset: text.length + 1 /* added space*/));
       });
+      test('Emoji shortcuts', () {
+        controller.replaceText(0, 0, ':');
+        controller.replaceText(1, 0, ')',
+            selection: TextSelection.collapsed(offset: 1));
+        expect(controller.document.toDelta(), Delta()..insert('😊\n'));
+        expect(controller.selection,
+            const TextSelection.collapsed(offset: '😊'.length));
+      });
+
+      test('Consecutive emoji shortcuts', () {
+        controller.replaceText(0, 0, ':');
+        controller.replaceText(1, 0, ')',
+            selection: TextSelection.collapsed(offset: 1));
+        controller.replaceText(2, 0, ':');
+        controller.replaceText(3, 0, ')',
+            selection: TextSelection.collapsed(offset: 3));
+        expect(controller.document.toDelta(), Delta()..insert('😊😊\n'));
+        expect(controller.selection,
+            const TextSelection.collapsed(offset: '😊😊'.length));
+      });
+
+      test('Undo emoji shortcuts', () {
+        controller.replaceText(0, 0, ':');
+        controller.replaceText(1, 0, ')',
+            selection: TextSelection.collapsed(offset: 1));
+        controller.replaceText(0, '😊'.length, '',
+            selection: const TextSelection.collapsed(offset: 0));
+        expect(controller.document.toDelta(), Delta()..insert(':)\n'));
+        expect(controller.selection, const TextSelection.collapsed(offset: 2));
+      });
     });
   });
 }
