@@ -505,7 +505,12 @@ void main() {
           useField: false,
           tester: tester,
           document: ParchmentDocument.fromJson([
-            {'insert': 'a\n'}
+            {'insert': 'a'},
+            {'insert': 'list'},
+            {
+              'insert': '\n',
+              'attributes': {'block': 'ul'}
+            }
           ]),
           autofocus: true,
           // Scrollable forces expansion of editor
