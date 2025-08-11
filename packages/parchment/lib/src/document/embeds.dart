@@ -100,5 +100,5 @@ class BlockEmbed extends EmbeddableObject {
   static final BlockEmbed horizontalRule = BlockEmbed('hr');
 
   static BlockEmbed image(String source, {Map<String, dynamic>? data}) =>
-      BlockEmbed('image', data: (data ?? {})..['source'] = source);
+      BlockEmbed('image', data: {...?data, 'source': source});
 }
