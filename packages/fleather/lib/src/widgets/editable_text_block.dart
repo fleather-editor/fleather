@@ -56,6 +56,7 @@ class EditableTextBlock extends StatelessWidget {
       node: node,
       padding: spacing,
       contentPadding: contentPadding,
+      textWidthBasis: textWidthBasis,
       decoration: _getDecorationForBlock(node, theme) ?? const BoxDecoration(),
       children: _buildChildren(context),
     );
@@ -273,10 +274,12 @@ class _EditableBlock extends MultiChildRenderObjectWidget {
   final VerticalSpacing padding;
   final Decoration decoration;
   final EdgeInsets? contentPadding;
+  final TextWidthBasis textWidthBasis;
 
   const _EditableBlock({
     required this.node,
     required this.decoration,
+    required this.textWidthBasis,
     required super.children,
     this.contentPadding,
     this.padding = const VerticalSpacing(),
@@ -295,6 +298,7 @@ class _EditableBlock extends MultiChildRenderObjectWidget {
       padding: _padding,
       decoration: decoration,
       contentPadding: _contentPadding,
+      textWidthBasis: textWidthBasis,
     );
   }
 
@@ -306,6 +310,7 @@ class _EditableBlock extends MultiChildRenderObjectWidget {
     renderObject.padding = _padding;
     renderObject.decoration = decoration;
     renderObject.contentPadding = _contentPadding;
+    renderObject.textWidthBasis = textWidthBasis;
   }
 }
 

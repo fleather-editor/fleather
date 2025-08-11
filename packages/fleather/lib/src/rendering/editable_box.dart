@@ -162,10 +162,12 @@ class RenderEditableContainerBox extends RenderBox
     required ContainerNode node,
     required TextDirection textDirection,
     required EdgeInsetsGeometry padding,
+    required TextWidthBasis textWidthBasis,
   })  : assert(padding.isNonNegative),
         _node = node,
         _textDirection = textDirection,
-        _padding = padding {
+        _padding = padding,
+        _textWidthBasis = textWidthBasis {
     addAll(children);
   }
 
@@ -204,6 +206,16 @@ class RenderEditableContainerBox extends RenderBox
     }
     _padding = value;
     _markNeedsPaddingResolution();
+  }
+
+  TextWidthBasis _textWidthBasis;
+
+  TextWidthBasis get textWidthBasis => _textWidthBasis;
+
+  set textWidthBasis(TextWidthBasis value) {
+    if (_textWidthBasis == value) return;
+    _textWidthBasis = value;
+    markNeedsLayout();
   }
 
   EdgeInsets? get resolvedPadding => _resolvedPadding;
@@ -314,16 +326,22 @@ class RenderEditableContainerBox extends RenderBox
     var mainAxisExtent = _resolvedPadding!.top;
     var child = firstChild;
     final innerConstraints = constraints.deflate(_resolvedPadding!);
+    double? contentWidth =
+        textWidthBasis == TextWidthBasis.longestLine ? 0.0 : null;
     while (child != null) {
       child.layout(innerConstraints, parentUsesSize: true);
       final childParentData = child.parentData as EditableContainerParentData;
       childParentData.offset = Offset(_resolvedPadding!.left, mainAxisExtent);
       mainAxisExtent += child.size.height;
+      if (contentWidth != null) {
+        contentWidth += math.max(contentWidth, child.size.width);
+      }
       assert(child.parentData == childParentData);
       child = childParentData.nextSibling;
     }
     mainAxisExtent += _resolvedPadding!.bottom;
-    size = constraints.constrain(Size(constraints.maxWidth, mainAxisExtent));
+    size = constraints
+        .constrain(Size(contentWidth ?? constraints.maxWidth, mainAxisExtent));
 
     assert(size.isFinite);
   }

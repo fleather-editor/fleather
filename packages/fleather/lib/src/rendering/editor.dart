@@ -140,10 +140,10 @@ class RenderEditor extends RenderEditableContainerBox
     super.children,
     required super.padding,
     required super.textDirection,
+    required super.textWidthBasis,
     required ParchmentDocument document,
     required ViewportOffset offset,
     required bool hasFocus,
-    required TextWidthBasis textWidthBasis,
     required TextSelection selection,
     required LayerLink startHandleLayerLink,
     required LayerLink endHandleLayerLink,
@@ -160,7 +160,6 @@ class RenderEditor extends RenderEditableContainerBox
         _endHandleLayerLink = endHandleLayerLink,
         _cursorController = cursorController,
         _maxContentWidth = maxContentWidth,
-        _textWidthBasis = textWidthBasis,
         super(
           node: document.root,
         );
@@ -261,16 +260,6 @@ class RenderEditor extends RenderEditableContainerBox
   set maxContentWidth(double? value) {
     if (_maxContentWidth == value) return;
     _maxContentWidth = value;
-    markNeedsLayout();
-  }
-
-  TextWidthBasis _textWidthBasis;
-
-  TextWidthBasis get textWidthBasis => _textWidthBasis;
-
-  set textWidthBasis(TextWidthBasis value) {
-    if (_textWidthBasis == value) return;
-    _textWidthBasis = value;
     markNeedsLayout();
   }
 
