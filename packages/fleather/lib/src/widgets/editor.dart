@@ -880,7 +880,7 @@ abstract class EditorState extends State<RawEditor>
   ///
   /// if [createIfNull] is `true`, create the [EditorTextSelectionOverlay]
   /// if the latter is null
-  bool showToolbar({createIfNull = false});
+  bool showToolbar({bool createIfNull = false});
 
   /// Shows toolbar with spell check suggestions of misspelled words that are
   /// available for click-and-replace.
