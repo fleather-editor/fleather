@@ -1,3 +1,13 @@
+##  1.25.0
+
+- Upgrade to Flutter 3.35
+- Add attributes to images
+- Support `TextWidthBasis.longestLine`
+- Support custom `StrutStyle`
+- Built-in emoji shortcuts
+- [Fix] Corrupted cursor position when deleting blocks
+- [Fix] Error when using multi-level lists of different nature
+
 ## 1.24.0+1
 
 * Use Flutter context menu when read-only on iOS
