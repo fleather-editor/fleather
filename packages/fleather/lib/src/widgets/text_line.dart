@@ -129,7 +129,10 @@ class _TextLineState extends State<TextLine> {
     final text = buildText(context, widget.node, theme);
     final textAlign = getTextAlign(widget.node);
     final strutStyle = theme.strutStyle?.inheritFromTextStyle(text.style) ??
-        StrutStyle.fromTextStyle(text.style!);
+        StrutStyle.fromTextStyle(text.style!,
+            // We don't want to force strut height when the line contains inline
+            // embeds
+            forceStrutHeight: !widget.node.hasSpanEmbed);
     return RichTextProxy(
       textStyle: text.style!,
       textAlign: textAlign,

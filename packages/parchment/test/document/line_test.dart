@@ -30,6 +30,15 @@ void main() {
       expect(node.hasBlockEmbed, isTrue);
     });
 
+    test('hasInlineEmbed', () {
+      final node = LineNode();
+      expect(node.hasSpanEmbed, isFalse);
+      node
+        ..add(TextNode('Something '))
+        ..add(EmbedNode(SpanEmbed('icon')));
+      expect(node.hasSpanEmbed, isTrue);
+    });
+
     test('nextLine', () {
       root.insert(
           0, 'Hello world\nThis is my first multiline\nItem\ndocument.', null);
