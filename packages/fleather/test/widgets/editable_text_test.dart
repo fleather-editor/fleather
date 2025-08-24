@@ -225,6 +225,21 @@ void main() {
           Color(0xff245284));
     });
   });
+
+  testWidgets('empty lines have same height as non empty lines',
+      (tester) async {
+    final delta = Delta()
+      ..insert('\n')
+      ..insert('something')
+      ..insert('\n');
+    final editor = EditorSandBox(
+        tester: tester, document: ParchmentDocument.fromDelta(delta));
+    await editor.pump();
+    final textLines = tester.elementList(find.byType(TextLine));
+    expect(textLines.length, 2);
+    expect((textLines.first.renderObject as RenderBox).size.height,
+        (textLines.last.renderObject as RenderBox).size.height);
+  });
 }
 
 Future<void> insertText(WidgetTester tester, String textInserted,
