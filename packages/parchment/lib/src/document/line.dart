@@ -26,6 +26,16 @@ final class LineNode extends ContainerNode<LeafNode> with StyledNode {
     return false;
   }
 
+  /// Returns `true` if this line contains at least one inline embedded object.
+  bool get hasSpanEmbed {
+    for (final child in children) {
+      if (child is EmbedNode && child.value.inline) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /// Returns next [LineNode] or `null` if this is the last line in the document.
   LineNode? get nextLine {
     if (isLast) {
