@@ -1,3 +1,7 @@
+##  1.25.1
+
+- [Fix] Empty line height greater than non-empty line height
+
 ##  1.25.0
 
 - Upgrade to Flutter 3.35
