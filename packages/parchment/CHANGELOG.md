@@ -1,3 +1,7 @@
+## 1.25.1
+
+* Add `hasSpanEmbed` to `LineNode`
+
 ## 1.25.0
 
 * [Fix] Incorrect `Node` cached offset when moving `Node`s
