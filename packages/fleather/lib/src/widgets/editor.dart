@@ -126,7 +126,8 @@ class FleatherEditor extends StatefulWidget {
   ///
   /// When set to `false` the editor always expands to fit the entire content
   /// of the document and should normally be placed as a child of another
-  /// scrollable widget, otherwise the content may be clipped.
+  /// scrollable widget, otherwise the content may be clipped and an
+  /// error will be thrown if [enableInteractiveSelection] is `true`.
   ///
   /// Set to `true` by default.
   final bool scrollable;
@@ -1626,7 +1627,24 @@ class RawEditorState extends EditorState
   bool _showCaretOnScreenScheduled = false;
 
   void _showCaretOnScreen([bool withAnimation = true]) {
-    if (!widget.showCursor || _showCaretOnScreenScheduled) {
+    assert(
+        widget.enableInteractiveSelection
+            ? _scrollController.positions.isNotEmpty
+            : true,
+        'ScrollController not attached to any scroll views. '
+        'When editor configured with scrollable = false and '
+        'enableInteractiveSelection = true, make sure the editor is the child '
+        'of a Scrollable widget.');
+    assert(
+        widget.showCursor ? _scrollController.positions.isNotEmpty : true,
+        'ScrollController not attached to any scroll views. '
+        'When editor configured with scrollable = false and '
+        'showCursor = true, make sure the editor is the child '
+        'of a Scrollable widget.');
+
+    if (!widget.showCursor ||
+        !widget.enableInteractiveSelection ||
+        _showCaretOnScreenScheduled) {
       return;
     }
 
