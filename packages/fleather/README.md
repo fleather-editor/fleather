@@ -40,7 +40,7 @@ controller = FleatherController(document);
 ```dart
 Column(
   children: [
-    FleatherToolbar.basic(controller: _controller!),
+    FleatherToolbar.basic(controller: controller),
     Expanded(
       child: FleatherEditor(controller: controller),
     ),
