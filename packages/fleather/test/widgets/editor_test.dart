@@ -516,7 +516,11 @@ void main() {
           // Scrollable forces expansion of editor
           scrollable: false,
           readOnly: true,
-          // We don't want to show cursor (will cause error if not scrollable)
+          // We don't want to enable selection interactions
+          // (will cause error if not scrollable)
+          enableSelectionInteraction: false,
+          // We don't want to show cursor
+          // (will cause error if not scrollable)
           showCursor: false,
           textWidthBasis: TextWidthBasis.longestLine,
         );
