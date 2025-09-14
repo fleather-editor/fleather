@@ -1599,7 +1599,7 @@ void main() {
       });
     });
 
-    group('field', () {
+    group('Field', () {
       testWidgets('creating field without focusNode does not throw _CastError',
           (tester) async {
         final widget = MaterialApp(
@@ -1609,6 +1609,24 @@ void main() {
         );
         await tester.pumpWidget(widget);
         // Fails if thrown
+      });
+
+      testWidgets('handle insertion embeds with no baseline', (tester) async {
+        final controller = FleatherController();
+        final widget = MaterialApp(
+          home: FleatherField(
+            controller: controller,
+          ),
+        );
+        await tester.pumpWidget(widget);
+        await tester.tap(find.byType(FleatherField));
+        await tester.pump();
+        controller.replaceText(0, 0, BlockEmbed.horizontalRule,
+            selection: TextSelection.collapsed(offset: 1));
+        await tester.pump(throttleDuration);
+        controller.replaceText(0, 0, BlockEmbed.horizontalRule,
+            selection: TextSelection.collapsed(offset: 1));
+        await tester.pump(throttleDuration);
       });
 
       testWidgets('shows cursor on screen with scroll parent', (tester) async {
