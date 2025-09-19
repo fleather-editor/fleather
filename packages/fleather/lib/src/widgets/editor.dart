@@ -1656,20 +1656,26 @@ class RawEditorState extends EditorState
         return;
       }
 
-      final offset = renderEditor.getOffsetToRevealCursor(
-          _scrollController.position.viewportDimension,
-          _scrollController.offset);
+      if (!widget.scrollable) {
+        final localRect = renderEditor
+            .getLocalRectForCaret(textEditingValue.selection.extent);
+        renderEditor.showOnScreen(rect: localRect);
+      } else {
+        final offset = renderEditor.getOffsetToRevealCursor(
+            _scrollController.position.viewportDimension,
+            _scrollController.offset);
 
-      if (offset != null) {
-        if (withAnimation) {
-          _scrollController.animateTo(
-            math.min(offset, _scrollController.position.maxScrollExtent),
-            duration: _caretAnimationDuration,
-            curve: _caretAnimationCurve,
-          );
-        } else {
-          _scrollController.jumpTo(
-              math.min(offset, _scrollController.position.maxScrollExtent));
+        if (offset != null) {
+          if (withAnimation) {
+            _scrollController.animateTo(
+              math.min(offset, _scrollController.position.maxScrollExtent),
+              duration: _caretAnimationDuration,
+              curve: _caretAnimationCurve,
+            );
+          } else {
+            _scrollController.jumpTo(
+                math.min(offset, _scrollController.position.maxScrollExtent));
+          }
         }
       }
     });
