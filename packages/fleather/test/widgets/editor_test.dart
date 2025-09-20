@@ -1629,7 +1629,7 @@ void main() {
         await tester.pump(throttleDuration);
       });
 
-      testWidgets('shows cursor on screen with scroll parent', (tester) async {
+      testWidgets('shows cursor on screen when not scrollable with scroll parent', (tester) async {
         final scrollController = ScrollController();
         final controller = FleatherController();
         final widget = MaterialApp(
@@ -1645,6 +1645,51 @@ void main() {
                       key: Key('Field.Key.$i'),
                       focusNode: FocusNode(),
                       scrollable: false,
+                      autofocus: true,
+                      showCursor: true,
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      controller: i == 15 ? controller : FleatherController(),
+                    )
+                  ]
+                ],
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(widget);
+        final field = tester.widget<FleatherField>(
+            find.byKey(Key('Field.Key.15'), skipOffstage: false));
+        field.focusNode!.requestFocus();
+        await tester.pumpAndSettle();
+        expect(scrollController.position.pixels,
+            greaterThan(scrollController.position.minScrollExtent));
+        expect(scrollController.position.pixels,
+            lessThan(scrollController.position.maxScrollExtent));
+        final initialScrollPosition = scrollController.position.pixels;
+        final newInput = 'Line1\nLine2';
+        controller.replaceText(0, 0, newInput,
+            selection: TextSelection.collapsed(offset: newInput.length));
+        await tester.pump(throttleDuration);
+        expect(scrollController.position.pixels,
+            greaterThan(initialScrollPosition));
+      });
+
+      testWidgets('shows cursor on screen when scrollable with scroll parent', (tester) async {
+        final scrollController = ScrollController();
+        final controller = FleatherController();
+        final widget = MaterialApp(
+          home: SingleChildScrollView(
+            controller: scrollController,
+            child: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var i = 0; i < 20; i++) ...[
+                    FleatherField(
+                      key: Key('Field.Key.$i'),
+                      focusNode: FocusNode(),
                       autofocus: true,
                       showCursor: true,
                       autocorrect: false,
