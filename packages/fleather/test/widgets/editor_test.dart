@@ -1629,7 +1629,9 @@ void main() {
         await tester.pump(throttleDuration);
       });
 
-      testWidgets('shows cursor on screen when not scrollable with scroll parent', (tester) async {
+      testWidgets(
+          'shows cursor on screen when not scrollable with scroll parent',
+          (tester) async {
         final scrollController = ScrollController();
         final controller = FleatherController();
         final widget = MaterialApp(
@@ -1675,7 +1677,8 @@ void main() {
             greaterThan(initialScrollPosition));
       });
 
-      testWidgets('shows cursor on screen when scrollable with scroll parent', (tester) async {
+      testWidgets('shows cursor on screen when scrollable with scroll parent',
+          (tester) async {
         final scrollController = ScrollController();
         final controller = FleatherController();
         final widget = MaterialApp(
