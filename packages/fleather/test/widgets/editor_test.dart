@@ -1672,7 +1672,7 @@ void main() {
         final newInput = 'Line1\nLine2';
         controller.replaceText(0, 0, newInput,
             selection: TextSelection.collapsed(offset: newInput.length));
-        await tester.pumpAndSettle(Duration(milliseconds: 200));
+        await tester.pumpAndSettle(throttleDuration);
         expect(scrollController.position.pixels,
             greaterThan(initialScrollPosition));
       });
@@ -1718,7 +1718,7 @@ void main() {
         final newInput = 'Line1\nLine2';
         controller.replaceText(0, 0, newInput,
             selection: TextSelection.collapsed(offset: newInput.length));
-        await tester.pumpAndSettle(Duration(milliseconds: 200));
+        await tester.pumpAndSettle(throttleDuration);
         expect(scrollController.position.pixels,
             greaterThan(initialScrollPosition));
       });
