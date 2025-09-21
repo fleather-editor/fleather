@@ -1641,11 +1641,13 @@ class RawEditorState extends EditorState
         return;
       }
 
-      if (!widget.scrollable) {
-        final localRect = renderEditor
-            .getLocalRectForCaret(textEditingValue.selection.extent);
-        renderEditor.showOnScreen(rect: localRect);
-      } else {
+      final localRect =
+          renderEditor.getLocalRectForCaret(textEditingValue.selection.extent);
+      renderEditor.showOnScreen(
+          rect: localRect,
+          duration: withAnimation ? _caretAnimationDuration : Duration.zero);
+
+      if (widget.scrollable) {
         final offset = renderEditor.getOffsetToRevealCursor(
             _scrollController.position.viewportDimension,
             _scrollController.offset);
