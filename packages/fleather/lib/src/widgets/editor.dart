@@ -79,6 +79,36 @@ Widget defaultSpellCheckMenuBuilder(
 typedef FleatherEmbedBuilder = Widget Function(
     BuildContext context, EmbedNode node);
 
+/// Special configuration for [SpanEmbed]s
+class FleatherSpanEmbedConfiguration {
+  const FleatherSpanEmbedConfiguration(this.embedBuilder,
+      {this.placeholderAlignment = PlaceholderAlignment.bottom,
+      this.textBaseline,
+      this.textStyle});
+
+  final FleatherEmbedBuilder embedBuilder;
+
+  /// How the placeholder aligns vertically with the text.
+  ///
+  /// See [ui.PlaceholderAlignment] for details on each mode.
+  final PlaceholderAlignment placeholderAlignment;
+
+  /// The [TextBaseline] to align against when using [ui.PlaceholderAlignment.baseline],
+  /// [ui.PlaceholderAlignment.aboveBaseline], and [ui.PlaceholderAlignment.belowBaseline].
+  ///
+  /// This is ignored when using other alignment modes.
+  final TextBaseline? textBaseline;
+
+  /// The [TextStyle] to apply to this span.
+  ///
+  /// The [style] is also applied to any child spans when this is an instance
+  /// of [TextSpan].
+  ///
+  /// A [TextStyle] may be provided with the [style] property, but only the
+  /// decoration, foreground, background, and spacing options will be used.
+  final TextStyle? textStyle;
+}
+
 /// Default implementation of a builder function for embeddable objects in
 /// Fleather.
 ///
@@ -255,6 +285,13 @@ class FleatherEditor extends StatefulWidget {
   /// Defaults to [defaultFleatherEmbedBuilder].
   final FleatherEmbedBuilder embedBuilder;
 
+  /// Available configuration for [SpanEmbed]s.
+  /// If no configuration of found for a [SpanEmbed], builder will fallback to
+  /// [embedBuilder].
+  ///
+  /// Defaults to `{}`
+  final Map<String, FleatherSpanEmbedConfiguration> spanEmbedConfigurations;
+
   /// Configuration that details how spell check should be performed.
   ///
   /// Specifies the [SpellCheckService] used to spell check text input and the
@@ -331,6 +368,7 @@ class FleatherEditor extends StatefulWidget {
       this.clipboardStatus,
       this.contextMenuBuilder = defaultContextMenuBuilder,
       this.embedBuilder = defaultFleatherEmbedBuilder,
+      this.spanEmbedConfigurations = const {},
       this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
       this.textSelectionControls});
 
@@ -505,6 +543,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       scrollPhysics: widget.scrollPhysics,
       onLaunchUrl: widget.onLaunchUrl,
       embedBuilder: widget.embedBuilder,
+      spanEmbedConfigurations: widget.spanEmbedConfigurations,
       spellCheckConfiguration: widget.spellCheckConfiguration,
       linkActionPickerDelegate: widget.linkActionPickerDelegate,
       clipboardManager: widget.clipboardManager,
@@ -618,6 +657,7 @@ class RawEditor extends StatefulWidget {
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.spellCheckConfiguration,
     this.embedBuilder = defaultFleatherEmbedBuilder,
+    this.spanEmbedConfigurations = const {},
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
   })  : assert(maxHeight == null || maxHeight > 0),
         assert(minHeight == null || minHeight >= 0),
@@ -799,6 +839,8 @@ class RawEditor extends StatefulWidget {
   ///
   /// Defaults to [defaultFleatherEmbedBuilder].
   final FleatherEmbedBuilder embedBuilder;
+
+  final Map<String, FleatherSpanEmbedConfiguration> spanEmbedConfigurations;
 
   final LinkActionPickerDelegate linkActionPickerDelegate;
 
@@ -1843,6 +1885,7 @@ class RawEditorState extends EditorState
               readOnly: widget.readOnly,
               controller: widget.controller,
               embedBuilder: widget.embedBuilder,
+              spanEmbedConfigurations: widget.spanEmbedConfigurations,
               linkActionPicker: _linkActionPicker,
               onLaunchUrl: widget.onLaunchUrl,
               textWidthBasis: widget.textWidthBasis,
@@ -1870,6 +1913,7 @@ class RawEditorState extends EditorState
                 ? const EdgeInsets.all(16.0)
                 : null,
             embedBuilder: widget.embedBuilder,
+            spanEmbedConfigurations: widget.spanEmbedConfigurations,
             linkActionPicker: _linkActionPicker,
             onLaunchUrl: widget.onLaunchUrl,
           ),

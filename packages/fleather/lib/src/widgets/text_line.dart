@@ -24,6 +24,7 @@ class TextLine extends StatefulWidget {
   final bool readOnly;
   final FleatherController controller;
   final FleatherEmbedBuilder embedBuilder;
+  final Map<String, FleatherSpanEmbedConfiguration> spanEmbedConfigurations;
   final ValueChanged<String?>? onLaunchUrl;
   final LinkActionPicker linkActionPicker;
   final TextWidthBasis textWidthBasis;
@@ -34,6 +35,7 @@ class TextLine extends StatefulWidget {
     required this.readOnly,
     required this.controller,
     required this.embedBuilder,
+    required this.spanEmbedConfigurations,
     required this.onLaunchUrl,
     required this.linkActionPicker,
     required this.textWidthBasis,
@@ -174,6 +176,16 @@ class _TextLineState extends State<TextLine> {
 
   InlineSpan _segmentToTextSpan(Node segment, FleatherThemeData theme) {
     if (segment is EmbedNode) {
+      final spanConfiguration =
+          widget.spanEmbedConfigurations[segment.value.type];
+      if (spanConfiguration != null) {
+        return WidgetSpan(
+            child: EmbedProxy(
+                child: spanConfiguration.embedBuilder(context, segment)),
+            alignment: spanConfiguration.placeholderAlignment,
+            baseline: spanConfiguration.textBaseline,
+            style: spanConfiguration.textStyle);
+      }
       return WidgetSpan(
           child: EmbedProxy(child: widget.embedBuilder(context, segment)));
     }

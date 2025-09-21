@@ -25,6 +25,7 @@ class EditableTextBlock extends StatelessWidget {
   final bool enableInteractiveSelection;
   final bool hasFocus;
   final FleatherEmbedBuilder embedBuilder;
+  final Map<String, FleatherSpanEmbedConfiguration> spanEmbedConfigurations;
   final LinkActionPicker linkActionPicker;
   final ValueChanged<String?>? onLaunchUrl;
   final EdgeInsets? contentPadding;
@@ -42,6 +43,7 @@ class EditableTextBlock extends StatelessWidget {
     required this.enableInteractiveSelection,
     required this.hasFocus,
     required this.embedBuilder,
+    required this.spanEmbedConfigurations,
     required this.linkActionPicker,
     this.onLaunchUrl,
     this.contentPadding,
@@ -84,6 +86,7 @@ class EditableTextBlock extends StatelessWidget {
             readOnly: readOnly,
             controller: controller,
             embedBuilder: embedBuilder,
+            spanEmbedConfigurations: spanEmbedConfigurations,
             linkActionPicker: linkActionPicker,
             onLaunchUrl: onLaunchUrl,
             textWidthBasis: textWidthBasis,

@@ -172,6 +172,13 @@ class FleatherField extends StatefulWidget {
   /// Defaults to [defaultFleatherEmbedBuilder].
   final FleatherEmbedBuilder embedBuilder;
 
+  /// Available configuration for [SpanEmbed]s.
+  /// If no configuration of found for a [SpanEmbed], builder will fallback to
+  /// [embedBuilder].
+  ///
+  /// Defaults to `{}`
+  final Map<String, FleatherSpanEmbedConfiguration> spanEmbedConfigurations;
+
   /// Builds the text selection toolbar when requested by the user.
   ///
   /// Defaults to [defaultContextMenuBuilder].
@@ -212,6 +219,7 @@ class FleatherField extends StatefulWidget {
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.spellCheckConfiguration,
     this.embedBuilder = defaultFleatherEmbedBuilder,
+    this.spanEmbedConfigurations = const {},
     this.clipboardManager = const PlainTextClipboardManager(),
   });
 
@@ -281,6 +289,7 @@ class _FleatherFieldState extends State<FleatherField> {
       scrollPhysics: widget.scrollPhysics,
       onLaunchUrl: widget.onLaunchUrl,
       embedBuilder: widget.embedBuilder,
+      spanEmbedConfigurations: widget.spanEmbedConfigurations,
       spellCheckConfiguration: widget.spellCheckConfiguration,
       contextMenuBuilder: widget.contextMenuBuilder,
       clipboardManager: widget.clipboardManager,
