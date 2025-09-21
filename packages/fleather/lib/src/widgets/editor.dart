@@ -1643,7 +1643,9 @@ class RawEditorState extends EditorState
 
       final localRect =
           renderEditor.getLocalRectForCaret(textEditingValue.selection.extent);
-      renderEditor.showOnScreen(rect: localRect);
+      renderEditor.showOnScreen(
+          rect: localRect,
+          duration: withAnimation ? _caretAnimationDuration : Duration.zero);
 
       if (widget.scrollable) {
         final offset = renderEditor.getOffsetToRevealCursor(
