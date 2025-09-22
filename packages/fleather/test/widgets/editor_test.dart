@@ -505,8 +505,9 @@ void main() {
           useField: false,
           tester: tester,
           document: ParchmentDocument.fromJson([
-            {'insert': 'a'},
-            {'insert': 'list'},
+            {'insert': 'something written\n'},
+            {'insert': 'some other thing\n'},
+            {'insert': 'on last thing\n'},
             {
               'insert': '\n',
               'attributes': {'block': 'ul'}
