@@ -1683,7 +1683,7 @@ void main() {
         final focusNode = FocusNode();
         final Delta delta = Delta();
         for (int i = 0; i < 20; i++) {
-          delta.insert("Hello world!\n");
+          delta.insert('Hello world!\n');
         }
         final controller =
             FleatherController(document: ParchmentDocument.fromDelta(delta));
