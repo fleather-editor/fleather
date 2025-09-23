@@ -527,8 +527,10 @@ void main() {
         );
         await editor.pump();
         final state = tester.state<RawEditorState>(find.byType(RawEditor));
-        expect(state.renderEditor.size.width,
-            lessThan(MediaQuery.of(state.context).size.width / 2));
+        final longestLine =
+            state.renderEditor.childAtPosition(TextPosition(offset: 1));
+        expect(state.renderEditor.size.width.toInt(),
+            equals(longestLine.size.width.toInt()));
       });
 
       testWidgets(
