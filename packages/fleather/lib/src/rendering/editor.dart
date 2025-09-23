@@ -611,7 +611,7 @@ class RenderEditor extends RenderEditableContainerBox
       childParentData.offset =
           Offset(resolvedPadding!.left + leftOffset, contentHeight);
       contentHeight += child.size.height;
-      contentWidth += math.max(contentWidth, child.size.width);
+      contentWidth = math.max(contentWidth, child.size.width);
       assert(child.parentData == childParentData);
       child = childParentData.nextSibling;
     }
