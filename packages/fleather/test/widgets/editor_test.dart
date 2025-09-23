@@ -1679,48 +1679,66 @@ void main() {
 
       testWidgets('shows cursor on screen when scrollable with scroll parent',
           (tester) async {
-        final scrollController = ScrollController();
-        final controller = FleatherController();
+        final editorScrollController = ScrollController();
+        final focusNode = FocusNode();
+        final Delta delta = Delta();
+        for (int i = 0; i < 20; i++) {
+          delta.insert("Hello world!\n");
+        }
+        final controller =
+            FleatherController(document: ParchmentDocument.fromDelta(delta));
         final widget = MaterialApp(
-          home: SingleChildScrollView(
-            controller: scrollController,
+          home: Align(
+            alignment: Alignment.topLeft,
             child: SizedBox(
-              width: double.maxFinite,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (var i = 0; i < 20; i++) ...[
-                    FleatherField(
-                      key: Key('Field.Key.$i'),
-                      focusNode: FocusNode(),
-                      autofocus: true,
-                      showCursor: true,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      controller: i == 15 ? controller : FleatherController(),
-                    )
-                  ]
-                ],
+              height: 150,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(height: 500),
+                    SizedBox(
+                      height: 100,
+                      child: FleatherEditor(
+                        focusNode: focusNode,
+                        showCursor: true,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        controller: controller,
+                        scrollController: editorScrollController,
+                      ),
+                    ),
+                    SizedBox(height: 500),
+                  ],
+                ),
               ),
             ),
           ),
         );
         await tester.pumpWidget(widget);
-        final field = tester.widget<FleatherField>(
-            find.byKey(Key('Field.Key.15'), skipOffstage: false));
-        field.focusNode!.requestFocus();
-        await tester.pumpAndSettle();
-        expect(scrollController.position.pixels,
-            greaterThan(scrollController.position.minScrollExtent));
-        expect(scrollController.position.pixels,
-            lessThan(scrollController.position.maxScrollExtent));
-        final initialScrollPosition = scrollController.position.pixels;
-        final newInput = 'Line1\nLine2';
-        controller.replaceText(0, 0, newInput,
-            selection: TextSelection.collapsed(offset: newInput.length));
+
+        // expect the caret for a position outside of editor's current viewport is not inside the editor's bounding box
+        final renderEditor =
+            tester.state<RawEditorState>(find.byType(RawEditor)).renderEditor;
+        final editorRect = Rect.fromLTWH(
+            0, 0, renderEditor.size.width, renderEditor.size.height);
+        var caretRect =
+            renderEditor.getLocalRectForCaret(TextPosition(offset: 200));
+        expect(editorRect.contains(caretRect.topLeft), isFalse);
+        expect(editorRect.contains(caretRect.bottomRight), isFalse);
+        expect(editorScrollController.offset, equals(0));
+
+        // move cursor to a position outside of current viewport and focus
+        controller.updateSelection(TextSelection.collapsed(offset: 200));
+        focusNode.requestFocus();
         await tester.pumpAndSettle(throttleDuration);
-        expect(scrollController.position.pixels,
-            greaterThan(initialScrollPosition));
+
+        // expect that editor is aligned to the bottom of screen and visible, with caret inside the editor's bounding box
+        caretRect =
+            renderEditor.getLocalRectForCaret(TextPosition(offset: 200));
+        expect(renderEditor.localToGlobal(Offset.zero).dy, equals(50));
+        expect(editorRect.contains(caretRect.topLeft), isTrue);
+        expect(editorRect.contains(caretRect.bottomRight), isTrue);
+        expect(editorScrollController.offset, greaterThan(0));
       });
 
       testWidgets(
