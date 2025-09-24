@@ -1643,9 +1643,17 @@ class RawEditorState extends EditorState
 
       final localRect =
           renderEditor.getLocalRectForCaret(textEditingValue.selection.extent);
-      renderEditor.showOnScreen(
-          rect: localRect,
-          duration: withAnimation ? _caretAnimationDuration : Duration.zero);
+      final editorRect = Rect.fromLTWH(
+          0, 0, renderEditor.size.width, renderEditor.size.height);
+      if (editorRect.overlaps(localRect)) {
+        renderEditor.showOnScreen(
+            rect: editorRect.intersect(localRect),
+            duration: withAnimation ? _caretAnimationDuration : Duration.zero);
+      } else {
+        renderEditor.showOnScreen(
+            rect: editorRect,
+            duration: withAnimation ? _caretAnimationDuration : Duration.zero);
+      }
 
       if (widget.scrollable) {
         final offset = renderEditor.getOffsetToRevealCursor(
