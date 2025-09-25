@@ -76,27 +76,43 @@ Widget defaultSpellCheckMenuBuilder(
 }
 
 /// Builder function for embeddable objects in [FleatherEditor].
-typedef FleatherEmbedBuilder = Widget Function(
+typedef FleatherEmbedBuilder = FleatherEmbed Function(
     BuildContext context, EmbedNode node);
 
 /// Default implementation of a builder function for embeddable objects in
 /// Fleather.
 ///
 /// Only supports "horizontal rule" embeds.
-Widget defaultFleatherEmbedBuilder(BuildContext context, EmbedNode node) {
+FleatherEmbed defaultFleatherEmbedBuilder(
+    BuildContext context, EmbedNode node) {
   if (node.value.type == 'hr') {
     final fleatherThemeData = FleatherTheme.of(context)!;
 
-    return Divider(
+    return FleatherEmbed(
+        child: Divider(
       height: fleatherThemeData.horizontalRule.height,
       thickness: fleatherThemeData.horizontalRule.thickness,
       color: fleatherThemeData.horizontalRule.color,
-    );
+    ));
   }
   throw UnimplementedError(
       'Embeddable type "${node.value.type}" is not supported by default embed '
       'builder of FleatherEditor. You must pass your own builder function to '
       'embedBuilder property of FleatherEditor or FleatherField widgets.');
+}
+
+final class FleatherEmbed {
+  final Widget child;
+  final PlaceholderAlignment placeholderAlignment;
+  final TextBaseline? textBaseline;
+  final TextStyle? textStyle;
+
+  const FleatherEmbed({
+    required this.child,
+    this.placeholderAlignment = PlaceholderAlignment.bottom,
+    this.textBaseline,
+    this.textStyle,
+  });
 }
 
 /// Widget for editing rich text documents.

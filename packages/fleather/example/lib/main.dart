@@ -143,14 +143,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _embedBuilder(BuildContext context, EmbedNode node) {
+  FleatherEmbed _embedBuilder(BuildContext context, EmbedNode node) {
     if (node.value.type == 'icon') {
       final data = node.value.data;
       // Icons.rocket_launch_outlined
-      return Icon(
-        IconData(int.parse(data['codePoint']), fontFamily: data['fontFamily']),
-        color: Color(int.parse(data['color'])),
-        size: 18,
+      return FleatherEmbed(
+        child: Icon(
+          IconData(int.parse(data['codePoint']),
+              fontFamily: data['fontFamily']),
+          color: Color(int.parse(data['color'])),
+          size: 18,
+        ),
       );
     }
 
@@ -176,14 +179,17 @@ class _HomePageState extends State<HomePage> {
         }
       }
       if (image != null) {
-        return Padding(
-          // Caret takes 2 pixels, hence not symmetric padding values.
-          padding: const EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
-          child: Container(
-            width: (node.value.data['width'] as num?)?.toDouble() ?? 300,
-            height: (node.value.data['height'] as num?)?.toDouble() ?? 300,
-            decoration: BoxDecoration(
-              image: DecorationImage(image: image, fit: BoxFit.cover),
+        return FleatherEmbed(
+          child: Padding(
+            // Caret takes 2 pixels, hence not symmetric padding values.
+            padding:
+                const EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
+            child: Container(
+              width: (node.value.data['width'] as num?)?.toDouble() ?? 300,
+              height: (node.value.data['height'] as num?)?.toDouble() ?? 300,
+              decoration: BoxDecoration(
+                image: DecorationImage(image: image, fit: BoxFit.cover),
+              ),
             ),
           ),
         );
