@@ -1,3 +1,4 @@
+import 'package:fleather/src/widgets/embed_registry.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -7,7 +8,6 @@ import 'package:parchment/parchment.dart';
 
 import 'controller.dart';
 import 'editable_text_line.dart';
-import 'editor.dart';
 import 'embed_proxy.dart';
 import 'keyboard_listener.dart';
 import 'link.dart';
@@ -23,7 +23,7 @@ class TextLine extends StatefulWidget {
   final LineNode node;
   final bool readOnly;
   final FleatherController controller;
-  final FleatherEmbedBuilder embedBuilder;
+  final EmbedRegistry embedRegistry;
   final ValueChanged<String?>? onLaunchUrl;
   final LinkActionPicker linkActionPicker;
   final TextWidthBasis textWidthBasis;
@@ -33,7 +33,7 @@ class TextLine extends StatefulWidget {
     required this.node,
     required this.readOnly,
     required this.controller,
-    required this.embedBuilder,
+    required this.embedRegistry,
     required this.onLaunchUrl,
     required this.linkActionPicker,
     required this.textWidthBasis,
@@ -123,7 +123,13 @@ class _TextLineState extends State<TextLine> {
     assert(debugCheckHasMediaQuery(context));
     if (widget.node.hasBlockEmbed) {
       final embed = widget.node.children.single as EmbedNode;
-      return EmbedProxy(child: widget.embedBuilder(context, embed));
+      final blocEmbed = widget.embedRegistry.blockEmbed(embed.value);
+      return EmbedProxy(
+        child: blocEmbed.build(
+          context,
+          embed.value.data,
+        ),
+      );
     }
     final theme = FleatherTheme.of(context)!;
     final text = buildText(context, widget.node, theme);
@@ -174,8 +180,14 @@ class _TextLineState extends State<TextLine> {
 
   InlineSpan _segmentToTextSpan(Node segment, FleatherThemeData theme) {
     if (segment is EmbedNode) {
+      final spanEmbed = widget.embedRegistry.spanEmbed(segment.value);
       return WidgetSpan(
-          child: EmbedProxy(child: widget.embedBuilder(context, segment)));
+          child: EmbedProxy(
+            child: spanEmbed.build(context, segment.value.data),
+          ),
+          alignment: spanEmbed.alignment,
+          baseline: spanEmbed.baseline,
+          style: spanEmbed.style);
     }
     final text = segment as TextNode;
     final attrs = text.style;
