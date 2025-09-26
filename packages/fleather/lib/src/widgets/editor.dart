@@ -88,7 +88,7 @@ FleatherEmbed defaultFleatherEmbedBuilder(
   if (node.value.type == 'hr') {
     final fleatherThemeData = FleatherTheme.of(context)!;
 
-    return FleatherEmbed(
+    return FleatherBlockEmbed(
         child: Divider(
       height: fleatherThemeData.horizontalRule.height,
       thickness: fleatherThemeData.horizontalRule.thickness,
@@ -101,14 +101,23 @@ FleatherEmbed defaultFleatherEmbedBuilder(
       'embedBuilder property of FleatherEditor or FleatherField widgets.');
 }
 
-final class FleatherEmbed {
+sealed class FleatherEmbed {
   final Widget child;
+
+  const FleatherEmbed({required this.child});
+}
+
+class FleatherBlockEmbed extends FleatherEmbed {
+  const FleatherBlockEmbed({required super.child});
+}
+
+class FleatherSpanEmbed extends FleatherEmbed {
   final PlaceholderAlignment placeholderAlignment;
   final TextBaseline? textBaseline;
   final TextStyle? textStyle;
 
-  const FleatherEmbed({
-    required this.child,
+  const FleatherSpanEmbed({
+    required super.child,
     this.placeholderAlignment = PlaceholderAlignment.bottom,
     this.textBaseline,
     this.textStyle,

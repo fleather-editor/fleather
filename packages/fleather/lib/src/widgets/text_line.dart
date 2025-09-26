@@ -176,12 +176,17 @@ class _TextLineState extends State<TextLine> {
   InlineSpan _segmentToTextSpan(Node segment, FleatherThemeData theme) {
     if (segment is EmbedNode) {
       final embedObject = widget.embedBuilder(context, segment);
-      return WidgetSpan(
-        child: EmbedProxy(child: embedObject.child),
-        alignment: embedObject.placeholderAlignment,
-        baseline: embedObject.textBaseline,
-        style: embedObject.textStyle,
-      );
+      final embedWidget = EmbedProxy(child: embedObject.child);
+      if (embedObject is FleatherBlockEmbed) {
+        return WidgetSpan(child: embedWidget);
+      } else if (embedObject is FleatherSpanEmbed) {
+        return WidgetSpan(
+          child: embedWidget,
+          alignment: embedObject.placeholderAlignment,
+          baseline: embedObject.textBaseline,
+          style: embedObject.textStyle,
+        );
+      }
     }
     final text = segment as TextNode;
     final attrs = text.style;

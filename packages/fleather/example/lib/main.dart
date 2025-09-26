@@ -147,7 +147,7 @@ class _HomePageState extends State<HomePage> {
     if (node.value.type == 'icon') {
       final data = node.value.data;
       // Icons.rocket_launch_outlined
-      return FleatherEmbed(
+      return FleatherSpanEmbed(
         child: Icon(
           IconData(int.parse(data['codePoint']),
               fontFamily: data['fontFamily']),
@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> {
         }
       }
       if (image != null) {
-        return FleatherEmbed(
+        return FleatherBlockEmbed(
           child: Padding(
             // Caret takes 2 pixels, hence not symmetric padding values.
             padding:
