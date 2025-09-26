@@ -22,7 +22,7 @@ class EditorSandBox {
     FakeSpellCheckService? spellCheckService,
     TextWidthBasis textWidthBasis = TextWidthBasis.parent,
     ClipboardManager clipboardManager = const PlainTextClipboardManager(),
-    FleatherEmbedBuilder embedBuilder = defaultFleatherEmbedBuilder,
+    EmbedRegistry embedRegistry = const EmbedRegistry.fallback(),
     TransitionBuilder? appBuilder,
   }) {
     focusNode ??= FocusNode();
@@ -40,7 +40,7 @@ class EditorSandBox {
       enableSelectionInteraction: enableSelectionInteraction,
       textWidthBasis: textWidthBasis,
       spellCheckService: spellCheckService,
-      embedBuilder: embedBuilder,
+      embedRegistry: embedRegistry,
       clipboardManager: clipboardManager,
     );
 
@@ -158,7 +158,7 @@ class _FleatherSandbox extends StatefulWidget {
     this.enableSelectionInteraction = true,
     this.spellCheckService,
     required this.textWidthBasis,
-    this.embedBuilder = defaultFleatherEmbedBuilder,
+    this.embedRegistry = const EmbedRegistry.fallback(),
     this.clipboardManager = const PlainTextClipboardManager(),
   });
 
@@ -171,7 +171,7 @@ class _FleatherSandbox extends StatefulWidget {
   final bool scrollable;
   final bool enableSelectionInteraction;
   final FakeSpellCheckService? spellCheckService;
-  final FleatherEmbedBuilder embedBuilder;
+  final EmbedRegistry embedRegistry;
   final ClipboardManager clipboardManager;
   final TextWidthBasis textWidthBasis;
 
@@ -191,7 +191,7 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
         child: widget.useField
             ? FleatherField(
                 clipboardManager: widget.clipboardManager,
-                embedBuilder: widget.embedBuilder,
+                embedRegistry: widget.embedRegistry,
                 controller: widget.controller,
                 focusNode: widget.focusNode,
                 readOnly: !_enabled,
@@ -208,7 +208,7 @@ class _FleatherSandboxState extends State<_FleatherSandbox> {
               )
             : FleatherEditor(
                 clipboardManager: widget.clipboardManager,
-                embedBuilder: widget.embedBuilder,
+                embedRegistry: widget.embedRegistry,
                 controller: widget.controller,
                 focusNode: widget.focusNode,
                 readOnly: !_enabled,

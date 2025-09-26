@@ -130,7 +130,9 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onLaunchUrl: _launchUrl,
                     maxContentWidth: 800,
-                    embedBuilder: _embedBuilder,
+                    embedRegistry: EmbedRegistry.fallbackWithConfigurations(
+                      [IconEmbed(), ImageBlockEmbed(), ImageSpanEmbed()],
+                    ),
                     spellCheckConfiguration: SpellCheckConfiguration(
                         spellCheckService: DefaultSpellCheckService(),
                         misspelledSelectionColor: Colors.red,
@@ -143,56 +145,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _embedBuilder(BuildContext context, EmbedNode node) {
-    if (node.value.type == 'icon') {
-      final data = node.value.data;
-      // Icons.rocket_launch_outlined
-      return Icon(
-        IconData(int.parse(data['codePoint']), fontFamily: data['fontFamily']),
-        color: Color(int.parse(data['color'])),
-        size: 18,
-      );
-    }
-
-    if (node.value.type == 'image') {
-      final sourceType = node.value.data['source_type'];
-      ImageProvider? image;
-      if (sourceType == 'assets') {
-        image = AssetImage(node.value.data['source']);
-      } else if (sourceType == 'file') {
-        image = FileImage(File(node.value.data['source']));
-      } else if (sourceType == 'url') {
-        image = NetworkImage(node.value.data['source']);
-      } else if (sourceType == 'data') {
-        // source: 'data:image/jpeg;base64, LzlqLzRBQ... <!-- Base64 data -->'
-        RegExp regex = RegExp(
-          r'^data:image\/(png|jpe?g|gif|bmp|webp);base64,',
-          caseSensitive: false,
-        );
-        if (regex.hasMatch(node.value.data['source'])) {
-          String base64Image =
-              node.value.data['source'].replaceFirst(regex, '');
-          image = MemoryImage(base64Decode(base64Image));
-        }
-      }
-      if (image != null) {
-        return Padding(
-          // Caret takes 2 pixels, hence not symmetric padding values.
-          padding: const EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
-          child: Container(
-            width: (node.value.data['width'] as num?)?.toDouble() ?? 300,
-            height: (node.value.data['height'] as num?)?.toDouble() ?? 300,
-            decoration: BoxDecoration(
-              image: DecorationImage(image: image, fit: BoxFit.cover),
-            ),
-          ),
-        );
-      }
-    }
-
-    return defaultFleatherEmbedBuilder(context, node);
-  }
-
   void _launchUrl(String? url) async {
     if (url == null) return;
     final uri = Uri.parse(url);
@@ -201,6 +153,73 @@ class _HomePageState extends State<HomePage> {
       await launchUrl(uri);
     }
   }
+}
+
+class IconEmbed extends SpanEmbedConfiguration {
+  const IconEmbed()
+      : super(key: 'icon', alignment: PlaceholderAlignment.middle);
+
+  @override
+  Widget build(BuildContext context, Map<String, dynamic> data) {
+    // Icons.rocket_launch_outlined
+    return Icon(
+      IconData(int.parse(data['codePoint']), fontFamily: data['fontFamily']),
+      color: Color(int.parse(data['color'])),
+      size: 18,
+    );
+  }
+}
+
+Widget _imageBuilder(BuildContext context, Map<String, dynamic> data) {
+  final sourceType = data['source_type'];
+  ImageProvider? image;
+  if (sourceType == 'assets') {
+    image = AssetImage(data['source']);
+  } else if (sourceType == 'file') {
+    image = FileImage(File(data['source']));
+  } else if (sourceType == 'url') {
+    image = NetworkImage(data['source']);
+  } else if (sourceType == 'data') {
+    // source: 'data:image/jpeg;base64, LzlqLzRBQ... <!-- Base64 data -->'
+    RegExp regex = RegExp(
+      r'^data:image\/(png|jpe?g|gif|bmp|webp);base64,',
+      caseSensitive: false,
+    );
+    if (regex.hasMatch(data['source'])) {
+      String base64Image = data['source'].replaceFirst(regex, '');
+      image = MemoryImage(base64Decode(base64Image));
+    }
+  }
+  if (image == null) {
+    throw ArgumentError('Could create an ImageProvider from the provided data');
+  }
+  return Padding(
+    // Caret takes 2 pixels, hence not symmetric padding values.
+    padding: const EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
+    child: Container(
+      width: (data['width'] as num?)?.toDouble() ?? 300,
+      height: (data['height'] as num?)?.toDouble() ?? 300,
+      decoration: BoxDecoration(
+        image: DecorationImage(image: image, fit: BoxFit.cover),
+      ),
+    ),
+  );
+}
+
+class ImageSpanEmbed extends SpanEmbedConfiguration {
+  ImageSpanEmbed() : super(key: 'span_image');
+
+  @override
+  Widget build(BuildContext context, Map<String, dynamic> data) =>
+      _imageBuilder(context, data);
+}
+
+class ImageBlockEmbed extends BlockEmbedConfiguration {
+  ImageBlockEmbed() : super(key: 'block_image');
+
+  @override
+  Widget build(BuildContext context, Map<String, dynamic> data) =>
+      _imageBuilder(context, data);
 }
 
 /// This is an example insert rule that will insert a new line before and

@@ -131,10 +131,9 @@ void main() {
               Expanded(
                 child: FleatherEditor(
                   controller: controller,
-                  embedBuilder: (context, node) => SizedBox(
-                    width: 100,
-                    height: embedHeight,
-                  ),
+                  embedRegistry: EmbedRegistry.withConfigurations([
+                    FakeImageBlockEmbedConfiguration(embedHeight: embedHeight),
+                  ]),
                 ),
               ),
             ],
@@ -185,9 +184,10 @@ void main() {
                 child: FleatherEditor(
                   controller: controller,
                   scrollController: scrollController,
-                  embedBuilder: (context, node) => SizedBox(
-                    width: 100,
-                    height: embedHeight,
+                  embedRegistry: EmbedRegistry.withConfigurations(
+                    [
+                      FakeImageBlockEmbedConfiguration(embedHeight: embedHeight)
+                    ],
                   ),
                 ),
               ),
@@ -1319,18 +1319,9 @@ void main() {
           tester: tester,
           document: document,
           autofocus: true,
-          embedBuilder: (BuildContext context, EmbedNode node) {
-            if (node.value.type == 'icon') {
-              final data = node.value.data;
-              return Icon(
-                IconData(int.parse(data['codePoint']),
-                    fontFamily: data['fontFamily']),
-                color: Color(int.parse(data['color'])),
-                size: 100,
-              );
-            }
-            throw UnimplementedError();
-          },
+          embedRegistry: EmbedRegistry.withConfigurations(
+            [IconSpanEmbedConfiguration()],
+          ),
         );
         await editor.pump();
         editor.controller.updateSelection(
@@ -1371,18 +1362,9 @@ void main() {
           tester: tester,
           document: document,
           autofocus: true,
-          embedBuilder: (BuildContext context, EmbedNode node) {
-            if (node.value.type == 'something') {
-              return const Padding(
-                padding: EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
-                child: SizedBox(
-                  width: 300,
-                  height: 300,
-                ),
-              );
-            }
-            throw UnimplementedError();
-          },
+          embedRegistry: EmbedRegistry.withConfigurations(
+            [FakeSpanEmbedConfiguration()],
+          ),
         );
         await editor.pump();
         editor.controller.updateSelection(
@@ -1416,18 +1398,9 @@ void main() {
           tester: tester,
           document: document,
           autofocus: true,
-          embedBuilder: (BuildContext context, EmbedNode node) {
-            if (node.value.type == 'icon') {
-              final data = node.value.data;
-              return Icon(
-                IconData(int.parse(data['codePoint']),
-                    fontFamily: data['fontFamily']),
-                color: Color(int.parse(data['color'])),
-                size: 100,
-              );
-            }
-            throw UnimplementedError();
-          },
+          embedRegistry: EmbedRegistry.withConfigurations(
+            [IconSpanEmbedConfiguration()],
+          ),
         );
         await editor.pump();
         editor.controller
@@ -1766,6 +1739,49 @@ void main() {
       });
     });
   });
+}
+
+class FakeImageBlockEmbedConfiguration extends BlockEmbedConfiguration {
+  const FakeImageBlockEmbedConfiguration({required this.embedHeight})
+      : super(key: 'image');
+
+  final double embedHeight;
+
+  @override
+  Widget build(BuildContext context, Map<String, dynamic> data) {
+    return SizedBox(
+      width: 100,
+      height: embedHeight,
+    );
+  }
+}
+
+class FakeSpanEmbedConfiguration extends SpanEmbedConfiguration {
+  const FakeSpanEmbedConfiguration() : super(key: 'something');
+
+  @override
+  Widget build(BuildContext context, Map<String, dynamic> data) {
+    return const Padding(
+      padding: EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
+      child: SizedBox(
+        width: 300,
+        height: 300,
+      ),
+    );
+  }
+}
+
+class IconSpanEmbedConfiguration extends SpanEmbedConfiguration {
+  IconSpanEmbedConfiguration() : super(key: 'icon');
+
+  @override
+  Widget build(BuildContext context, Map<String, dynamic> data) {
+    return Icon(
+      IconData(int.parse(data['codePoint']), fontFamily: data['fontFamily']),
+      color: Color(int.parse(data['color'])),
+      size: 100,
+    );
+  }
 }
 
 const clipboardText = 'copied text';
