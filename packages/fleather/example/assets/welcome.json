@@ -19,7 +19,7 @@
   },
   {
     "insert": {
-      "_type": "image",
+      "_type": "block_image",
       "_inline": false,
       "source": "images/breeze.jpg",
       "source_type": "assets"
@@ -166,7 +166,7 @@
   },
   {
     "insert": {
-      "_type": "image",
+      "_type": "span_image",
       "_inline": true,
       "source": "images/breeze.jpg",
       "orientation": "landscape",
@@ -177,7 +177,7 @@
   },
   {
     "insert": {
-      "_type": "image",
+      "_type": "span_image",
       "_inline": true,
       "source": "images/cody-manning-82xt4MtbJqg-unsplash.jpg",
       "source_type": "assets",
