@@ -44,7 +44,7 @@ class EmbedRegistry {
     if (_registry.containsKey(config.key)) {
       throw ArgumentError('${config.key} was already registered');
     }
-    return EmbedRegistry._(Map.from(this._registry)..[config.key] = config);
+    return EmbedRegistry._(Map.from(_registry)..[config.key] = config);
   }
 
   /// Retrieve from registry the [SpanEmbedConfiguration] corresponding to a
