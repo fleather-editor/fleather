@@ -1,3 +1,8 @@
+## Fleather 1.25.1 > 2.0.0
+
+* `embedBuilder` is not supported anymore. Use `EmbedRegistry` to register embed configuration.
+
+
 ## Fleather 1.4.4 > 1.14.5+1
 
 * Change `SelectorScope.of(context).pushSelector(selector, completer)` to `SelectorScope.showSelector(context, selector, completer)` or `SelectorScope.of(context).showSelector(context, selector, completer)`
