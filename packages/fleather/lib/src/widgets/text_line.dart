@@ -177,15 +177,15 @@ class _TextLineState extends State<TextLine> {
     if (segment is EmbedNode) {
       final embedObject = widget.embedBuilder(context, segment);
       final embedWidget = EmbedProxy(child: embedObject.child);
-      if (embedObject is FleatherBlockEmbed) {
-        return WidgetSpan(child: embedWidget);
-      } else if (embedObject is FleatherSpanEmbed) {
+      if (embedObject is FleatherSpanEmbed) {
         return WidgetSpan(
           child: embedWidget,
           alignment: embedObject.placeholderAlignment,
           baseline: embedObject.textBaseline,
           style: embedObject.textStyle,
         );
+      } else {
+        return WidgetSpan(child: embedWidget);
       }
     }
     final text = segment as TextNode;

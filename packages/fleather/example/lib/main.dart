@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> {
         }
       }
       if (image != null) {
-        return FleatherBlockEmbed(
+        return FleatherEmbed(
           child: Padding(
             // Caret takes 2 pixels, hence not symmetric padding values.
             padding:
