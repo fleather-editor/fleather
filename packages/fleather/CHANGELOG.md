@@ -1,3 +1,9 @@
+##  1.26.0
+
+- Editor and cursor brought into viewport if is wrapped with a scrollable regardless of it's `scrollable` property 
+- [Fix] incorrect width when using TextWidthBasis.longestLine with multiple lines
+- [Fix] exception thrown when editor starts with an element that do not compute distance to actual baseline
+
 ##  1.25.1
 
 - [Fix] Empty line height greater than non-empty line height
