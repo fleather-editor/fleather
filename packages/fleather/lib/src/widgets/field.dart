@@ -1,3 +1,4 @@
+import 'package:fleather/src/widgets/embed_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 
@@ -167,10 +168,7 @@ class FleatherField extends StatefulWidget {
   /// If this configuration is left null, then spell check is disabled by default.
   final SpellCheckConfiguration? spellCheckConfiguration;
 
-  /// Builder function for embeddable objects.
-  ///
-  /// Defaults to [defaultFleatherEmbedBuilder].
-  final FleatherEmbedBuilder embedBuilder;
+  final EmbedRegistry embedRegistry;
 
   /// Builds the text selection toolbar when requested by the user.
   ///
@@ -211,7 +209,7 @@ class FleatherField extends StatefulWidget {
     this.toolbar,
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.spellCheckConfiguration,
-    this.embedBuilder = defaultFleatherEmbedBuilder,
+    this.embedRegistry = const EmbedRegistry.fallback(),
     this.clipboardManager = const PlainTextClipboardManager(),
   });
 
@@ -280,7 +278,7 @@ class _FleatherFieldState extends State<FleatherField> {
       keyboardAppearance: keyboardAppearance,
       scrollPhysics: widget.scrollPhysics,
       onLaunchUrl: widget.onLaunchUrl,
-      embedBuilder: widget.embedBuilder,
+      embedRegistry: widget.embedRegistry,
       spellCheckConfiguration: widget.spellCheckConfiguration,
       contextMenuBuilder: widget.contextMenuBuilder,
       clipboardManager: widget.clipboardManager,

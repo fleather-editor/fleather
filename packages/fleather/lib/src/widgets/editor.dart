@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:math';
 
+import 'package:fleather/src/widgets/embed_registry.dart';
 import 'package:flutter/cupertino.dart' hide SystemContextMenu;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -253,7 +254,7 @@ class FleatherEditor extends StatefulWidget {
   /// Builder function for embeddable objects.
   ///
   /// Defaults to [defaultFleatherEmbedBuilder].
-  final FleatherEmbedBuilder embedBuilder;
+  final EmbedRegistry embedRegistry;
 
   /// Configuration that details how spell check should be performed.
   ///
@@ -330,7 +331,7 @@ class FleatherEditor extends StatefulWidget {
       this.clipboardManager = const PlainTextClipboardManager(),
       this.clipboardStatus,
       this.contextMenuBuilder = defaultContextMenuBuilder,
-      this.embedBuilder = defaultFleatherEmbedBuilder,
+      this.embedRegistry = const EmbedRegistry.fallback(),
       this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
       this.textSelectionControls});
 
@@ -504,7 +505,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       keyboardAppearance: keyboardAppearance,
       scrollPhysics: widget.scrollPhysics,
       onLaunchUrl: widget.onLaunchUrl,
-      embedBuilder: widget.embedBuilder,
+      embedRegistry: widget.embedRegistry,
       spellCheckConfiguration: widget.spellCheckConfiguration,
       linkActionPickerDelegate: widget.linkActionPickerDelegate,
       clipboardManager: widget.clipboardManager,
@@ -617,7 +618,7 @@ class RawEditor extends StatefulWidget {
     this.onSelectionChanged,
     this.contextMenuBuilder = defaultContextMenuBuilder,
     this.spellCheckConfiguration,
-    this.embedBuilder = defaultFleatherEmbedBuilder,
+    this.embedRegistry = const EmbedRegistry(),
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
   })  : assert(maxHeight == null || maxHeight > 0),
         assert(minHeight == null || minHeight >= 0),
@@ -795,10 +796,7 @@ class RawEditor extends StatefulWidget {
   /// See [Scrollable.physics].
   final ScrollPhysics? scrollPhysics;
 
-  /// Builder function for embeddable objects.
-  ///
-  /// Defaults to [defaultFleatherEmbedBuilder].
-  final FleatherEmbedBuilder embedBuilder;
+  final EmbedRegistry embedRegistry;
 
   final LinkActionPickerDelegate linkActionPickerDelegate;
 
@@ -929,18 +927,18 @@ class RawEditorState extends EditorState
   final GlobalKey _editorKey = GlobalKey();
   final GlobalKey _scrollableKey = GlobalKey();
 
-  // Theme
+// Theme
   late FleatherThemeData _themeData;
 
   @override
   FleatherThemeData get themeData => _themeData;
 
-  // Cursors
+// Cursors
   late CursorController _cursorController;
 
   FleatherController get controller => widget.controller;
 
-  // Selection overlay
+// Selection overlay
   @override
   EditorTextSelectionOverlay? get selectionOverlay => _selectionOverlay;
   EditorTextSelectionOverlay? _selectionOverlay;
@@ -1016,10 +1014,10 @@ class RawEditorState extends EditorState
   /// is already shown, or when no text selection currently exists.
   @override
   bool showToolbar({createIfNull = false}) {
-    // Web is using native dom elements to enable clipboard functionality of the
-    // toolbar: copy, paste, select, cut. It might also provide additional
-    // functionality depending on the browser (such as translate). Due to this
-    // we should not show a Flutter toolbar for the editable text elements.
+// Web is using native dom elements to enable clipboard functionality of the
+// toolbar: copy, paste, select, cut. It might also provide additional
+// functionality depending on the browser (such as translate). Due to this
+// we should not show a Flutter toolbar for the editable text elements.
     if (kIsWeb && BrowserContextMenu.enabled) {
       return false;
     }
@@ -1076,10 +1074,10 @@ class RawEditorState extends EditorState
 
   @override
   bool showSpellCheckSuggestionsToolbar() {
-    // Spell check suggestions toolbars are intended to be shown on non-web
-    // platforms. Additionally, the Cupertino style toolbar can't be drawn on
-    // the web with the HTML renderer due to
-    // https://github.com/flutter/flutter/issues/123560.
+// Spell check suggestions toolbars are intended to be shown on non-web
+// platforms. Additionally, the Cupertino style toolbar can't be drawn on
+// the web with the HTML renderer due to
+// https://github.com/flutter/flutter/issues/123560.
     final bool platformNotSupported = kIsWeb && BrowserContextMenu.enabled;
     if (!spellCheckEnabled ||
         platformNotSupported ||
@@ -1089,8 +1087,8 @@ class RawEditorState extends EditorState
         findSuggestionSpanAtCursorIndex(
                 textEditingValue.selection.extentOffset) ==
             null) {
-      // Only attempt to show the spell check suggestions toolbar if there
-      // is a toolbar specified and spell check suggestions available to show.
+// Only attempt to show the spell check suggestions toolbar if there
+// is a toolbar specified and spell check suggestions available to show.
       return false;
     }
 
@@ -1143,9 +1141,9 @@ class RawEditorState extends EditorState
             WidgetsBinding
                 .instance.platformDispatcher.nativeSpellCheckServiceDefined;
     if (spellCheckAutomaticallyDisabled || !spellCheckServiceIsConfigured) {
-      // Only enable spell check if a non-disabled configuration is provided
-      // and if that configuration does not specify a spell check service,
-      // a native spell checker must be supported.
+// Only enable spell check if a non-disabled configuration is provided
+// and if that configuration does not specify a spell check service,
+// a native spell checker must be supported.
       assert(() {
         if (!spellCheckAutomaticallyDisabled &&
             !spellCheckServiceIsConfigured) {
@@ -1188,12 +1186,12 @@ class RawEditorState extends EditorState
           ?.fetchSpellCheckSuggestions(localeForSpellChecking!, text);
 
       if (suggestions == null) {
-        // The request to fetch spell check suggestions was canceled due to ongoing request.
+// The request to fetch spell check suggestions was canceled due to ongoing request.
         return;
       }
 
       spellCheckResults = SpellCheckResults(text, suggestions);
-      // TODO : renderEditable.text = buildTextSpan();
+// TODO : renderEditable.text = buildTextSpan();
     } catch (exception, stack) {
       FlutterError.reportError(FlutterErrorDetails(
         exception: exception,
@@ -1208,8 +1206,8 @@ class RawEditorState extends EditorState
   SuggestionSpan? findSuggestionSpanAtCursorIndex(int cursorIndex) {
     if (!_spellCheckResultsReceived ||
         spellCheckResults!.suggestionSpans.last.range.end < cursorIndex) {
-      // No spell check results have been received or the cursor index is out
-      // of range that suggestionSpans covers.
+// No spell check results have been received or the cursor index is out
+// of range that suggestionSpans covers.
       return null;
     }
 
@@ -1256,7 +1254,7 @@ class RawEditorState extends EditorState
         case TargetPlatform.fuchsia:
         case TargetPlatform.linux:
         case TargetPlatform.windows:
-          // Collapse the selection and hide the toolbar and handles.
+// Collapse the selection and hide the toolbar and handles.
           userUpdateTextEditingValue(
             TextEditingValue(
               text: textEditingValue.text,
@@ -1310,8 +1308,8 @@ class RawEditorState extends EditorState
     if (!selection.isValid) {
       return;
     }
-    // Snapshot the input before using `await`.
-    // See https://github.com/flutter/flutter/issues/11427
+// Snapshot the input before using `await`.
+// See https://github.com/flutter/flutter/issues/11427
     final data = await widget.clipboardManager.getData();
     if (data == null || data.isEmpty) {
       return;
@@ -1379,7 +1377,7 @@ class RawEditorState extends EditorState
     _selectionOverlay?.updateForScroll();
   }
 
-  // State lifecycle:
+// State lifecycle:
 
   @override
   void initState() {
@@ -1395,18 +1393,18 @@ class RawEditorState extends EditorState
     _scrollController = widget.scrollController ?? ScrollController();
     _scrollController.addListener(_updateSelectionOverlayForScroll);
 
-    // Cursor
+// Cursor
     _cursorController = CursorController(
       showCursor: ValueNotifier<bool>(widget.showCursor),
       style: widget.cursorStyle,
       tickerProvider: this,
     );
 
-    // Floating cursor
+// Floating cursor
     _floatingCursorResetController = AnimationController(vsync: this);
     _floatingCursorResetController.addListener(onFloatingCursorResetTick);
 
-    // Focus
+// Focus
     effectiveFocusNode.addListener(_handleFocusChanged);
   }
 
@@ -1503,21 +1501,21 @@ class RawEditorState extends EditorState
     _cursorController.startOrStopCursorTimerIfNeeded(
         _hasFocus, widget.controller.selection);
     if (hasConnection) {
-      // To keep the cursor from blinking while typing, we want to restart the
-      // cursor timer every time a new character is typed.
+// To keep the cursor from blinking while typing, we want to restart the
+// cursor timer every time a new character is typed.
       _cursorController.stopCursorTimer(resetCharTicks: false);
       _cursorController.startCursorTimer();
     }
     setState(() {
-      /*
+/*
        * We use widget.controller.value in build().
        * We need to run this before updating SelectionOverlay to ensure
        * that renderers are in line with the document.
        */
     });
-    // When a new document node is added or removed due to a line/block
-    // insertion or deletion, we must wait for next frame the ensure the
-    // RenderEditor's child list reflects the new document node structure
+// When a new document node is added or removed due to a line/block
+// insertion or deletion, we must wait for next frame the ensure the
+// RenderEditor's child list reflects the new document node structure
     SchedulerBinding.instance.addPersistentFrameCallback((timeStamp) {
       _updateOrDisposeSelectionOverlayIfNeeded();
     });
@@ -1543,13 +1541,13 @@ class RawEditorState extends EditorState
       _selectionOverlay!.showHandles();
     }
 
-    // This will show the keyboard for all selection changes on the
-    // editor, not just changes triggered by user gestures.
+// This will show the keyboard for all selection changes on the
+// editor, not just changes triggered by user gestures.
     requestKeyboard();
 
     if (cause == SelectionChangedCause.drag) {
-      // When user updates the selection while dragging make sure to
-      // bring the updated position (base or extent) into view.
+// When user updates the selection while dragging make sure to
+// bring the updated position (base or extent) into view.
       if (oldSelection.baseOffset != selection.baseOffset) {
         bringIntoView(selection.base);
       } else if (oldSelection.extentOffset != selection.extentOffset) {
@@ -1583,28 +1581,28 @@ class RawEditorState extends EditorState
         _hasFocus, widget.controller.selection);
     _updateOrDisposeSelectionOverlayIfNeeded();
     if (_hasFocus) {
-      // Listen for changing viewInsets, which indicates keyboard showing up.
+// Listen for changing viewInsets, which indicates keyboard showing up.
       WidgetsBinding.instance.addObserver(this);
       _lastBottomViewInset = View.of(context).viewInsets.bottom;
       _showCaretOnScreen();
 //      _lastBottomViewInset = WidgetsBinding.instance.window.viewInsets.bottom;
 //      if (!_value.selection.isValid) {
-      // Place cursor at the end if the selection is invalid when we receive focus.
+// Place cursor at the end if the selection is invalid when we receive focus.
 //        _handleSelectionChanged(TextSelection.collapsed(offset: _value.text.length), renderEditable, null);
 //      }
     } else {
       WidgetsBinding.instance.removeObserver(this);
-      // TODO: teach editor about state of the toolbar and whether the user is in the middle of applying styles.
-      //       this is needed because some buttons in toolbar can steal focus from the editor
-      //       but we want to preserve the selection, maybe adjusting its style slightly.
-      //
-      // Clear the selection and composition state if this widget lost focus.
-      // widget.controller.updateSelection(TextSelection.collapsed(offset: 0),
-      //     source: ChangeSource.local);
+// TODO: teach editor about state of the toolbar and whether the user is in the middle of applying styles.
+//       this is needed because some buttons in toolbar can steal focus from the editor
+//       but we want to preserve the selection, maybe adjusting its style slightly.
+//
+// Clear the selection and composition state if this widget lost focus.
+// widget.controller.updateSelection(TextSelection.collapsed(offset: 0),
+//     source: ChangeSource.local);
 //      _currentPromptRectRange = null;
     }
     setState(() {
-      // Inform the widget that the value of focus has changed. (so that cursor can repaint appropriately)
+// Inform the widget that the value of focus has changed. (so that cursor can repaint appropriately)
     });
     updateKeepAlive();
   }
@@ -1620,7 +1618,7 @@ class RawEditorState extends EditorState
     }
   }
 
-  // Animation configuration for scrolling the caret back on screen.
+// Animation configuration for scrolling the caret back on screen.
   static const Duration _caretAnimationDuration = Duration(milliseconds: 100);
   static const Curve _caretAnimationCurve = Curves.fastOutSlowIn;
 
@@ -1678,7 +1676,7 @@ class RawEditorState extends EditorState
 
   void _onChangedClipboardStatus() {
     if (mounted) {
-      // Inform the widget that the value of clipboardStatus has changed.
+// Inform the widget that the value of clipboardStatus has changed.
       setState(() {});
     }
   }
@@ -1712,16 +1710,16 @@ class RawEditorState extends EditorState
         _selectionOverlay?.updateForScroll();
       });
       if (_lastBottomViewInset < bottomViewInset) {
-        // Because the metrics change signal from engine will come here every frame
-        // (on both iOS and Android). So we don't need to show caret with animation.
+// Because the metrics change signal from engine will come here every frame
+// (on both iOS and Android). So we don't need to show caret with animation.
         _showCaretOnScreen(false);
       }
     }
     _lastBottomViewInset = bottomViewInset;
   }
 
-  // On MacOS some actions are sent as selectors. We need to manually find the right Action and invoke it.
-  // Ref: https://github.com/flutter/flutter/blob/3.7.0/packages/flutter/lib/src/widgets/editable_text.dart#L3731
+// On MacOS some actions are sent as selectors. We need to manually find the right Action and invoke it.
+// Ref: https://github.com/flutter/flutter/blob/3.7.0/packages/flutter/lib/src/widgets/editable_text.dart#L3731
   @override
   void performSelector(String selectorName) {
     final Intent? intent = intentForMacOSSelector(selectorName);
@@ -1842,7 +1840,7 @@ class RawEditorState extends EditorState
               node: node,
               readOnly: widget.readOnly,
               controller: widget.controller,
-              embedBuilder: widget.embedBuilder,
+              embedRegistry: widget.embedRegistry,
               linkActionPicker: _linkActionPicker,
               onLaunchUrl: widget.onLaunchUrl,
               textWidthBasis: widget.textWidthBasis,
@@ -1869,7 +1867,7 @@ class RawEditorState extends EditorState
             contentPadding: (block == ParchmentAttribute.block.code)
                 ? const EdgeInsets.all(16.0)
                 : null,
-            embedBuilder: widget.embedBuilder,
+            embedRegistry: widget.embedRegistry,
             linkActionPicker: _linkActionPicker,
             onLaunchUrl: widget.onLaunchUrl,
           ),
@@ -1915,7 +1913,7 @@ class RawEditorState extends EditorState
     }
   }
 
-  // --------------------------- Text Editing Actions ---------------------------
+// --------------------------- Text Editing Actions ---------------------------
 
   _TextBoundary _characterBoundary(DirectionalTextEditingIntent intent) {
     final _TextBoundary atomicTextBoundary =
@@ -1927,18 +1925,18 @@ class RawEditorState extends EditorState
     final _TextBoundary atomicTextBoundary;
     final _TextBoundary boundary;
 
-    // final TextEditingValue textEditingValue =
-    //     _textEditingValueforTextLayoutMetrics;
+// final TextEditingValue textEditingValue =
+//     _textEditingValueforTextLayoutMetrics;
     atomicTextBoundary = _CharacterBoundary(textEditingValue);
-    // This isn't enough. Newline characters.
+// This isn't enough. Newline characters.
     boundary = _ExpandedTextBoundary(_WhitespaceBoundary(textEditingValue),
         _WordBoundary(renderEditor, textEditingValue));
 
     final _MixedBoundary mixedBoundary = intent.forward
         ? _MixedBoundary(atomicTextBoundary, boundary)
         : _MixedBoundary(boundary, atomicTextBoundary);
-    // Use a _MixedBoundary to make sure we don't leave invalid codepoints in
-    // the field after deletion.
+// Use a _MixedBoundary to make sure we don't leave invalid codepoints in
+// the field after deletion.
     return _CollapsedSelectionBoundary(mixedBoundary, intent.forward);
   }
 
@@ -1946,16 +1944,16 @@ class RawEditorState extends EditorState
     final _TextBoundary atomicTextBoundary;
     final _TextBoundary boundary;
 
-    // final TextEditingValue textEditingValue =
-    //     _textEditingValueforTextLayoutMetrics;
+// final TextEditingValue textEditingValue =
+//     _textEditingValueforTextLayoutMetrics;
     atomicTextBoundary = _CharacterBoundary(textEditingValue);
     boundary = _LineBreak(renderEditor, textEditingValue);
 
-    // The _MixedBoundary is to make sure we don't leave invalid code units in
-    // the field after deletion.
-    // `boundary` doesn't need to be wrapped in a _CollapsedSelectionBoundary,
-    // since the document boundary is unique and the linebreak boundary is
-    // already caret-location based.
+// The _MixedBoundary is to make sure we don't leave invalid code units in
+// the field after deletion.
+// `boundary` doesn't need to be wrapped in a _CollapsedSelectionBoundary,
+// since the document boundary is unique and the linebreak boundary is
+// already caret-location based.
     return intent.forward
         ? _MixedBoundary(
             _CollapsedSelectionBoundary(atomicTextBoundary, true), boundary)
@@ -1969,8 +1967,8 @@ class RawEditorState extends EditorState
   _TextBoundary _documentBoundary(DirectionalTextEditingIntent intent) =>
       _DocumentBoundary(textEditingValue);
 
-  // Scrolls either to the beginning or end of the document depending on the
-  // intent's `forward` parameter.
+// Scrolls either to the beginning or end of the document depending on the
+// intent's `forward` parameter.
   void _scrollToDocumentBoundary(ScrollToDocumentBoundaryIntent intent) {
     if (intent.forward) {
       bringIntoView(TextPosition(offset: textEditingValue.text.length));
@@ -1987,8 +1985,8 @@ class RawEditorState extends EditorState
     }
 
     final ScrollPosition position = _scrollController.position;
-    // If the field isn't scrollable, do nothing. For example, when the lines of
-    // text is less than maxLines, the field has nothing to scroll.
+// If the field isn't scrollable, do nothing. For example, when the lines of
+// text is less than maxLines, the field has nothing to scroll.
     if (position.maxScrollExtent == 0.0 && position.minScrollExtent == 0.0) {
       return;
     }
@@ -2045,7 +2043,7 @@ class RawEditorState extends EditorState
     UpdateSelectionIntent: _updateSelectionAction,
     DirectionalFocusIntent: DirectionalFocusAction.forTextField(),
 
-    // Delete
+// Delete
     DeleteCharacterIntent: _makeOverridable(
         _DeleteTextAction<DeleteCharacterIntent>(this, _characterBoundary)),
     DeleteToNextWordBoundaryIntent: _makeOverridable(
@@ -2054,7 +2052,7 @@ class RawEditorState extends EditorState
     DeleteToLineBreakIntent: _makeOverridable(
         _DeleteTextAction<DeleteToLineBreakIntent>(this, _linebreak)),
 
-    // Extend/Move Selection
+// Extend/Move Selection
     ExtendSelectionByCharacterIntent: _makeOverridable(
         _UpdateTextSelectionAction<ExtendSelectionByCharacterIntent>(
       this,
@@ -2090,7 +2088,7 @@ class RawEditorState extends EditorState
             onInvoke: _scrollToDocumentBoundary)),
     ScrollIntent: CallbackAction<ScrollIntent>(onInvoke: _scroll),
 
-    // Copy Paste
+// Copy Paste
     SelectAllTextIntent: _makeOverridable(_SelectAllAction(this)),
     CopySelectionTextIntent: _makeOverridable(_CopySelectionAction(this)),
     PasteTextIntent: _makeOverridable(CallbackAction<PasteTextIntent>(
@@ -2099,12 +2097,12 @@ class RawEditorState extends EditorState
 
   @override
   void insertTextPlaceholder(Size size) {
-    // TODO: implement insertTextPlaceholder
+// TODO: implement insertTextPlaceholder
   }
 
   @override
   void removeTextPlaceholder() {
-    // TODO: implement removeTextPlaceholder
+// TODO: implement removeTextPlaceholder
   }
 
   /// Returns the anchor points for the default context menu.
@@ -2115,7 +2113,7 @@ class RawEditorState extends EditorState
           primaryAnchor: renderEditor.lastSecondaryTapDownPosition!);
     }
     final selection = textEditingValue.selection;
-    // Find the horizontal midpoint, just above the selected text.
+// Find the horizontal midpoint, just above the selected text.
     final List<TextSelectionPoint> endpoints =
         renderEditor.getEndpointsForSelection(selection);
 
@@ -2134,8 +2132,8 @@ class RawEditorState extends EditorState
     required double endGlyphHeight,
     required List<TextSelectionPoint> selectionEndpoints,
   }) {
-    // If editor is scrollable, the editing region is only the viewport
-    // otherwise use editor as editing region
+// If editor is scrollable, the editing region is only the viewport
+// otherwise use editor as editing region
     final paintOffset = renderEditor.paintOffset;
     final Rect editingRegion = Rect.fromPoints(
       renderEditor.localToGlobal(Offset.zero),
@@ -2422,7 +2420,7 @@ class _WordBoundary extends _TextBoundary {
   TextPosition getLeadingTextBoundaryAt(TextPosition position) {
     return TextPosition(
       offset: textLayout.getWordBoundary(position).start,
-      // Word boundary seems to always report downstream on many platforms.
+// Word boundary seems to always report downstream on many platforms.
       affinity:
           TextAffinity.downstream, // ignore: avoid_redundant_argument_values
     );
@@ -2432,7 +2430,7 @@ class _WordBoundary extends _TextBoundary {
   TextPosition getTrailingTextBoundaryAt(TextPosition position) {
     return TextPosition(
       offset: textLayout.getWordBoundary(position).end,
-      // Word boundary seems to always report downstream on many platforms.
+// Word boundary seems to always report downstream on many platforms.
       affinity:
           TextAffinity.downstream, // ignore: avoid_redundant_argument_values
     );
@@ -2824,7 +2822,7 @@ class _UpdateTextSelectionAction<T extends DirectionalCaretMovementIntent>
 
     final bool collapseSelection =
         intent.collapseSelection || !state.widget.selectionEnabled;
-    // Collapse to the logical start/end.
+// Collapse to the logical start/end.
     TextSelection collapse(TextSelection selection) {
       assert(selection.isValid);
       assert(!selection.isCollapsed);
@@ -2869,7 +2867,7 @@ class _UpdateTextSelectionAction<T extends DirectionalCaretMovementIntent>
         ? TextSelection.fromPosition(newExtent)
         : textBoundarySelection.extendTo(newExtent);
 
-    // If collapseAtReversal is true and would have an effect, collapse it.
+// If collapseAtReversal is true and would have an effect, collapse it.
     if (!selection.isCollapsed &&
         intent.collapseAtReversal &&
         (selection.baseOffset < selection.extentOffset !=

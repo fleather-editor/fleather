@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:fleather/src/widgets/embed_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:parchment/parchment.dart';
 
@@ -8,7 +9,6 @@ import 'checkbox.dart';
 import 'controller.dart';
 import 'cursor.dart';
 import 'editable_text_line.dart';
-import 'editor.dart';
 import 'link.dart';
 import 'text_line.dart';
 import 'theme.dart';
@@ -24,7 +24,7 @@ class EditableTextBlock extends StatelessWidget {
   final Color selectionColor;
   final bool enableInteractiveSelection;
   final bool hasFocus;
-  final FleatherEmbedBuilder embedBuilder;
+  final EmbedRegistry embedRegistry;
   final LinkActionPicker linkActionPicker;
   final ValueChanged<String?>? onLaunchUrl;
   final EdgeInsets? contentPadding;
@@ -41,7 +41,7 @@ class EditableTextBlock extends StatelessWidget {
     required this.selectionColor,
     required this.enableInteractiveSelection,
     required this.hasFocus,
-    required this.embedBuilder,
+    required this.embedRegistry,
     required this.linkActionPicker,
     this.onLaunchUrl,
     this.contentPadding,
@@ -83,7 +83,7 @@ class EditableTextBlock extends StatelessWidget {
             node: line,
             readOnly: readOnly,
             controller: controller,
-            embedBuilder: embedBuilder,
+            embedRegistry: embedRegistry,
             linkActionPicker: linkActionPicker,
             onLaunchUrl: onLaunchUrl,
             textWidthBasis: textWidthBasis,
