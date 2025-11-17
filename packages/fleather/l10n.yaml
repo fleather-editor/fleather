@@ -1,6 +1,5 @@
 format: true
 use-escaping: true
-synthetic-package: false
 
 arb-dir: lib/l10n/translations
 template-arb-file: en.arb
