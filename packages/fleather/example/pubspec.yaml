@@ -13,8 +13,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  url_launcher: ^6.3.1
-  image_picker: ^1.1.2
+  url_launcher: ^6.3.2
+  image_picker: ^1.2.1
   fleather:
     path: ../
   parchment:
@@ -31,8 +31,8 @@ dev_dependencies:
     sdk: flutter
   flutter_driver:
     sdk: flutter
-  flutter_lints: ^5.0.0
-  flutter_test_robots: ^0.0.24
+  flutter_lints: ^6.0.0
+  flutter_test_robots: ^1.0.0
 
 flutter:
   uses-material-design: true
