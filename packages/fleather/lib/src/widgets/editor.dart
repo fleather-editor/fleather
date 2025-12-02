@@ -1627,7 +1627,8 @@ class RawEditorState extends EditorState
   bool _showCaretOnScreenScheduled = false;
 
   void _showCaretOnScreen([bool withAnimation = true]) {
-    if (!widget.showCursor ||
+    if (!_hasFocus ||
+        !widget.showCursor ||
         !widget.enableInteractiveSelection ||
         _showCaretOnScreenScheduled) {
       return;
