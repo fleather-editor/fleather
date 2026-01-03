@@ -122,8 +122,9 @@ class _TextLineState extends State<TextLine> {
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
     if (widget.node.hasBlockEmbed) {
-      final embed = widget.node.children.single as EmbedNode;
-      return EmbedProxy(child: widget.embedBuilder(context, embed));
+      final embedNode = widget.node.children.single as EmbedNode;
+      final embedObject = widget.embedBuilder(context, embedNode);
+      return EmbedProxy(child: embedObject.child);
     }
     final theme = FleatherTheme.of(context)!;
     final text = buildText(context, widget.node, theme);
@@ -174,8 +175,18 @@ class _TextLineState extends State<TextLine> {
 
   InlineSpan _segmentToTextSpan(Node segment, FleatherThemeData theme) {
     if (segment is EmbedNode) {
-      return WidgetSpan(
-          child: EmbedProxy(child: widget.embedBuilder(context, segment)));
+      final embedObject = widget.embedBuilder(context, segment);
+      final embedWidget = EmbedProxy(child: embedObject.child);
+      if (embedObject is FleatherSpanEmbed) {
+        return WidgetSpan(
+          child: embedWidget,
+          alignment: embedObject.placeholderAlignment,
+          baseline: embedObject.textBaseline,
+          style: embedObject.textStyle,
+        );
+      } else {
+        return WidgetSpan(child: embedWidget);
+      }
     }
     final text = segment as TextNode;
     final attrs = text.style;
