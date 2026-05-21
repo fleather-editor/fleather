@@ -237,7 +237,8 @@ void main() {
             baseOffset: 13, extentOffset: 0, affinity: TextAffinity.upstream));
   });
 
-  testWidgets('$ExtendSelectionByPageIntent selection to end', (tester) async {
+  testWidgets('$ExtendSelectionVerticallyToAdjacentPageIntent selection to end',
+      (tester) async {
     final editor = EditorSandBox(
         tester: tester,
         document: ParchmentDocument.fromJson([
@@ -253,7 +254,8 @@ void main() {
             baseOffset: 3, extentOffset: 19, affinity: TextAffinity.upstream));
   });
 
-  testWidgets('$ExtendSelectionByPageIntent selection to end', (tester) async {
+  testWidgets('$ExtendSelectionVerticallyToAdjacentPageIntent selection to end',
+      (tester) async {
     final editor = EditorSandBox(
         tester: tester,
         document: ParchmentDocument.fromJson([

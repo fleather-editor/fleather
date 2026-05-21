@@ -101,7 +101,6 @@ abstract class FleatherLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
-    Locale('pt', 'BR'),
     Locale('de'),
     Locale('en'),
     Locale('fa'),
@@ -109,7 +108,8 @@ abstract class FleatherLocalizations {
     Locale('hu'),
     Locale('ko'),
     Locale('nl'),
-    Locale('pt')
+    Locale('pt'),
+    Locale('pt', 'BR')
   ];
 
   /// Automatically assign a foreground color to the text
@@ -209,14 +209,14 @@ class _FleatherLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) => <String>[
-        'pt',
         'de',
         'en',
         'fa',
         'fr',
         'hu',
         'ko',
-        'nl'
+        'nl',
+        'pt'
       ].contains(locale.languageCode);
 
   @override
@@ -238,8 +238,6 @@ FleatherLocalizations lookupFleatherLocalizations(Locale locale) {
 
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'pt':
-      return FleatherLocalizationsPt();
     case 'de':
       return FleatherLocalizationsDe();
     case 'en':
@@ -254,6 +252,8 @@ FleatherLocalizations lookupFleatherLocalizations(Locale locale) {
       return FleatherLocalizationsKo();
     case 'nl':
       return FleatherLocalizationsNl();
+    case 'pt':
+      return FleatherLocalizationsPt();
   }
 
   throw FlutterError(
