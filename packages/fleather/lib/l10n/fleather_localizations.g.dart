@@ -108,8 +108,8 @@ abstract class FleatherLocalizations {
     Locale('hu'),
     Locale('ko'),
     Locale('nl'),
-    Locale('pt'),
-    Locale('pt', 'BR')
+    Locale('pt', 'BR'),
+    Locale('pt')
   ];
 
   /// Automatically assign a foreground color to the text
