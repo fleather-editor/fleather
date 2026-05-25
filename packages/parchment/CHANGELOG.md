@@ -1,3 +1,7 @@
+## 1.27.0
+
+* Upgrade to Flutter 3.44
+
 ## 1.25.1
 
 * Add `hasSpanEmbed` to `LineNode`
