@@ -1323,7 +1323,9 @@ void main() {
             if (node.value.type == 'icon') {
               final data = node.value.data;
               return Icon(
+                // ignore: non_const_argument_for_const_parameter
                 IconData(int.parse(data['codePoint']),
+                    // ignore: non_const_argument_for_const_parameter
                     fontFamily: data['fontFamily']),
                 color: Color(int.parse(data['color'])),
                 size: 100,
@@ -1420,7 +1422,9 @@ void main() {
             if (node.value.type == 'icon') {
               final data = node.value.data;
               return Icon(
+                // ignore: non_const_argument_for_const_parameter
                 IconData(int.parse(data['codePoint']),
+                    // ignore: non_const_argument_for_const_parameter
                     fontFamily: data['fontFamily']),
                 color: Color(int.parse(data['color'])),
                 size: 100,

@@ -148,6 +148,7 @@ class _HomePageState extends State<HomePage> {
       final data = node.value.data;
       // Icons.rocket_launch_outlined
       return Icon(
+        // ignore: non_const_argument_for_const_parameter
         IconData(int.parse(data['codePoint']), fontFamily: data['fontFamily']),
         color: Color(int.parse(data['color'])),
         size: 18,

@@ -146,12 +146,12 @@ mixin RawEditorStateTextInputClientMixin on EditorState
         return;
       }
 
-      _textInputConnection?.setStyle(
+      _textInputConnection?.updateStyle(TextInputStyle(
           fontFamily: style.textStyle.fontFamily,
           fontSize: style.textStyle.fontSize,
           fontWeight: style.textStyle.fontWeight,
           textDirection: style.textDirection,
-          textAlign: style.textAlign);
+          textAlign: style.textAlign));
     });
   }
 
@@ -198,6 +198,17 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   @override
   void updateEditingValue(TextEditingValue value) {
     // no-op
+  }
+
+  @override
+  bool onFocusReceived() {
+    if (mounted &&
+        !effectiveFocusNode.hasFocus &&
+        effectiveFocusNode.canRequestFocus) {
+      effectiveFocusNode.requestFocus();
+      return true;
+    }
+    return false;
   }
 
   @override
