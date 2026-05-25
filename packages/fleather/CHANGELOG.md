@@ -1,3 +1,8 @@
+## 1.27.0
+
+* Upgrade to Flutter 3.44
+* [Fix] Editor reveals cursor and widget when not focused
+
 ##  1.26.0
 
 - Editor and cursor brought into viewport if is wrapped with a scrollable regardless of it's `scrollable` property 
