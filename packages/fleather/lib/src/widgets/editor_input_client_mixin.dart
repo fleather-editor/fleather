@@ -201,7 +201,15 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   }
 
   @override
-  bool onFocusReceived() => false;
+  bool onFocusReceived() {
+    if (mounted &&
+        !effectiveFocusNode.hasFocus &&
+        effectiveFocusNode.canRequestFocus) {
+      effectiveFocusNode.requestFocus();
+      return true;
+    }
+    return false;
+  }
 
   @override
   void performAction(TextInputAction action) {
