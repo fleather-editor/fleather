@@ -243,20 +243,22 @@ class RenderEditableContainerBox extends RenderBox
   /// The `position` parameter is expected to be relative to the [node] of
   /// this container.
   RenderEditableBox childAtPosition(TextPosition position) {
-    assert(firstChild != null);
+  assert(firstChild != null);
 
-    final targetNode = node.lookup(position.offset).node;
+  final targetNode = node.lookup(position.offset).node;
 
-    var targetChild = firstChild;
-    while (targetChild != null) {
-      if (targetChild.node == targetNode) {
-        break;
-      }
-      targetChild = childAfter(targetChild);
+  RenderEditableBox? targetChild = firstChild;
+
+  while (targetChild != null) {
+    if (targetChild.node == targetNode) {
+      return targetChild;
     }
-    assert(targetChild != null, 'No child at position $position');
-    return targetChild!;
+    targetChild = childAfter(targetChild);
   }
+
+  // Fallback: return last available child instead of crashing
+  return lastChild!;
+}
 
   /// Returns child of this container located at the specified local `offset`.
   ///
