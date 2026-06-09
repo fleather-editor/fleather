@@ -1,4 +1,4 @@
-package com.zefyr.example
+package com.fleather.example
 
 import io.flutter.embedding.android.FlutterActivity
 
