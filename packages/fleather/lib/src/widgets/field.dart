@@ -91,6 +91,11 @@ class FleatherField extends StatefulWidget {
   /// the text field from the clipboard.
   final bool enableInteractiveSelection;
 
+  /// Whether this field supports platform stylus handwriting.
+  ///
+  /// On iPadOS this enables Apple Pencil Scribble.
+  final bool stylusHandwritingEnabled;
+
   /// Defines how to measure the width of the rendered text when [readOnly] is
   /// `true`. Otherwise the value is ignored and forced to
   /// [TextWidthBasis.parent]
@@ -199,6 +204,8 @@ class FleatherField extends StatefulWidget {
     this.autocorrect = true,
     this.enableSuggestions = true,
     this.enableInteractiveSelection = true,
+    this.stylusHandwritingEnabled =
+        EditableText.defaultStylusHandwritingEnabled,
     this.textWidthBasis = TextWidthBasis.parent,
     this.minHeight,
     this.maxHeight,
@@ -272,6 +279,7 @@ class _FleatherFieldState extends State<FleatherField> {
       autocorrect: widget.autocorrect,
       enableSuggestions: widget.enableSuggestions,
       enableInteractiveSelection: widget.enableInteractiveSelection,
+      stylusHandwritingEnabled: widget.stylusHandwritingEnabled,
       textWidthBasis: widget.textWidthBasis,
       minHeight: widget.minHeight,
       maxHeight: widget.maxHeight,

@@ -28,6 +28,7 @@ class EditableTextBlock extends StatelessWidget {
   final LinkActionPicker linkActionPicker;
   final ValueChanged<String?>? onLaunchUrl;
   final EdgeInsets? contentPadding;
+  final FleatherScribblePlaceholder? scribblePlaceholder;
 
   const EditableTextBlock({
     super.key,
@@ -45,6 +46,7 @@ class EditableTextBlock extends StatelessWidget {
     required this.linkActionPicker,
     this.onLaunchUrl,
     this.contentPadding,
+    this.scribblePlaceholder,
   });
 
   @override
@@ -87,6 +89,7 @@ class EditableTextBlock extends StatelessWidget {
             linkActionPicker: linkActionPicker,
             onLaunchUrl: onLaunchUrl,
             textWidthBasis: textWidthBasis,
+            scribblePlaceholder: scribblePlaceholder,
           ),
           cursorController: cursorController,
           selection: selection,

@@ -76,8 +76,7 @@ void main() {
             composing: TextRange.collapsed(26))
       ]);
 
-      // Throttle time of 500ms in history
-      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump(throttleDuration);
       await tester.pumpAndSettle();
       expect(editor.controller.document.toDelta(), endState);
 
@@ -108,8 +107,7 @@ void main() {
       await editor.pumpAndTap();
       editor.controller
           .formatText(initialLength - 5, 5, ParchmentAttribute.italic.unset);
-      // Throttle time of 500ms in history
-      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump(throttleDuration);
       await tester.pumpAndSettle();
       expect(editor.controller.document.toDelta(), endState);
 
@@ -167,8 +165,7 @@ void main() {
       await enterText(const TextEditingValue(
           text: 'Something in the way mmmmm',
           selection: TextSelection.collapsed(offset: 26)));
-      // Throttle time of 500ms in history
-      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump(throttleDuration);
       await tester.pumpAndSettle();
       var editorState = tester.state<RawEditorState>(find.byType(RawEditor));
 

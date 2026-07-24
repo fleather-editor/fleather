@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -14,6 +16,16 @@ import 'link.dart';
 import 'rich_text_proxy.dart';
 import 'theme.dart';
 
+class FleatherScribblePlaceholder {
+  const FleatherScribblePlaceholder({
+    required this.documentOffset,
+    required this.size,
+  });
+
+  final int documentOffset;
+  final Size size;
+}
+
 /// Line of text in Fleather editor.
 ///
 /// This widget allows to render non-editable line of rich text, but can be
@@ -27,6 +39,7 @@ class TextLine extends StatefulWidget {
   final ValueChanged<String?>? onLaunchUrl;
   final LinkActionPicker linkActionPicker;
   final TextWidthBasis textWidthBasis;
+  final FleatherScribblePlaceholder? scribblePlaceholder;
 
   const TextLine({
     super.key,
@@ -37,6 +50,7 @@ class TextLine extends StatefulWidget {
     required this.onLaunchUrl,
     required this.linkActionPicker,
     required this.textWidthBasis,
+    this.scribblePlaceholder,
   });
 
   @override
@@ -163,13 +177,57 @@ class _TextLineState extends State<TextLine> {
 
   TextSpan buildText(
       BuildContext context, LineNode node, FleatherThemeData theme) {
-    final children = node.children
-        .map((node) => _segmentToTextSpan(node, theme))
-        .toList(growable: false);
+    final children = <InlineSpan>[];
+    final placeholderOffset = widget.scribblePlaceholder == null
+        ? null
+        : widget.scribblePlaceholder!.documentOffset - node.documentOffset;
+    var segmentOffset = 0;
+    var placeholderInserted = false;
+    for (final segment in node.children) {
+      if (!placeholderInserted &&
+          placeholderOffset == segmentOffset &&
+          segment is! TextNode) {
+        children.addAll(_buildScribblePlaceholderSpans());
+        placeholderInserted = true;
+      }
+      if (!placeholderInserted &&
+          placeholderOffset != null &&
+          segment is TextNode &&
+          placeholderOffset >= segmentOffset &&
+          placeholderOffset <= segmentOffset + segment.value.length) {
+        final localOffset = placeholderOffset - segmentOffset;
+        if (localOffset > 0) {
+          children.add(_textSegmentToTextSpan(
+              segment, theme, segment.value.substring(0, localOffset)));
+        }
+        children.addAll(_buildScribblePlaceholderSpans());
+        if (localOffset < segment.value.length) {
+          children.add(_textSegmentToTextSpan(
+              segment, theme, segment.value.substring(localOffset)));
+        }
+        placeholderInserted = true;
+      } else {
+        children.add(_segmentToTextSpan(segment, theme));
+      }
+      segmentOffset += segment.length;
+    }
+    if (!placeholderInserted &&
+        placeholderOffset != null &&
+        placeholderOffset == segmentOffset) {
+      children.addAll(_buildScribblePlaceholderSpans());
+    }
     return TextSpan(
       style: _getParagraphTextStyle(node.style, theme),
       children: children,
     );
+  }
+
+  List<InlineSpan> _buildScribblePlaceholderSpans() {
+    final width = widget.scribblePlaceholder!.size.width;
+    return [
+      const _FleatherScribblePlaceholderSpan(size: Size.zero),
+      _FleatherScribblePlaceholderSpan(size: Size(width, 0)),
+    ];
   }
 
   InlineSpan _segmentToTextSpan(Node segment, FleatherThemeData theme) {
@@ -178,12 +236,17 @@ class _TextLineState extends State<TextLine> {
           child: EmbedProxy(child: widget.embedBuilder(context, segment)));
     }
     final text = segment as TextNode;
+    return _textSegmentToTextSpan(text, theme, text.value);
+  }
+
+  InlineSpan _textSegmentToTextSpan(
+      TextNode text, FleatherThemeData theme, String value) {
     final attrs = text.style;
     final isLink = attrs.contains(ParchmentAttribute.link);
     return TextSpan(
-      text: text.value,
+      text: value,
       style: _getInlineTextStyle(attrs, widget.node.style, theme),
-      recognizer: isLink && canLaunchLinks ? _getRecognizer(segment) : null,
+      recognizer: isLink && canLaunchLinks ? _getRecognizer(text) : null,
       mouseCursor: isLink && canLaunchLinks ? SystemMouseCursors.click : null,
     );
   }
@@ -333,5 +396,29 @@ class _TextLineState extends State<TextLine> {
       decorations.add(b!.decoration!);
     }
     return a.merge(b).apply(decoration: TextDecoration.combine(decorations));
+  }
+}
+
+class _FleatherScribblePlaceholderSpan extends WidgetSpan {
+  const _FleatherScribblePlaceholderSpan({required this.size})
+      : super(child: const SizedBox.shrink());
+
+  final Size size;
+
+  @override
+  void build(
+    ui.ParagraphBuilder builder, {
+    TextScaler textScaler = TextScaler.noScaling,
+    List<PlaceholderDimensions>? dimensions,
+  }) {
+    assert(debugAssertIsValid());
+    final hasStyle = style != null;
+    if (hasStyle) {
+      builder.pushStyle(style!.getTextStyle(textScaler: textScaler));
+    }
+    builder.addPlaceholder(size.width, size.height, alignment);
+    if (hasStyle) {
+      builder.pop();
+    }
   }
 }

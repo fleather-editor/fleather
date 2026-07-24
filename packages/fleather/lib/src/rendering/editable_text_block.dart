@@ -334,7 +334,26 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
 
   @override
   List<TextBox> getBoxesForSelection(TextSelection selection) {
-    throw UnimplementedError();
+    final boxes = <TextBox>[];
+    var child = firstChild;
+    while (child != null) {
+      if (intersectsWithSelection(child.node, selection, fromParent: true)) {
+        final childSelection =
+            localSelection(child.node, selection, fromParent: true);
+        final childOffset = (child.parentData as BoxParentData).offset;
+        boxes.addAll(child.getBoxesForSelection(childSelection).map((box) {
+          return TextBox.fromLTRBD(
+            box.left + childOffset.dx,
+            box.top + childOffset.dy,
+            box.right + childOffset.dx,
+            box.bottom + childOffset.dy,
+            box.direction,
+          );
+        }));
+      }
+      child = childAfter(child);
+    }
+    return boxes;
   }
 
   @override

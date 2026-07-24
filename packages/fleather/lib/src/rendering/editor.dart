@@ -670,6 +670,9 @@ class RenderEditor extends RenderEditableContainerBox
     return defaultHitTestChildren(result, position: effectivePosition);
   }
 
+  @override
+  bool hitTestSelf(Offset position) => true;
+
   void _paintHandleLayers(
       PaintingContext context, List<TextSelectionPoint> endpoints) {
     var startPoint = endpoints[0].point + paintOffset;
@@ -757,8 +760,32 @@ class RenderEditor extends RenderEditableContainerBox
     final childLocalRect = targetChild.getLocalRectForCaret(localPosition);
 
     final boxParentData = targetChild.parentData as BoxParentData;
-    return childLocalRect.shift(Offset(
-        resolvedPadding!.left, boxParentData.offset.dy + paintOffset.dy));
+    return childLocalRect.shift(boxParentData.offset + paintOffset);
+  }
+
+  /// Returns text boxes for a document selection in this editor's coordinates.
+  List<TextBox> getBoxesForSelection(TextSelection selection) {
+    final boxes = <TextBox>[];
+    var child = firstChild;
+    while (child != null) {
+      if (intersectsWithSelection(child.node, selection, fromParent: true)) {
+        final childSelection =
+            localSelection(child.node, selection, fromParent: true);
+        final childOffset =
+            (child.parentData as BoxParentData).offset + paintOffset;
+        boxes.addAll(child.getBoxesForSelection(childSelection).map((box) {
+          return TextBox.fromLTRBD(
+            box.left + childOffset.dx,
+            box.top + childOffset.dy,
+            box.right + childOffset.dx,
+            box.bottom + childOffset.dy,
+            box.direction,
+          );
+        }));
+      }
+      child = childAfter(child);
+    }
+    return boxes;
   }
 
   // Start floating cursor
