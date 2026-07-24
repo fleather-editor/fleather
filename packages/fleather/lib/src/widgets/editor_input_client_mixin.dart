@@ -366,6 +366,28 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     }
   }
 
+  /// Updates the geometry used by iPadOS Apple Pencil Scribble.
+  void updateStylusHandwritingGeometry({
+    required List<SelectionRect> selectionRects,
+    required Rect caretRect,
+    required Rect composingRect,
+  }) {
+    if (!hasConnection) {
+      return;
+    }
+    final size = Size(
+        min(renderEditor.size.width,
+                renderEditor.maxContentWidth ?? double.infinity) -
+            renderEditor.padding.horizontal,
+        renderEditor.size.height);
+    final transform = renderEditor.getTransformTo(null);
+    _textInputConnection
+      ?..setEditableSizeAndTransform(size, transform)
+      ..setSelectionRects(selectionRects)
+      ..setCaretRect(caretRect)
+      ..setComposingRect(composingRect);
+  }
+
   @override
   void insertContent(KeyboardInsertedContent content) {
     // TODO: implement insertContent

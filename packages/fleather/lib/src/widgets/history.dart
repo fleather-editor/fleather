@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:parchment/parchment.dart';
 
@@ -15,11 +19,18 @@ import '../util.dart';
 /// Listens to keyboard undo/redo shortcuts and send update to [controller].
 class FleatherHistory extends StatefulWidget {
   /// Creates an instance of [FleatherHistory].
-  const FleatherHistory(
-      {super.key, required this.child, required this.controller});
+  const FleatherHistory({
+    super.key,
+    required this.child,
+    required this.controller,
+    required this.focusNode,
+  });
 
   /// The child widget of [FleatherHistory].
   final Widget child;
+
+  /// Focus node used to register this editor with the iOS system undo manager.
+  final FocusNode focusNode;
 
   /// The [FleatherController] to save the state of over time.
   final FleatherController controller;
@@ -28,27 +39,103 @@ class FleatherHistory extends StatefulWidget {
   State<FleatherHistory> createState() => _FleatherHistoryState();
 }
 
-class _FleatherHistoryState extends State<FleatherHistory> {
+class _FleatherHistoryState extends State<FleatherHistory>
+    with UndoManagerClient {
+  Timer? _historyStateTimer;
+
   void _undo(UndoTextIntent intent) {
-    widget.controller.undo();
+    undo();
   }
 
   void _redo(RedoTextIntent intent) {
+    redo();
+  }
+
+  @override
+  bool get canUndo => widget.controller.canUndo;
+
+  @override
+  bool get canRedo => widget.controller.canRedo;
+
+  @override
+  void undo() {
+    widget.controller.undo();
+    _updateUndoState();
+  }
+
+  @override
+  void redo() {
     widget.controller.redo();
+    _updateUndoState();
+  }
+
+  @override
+  void handlePlatformUndo(UndoDirection direction) {
+    switch (direction) {
+      case UndoDirection.undo:
+        undo();
+      case UndoDirection.redo:
+        redo();
+    }
+  }
+
+  void _handleControllerChanged() {
+    _updateUndoState();
+    _historyStateTimer?.cancel();
+    _historyStateTimer =
+        Timer(const Duration(milliseconds: 500), _updateUndoState);
+  }
+
+  void _handleFocusChanged() {
+    if (defaultTargetPlatform != TargetPlatform.iOS ||
+        !widget.focusNode.hasFocus) {
+      if (UndoManager.client == this) {
+        UndoManager.client = null;
+      }
+      return;
+    }
+    UndoManager.client = this;
+    _updateUndoState();
+  }
+
+  void _updateUndoState() {
+    if (defaultTargetPlatform == TargetPlatform.iOS &&
+        UndoManager.client == this) {
+      UndoManager.setUndoState(canUndo: canUndo, canRedo: canRedo);
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    widget.controller.addListener(_handleControllerChanged);
+    widget.focusNode.addListener(_handleFocusChanged);
+    _handleFocusChanged();
   }
 
   @override
   void didUpdateWidget(FleatherHistory oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_handleControllerChanged);
+      widget.controller.addListener(_handleControllerChanged);
+      _historyStateTimer?.cancel();
+    }
+    if (oldWidget.focusNode != widget.focusNode) {
+      oldWidget.focusNode.removeListener(_handleFocusChanged);
+      widget.focusNode.addListener(_handleFocusChanged);
+    }
+    _handleFocusChanged();
   }
 
   @override
   void dispose() {
+    if (UndoManager.client == this) {
+      UndoManager.client = null;
+    }
+    widget.controller.removeListener(_handleControllerChanged);
+    widget.focusNode.removeListener(_handleFocusChanged);
+    _historyStateTimer?.cancel();
     super.dispose();
   }
 

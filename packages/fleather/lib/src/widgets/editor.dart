@@ -183,6 +183,11 @@ class FleatherEditor extends StatefulWidget {
   /// the text field from the clipboard.
   final bool enableInteractiveSelection;
 
+  /// Whether this editor supports platform stylus handwriting.
+  ///
+  /// On iPadOS this enables Apple Pencil Scribble.
+  final bool stylusHandwritingEnabled;
+
   /// Defines how to measure the width of the rendered text when [readOnly] is
   /// `true`. Otherwise the value is ignored and forced to
   /// [TextWidthBasis.parent]
@@ -317,6 +322,8 @@ class FleatherEditor extends StatefulWidget {
       this.autocorrect = true,
       this.enableSuggestions = true,
       this.enableInteractiveSelection = true,
+      this.stylusHandwritingEnabled =
+          EditableText.defaultStylusHandwritingEnabled,
       this.textWidthBasis = TextWidthBasis.parent,
       this.minHeight,
       this.maxHeight,
@@ -341,11 +348,15 @@ class FleatherEditor extends StatefulWidget {
 class _FleatherEditorState extends State<FleatherEditor>
     implements EditorTextSelectionGestureDetectorBuilderDelegate {
   GlobalKey<EditorState>? _editorKey;
+  FocusNode? _internalFocusNode;
 
   bool _showSelectionHandles = false;
 
   @override
   GlobalKey<EditorState> get editableTextKey => widget.editorKey ?? _editorKey!;
+
+  FocusNode get effectiveFocusNode =>
+      widget.focusNode ?? (_internalFocusNode ??= FocusNode());
 
   @override
   bool get forcePressEnabled => true;
@@ -366,6 +377,10 @@ class _FleatherEditorState extends State<FleatherEditor>
     } else if (widget.editorKey != null) {
       _editorKey = null;
     }
+    if (oldWidget.focusNode == null && widget.focusNode != null) {
+      _internalFocusNode?.dispose();
+      _internalFocusNode = null;
+    }
   }
 
   @override
@@ -376,6 +391,12 @@ class _FleatherEditorState extends State<FleatherEditor>
     }
     _selectionGestureDetectorBuilder =
         _FleatherEditorSelectionGestureDetectorBuilder(state: this);
+  }
+
+  @override
+  void dispose() {
+    _internalFocusNode?.dispose();
+    super.dispose();
   }
 
   void _handleSelectionChanged(
@@ -485,7 +506,7 @@ class _FleatherEditorState extends State<FleatherEditor>
     Widget child = RawEditor(
       key: editableTextKey,
       controller: widget.controller,
-      focusNode: widget.focusNode,
+      focusNode: effectiveFocusNode,
       scrollController: widget.scrollController,
       scrollable: widget.scrollable,
       padding: widget.padding,
@@ -495,6 +516,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       readOnly: widget.readOnly,
       enableSuggestions: widget.enableSuggestions,
       enableInteractiveSelection: widget.enableInteractiveSelection,
+      stylusHandwritingEnabled: widget.stylusHandwritingEnabled,
       textWidthBasis: widget.textWidthBasis,
       minHeight: widget.minHeight,
       maxHeight: widget.maxHeight,
@@ -531,6 +553,7 @@ class _FleatherEditorState extends State<FleatherEditor>
       child: FleatherActions(
         child: FleatherHistory(
           controller: widget.controller,
+          focusNode: effectiveFocusNode,
           child: child,
         ),
       ),
@@ -599,6 +622,8 @@ class RawEditor extends StatefulWidget {
     this.autocorrect = true,
     this.enableSuggestions = true,
     this.enableInteractiveSelection = true,
+    this.stylusHandwritingEnabled =
+        EditableText.defaultStylusHandwritingEnabled,
     this.textWidthBasis = TextWidthBasis.parent,
     this.minHeight,
     this.maxHeight,
@@ -663,6 +688,9 @@ class RawEditor extends StatefulWidget {
   ///
   /// Defaults to true.
   final bool enableSuggestions;
+
+  /// Whether this editor supports platform stylus handwriting.
+  final bool stylusHandwritingEnabled;
 
   /// Callback which is triggered when the user wants to open a URL from
   /// a link in the document.
@@ -823,6 +851,9 @@ class RawEditor extends StatefulWidget {
     properties.add(DoubleProperty('minLines', minHeight, defaultValue: null));
     properties.add(
         DiagnosticsProperty<bool>('autofocus', autofocus, defaultValue: false));
+    properties.add(DiagnosticsProperty<bool>(
+        'stylusHandwritingEnabled', stylusHandwritingEnabled,
+        defaultValue: EditableText.defaultStylusHandwritingEnabled));
     properties.add(DiagnosticsProperty<ScrollPhysics>(
         'scrollPhysics', scrollPhysics,
         defaultValue: null));
@@ -925,9 +956,17 @@ class RawEditorState extends EditorState
         TickerProviderStateMixin<RawEditor>,
         RawEditorStateTextInputClientMixin,
         RawEditorStateSelectionDelegateMixin
-    implements TextSelectionDelegate {
+    implements TextSelectionDelegate, ScribbleClient {
+  static int _nextScribbleElementIdentifier = 1;
+
   final GlobalKey _editorKey = GlobalKey();
   final GlobalKey _scrollableKey = GlobalKey();
+  late final String _scribbleElementIdentifier =
+      'fleather-${_nextScribbleElementIdentifier++}';
+  bool _scribbleElementRegistered = false;
+  bool _stylusHandwritingGeometryScheduled = false;
+  int? _scribblePlaceholderOffset;
+  Size? _scribblePlaceholderSize;
 
   // Theme
   late FleatherThemeData _themeData;
@@ -974,6 +1013,20 @@ class RawEditorState extends EditorState
 
   bool get _hasFocus => effectiveFocusNode.hasFocus;
 
+  bool get _stylusHandwritingEnabled =>
+      widget.stylusHandwritingEnabled &&
+      !widget.readOnly &&
+      defaultTargetPlatform == TargetPlatform.iOS;
+
+  FleatherScribblePlaceholder? get _scribblePlaceholder {
+    final offset = _scribblePlaceholderOffset;
+    final size = _scribblePlaceholderSize;
+    if (offset == null || size == null) {
+      return null;
+    }
+    return FleatherScribblePlaceholder(documentOffset: offset, size: size);
+  }
+
   @override
   bool get wantKeepAlive => _hasFocus;
 
@@ -991,8 +1044,10 @@ class RawEditorState extends EditorState
   ///
   /// This property is typically used to notify the renderer of input gestures.
   @override
-  RenderEditor get renderEditor =>
-      _editorKey.currentContext!.findRenderObject() as RenderEditor;
+  RenderEditor get renderEditor => _renderEditorOrNull!;
+
+  RenderEditor? get _renderEditorOrNull =>
+      _editorKey.currentContext?.findRenderObject() as RenderEditor?;
 
   /// Express interest in interacting with the keyboard.
   ///
@@ -1377,6 +1432,7 @@ class RawEditorState extends EditorState
 
   void _updateSelectionOverlayForScroll() {
     _selectionOverlay?.updateForScroll();
+    _scheduleStylusHandwritingGeometryUpdate();
   }
 
   // State lifecycle:
@@ -1408,6 +1464,7 @@ class RawEditorState extends EditorState
 
     // Focus
     effectiveFocusNode.addListener(_handleFocusChanged);
+    _updateScribbleRegistration();
   }
 
   @override
@@ -1425,6 +1482,7 @@ class RawEditorState extends EditorState
     }
     performSpellCheck(widget.controller.plainTextEditingValue.text);
     updateConnectionConfig();
+    _scheduleStylusHandwritingGeometryUpdate();
   }
 
   @override
@@ -1480,10 +1538,13 @@ class RawEditorState extends EditorState
         updateConnectionConfig();
       }
     }
+    _updateScribbleRegistration();
+    _scheduleStylusHandwritingGeometryUpdate();
   }
 
   @override
   void dispose() {
+    _unregisterScribbleElement();
     closeConnectionIfNeeded();
     assert(!hasConnection);
     _selectionOverlay?.dispose();
@@ -1522,6 +1583,7 @@ class RawEditorState extends EditorState
       _updateOrDisposeSelectionOverlayIfNeeded();
     });
     _verticalSelectionUpdateAction.stopCurrentVerticalRunIfSelectionChanges();
+    _scheduleStylusHandwritingGeometryUpdate();
   }
 
   void _handleSelectionChanged(
@@ -1546,6 +1608,7 @@ class RawEditorState extends EditorState
     // This will show the keyboard for all selection changes on the
     // editor, not just changes triggered by user gestures.
     requestKeyboard();
+    _scheduleStylusHandwritingGeometryUpdate();
 
     if (cause == SelectionChangedCause.drag) {
       // When user updates the selection while dragging make sure to
@@ -1607,6 +1670,156 @@ class RawEditorState extends EditorState
       // Inform the widget that the value of focus has changed. (so that cursor can repaint appropriately)
     });
     updateKeepAlive();
+    _scheduleStylusHandwritingGeometryUpdate();
+  }
+
+  void _updateScribbleRegistration() {
+    if (_stylusHandwritingEnabled && !_scribbleElementRegistered) {
+      TextInput.registerScribbleElement(elementIdentifier, this);
+      _scribbleElementRegistered = true;
+    } else if (!_stylusHandwritingEnabled && _scribbleElementRegistered) {
+      TextInput.unregisterScribbleElement(elementIdentifier);
+      _scribbleElementRegistered = false;
+      _scribblePlaceholderOffset = null;
+      _scribblePlaceholderSize = null;
+    }
+  }
+
+  void _unregisterScribbleElement() {
+    if (_scribbleElementRegistered) {
+      TextInput.unregisterScribbleElement(elementIdentifier);
+      _scribbleElementRegistered = false;
+    }
+  }
+
+  @override
+  String get elementIdentifier => _scribbleElementIdentifier;
+
+  @override
+  Rect get bounds {
+    final editor = mounted ? _renderEditorOrNull : null;
+    if (editor == null || !editor.attached || !editor.hasSize) {
+      return Rect.zero;
+    }
+    return MatrixUtils.transformRect(
+      editor.getTransformTo(null),
+      Offset.zero & editor.size,
+    );
+  }
+
+  @override
+  bool isInScribbleRect(Rect rect) {
+    if (!_stylusHandwritingEnabled) {
+      return false;
+    }
+    final editorBounds = bounds;
+    if (editorBounds == Rect.zero || !editorBounds.contains(rect.center)) {
+      return false;
+    }
+    final editor = _renderEditorOrNull;
+    if (editor == null) {
+      return false;
+    }
+    final result = HitTestResult();
+    WidgetsBinding.instance
+        .hitTestInView(result, rect.center, View.of(context).viewId);
+    return result.path.any((entry) => entry.target == editor);
+  }
+
+  @override
+  void onScribbleFocus(Offset _) {
+    if (!_stylusHandwritingEnabled) {
+      return;
+    }
+    effectiveFocusNode.requestFocus();
+    openConnectionIfNeeded();
+    _scheduleStylusHandwritingGeometryUpdate();
+  }
+
+  void _scheduleStylusHandwritingGeometryUpdate() {
+    if (!_stylusHandwritingEnabled || !hasConnection) {
+      return;
+    }
+    if (_stylusHandwritingGeometryScheduled) {
+      return;
+    }
+    _stylusHandwritingGeometryScheduled = true;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _stylusHandwritingGeometryScheduled = false;
+      final editor = mounted ? _renderEditorOrNull : null;
+      if (editor == null ||
+          !_stylusHandwritingEnabled ||
+          !hasConnection ||
+          !editor.attached ||
+          !editor.hasSize) {
+        return;
+      }
+      final selectionRects = _buildStylusHandwritingSelectionRects(editor);
+      final selection = controller.selection;
+      final caretOffset = selection.isValid
+          ? selection.start.clamp(0, controller.document.length - 1)
+          : 0;
+      final caretRect =
+          editor.getLocalRectForCaret(TextPosition(offset: caretOffset));
+      final composingRect = _buildComposingRect(editor, caretRect);
+      updateStylusHandwritingGeometry(
+        selectionRects: selectionRects,
+        caretRect: caretRect,
+        composingRect: composingRect,
+      );
+    });
+  }
+
+  List<SelectionRect> _buildStylusHandwritingSelectionRects(
+      RenderEditor editor) {
+    final result = <SelectionRect>[];
+    final visibleBounds = Offset.zero & editor.size;
+    final text = controller.document.toPlainText();
+    var graphemeStart = 0;
+    for (final grapheme in text.characters) {
+      final graphemeEnd = graphemeStart + grapheme.length;
+      final boxes = editor.getBoxesForSelection(
+        TextSelection(
+          baseOffset: graphemeStart,
+          extentOffset: graphemeEnd,
+        ),
+      );
+      if (boxes.isNotEmpty) {
+        final box = boxes.first;
+        final boxRect = box.toRect();
+        if (boxRect.top >= visibleBounds.bottom) {
+          break;
+        }
+        if (visibleBounds.overlaps(boxRect)) {
+          result.add(SelectionRect(
+            position: graphemeStart,
+            bounds: boxRect,
+            direction: box.direction,
+          ));
+        }
+      }
+      graphemeStart = graphemeEnd;
+    }
+    return result;
+  }
+
+  Rect _buildComposingRect(RenderEditor editor, Rect fallback) {
+    final composing = currentTextEditingValue?.composing;
+    if (composing == null || !composing.isValid || composing.isCollapsed) {
+      return fallback;
+    }
+    final boxes = editor.getBoxesForSelection(
+      TextSelection(
+        baseOffset: composing.start,
+        extentOffset: composing.end,
+      ),
+    );
+    if (boxes.isEmpty) {
+      return fallback;
+    }
+    return boxes
+        .map((box) => box.toRect())
+        .reduce((value, element) => value.expandToInclude(element));
   }
 
   void _updateOrDisposeSelectionOverlayIfNeeded() {
@@ -1719,6 +1932,7 @@ class RawEditorState extends EditorState
       }
     }
     _lastBottomViewInset = bottomViewInset;
+    _scheduleStylusHandwritingGeometryUpdate();
   }
 
   // On MacOS some actions are sent as selectors. We need to manually find the right Action and invoke it.
@@ -1847,6 +2061,7 @@ class RawEditorState extends EditorState
               linkActionPicker: _linkActionPicker,
               onLaunchUrl: widget.onLaunchUrl,
               textWidthBasis: widget.textWidthBasis,
+              scribblePlaceholder: _scribblePlaceholder,
             ),
             hasFocus: _hasFocus,
             devicePixelRatio: MediaQuery.of(context).devicePixelRatio,
@@ -1873,6 +2088,7 @@ class RawEditorState extends EditorState
             embedBuilder: widget.embedBuilder,
             linkActionPicker: _linkActionPicker,
             onLaunchUrl: widget.onLaunchUrl,
+            scribblePlaceholder: _scribblePlaceholder,
           ),
         ));
       } else {
@@ -2100,12 +2316,36 @@ class RawEditorState extends EditorState
 
   @override
   void insertTextPlaceholder(Size size) {
-    // TODO: implement insertTextPlaceholder
+    if (!_stylusHandwritingEnabled || !controller.selection.isValid) {
+      return;
+    }
+    final maxOffset = math.max(0, controller.document.length - 1);
+    final offset = controller.selection.end.clamp(0, maxOffset).toInt();
+    final width = renderEditor.hasSize
+        ? math.max(
+            0.0,
+            math.min(renderEditor.size.width,
+                    renderEditor.maxContentWidth ?? double.infinity) -
+                renderEditor.padding.horizontal,
+          )
+        : size.width;
+    setState(() {
+      _scribblePlaceholderOffset = offset;
+      _scribblePlaceholderSize = Size(width, 0);
+    });
+    _scheduleStylusHandwritingGeometryUpdate();
   }
 
   @override
   void removeTextPlaceholder() {
-    // TODO: implement removeTextPlaceholder
+    if (_scribblePlaceholderOffset == null) {
+      return;
+    }
+    setState(() {
+      _scribblePlaceholderOffset = null;
+      _scribblePlaceholderSize = null;
+    });
+    _scheduleStylusHandwritingGeometryUpdate();
   }
 
   /// Returns the anchor points for the default context menu.

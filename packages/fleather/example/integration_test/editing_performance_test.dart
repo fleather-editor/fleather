@@ -22,12 +22,12 @@ void main() {
         await tester.tap(find.byType(RawEditor));
         controller.updateSelection(const TextSelection.collapsed(offset: 0));
         await tester.pump();
-        await tester.ime.typeText(iputText, finder: find.byType(RawEditor));
+        await tester.ime.typeText(iputText);
         await tester.pump();
         controller.updateSelection(
             TextSelection.collapsed(offset: document.length - 1));
         await tester.pump();
-        await tester.ime.typeText(iputText, finder: find.byType(RawEditor));
+        await tester.ime.typeText(iputText);
       },
       reportKey: 'timeline',
     );
