@@ -1,5 +1,5 @@
 import 'package:fleather/fleather.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_test_robots/flutter_test_robots.dart';
 import 'package:integration_test/integration_test.dart';
@@ -22,12 +22,12 @@ void main() {
         await tester.tap(find.byType(RawEditor));
         controller.updateSelection(const TextSelection.collapsed(offset: 0));
         await tester.pump();
-        await tester.ime.typeText(iputText, finder: find.byType(RawEditor));
+        await tester.ime.typeText(iputText);
         await tester.pump();
         controller.updateSelection(
             TextSelection.collapsed(offset: document.length - 1));
         await tester.pump();
-        await tester.ime.typeText(iputText, finder: find.byType(RawEditor));
+        await tester.ime.typeText(iputText);
       },
       reportKey: 'timeline',
     );

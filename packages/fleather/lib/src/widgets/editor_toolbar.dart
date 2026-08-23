@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:fleather/util.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:parchment/parchment.dart';
 
 import 'controller.dart';

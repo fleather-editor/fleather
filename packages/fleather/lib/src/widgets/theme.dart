@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:parchment/parchment.dart';
 
 /// Applies a Fleather editor theme to descendant widgets.
