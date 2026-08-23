@@ -4,9 +4,9 @@ import 'package:fleather/src/widgets/checkbox.dart';
 import 'package:fleather/src/widgets/keyboard_listener.dart';
 import 'package:fleather/src/widgets/system_context_menu.dart';
 import 'package:fleather/src/widgets/text_selection.dart';
-import 'package:flutter/cupertino.dart' hide SystemContextMenu;
+import 'package:cupertino_ui/cupertino_ui.dart' hide SystemContextMenu;
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart' hide SystemContextMenu;
+import 'package:material_ui/material_ui.dart' hide SystemContextMenu;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
