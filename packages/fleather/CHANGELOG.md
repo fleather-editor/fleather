@@ -1,3 +1,8 @@
+## 1.28.0
+
+* Upgrade to Flutter 3.47
+* [Breaking] Use material_ui and cupertino_ui packages
+
 ## 1.27.0
 
 * Upgrade to Flutter 3.44

@@ -1,3 +1,7 @@
+## Fleather 1.27.0 > 1.28.0
+
+* Refer to [Flutter's announcement](https://flutter.dev/blog/whats-new-in-flutter-3-47) for a guide on migrating to decoupled design systems
+
 ## Fleather 1.4.4 > 1.14.5+1
 
 * Change `SelectorScope.of(context).pushSelector(selector, completer)` to `SelectorScope.showSelector(context, selector, completer)` or `SelectorScope.of(context).showSelector(context, selector, completer)`
