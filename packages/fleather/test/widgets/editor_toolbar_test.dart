@@ -452,6 +452,92 @@ void main() {
   });
 
   group('SelectorScope', () {
+    for (final isAtBottom in [false, true]) {
+      for (final keyboardHeight in [0.0, 200.0]) {
+        for (final isBackground in [false, true]) {
+          testWidgets(
+            '${isBackground ? 'Background' : 'Text'} color selector opens '
+            '${isAtBottom ? 'above' : 'below'} the toolbar '
+            'with keyboard height $keyboardHeight',
+            (tester) async {
+              const padding = EdgeInsets.all(24);
+              final controller = FleatherController();
+              addTearDown(controller.dispose);
+              await tester.pumpWidget(
+                MaterialApp(
+                  builder: (context, child) => MediaQuery(
+                    data: MediaQuery.of(context).copyWith(
+                      padding: padding,
+                      viewInsets: EdgeInsets.only(bottom: keyboardHeight),
+                    ),
+                    child: child!,
+                  ),
+                  home: Scaffold(
+                    body: SafeArea(
+                      child: Column(
+                        children: [
+                          if (isAtBottom) const Spacer(),
+                          FleatherToolbar(
+                            children: [
+                              ColorButton(
+                                controller: controller,
+                                attributeKey: isBackground
+                                    ? ParchmentAttribute.backgroundColor
+                                    : ParchmentAttribute.foregroundColor,
+                                nullColorLabel: isBackground
+                                    ? 'No color'
+                                    : 'Automatic',
+                                builder: (context, value) =>
+                                    const Icon(Icons.palette),
+                              ),
+                            ],
+                          ),
+                          if (!isAtBottom) const Spacer(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+              await tester.tap(find.byType(ColorButton));
+              await tester.pumpAndSettle();
+
+              final selector = find.byKey(const Key('color_selector'));
+              expect(selector, findsOneWidget);
+              final selectorRect = tester.getRect(selector);
+              final toolbarRect = tester.getRect(find.byType(FleatherToolbar));
+              if (isAtBottom) {
+                expect(selectorRect.bottom, lessThanOrEqualTo(toolbarRect.top));
+              } else {
+                expect(
+                  selectorRect.top,
+                  greaterThanOrEqualTo(toolbarRect.bottom),
+                );
+              }
+              expect(selectorRect.overlaps(toolbarRect), isFalse);
+
+              final screen = tester.getRect(find.byType(Scaffold));
+              expect(selectorRect.left, greaterThanOrEqualTo(padding.left));
+              expect(
+                selectorRect.right,
+                lessThanOrEqualTo(screen.right - padding.right),
+              );
+              expect(selectorRect.top, greaterThanOrEqualTo(padding.top));
+              expect(
+                selectorRect.bottom,
+                lessThanOrEqualTo(
+                  screen.bottom - padding.bottom - keyboardHeight,
+                ),
+              );
+              expect(tester.takeException(), isNull);
+              await tester.pumpWidget(const SizedBox());
+              await tester.pumpAndSettle(throttleDuration);
+            },
+          );
+        }
+      }
+    }
+
     testWidgets('Correctly places the selector in a visible area of screen',
         (WidgetTester tester) async {
       const padding = EdgeInsets.all(32);
@@ -502,7 +588,7 @@ void main() {
       );
       expect(
         tester.getRect(find.byKey(const Key('heading_selector'))).bottom,
-        tester.getRect(find.byType(Scaffold)).bottom - padding.bottom - 8,
+        lessThan(tester.getRect(find.byType(SelectHeadingButton)).top),
       );
     });
   });
