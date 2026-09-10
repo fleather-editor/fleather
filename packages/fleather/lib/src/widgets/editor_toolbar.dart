@@ -1417,14 +1417,12 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
         DisplayFeatureSubScreen.subScreensInBounds(
             Offset.zero & size, avoidBounds);
     final Rect subScreen = _closestScreen(subScreens, originCenter);
-    final double spaceBelow =
-        subScreen.bottom -
+    final double spaceBelow = subScreen.bottom -
         padding.bottom -
         _selectorScreenPadding -
         presenter.bottom -
         _selectorScreenPadding;
-    final double spaceAbove =
-        presenter.top -
+    final double spaceAbove = presenter.top -
         _selectorScreenPadding -
         subScreen.top -
         padding.top -

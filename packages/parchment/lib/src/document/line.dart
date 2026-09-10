@@ -21,8 +21,12 @@ final class LineNode extends ContainerNode<LeafNode> with StyledNode {
     if (childCount == 1 && children.single is EmbedNode) {
       return !(children.single as EmbedNode).value.inline;
     }
-    assert(children.every((child) =>
-        child is TextNode || (child is EmbedNode && child.value.inline)));
+    assert(
+      children.every(
+        (child) =>
+            child is TextNode || (child is EmbedNode && child.value.inline),
+      ),
+    );
     return false;
   }
 
@@ -67,8 +71,10 @@ final class LineNode extends ContainerNode<LeafNode> with StyledNode {
   ///
   /// This is an equivalent of inserting a line-break character at [index].
   LineNode splitAt(int index) {
-    assert(index == 0 || (index > 0 && index < length),
-        'Index is out of bounds. Index: $index. Actual node length: $length.');
+    assert(
+      index == 0 || (index > 0 && index < length),
+      'Index is out of bounds. Index: $index. Actual node length: $length.',
+    );
 
     final line = clone();
     insertAfter(line);
@@ -248,16 +254,23 @@ final class LineNode extends ContainerNode<LeafNode> with StyledNode {
 
     if (isLineFormat) {
       assert(
-          style.values
-              .every((attr) => attr.scope == ParchmentAttributeScope.line),
-          'It is not allowed to apply inline attributes to line itself.');
+        style.values.every(
+          (attr) => attr.scope == ParchmentAttributeScope.line,
+        ),
+        'It is not allowed to apply inline attributes to line itself.',
+      );
       _formatAndOptimize(style);
     } else {
       // Otherwise forward to children as it's an inline format update.
-      assert(index + local != thisLength,
-          'It is not allowed to apply inline attributes to line itself.');
-      assert(style.values
-          .every((attr) => attr.scope == ParchmentAttributeScope.inline));
+      assert(
+        index + local != thisLength,
+        'It is not allowed to apply inline attributes to line itself.',
+      );
+      assert(
+        style.values.every(
+          (attr) => attr.scope == ParchmentAttributeScope.inline,
+        ),
+      );
       super.retain(index, local, style);
     }
 
@@ -321,8 +334,9 @@ final class LineNode extends ContainerNode<LeafNode> with StyledNode {
 
     final blockStyle = newStyle.get(ParchmentAttribute.block)!;
     if (parent is BlockNode) {
-      final parentStyle =
-          (parent as BlockNode).style.get(ParchmentAttribute.block);
+      final parentStyle = (parent as BlockNode).style.get(
+            ParchmentAttribute.block,
+          );
       if (blockStyle == ParchmentAttribute.block.unset) {
         unwrap();
       } else if (blockStyle != parentStyle) {

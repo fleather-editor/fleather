@@ -75,11 +75,13 @@ void main() {
       }
 
       runFor(
-          'Okay, _this is in italics_ and _so is all of _ this_ but this is not\n\n',
-          true);
+        'Okay, _this is in italics_ and _so is all of _ this_ but this is not\n\n',
+        true,
+      );
       runFor(
-          'Okay, *this is in italics* and *so is all of _ this* but this is not\n\n',
-          false);
+        'Okay, *this is in italics* and *so is all of _ this* but this is not\n\n',
+        false,
+      );
     });
 
     test('bold', () {
@@ -122,11 +124,13 @@ void main() {
       }
 
       runFor(
-          'Okay, **this is bold** and **so is all of __ this** but this is not\n\n',
-          true);
+        'Okay, **this is bold** and **so is all of __ this** but this is not\n\n',
+        true,
+      );
       runFor(
-          'Okay, __this is bold__ and __so is all of __ this__ but this is not\n\n',
-          false);
+        'Okay, __this is bold__ and __so is all of __ this__ but this is not\n\n',
+        false,
+      );
     });
 
     test('strike through', () {
@@ -200,11 +204,14 @@ void main() {
       }
 
       runFor(
-          '**this is bold** _this is in italics_ and **_this is both_**\n\n');
+        '**this is bold** _this is in italics_ and **_this is both_**\n\n',
+      );
       runFor(
-          '**this is bold** *this is in italics* and ***this is both***\n\n');
+        '**this is bold** *this is in italics* and ***this is both***\n\n',
+      );
       runFor(
-          '__this is bold__ _this is in italics_ and ___this is both___\n\n');
+        '__this is bold__ _this is in italics_ and ___this is both___\n\n',
+      );
     });
 
     test('link', () {
@@ -328,11 +335,14 @@ void main() {
         final delta = document.toDelta();
 
         expect(
-            delta,
-            Delta()
-              ..insert('This is an H$level')
-              ..insert(
-                  '\n', ParchmentAttribute.heading.withValue(level).toJson()));
+          delta,
+          Delta()
+            ..insert('This is an H$level')
+            ..insert(
+              '\n',
+              ParchmentAttribute.heading.withValue(level).toJson(),
+            ),
+        );
 
         final andBack = parchmentMarkdown.encode(document);
         expect(andBack, markdown);
@@ -479,8 +489,9 @@ void main() {
   group('ParchmentMarkdownCodec.encode', () {
     test('split adjacent paragraphs', () {
       final delta = Delta()..insert('First line\nSecond line\n');
-      final result =
-          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+      final result = parchmentMarkdown.encode(
+        ParchmentDocument.fromDelta(delta),
+      );
       expect(result, 'First line\n\nSecond line\n\n');
     });
 
@@ -493,15 +504,18 @@ void main() {
           ..insert('circus', attribute.toJson())
           ..insert('\n');
 
-        final result =
-            parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+        final result = parchmentMarkdown.encode(
+          ParchmentDocument.fromDelta(delta),
+        );
         expect(result, expected);
       }
 
       runFor(ParchmentAttribute.bold, 'This **house** is a **circus**\n\n');
       runFor(ParchmentAttribute.italic, 'This _house_ is a _circus_\n\n');
-      runFor(ParchmentAttribute.strikethrough,
-          'This ~~house~~ is a ~~circus~~\n\n');
+      runFor(
+        ParchmentAttribute.strikethrough,
+        'This ~~house~~ is a ~~circus~~\n\n',
+      );
     });
 
     test('intersecting inline styles', () {
@@ -517,8 +531,9 @@ void main() {
         ..insert('circus', b)
         ..insert('\n');
 
-      final result =
-          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+      final result = parchmentMarkdown.encode(
+        ParchmentDocument.fromDelta(delta),
+      );
       expect(result, 'This **house _is a_ circus**\n\n');
     });
 
@@ -532,8 +547,9 @@ void main() {
         ..insert(' circus ', i)
         ..insert('\n');
 
-      final result =
-          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+      final result = parchmentMarkdown.encode(
+        ParchmentDocument.fromDelta(delta),
+      );
       expect(result, 'This **house** is a _circus_ \n\n');
     });
 
@@ -547,8 +563,9 @@ void main() {
         ..insert(' circus ', i)
         ..insert('\n');
 
-      final result =
-          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+      final result = parchmentMarkdown.encode(
+        ParchmentDocument.fromDelta(delta),
+      );
       expect(result, 'This **_house_** is a _circus_ \n\n');
     });
 
@@ -562,19 +579,24 @@ void main() {
         ..insert(' circus ', link.toJson())
         ..insert('\n');
 
-      final result =
-          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+      final result = parchmentMarkdown.encode(
+        ParchmentDocument.fromDelta(delta),
+      );
       expect(result, 'This **house** is a [circus](https://github.com) \n\n');
     });
 
     test('heading styles', () {
       void runFor(
-          ParchmentAttribute<int> attribute, String source, String expected) {
+        ParchmentAttribute<int> attribute,
+        String source,
+        String expected,
+      ) {
         final delta = Delta()
           ..insert(source)
           ..insert('\n', attribute.toJson());
-        final result =
-            parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+        final result = parchmentMarkdown.encode(
+          ParchmentDocument.fromDelta(delta),
+        );
         expect(result, expected);
       }
 
@@ -587,13 +609,17 @@ void main() {
     });
 
     test('block styles', () {
-      void runFor(ParchmentAttribute<String> attribute, String source,
-          String expected) {
+      void runFor(
+        ParchmentAttribute<String> attribute,
+        String source,
+        String expected,
+      ) {
         final delta = Delta()
           ..insert(source)
           ..insert('\n', attribute.toJson());
-        final result =
-            parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+        final result = parchmentMarkdown.encode(
+          ParchmentDocument.fromDelta(delta),
+        );
         expect(result, expected);
       }
 
@@ -607,16 +633,20 @@ void main() {
       final delta = Delta()
         ..insert('Hello')
         ..insert('\n', ParchmentAttribute.ul.toJson());
-      expect(parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta)),
-          '* Hello\n\n');
       expect(
-          ParchmentMarkdownCodec(unorderedListToken: '-')
-              .encode(ParchmentDocument.fromDelta(delta)),
-          '- Hello\n\n');
+        parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta)),
+        '* Hello\n\n',
+      );
       expect(
-          ParchmentMarkdownCodec(unorderedListToken: '+')
-              .encode(ParchmentDocument.fromDelta(delta)),
-          '+ Hello\n\n');
+        ParchmentMarkdownCodec(unorderedListToken: '-')
+            .encode(ParchmentDocument.fromDelta(delta)),
+        '- Hello\n\n',
+      );
+      expect(
+        ParchmentMarkdownCodec(unorderedListToken: '+')
+            .encode(ParchmentDocument.fromDelta(delta)),
+        '+ Hello\n\n',
+      );
     });
 
     test('ol', () {
@@ -627,8 +657,9 @@ void main() {
         ..insert('\n', ParchmentAttribute.ol.toJson())
         ..insert('List')
         ..insert('\n', ParchmentAttribute.ol.toJson());
-      final result =
-          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+      final result = parchmentMarkdown.encode(
+        ParchmentDocument.fromDelta(delta),
+      );
       final expected = '1. Hello\n2. This is a\n3. List\n\n';
       expect(result, expected);
     });
@@ -641,8 +672,9 @@ void main() {
         ..insert('\n', {'block': 'ol', 'indent': 1})
         ..insert('List')
         ..insert('\n', {'block': 'ol'});
-      final result =
-          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+      final result = parchmentMarkdown.encode(
+        ParchmentDocument.fromDelta(delta),
+      );
       final expected = '1. Hello\n  1. This is a\n2. List\n\n';
       expect(result, expected);
     });
@@ -651,31 +683,34 @@ void main() {
       final delta = Delta()
         ..insert('Hello')
         ..insert('\n', ParchmentAttribute.cl.toJson())
-        ..insert(
-          'This is a',
-        )
+        ..insert('This is a')
         ..insert('\n', {
           ...ParchmentAttribute.cl.toJson(),
           ...ParchmentAttribute.checked.toJson(),
         })
         ..insert('Checklist')
         ..insert('\n', ParchmentAttribute.cl.toJson());
-      final result =
-          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+      final result = parchmentMarkdown.encode(
+        ParchmentDocument.fromDelta(delta),
+      );
       final expected = '- [ ] Hello\n- [X] This is a\n- [ ] Checklist\n\n';
       expect(result, expected);
     });
 
     test('multiline blocks', () {
-      void runFor(ParchmentAttribute<String> attribute, String source,
-          String expected) {
+      void runFor(
+        ParchmentAttribute<String> attribute,
+        String source,
+        String expected,
+      ) {
         final delta = Delta()
           ..insert(source)
           ..insert('\n', attribute.toJson())
           ..insert(source)
           ..insert('\n', attribute.toJson());
-        final result =
-            parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+        final result = parchmentMarkdown.encode(
+          ParchmentDocument.fromDelta(delta),
+        );
         expect(result, expected);
       }
 
@@ -686,8 +721,9 @@ void main() {
     });
 
     test('multiple styles', () {
-      final result =
-          parchmentMarkdown.encode(ParchmentDocument.fromDelta(delta));
+      final result = parchmentMarkdown.encode(
+        ParchmentDocument.fromDelta(delta),
+      );
       expect(result, markdown);
     });
   });

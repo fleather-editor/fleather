@@ -123,21 +123,23 @@ void main() {
   group('$AutoExitBlockRule', () {
     final rule = AutoExitBlockRule();
 
-    test('applies when newline is inserted on the last empty line in a block',
-        () {
-      final ul = ParchmentAttribute.ul.toJson();
-      final doc = Delta()
-        ..insert('Item 1')
-        ..insert('\n', ul)
-        ..insert('Item 2')
-        ..insert('\n\n', ul);
-      final actual = rule.apply(doc, 14, '\n');
-      expect(actual, isNotNull);
-      final expected = Delta()
-        ..retain(14)
-        ..retain(1, ParchmentAttribute.block.unset.toJson());
-      expect(actual, expected);
-    });
+    test(
+      'applies when newline is inserted on the last empty line in a block',
+      () {
+        final ul = ParchmentAttribute.ul.toJson();
+        final doc = Delta()
+          ..insert('Item 1')
+          ..insert('\n', ul)
+          ..insert('Item 2')
+          ..insert('\n\n', ul);
+        final actual = rule.apply(doc, 14, '\n');
+        expect(actual, isNotNull);
+        final expected = Delta()
+          ..retain(14)
+          ..retain(1, ParchmentAttribute.block.unset.toJson());
+        expect(actual, expected);
+      },
+    );
 
     test('applies only on empty line', () {
       final ul = ParchmentAttribute.ul.toJson();
@@ -208,8 +210,9 @@ void main() {
     test('apply preserve link formatting within link', () {
       final doc = Delta()
         ..insert('Doc with link')
-        ..insert('http://fleather-editor.github.io',
-            {'a': 'http://fleather-editor.github.io'})
+        ..insert('http://fleather-editor.github.io', {
+          'a': 'http://fleather-editor.github.io',
+        })
         ..insert(' link');
       final actual = rule.apply(doc, 17, 's');
       final expected = Delta()
@@ -221,8 +224,9 @@ void main() {
     test('apply remove link formatting on link boundaries', () {
       final doc = Delta()
         ..insert('Doc with link')
-        ..insert('http://fleather-editor.github.io',
-            {'a': 'http://fleather-editor.github.io'})
+        ..insert('http://fleather-editor.github.io', {
+          'a': 'http://fleather-editor.github.io',
+        })
         ..insert(' link');
       final actual = rule.apply(doc, 13, 'like this ');
       final expected = Delta()

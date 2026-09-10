@@ -3,7 +3,7 @@
     A: (0xff000000 & colorValue) >> 24,
     R: (0x00ff0000 & colorValue) >> 16,
     G: (0x0000ff00 & colorValue) >> 8,
-    B: (0x000000ff & colorValue) >> 0
+    B: (0x000000ff & colorValue) >> 0,
   );
 }
 
@@ -78,7 +78,8 @@ List<String> _chooseSplit(String cssColor) {
   split = cssColor.split(' ');
   if (split.length < 3) {
     throw ArgumentError(
-        'CSS color - rgb(a) must have at least 3 components. Received $cssColor');
+      'CSS color - rgb(a) must have at least 3 components. Received $cssColor',
+    );
   }
 
   final clean = <String>[];
@@ -95,11 +96,13 @@ List<String> _chooseSplit(String cssColor) {
   }
   if (hasSlash && clean.length != 4) {
     throw ArgumentError(
-        'CSS color - expected 4 components. Received $cssColor');
+      'CSS color - expected 4 components. Received $cssColor',
+    );
   }
   if (!hasSlash && clean.length != 3) {
     throw ArgumentError(
-        'CSS color : expecting 3 components. Received $cssColor');
+      'CSS color : expecting 3 components. Received $cssColor',
+    );
   }
   return clean;
 }
