@@ -484,9 +484,8 @@ void main() {
                                 attributeKey: isBackground
                                     ? ParchmentAttribute.backgroundColor
                                     : ParchmentAttribute.foregroundColor,
-                                nullColorLabel: isBackground
-                                    ? 'No color'
-                                    : 'Automatic',
+                                nullColorLabel:
+                                    isBackground ? 'No color' : 'Automatic',
                                 builder: (context, value) =>
                                     const Icon(Icons.palette),
                               ),

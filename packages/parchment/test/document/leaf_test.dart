@@ -101,18 +101,9 @@ void main() {
       expect(line.childCount, 4);
       expect(line.children.last.offset, 9);
       final b = boldStyle.toJson();
-      expect(
-        line.children.elementAt(0).toDelta(),
-        Delta()..insert('Lon', b),
-      );
-      expect(
-        line.children.elementAt(1).toDelta(),
-        Delta()..insert('don'),
-      );
-      expect(
-        line.children.elementAt(2).toDelta(),
-        Delta()..insert('don', b),
-      );
+      expect(line.children.elementAt(0).toDelta(), Delta()..insert('Lon', b));
+      expect(line.children.elementAt(1).toDelta(), Delta()..insert('don'));
+      expect(line.children.elementAt(2).toDelta(), Delta()..insert('don', b));
     });
   });
 
@@ -164,8 +155,10 @@ void main() {
     });
 
     test('toDelta', () {
-      expect(node.toDelta(),
-          Delta()..insert(EmbeddableObject('hr', inline: false).toJson()));
+      expect(
+        node.toDelta(),
+        Delta()..insert(EmbeddableObject('hr', inline: false).toJson()),
+      );
     });
 
     test('splitAt', () {
@@ -197,8 +190,10 @@ void main() {
       final text = LeafNode('Text');
       final style = ParchmentStyle().put(ParchmentAttribute.block.numberList);
 
-      expect(() => text.applyStyle(style),
-          throwsA(const TypeMatcher<AssertionError>()));
+      expect(
+        () => text.applyStyle(style),
+        throwsA(const TypeMatcher<AssertionError>()),
+      );
     });
   });
 }

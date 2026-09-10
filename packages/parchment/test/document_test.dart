@@ -58,22 +58,26 @@ void main() {
 
     test('load non-empty document', () {
       final doc = dartconfEmbedDoc();
-      expect(doc.toPlainText(),
-          'DartConf\n${EmbedNode.kObjectReplacementCharacter}\nLos Angeles\n');
+      expect(
+        doc.toPlainText(),
+        'DartConf\n${EmbedNode.kObjectReplacementCharacter}\nLos Angeles\n',
+      );
     });
 
     test('load document with 0.x version embeds', () {
       final delta = Delta()
         ..insert('DartConf\n')
         ..insert('\u200B', {
-          'embed': {'type': 'hr'}
+          'embed': {'type': 'hr'},
         })
         ..insert('\n')
         ..insert('Los Angeles\n');
       final doc = ParchmentDocument.fromJson(jsonDecode(jsonEncode(delta)));
 
-      expect(doc.toPlainText(),
-          'DartConf\n${EmbedNode.kObjectReplacementCharacter}\nLos Angeles\n');
+      expect(
+        doc.toPlainText(),
+        'DartConf\n${EmbedNode.kObjectReplacementCharacter}\nLos Angeles\n',
+      );
       final line = doc.root.children.toList()[1] as LineNode;
       final node = line.children.single as LeafNode;
       expect(node, isA<EmbedNode>());
@@ -239,8 +243,10 @@ void main() {
       // an embed.
       final doc = dartconfEmbedDoc();
       doc.delete(8, 1);
-      expect(doc.toPlainText(),
-          'DartConf\n${EmbedNode.kObjectReplacementCharacter}\nLos Angeles\n');
+      expect(
+        doc.toPlainText(),
+        'DartConf\n${EmbedNode.kObjectReplacementCharacter}\nLos Angeles\n',
+      );
     });
 
     test('delete preserves last newline character', () {
@@ -253,8 +259,10 @@ void main() {
       var delta = Delta()
         ..insert('Line 1\nLine 2\n')
         ..insert('\n', {'block': 'ul'});
-      final document = ParchmentDocument.fromDelta(delta,
-          heuristics: ParchmentHeuristics.fallback);
+      final document = ParchmentDocument.fromDelta(
+        delta,
+        heuristics: ParchmentHeuristics.fallback,
+      );
       var blockLine =
           (document.root.children.first.next!.next! as BlockNode).first;
       // Set _offsetCache of LineNode in BlockNode to 0
@@ -325,8 +333,10 @@ void main() {
       doc.insert(4, BlockEmbed.horizontalRule);
       expect(doc.root.children, hasLength(4));
       expect(doc.root.children.elementAt(0).toPlainText(), 'Dart\n');
-      expect(doc.root.children.elementAt(1).toPlainText(),
-          '${EmbedNode.kObjectReplacementCharacter}\n');
+      expect(
+        doc.root.children.elementAt(1).toPlainText(),
+        '${EmbedNode.kObjectReplacementCharacter}\n',
+      );
       expect(doc.root.children.elementAt(2).toPlainText(), 'Conf\n');
       expect(doc.root.children.elementAt(3).toPlainText(), 'Los Angeles\n');
       final line = doc.root.children.elementAt(1) as LineNode;
@@ -358,8 +368,10 @@ void main() {
       doc.insert(9, 'text');
       expect(doc.root.children, hasLength(4));
       expect(doc.root.children.elementAt(1).toPlainText(), 'text\n');
-      expect(doc.root.children.elementAt(2).toPlainText(),
-          '${EmbedNode.kObjectReplacementCharacter}\n');
+      expect(
+        doc.root.children.elementAt(2).toPlainText(),
+        '${EmbedNode.kObjectReplacementCharacter}\n',
+      );
     });
 
     test('insert text after embed', () {
@@ -368,8 +380,10 @@ void main() {
       expect(doc.root.children, hasLength(3));
       doc.insert(10, 'text');
       expect(doc.root.children, hasLength(4));
-      expect(doc.root.children.elementAt(1).toPlainText(),
-          '${EmbedNode.kObjectReplacementCharacter}\n');
+      expect(
+        doc.root.children.elementAt(1).toPlainText(),
+        '${EmbedNode.kObjectReplacementCharacter}\n',
+      );
       expect(doc.root.children.elementAt(2).toPlainText(), 'text\n');
     });
 
@@ -378,8 +392,10 @@ void main() {
       doc.replace(4, 4, BlockEmbed.horizontalRule);
       expect(doc.root.children, hasLength(3));
       expect(doc.root.children.elementAt(0).toPlainText(), 'Dart\n');
-      expect(doc.root.children.elementAt(1).toPlainText(),
-          '${EmbedNode.kObjectReplacementCharacter}\n');
+      expect(
+        doc.root.children.elementAt(1).toPlainText(),
+        '${EmbedNode.kObjectReplacementCharacter}\n',
+      );
       expect(doc.root.children.elementAt(2).toPlainText(), 'Los Angeles\n');
     });
 
@@ -405,8 +421,10 @@ void main() {
       expect(doc.root.children, hasLength(4));
       expect(doc.root.children.elementAt(0).toPlainText(), 'Dart\n');
       expect(doc.root.children.elementAt(1).toPlainText(), '\n');
-      expect(doc.root.children.elementAt(2).toPlainText(),
-          '${EmbedNode.kObjectReplacementCharacter}\n');
+      expect(
+        doc.root.children.elementAt(2).toPlainText(),
+        '${EmbedNode.kObjectReplacementCharacter}\n',
+      );
       expect(doc.root.children.elementAt(3).toPlainText(), 'Los Angeles\n');
     });
   });
