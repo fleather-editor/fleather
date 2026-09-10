@@ -1274,14 +1274,32 @@ class SelectorScopeState extends State<SelectorScope> {
     final RenderBox presenter = context.findRenderObject() as RenderBox;
     final RenderBox overlayBox =
         overlay.context.findRenderObject() as RenderBox;
-    final offset = Offset(0.0, presenter.size.height);
+    final presenterRect = Rect.fromPoints(
+      presenter.localToGlobal(Offset.zero, ancestor: overlayBox),
+      presenter.localToGlobal(
+        presenter.size.bottomRight(Offset.zero),
+        ancestor: overlayBox,
+      ),
+    );
+    // Toolbar padding belongs to the area selectors must avoid as well.
+    // Keep horizontal alignment with the button, but clear the whole toolbar.
+    final toolbar = context.findAncestorStateOfType<_FleatherToolbarState>();
+    final toolbarBox = toolbar?.context.findRenderObject() as RenderBox?;
+    final toolbarRect = toolbarBox == null
+        ? presenterRect
+        : Rect.fromPoints(
+            toolbarBox.localToGlobal(Offset.zero, ancestor: overlayBox),
+            toolbarBox.localToGlobal(
+              toolbarBox.size.bottomRight(Offset.zero),
+              ancestor: overlayBox,
+            ),
+          );
     final position = RelativeRect.fromSize(
-      Rect.fromPoints(
-        presenter.localToGlobal(offset, ancestor: overlayBox),
-        presenter.localToGlobal(
-          presenter.size.bottomRight(Offset.zero) + offset,
-          ancestor: overlayBox,
-        ),
+      Rect.fromLTRB(
+        presenterRect.left,
+        toolbarRect.top,
+        presenterRect.right,
+        toolbarRect.bottom,
       ),
       overlayBox.size,
     );
@@ -1376,8 +1394,6 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
     // childSize: The size of the menu, when fully open, as determined by
     // getConstraintsForChild.
 
-    final double y = position.top;
-
     // Find the ideal horizontal position.
     double x;
     if (position.right > childSize.width) {
@@ -1395,13 +1411,31 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
       }
     }
 
-    final Offset wantedPosition = Offset(x, y);
-    final Offset originCenter = position.toRect(Offset.zero & size).center;
+    final Rect presenter = position.toRect(Offset.zero & size);
+    final Offset originCenter = presenter.center;
     final Iterable<Rect> subScreens =
         DisplayFeatureSubScreen.subScreensInBounds(
             Offset.zero & size, avoidBounds);
     final Rect subScreen = _closestScreen(subScreens, originCenter);
-    return _fitInsideScreen(subScreen, childSize, wantedPosition);
+    final double spaceBelow =
+        subScreen.bottom -
+        padding.bottom -
+        _selectorScreenPadding -
+        presenter.bottom -
+        _selectorScreenPadding;
+    final double spaceAbove =
+        presenter.top -
+        _selectorScreenPadding -
+        subScreen.top -
+        padding.top -
+        _selectorScreenPadding;
+    // Prefer below the presenter, but flip above it when that offers more room.
+    final bool showAbove =
+        childSize.height > spaceBelow && spaceAbove > spaceBelow;
+    final double y = showAbove
+        ? presenter.top - _selectorScreenPadding - childSize.height
+        : presenter.bottom + _selectorScreenPadding;
+    return _fitInsideScreen(subScreen, childSize, Offset(x, y));
   }
 
   Rect _closestScreen(Iterable<Rect> screens, Offset point) {
@@ -1430,7 +1464,7 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
           padding.right;
     }
     if (y < screen.top + _selectorScreenPadding + padding.top) {
-      y = _selectorScreenPadding + padding.top;
+      y = screen.top + _selectorScreenPadding + padding.top;
     } else if (y + childSize.height >
         screen.bottom - _selectorScreenPadding - padding.bottom) {
       y = screen.bottom -
