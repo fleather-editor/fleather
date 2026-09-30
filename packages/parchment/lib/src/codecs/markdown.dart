@@ -78,10 +78,18 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
       if (style?.isInline ?? true) {
         _handleSpan(line, delta, true, style);
       } else {
-        _handleSpan(line, delta, false,
-            ParchmentStyle().putAll(style?.inlineAttributes ?? []));
-        _handleSpan('\n', delta, false,
-            ParchmentStyle().putAll(style?.lineAttributes ?? []));
+        _handleSpan(
+          line,
+          delta,
+          false,
+          ParchmentStyle().putAll(style?.inlineAttributes ?? []),
+        );
+        _handleSpan(
+          '\n',
+          delta,
+          false,
+          ParchmentStyle().putAll(style?.lineAttributes ?? []),
+        );
       }
     }
   }
@@ -141,8 +149,9 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
       _handleSpan(span, delta, false, style);
       ParchmentStyle blockStyle = ParchmentStyle().put(ParchmentAttribute.ol);
       if (indent > 0) {
-        blockStyle =
-            blockStyle.put(ParchmentAttribute.indent.withLevel(indent));
+        blockStyle = blockStyle.put(
+          ParchmentAttribute.indent.withLevel(indent),
+        );
       }
       _handleSpan('\n', delta, false, blockStyle);
       return true;
@@ -161,10 +170,18 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
     final match = _ulRegExp.matchAsPrefix(line);
     final span = match?.group(2);
     if (span != null) {
-      _handleSpan(span, delta, false,
-          ParchmentStyle().putAll(newStyle.inlineAttributes));
       _handleSpan(
-          '\n', delta, false, ParchmentStyle().putAll(newStyle.lineAttributes));
+        span,
+        delta,
+        false,
+        ParchmentStyle().putAll(newStyle.inlineAttributes),
+      );
+      _handleSpan(
+        '\n',
+        delta,
+        false,
+        ParchmentStyle().putAll(newStyle.lineAttributes),
+      );
       return true;
     }
     return false;
@@ -176,8 +193,9 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
       return false;
     }
 
-    ParchmentStyle newStyle =
-        (style ?? ParchmentStyle()).put(ParchmentAttribute.cl);
+    ParchmentStyle newStyle = (style ?? ParchmentStyle()).put(
+      ParchmentAttribute.cl,
+    );
 
     final match = _clRegExp.matchAsPrefix(line);
     final span = match?.group(3);
@@ -186,10 +204,18 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
       newStyle = newStyle.put(ParchmentAttribute.checked);
     }
     if (span != null) {
-      _handleSpan(span, delta, false,
-          ParchmentStyle().putAll(newStyle.inlineAttributes));
       _handleSpan(
-          '\n', delta, false, ParchmentStyle().putAll(newStyle.lineAttributes));
+        span,
+        delta,
+        false,
+        ParchmentStyle().putAll(newStyle.inlineAttributes),
+      );
+      _handleSpan(
+        '\n',
+        delta,
+        false,
+        ParchmentStyle().putAll(newStyle.lineAttributes),
+      );
       return true;
     }
     return false;
@@ -200,17 +226,26 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
     final levelTag = match?.group(1);
     if (levelTag != null) {
       final level = levelTag.length;
-      final newStyle = (style ?? ParchmentStyle())
-          .put(ParchmentAttribute.heading.withValue(level));
+      final newStyle = (style ?? ParchmentStyle()).put(
+        ParchmentAttribute.heading.withValue(level),
+      );
 
       final span = match?.group(2);
       if (span == null) {
         return false;
       }
-      _handleSpan(span, delta, false,
-          ParchmentStyle().putAll(newStyle.inlineAttributes));
       _handleSpan(
-          '\n', delta, false, ParchmentStyle().putAll(newStyle.lineAttributes));
+        span,
+        delta,
+        false,
+        ParchmentStyle().putAll(newStyle.inlineAttributes),
+      );
+      _handleSpan(
+        '\n',
+        delta,
+        false,
+        ParchmentStyle().putAll(newStyle.lineAttributes),
+      );
       return true;
     }
 
@@ -218,7 +253,11 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
   }
 
   void _handleSpan(
-      String span, Delta delta, bool addNewLine, ParchmentStyle? outerStyle) {
+    String span,
+    Delta delta,
+    bool addNewLine,
+    ParchmentStyle? outerStyle,
+  ) {
     var start = _handleStyles(span, delta, outerStyle);
     span = span.substring(start);
 
@@ -255,14 +294,18 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
       if (match.start > start) {
         if (span.substring(match.start - 1, match.start) == '[') {
           delta.insert(
-              span.substring(start, match.start - 1), outerStyle?.toJson());
+            span.substring(start, match.start - 1),
+            outerStyle?.toJson(),
+          );
           start = match.start -
               1 +
               _handleLinks(span.substring(match.start - 1), delta, outerStyle);
           continue;
         } else {
           delta.insert(
-              span.substring(start, match.start), outerStyle?.toJson());
+            span.substring(start, match.start),
+            outerStyle?.toJson(),
+          );
         }
       }
 
@@ -300,19 +343,20 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
 
   ParchmentStyle _fromStyleTag(String styleTag) {
     assert(
-        (styleTag == '`') |
-            (styleTag == '~~') |
-            (styleTag == '_') |
-            (styleTag == '*') |
-            (styleTag == '__') |
-            (styleTag == '**') |
-            (styleTag == '__*') |
-            (styleTag == '**_') |
-            (styleTag == '_**') |
-            (styleTag == '*__') |
-            (styleTag == '***') |
-            (styleTag == '___'),
-        'Invalid style tag \'$styleTag\'');
+      (styleTag == '`') |
+          (styleTag == '~~') |
+          (styleTag == '_') |
+          (styleTag == '*') |
+          (styleTag == '__') |
+          (styleTag == '**') |
+          (styleTag == '__*') |
+          (styleTag == '**_') |
+          (styleTag == '_**') |
+          (styleTag == '*__') |
+          (styleTag == '***') |
+          (styleTag == '___'),
+      'Invalid style tag \'$styleTag\'',
+    );
     assert(styleTag.isNotEmpty, 'Style tag must not be empty');
     if (styleTag == '`') {
       return ParchmentStyle().put(ParchmentAttribute.inlineCode);
@@ -321,8 +365,10 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
       return ParchmentStyle().put(ParchmentAttribute.strikethrough);
     }
     if (styleTag.length == 3) {
-      return ParchmentStyle()
-          .putAll([ParchmentAttribute.bold, ParchmentAttribute.italic]);
+      return ParchmentStyle().putAll([
+        ParchmentAttribute.bold,
+        ParchmentAttribute.italic,
+      ]);
     }
     if (styleTag.length == 2) {
       return ParchmentStyle().put(ParchmentAttribute.bold);
@@ -344,8 +390,9 @@ class _ParchmentMarkdownDecoder extends Converter<String, ParchmentDocument> {
       if (text == null || href == null) {
         return start;
       }
-      final newStyle = (outerStyle ?? ParchmentStyle())
-          .put(ParchmentAttribute.link.fromString(href));
+      final newStyle = (outerStyle ?? ParchmentStyle()).put(
+        ParchmentAttribute.link.fromString(href),
+      );
 
       _handleSpan(text, delta, false, newStyle);
       start = match.end;
@@ -376,7 +423,10 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
   }
 
   void handleText(
-      StringBuffer buffer, TextNode node, ParchmentStyle currentInlineStyle) {
+    StringBuffer buffer,
+    TextNode node,
+    ParchmentStyle currentInlineStyle,
+  ) {
     final style = node.style;
     final rightPadding = _trimRight(buffer);
 
@@ -459,9 +509,9 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
           lineBuffer.write(currentItemOrders[currentLevel]);
         } else if (node.style.containsSame(ParchmentAttribute.cl)) {
           lineBuffer.write('- [');
-          if ((lineNode as LineNode)
-              .style
-              .contains(ParchmentAttribute.checked)) {
+          if ((lineNode as LineNode).style.contains(
+                ParchmentAttribute.checked,
+              )) {
             lineBuffer.write('X');
           } else {
             lineBuffer.write(' ');
@@ -492,8 +542,11 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     return buffer.toString();
   }
 
-  void _writeAttribute(StringBuffer buffer, ParchmentAttribute? attribute,
-      {bool close = false}) {
+  void _writeAttribute(
+    StringBuffer buffer,
+    ParchmentAttribute? attribute, {
+    bool close = false,
+  }) {
     if (attribute == ParchmentAttribute.bold) {
       _writeBoldTag(buffer);
     } else if (attribute == ParchmentAttribute.italic) {
@@ -503,13 +556,19 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     } else if (attribute == ParchmentAttribute.strikethrough) {
       _writeStrikeThoughTag(buffer);
     } else if (attribute?.key == ParchmentAttribute.link.key) {
-      _writeLinkTag(buffer, attribute as ParchmentAttribute<String>,
-          close: close);
+      _writeLinkTag(
+        buffer,
+        attribute as ParchmentAttribute<String>,
+        close: close,
+      );
     } else if (attribute?.key == ParchmentAttribute.heading.key) {
       _writeHeadingTag(buffer, attribute as ParchmentAttribute<int>);
     } else if (attribute?.key == ParchmentAttribute.block.key) {
-      _writeBlockTag(buffer, attribute as ParchmentAttribute<String>,
-          close: close);
+      _writeBlockTag(
+        buffer,
+        attribute as ParchmentAttribute<String>,
+        close: close,
+      );
     } else if (attribute?.key == ParchmentAttribute.checked.key) {
       // no-op already handled in handleBlock
     } else if (attribute?.key == ParchmentAttribute.indent.key) {
@@ -535,8 +594,11 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     buffer.write('~~');
   }
 
-  void _writeLinkTag(StringBuffer buffer, ParchmentAttribute<String> link,
-      {bool close = false}) {
+  void _writeLinkTag(
+    StringBuffer buffer,
+    ParchmentAttribute<String> link, {
+    bool close = false,
+  }) {
     if (close) {
       buffer.write('](${link.value})');
     } else {
@@ -549,8 +611,11 @@ class _ParchmentMarkdownEncoder extends Converter<ParchmentDocument, String> {
     buffer.write('${'#' * level} ');
   }
 
-  void _writeBlockTag(StringBuffer buffer, ParchmentAttribute<String> block,
-      {bool close = false}) {
+  void _writeBlockTag(
+    StringBuffer buffer,
+    ParchmentAttribute<String> block, {
+    bool close = false,
+  }) {
     if (block == ParchmentAttribute.code) {
       if (close) {
         buffer.write('\n```');

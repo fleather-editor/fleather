@@ -267,8 +267,10 @@ abstract base class ContainerNode<T extends Node> extends Node {
   /// Content length of this node's children. To get number of children in this
   /// node use [childCount].
   @override
-  int get length => _length ??=
-      _children.fold<int>(0, (current, node) => current + node.length);
+  int get length => _length ??= _children.fold<int>(
+        0,
+        (current, node) => current + node.length,
+      );
 
   @override
   void insert(int index, Object data, ParchmentStyle? style) {

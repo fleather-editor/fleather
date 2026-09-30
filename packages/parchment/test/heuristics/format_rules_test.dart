@@ -97,10 +97,12 @@ void main() {
     final rule = FormatLinkAtCaretPositionRule();
 
     test('apply', () {
-      final link = ParchmentAttribute.link
-          .fromString('https://github.com/fleather-editor/bold');
-      final newLink = ParchmentAttribute.link
-          .fromString('https://github.com/fleather-editor/fleather');
+      final link = ParchmentAttribute.link.fromString(
+        'https://github.com/fleather-editor/bold',
+      );
+      final newLink = ParchmentAttribute.link.fromString(
+        'https://github.com/fleather-editor/fleather',
+      );
       final doc = Delta()
         ..insert('Visit our ')
         ..insert('website', link.toJson())

@@ -19,10 +19,14 @@ class EmbeddableObject {
     this.type, {
     required this.inline,
     Map<String, dynamic> data = const {},
-  })  : assert(!data.containsKey(kTypeKey),
-            'The "$kTypeKey" key is reserved in $EmbeddableObject data and cannot be used.'),
-        assert(!data.containsKey(kInlineKey),
-            'The "$kInlineKey" key is reserved in $EmbeddableObject data and cannot be used.'),
+  })  : assert(
+          !data.containsKey(kTypeKey),
+          'The "$kTypeKey" key is reserved in $EmbeddableObject data and cannot be used.',
+        ),
+        assert(
+          !data.containsKey(kInlineKey),
+          'The "$kInlineKey" key is reserved in $EmbeddableObject data and cannot be used.',
+        ),
         _data = Map.from(data);
 
   /// The type of this object.
@@ -61,8 +65,9 @@ class EmbeddableObject {
   int get hashCode {
     if (_data.isEmpty) return Object.hash(type, inline);
 
-    final dataHash =
-        Object.hashAll(_data.entries.map((e) => Object.hash(e.key, e.value)));
+    final dataHash = Object.hashAll(
+      _data.entries.map((e) => Object.hash(e.key, e.value)),
+    );
     return Object.hash(type, inline, dataHash);
   }
 
@@ -76,10 +81,7 @@ class EmbeddableObject {
 
 /// An object which can be embedded on the same line (inline) with regular text.
 class SpanEmbed extends EmbeddableObject {
-  SpanEmbed(
-    super.type, {
-    super.data,
-  }) : super(inline: true);
+  SpanEmbed(super.type, {super.data}) : super(inline: true);
 }
 
 /// An object which occupies an entire line in a document and cannot co-exist
@@ -92,10 +94,7 @@ class SpanEmbed extends EmbeddableObject {
 /// of embedded objects and allows users to define their own types.
 class BlockEmbed extends EmbeddableObject {
   /// Creates a new block embed of specified [type] and containing [data].
-  BlockEmbed(
-    super.type, {
-    super.data,
-  }) : super(inline: false);
+  BlockEmbed(super.type, {super.data}) : super(inline: false);
 
   static final BlockEmbed horizontalRule = BlockEmbed('hr');
 

@@ -38,25 +38,27 @@ class ParchmentChange {
 /// A rich text document.
 class ParchmentDocument {
   /// Creates new empty Parchment document.
-  ParchmentDocument(
-      {ParchmentHeuristics heuristics = ParchmentHeuristics.fallback})
-      : _heuristics = heuristics,
+  ParchmentDocument({
+    ParchmentHeuristics heuristics = ParchmentHeuristics.fallback,
+  })  : _heuristics = heuristics,
         _delta = Delta()..insert('\n') {
     _loadDocument(_delta);
   }
 
   /// Creates new ParchmentDocument from provided JSON `data`.
-  ParchmentDocument.fromJson(List data,
-      {ParchmentHeuristics heuristics = ParchmentHeuristics.fallback})
-      : _heuristics = heuristics,
+  ParchmentDocument.fromJson(
+    List data, {
+    ParchmentHeuristics heuristics = ParchmentHeuristics.fallback,
+  })  : _heuristics = heuristics,
         _delta = _migrateDelta(Delta.fromJson(data)) {
     _loadDocument(_delta);
   }
 
   /// Creates new ParchmentDocument from provided `delta`.
-  ParchmentDocument.fromDelta(Delta delta,
-      {ParchmentHeuristics heuristics = ParchmentHeuristics.fallback})
-      : _heuristics = heuristics,
+  ParchmentDocument.fromDelta(
+    Delta delta, {
+    ParchmentHeuristics heuristics = ParchmentHeuristics.fallback,
+  })  : _heuristics = heuristics,
         _delta = _migrateDelta(delta) {
     _loadDocument(_delta);
   }
@@ -148,8 +150,10 @@ class ParchmentDocument {
 
     final dataIsNotEmpty = (data is String) ? data.isNotEmpty : true;
 
-    assert(index >= 0 && (dataIsNotEmpty || length > 0),
-        'With index $index, length $length and text "$data"');
+    assert(
+      index >= 0 && (dataIsNotEmpty || length > 0),
+      'With index $index, length $length and text "$data"',
+    );
 
     var delta = Delta();
 
@@ -180,8 +184,12 @@ class ParchmentDocument {
 
     var change = Delta();
 
-    final formatChange =
-        _heuristics.applyFormatRules(this, index, length, attribute);
+    final formatChange = _heuristics.applyFormatRules(
+      this,
+      index,
+      length,
+      attribute,
+    );
     if (formatChange.isNotEmpty) {
       compose(formatChange, ChangeSource.local);
       change = change.compose(formatChange);
@@ -251,8 +259,10 @@ class ParchmentDocument {
     _delta = _delta.compose(change);
 
     if (_delta != _root.toDelta()) {
-      throw StateError('Compose produced inconsistent results. '
-          'This is likely due to a bug in the library. Tried to compose change $change from $source.');
+      throw StateError(
+        'Compose produced inconsistent results. '
+        'This is likely due to a bug in the library. Tried to compose change $change from $source.',
+      );
     }
     _controller.add(ParchmentChange(before, change, source));
   }
@@ -268,8 +278,10 @@ class ParchmentDocument {
   //
 
   void _checkMutable() {
-    assert(!_controller.isClosed,
-        'Cannot modify Parchment document after it was closed.');
+    assert(
+      !_controller.isClosed,
+      'Cannot modify Parchment document after it was closed.',
+    );
   }
 
   /// Key of the embed attribute used in Parchment 0.x (prior to 1.0).
@@ -308,8 +320,10 @@ class ParchmentDocument {
 
   /// Loads [document] delta into this document.
   void _loadDocument(Delta doc) {
-    assert((doc.last.data as String).endsWith('\n'),
-        'Invalid document delta. Document delta must always end with a line-break.');
+    assert(
+      (doc.last.data as String).endsWith('\n'),
+      'Invalid document delta. Document delta must always end with a line-break.',
+    );
     var offset = 0;
     for (final op in doc.toList()) {
       final style =
@@ -318,8 +332,10 @@ class ParchmentDocument {
         final data = _normalizeData(op.data);
         _root.insert(offset, data, style);
       } else {
-        throw ArgumentError.value(doc,
-            'Document Delta can only contain insert operations but ${op.key} found.');
+        throw ArgumentError.value(
+          doc,
+          'Document Delta can only contain insert operations but ${op.key} found.',
+        );
       }
       offset += op.length;
     }

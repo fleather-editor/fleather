@@ -41,7 +41,10 @@ void main() {
 
     test('nextLine', () {
       root.insert(
-          0, 'Hello world\nThis is my first multiline\nItem\ndocument.', null);
+        0,
+        'Hello world\nThis is my first multiline\nItem\ndocument.',
+        null,
+      );
       root.retain(38, 1, ulStyle);
       root.retain(43, 1, bqStyle);
       final line = root.first as LineNode;
@@ -240,7 +243,10 @@ void main() {
 
     test('delete empty line', () {
       root.insert(
-          0, 'Hello world\nThis is my first multiline\n\ndocument.', null);
+        0,
+        'Hello world\nThis is my first multiline\n\ndocument.',
+        null,
+      );
       expect(root.childCount, 4);
       root.delete(39, 1);
       expect(root.childCount, 3);
@@ -248,7 +254,10 @@ void main() {
 
     test('delete line-break of non-empty line', () {
       root.insert(
-          0, 'Hello world\nThis is my first multiline\n\ndocument.', null);
+        0,
+        'Hello world\nThis is my first multiline\n\ndocument.',
+        null,
+      );
       root.retain(39, 1, h2Style);
       expect(root.childCount, 4);
       root.delete(38, 1);
@@ -259,7 +268,10 @@ void main() {
 
     test('insert at the beginning of a line', () {
       root.insert(
-          0, 'Hello world\nThis is my first multiline\ndocument.', null);
+        0,
+        'Hello world\nThis is my first multiline\ndocument.',
+        null,
+      );
       root.insert(12, 'Boom! ', null);
       expect(root.childCount, 3);
       expect(root.children.elementAt(1), hasLength(33));
@@ -267,7 +279,10 @@ void main() {
 
     test('delete last character of a line', () {
       root.insert(
-          0, 'Hello world\nThis is my first multiline\ndocument.', null);
+        0,
+        'Hello world\nThis is my first multiline\ndocument.',
+        null,
+      );
       root.delete(37, 1);
       expect(root.childCount, 3);
       final line = root.children.elementAt(1) as LineNode;
@@ -277,7 +292,10 @@ void main() {
     test('collectStyle', () {
       // TODO: need more test cases for collectStyle
       root.insert(
-          0, 'Hello world\nThis is my first multiline\n\ndocument.', null);
+        0,
+        'Hello world\nThis is my first multiline\n\ndocument.',
+        null,
+      );
       root.retain(38, 1, h2Style);
       root.retain(23, 5, boldStyle);
       var result = root.lookup(20);

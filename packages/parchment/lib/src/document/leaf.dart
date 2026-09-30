@@ -93,9 +93,10 @@ abstract base class LeafNode extends Node with StyledNode {
   /// if provided [index] is `0`.
   LeafNode isolate(int index, int length) {
     assert(
-        index >= 0 && index < this.length && (index + length <= this.length),
-        'Index or length is out of bounds. Index: $index, length: $length. '
-        'Actual node length: ${this.length}.');
+      index >= 0 && index < this.length && (index + length <= this.length),
+      'Index or length is out of bounds. Index: $index, length: $length. '
+      'Actual node length: ${this.length}.',
+    );
     // Since `index < this.length` (guarded by assert) below line
     // always returns a new node.
     final target = splitAt(index)!;
@@ -113,8 +114,10 @@ abstract base class LeafNode extends Node with StyledNode {
 
   @override
   void applyStyle(ParchmentStyle value) {
-    assert(value.isInline || value.isEmpty,
-        'Style cannot be applied to this leaf node: $value');
+    assert(
+      value.isInline || value.isEmpty,
+      'Style cannot be applied to this leaf node: $value',
+    );
     super.applyStyle(value);
   }
 
@@ -139,8 +142,10 @@ abstract base class LeafNode extends Node with StyledNode {
 
   @override
   void insert(int index, Object data, ParchmentStyle? style) {
-    assert(index >= 0 && (index <= length),
-        'Index out of bounds. Must be between 0 and $length, but got $index.');
+    assert(
+      index >= 0 && (index <= length),
+      'Index out of bounds. Must be between 0 and $length, but got $index.',
+    );
     final node = LeafNode(data);
     if (index == length) {
       insertAfter(node);

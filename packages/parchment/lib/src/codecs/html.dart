@@ -157,22 +157,28 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
   // current and candidate are both blocks
   static bool isNestedList(ParchmentStyle parent, ParchmentStyle child) {
     final currentListAttribute = parent.values.firstWhereOrNull(
-        (e) => e == ParchmentAttribute.ol || e == ParchmentAttribute.ul);
+      (e) => e == ParchmentAttribute.ol || e == ParchmentAttribute.ul,
+    );
     final candidateListAttribute = child.values.firstWhereOrNull(
-        (e) => e == ParchmentAttribute.ol || e == ParchmentAttribute.ul);
+      (e) => e == ParchmentAttribute.ol || e == ParchmentAttribute.ul,
+    );
 
     if (currentListAttribute == null || candidateListAttribute == null) {
       return false;
     }
 
     int currentLevel = parent.values
-            .firstWhere((e) => e.key == ParchmentAttribute.indent.key,
-                orElse: () => ParchmentAttribute.indent.withLevel(0))
+            .firstWhere(
+              (e) => e.key == ParchmentAttribute.indent.key,
+              orElse: () => ParchmentAttribute.indent.withLevel(0),
+            )
             .value ??
         0;
     int candidateLevel = child.values
-            .firstWhere((e) => e.key == ParchmentAttribute.indent.key,
-                orElse: () => ParchmentAttribute.indent.withLevel(0))
+            .firstWhere(
+              (e) => e.key == ParchmentAttribute.indent.key,
+              orElse: () => ParchmentAttribute.indent.withLevel(0),
+            )
             .value ??
         0;
     return currentLevel < candidateLevel;
@@ -180,11 +186,15 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
 
   // Check if both attributes are lists of different type with same indentation
   bool isDifferentListTypeWithSameIndentationLevel(
-      ParchmentStyle parent, ParchmentStyle child) {
+    ParchmentStyle parent,
+    ParchmentStyle child,
+  ) {
     final currentListAttribute = parent.values.firstWhereOrNull(
-        (e) => e == ParchmentAttribute.ol || e == ParchmentAttribute.ul);
+      (e) => e == ParchmentAttribute.ol || e == ParchmentAttribute.ul,
+    );
     final candidateListAttribute = child.values.firstWhereOrNull(
-        (e) => e == ParchmentAttribute.ol || e == ParchmentAttribute.ul);
+      (e) => e == ParchmentAttribute.ol || e == ParchmentAttribute.ul,
+    );
 
     if (currentListAttribute == null || candidateListAttribute == null) {
       return false;
@@ -195,13 +205,17 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
     }
 
     int currentLevel = parent.values
-            .firstWhere((e) => e.key == ParchmentAttribute.indent.key,
-                orElse: () => ParchmentAttribute.indent.withLevel(0))
+            .firstWhere(
+              (e) => e.key == ParchmentAttribute.indent.key,
+              orElse: () => ParchmentAttribute.indent.withLevel(0),
+            )
             .value ??
         0;
     int candidateLevel = child.values
-            .firstWhere((e) => e.key == ParchmentAttribute.indent.key,
-                orElse: () => ParchmentAttribute.indent.withLevel(0))
+            .firstWhere(
+              (e) => e.key == ParchmentAttribute.indent.key,
+              orElse: () => ParchmentAttribute.indent.withLevel(0),
+            )
             .value ??
         0;
 
@@ -231,9 +245,15 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
           final subOp = Operation.insert('\n', op.attributes);
           final currentLineStart = state.nextLineStartPosition;
           state.nextLineStartPosition = _handleNewLineLineStyle(
-              subOp, buffer, state.nextLineStartPosition);
-          int padding =
-              _handleNewLineBlockStyle(subOp, state, currentLineStart);
+            subOp,
+            buffer,
+            state.nextLineStartPosition,
+          );
+          int padding = _handleNewLineBlockStyle(
+            subOp,
+            state,
+            currentLineStart,
+          );
           state.nextLineStartPosition += padding;
         }
       }
@@ -241,8 +261,11 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
       if (_isNewLine(op)) {
         state.isSingleLine = false;
         final currentLineStart = state.nextLineStartPosition;
-        state.nextLineStartPosition =
-            _handleNewLineLineStyle(op, buffer, state.nextLineStartPosition);
+        state.nextLineStartPosition = _handleNewLineLineStyle(
+          op,
+          buffer,
+          state.nextLineStartPosition,
+        );
         int padding = _handleNewLineBlockStyle(op, state, currentLineStart);
         state.nextLineStartPosition += padding;
       }
@@ -270,8 +293,10 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
   }
 
   /// Closes all open blocks and returns the ending position.
-  int _closeOpenBlocks(_EncoderState state,
-      {bool beforePlainParagraphHandling = false}) {
+  int _closeOpenBlocks(
+    _EncoderState state, {
+    bool beforePlainParagraphHandling = false,
+  }) {
     final openBlockTags = state.openBlockTags;
     final buffer = state.buffer;
     final numToClose = openBlockTags.length;
@@ -290,7 +315,8 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
       // Handles the case where a nested list is followed by a plain paragraph
       bool isBlockTagNested = openBlockTags.length >= 2 &&
           openBlockTags[0].style.lineAttributes.firstWhereOrNull(
-                  (e) => e.key == ParchmentAttribute.indent.key) !=
+                    (e) => e.key == ParchmentAttribute.indent.key,
+                  ) !=
               null;
       if (i == numToClose - 1 &&
           (!beforePlainParagraphHandling || isBlockTagNested)) {
@@ -310,10 +336,14 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
   }
 
   void _processInlineTags(
-      Operation op, StringBuffer buffer, List<_HtmlInlineTag> openInlineTags) {
+    Operation op,
+    StringBuffer buffer,
+    List<_HtmlInlineTag> openInlineTags,
+  ) {
     final parchmentStyle = ParchmentStyle.fromJson(op.attributes);
-    final Set<ParchmentAttribute> inlineAttributes =
-        Set.from(parchmentStyle.inlineAttributes);
+    final Set<ParchmentAttribute> inlineAttributes = Set.from(
+      parchmentStyle.inlineAttributes,
+    );
 
     // Close any tag absent from inline attributes
     // Closing tags effectively adds the opening tag at the appropriate position
@@ -388,7 +418,9 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
       if (i == lines.length - 1) {
         // Done with set of paragraphs, add last paragraph to block stack.
         openBlockTags.insert(
-            0, _HtmlBlockTag(ParchmentStyle(), initialPosition, buffer.length));
+          0,
+          _HtmlBlockTag(ParchmentStyle(), initialPosition, buffer.length),
+        );
         if (lines[i].isNotEmpty) {
           // Elements that do not belong to a paragraph but to block of next op
           _writeData(subOp, buffer);
@@ -403,8 +435,10 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
       position = buffer.length;
     }
 
-    assert(openBlockTags.length <= 1,
-        'At most one paragraph should be pushed in stack');
+    assert(
+      openBlockTags.length <= 1,
+      'At most one paragraph should be pushed in stack',
+    );
     state.nextLineStartPosition = position;
   }
 
@@ -412,7 +446,10 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
   // returns the start position in the buffer of the next line that will be
   // processed
   int _handleNewLineLineStyle(
-      Operation op, StringBuffer buffer, int currentLineStart) {
+    Operation op,
+    StringBuffer buffer,
+    int currentLineStart,
+  ) {
     final opStyle = ParchmentStyle.fromJson(op.attributes);
     final newLineTag = _HtmlLineTag(opStyle, currentLineStart);
     if (newLineTag.style.isNotEmpty) {
@@ -424,7 +461,10 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
   // used to write html tags of blocks themselves.
   // returns padding induced by ex-post addition of block tags
   int _handleNewLineBlockStyle(
-      Operation op, _EncoderState state, int currentLineStart) {
+    Operation op,
+    _EncoderState state,
+    int currentLineStart,
+  ) {
     final buffer = state.buffer;
     final openBlockTags = state.openBlockTags;
     final opStyle = ParchmentStyle.fromJson(op.attributes);
@@ -452,26 +492,32 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
     if (isNestedList(opStyle, openBlockTags[0].style)) {
       final currentBlockTag = openBlockTags[0];
       _writeBlockTag(
-          buffer, currentBlockTag..closingPosition = currentLineStart);
+        buffer,
+        currentBlockTag..closingPosition = currentLineStart,
+      );
       openBlockTags.removeAt(0);
       // This handle the case where a new list (different list style) is directly
       // succeeding another list that ends with a nest list item
       if (isDifferentListTypeWithSameIndentationLevel(
-          opStyle, openBlockTags[0].style)) {
+        opStyle,
+        openBlockTags[0].style,
+      )) {
         final nextBlockTag = openBlockTags[0];
         _writeBlockTag(
-            buffer,
-            nextBlockTag
-              ..closingPosition =
-                  currentLineStart + currentBlockTag.inducedPadding);
+          buffer,
+          nextBlockTag
+            ..closingPosition =
+                currentLineStart + currentBlockTag.inducedPadding,
+        );
         openBlockTags.removeAt(0);
         // If no previous style, let caller write surrounding tags
         if (openBlockTags.isEmpty) {
           var newBlockTag = _HtmlBlockTag(
-              opStyle,
-              currentLineStart +
-                  nextBlockTag.inducedPadding +
-                  currentBlockTag.inducedPadding);
+            opStyle,
+            currentLineStart +
+                nextBlockTag.inducedPadding +
+                currentBlockTag.inducedPadding,
+          );
           // If no previous style, let caller write surrounding tags
           openBlockTags.insert(0, newBlockTag..closingPosition = buffer.length);
         }
@@ -508,12 +554,7 @@ class _ParchmentHtmlEncoder extends Converter<ParchmentDocument, String> {
     }
 
     buffer.clear();
-    buffer.writeAll([
-      preHtml,
-      openTag,
-      innerHtml,
-      closeTag,
-    ]);
+    buffer.writeAll([preHtml, openTag, innerHtml, closeTag]);
   }
 
   void _writeBlockTag(StringBuffer buffer, _HtmlBlockTag tag) {
@@ -657,8 +698,9 @@ class _HtmlLineTag extends _HtmlTag {
   }
 
   _HtmlLineTag(ParchmentStyle style, super.openingPosition)
-      : style = ParchmentStyle()
-            .putAll(style.lineAttributes.where((e) => isLineAttribute(e)));
+      : style = ParchmentStyle().putAll(
+          style.lineAttributes.where((e) => isLineAttribute(e)),
+        );
 
   final ParchmentStyle style;
 
@@ -681,8 +723,9 @@ class _HtmlLineTag extends _HtmlTag {
   }
 
   String? get alignmentCss {
-    var alignment = style.values
-        .firstWhereOrNull((e) => e.key == ParchmentAttribute.alignment.key);
+    var alignment = style.values.firstWhereOrNull(
+      (e) => e.key == ParchmentAttribute.alignment.key,
+    );
 
     if (alignment == null) return null;
 
@@ -713,8 +756,9 @@ class _HtmlLineTag extends _HtmlTag {
         style.values.contains(ParchmentAttribute.ol)) {
       return null;
     }
-    var indentation = style.values
-        .firstWhereOrNull((e) => e.key == ParchmentAttribute.indent.key);
+    var indentation = style.values.firstWhereOrNull(
+      (e) => e.key == ParchmentAttribute.indent.key,
+    );
 
     if (indentation == null) return null;
     int value = indentation.value;
@@ -725,8 +769,9 @@ class _HtmlLineTag extends _HtmlTag {
 
   String? get directionAttribute {
     if (_directionAttribute == null) {
-      var direction = style.values
-          .firstWhereOrNull((e) => e.key == ParchmentAttribute.direction.key);
+      var direction = style.values.firstWhereOrNull(
+        (e) => e.key == ParchmentAttribute.direction.key,
+      );
 
       if (direction == null) {
         return _directionAttribute;
@@ -768,8 +813,9 @@ class _HtmlLineTag extends _HtmlTag {
           openTag += '<li$attribute$css>';
         }
         if (attr.value == ParchmentAttribute.cl.value) {
-          final checked = style.values
-              .firstWhereOrNull((e) => e.key == ParchmentAttribute.checked.key);
+          final checked = style.values.firstWhereOrNull(
+            (e) => e.key == ParchmentAttribute.checked.key,
+          );
           final checkedAttribute =
               checked != null && checked.value ? ' checked' : '';
           // Checkboxes disabled so user cannot toggle them.
@@ -840,10 +886,13 @@ class _HtmlBlockTag extends _HtmlTag {
         attribute.key == ParchmentAttribute.indent.key;
   }
 
-  _HtmlBlockTag(ParchmentStyle style, super.openingPosition,
-      [int? closingPosition])
-      : style = ParchmentStyle()
-            .putAll(style.lineAttributes.where((e) => isBlockAttribute(e))),
+  _HtmlBlockTag(
+    ParchmentStyle style,
+    super.openingPosition, [
+    int? closingPosition,
+  ])  : style = ParchmentStyle().putAll(
+          style.lineAttributes.where((e) => isBlockAttribute(e)),
+        ),
         closingPosition = closingPosition ?? openingPosition;
 
   final ParchmentStyle style;
@@ -853,7 +902,10 @@ class _HtmlBlockTag extends _HtmlTag {
 
   _HtmlBlockTag withPadding(int padding) {
     return _HtmlBlockTag(
-        style, openingPosition + padding, closingPosition + padding);
+      style,
+      openingPosition + padding,
+      closingPosition + padding,
+    );
   }
 
   @override
@@ -952,8 +1004,11 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
             node.localName == 'h6');
   }
 
-  Delta _parseNode(html.Node node,
-      [ParchmentStyle? inlineStyle, ParchmentStyle? blockStyle]) {
+  Delta _parseNode(
+    html.Node node, [
+    ParchmentStyle? inlineStyle,
+    ParchmentStyle? blockStyle,
+  ]) {
     inlineStyle ??= ParchmentStyle();
     blockStyle ??= ParchmentStyle();
     Delta delta = Delta();
@@ -1005,7 +1060,9 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
   }
 
   ParchmentStyle _updateInlineStyle(
-      html.Element element, ParchmentStyle inlineStyle) {
+    html.Element element,
+    ParchmentStyle inlineStyle,
+  ) {
     ParchmentStyle updated = inlineStyle;
     if (element.localName == 'strong') {
       updated = updated.put(ParchmentAttribute.bold);
@@ -1016,8 +1073,9 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
     } else if (element.localName == 'em') {
       updated = updated.put(ParchmentAttribute.italic);
     } else if (element.localName == 'a') {
-      final link =
-          ParchmentAttribute.link.withValue(element.attributes['href']);
+      final link = ParchmentAttribute.link.withValue(
+        element.attributes['href'],
+      );
       updated = inlineStyle.put(link);
     } else if (element.localName == 'span') {
       final css = element.attributes['style'];
@@ -1026,14 +1084,16 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
         if (style.startsWith('background-color')) {
           final sValue = style.split(':')[1].trim();
           final color = colorValueFromCSS(sValue);
-          updated =
-              updated.put(ParchmentAttribute.backgroundColor.withColor(color));
+          updated = updated.put(
+            ParchmentAttribute.backgroundColor.withColor(color),
+          );
         }
         if (style.startsWith('color')) {
           final sValue = style.split(':')[1].trim();
           final color = colorValueFromCSS(sValue);
-          updated =
-              updated.put(ParchmentAttribute.foregroundColor.withColor(color));
+          updated = updated.put(
+            ParchmentAttribute.foregroundColor.withColor(color),
+          );
         }
       }
     }
@@ -1041,7 +1101,9 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
   }
 
   ParchmentStyle _updateBlockStyle(
-      html.Element element, ParchmentStyle blockStyle) {
+    html.Element element,
+    ParchmentStyle blockStyle,
+  ) {
     ParchmentStyle updated = blockStyle;
     if (element.localName == 'h1') {
       updated = updated.put(ParchmentAttribute.h1);
@@ -1066,15 +1128,17 @@ class _ParchmentHtmlDecoder extends Converter<String, ParchmentDocument> {
     } else if (element.localName == 'ol') {
       if (_hasList(updated)) {
         final indentLevel = updated.value(ParchmentAttribute.indent) ?? 0;
-        updated =
-            updated.put(ParchmentAttribute.indent.withLevel(indentLevel + 1));
+        updated = updated.put(
+          ParchmentAttribute.indent.withLevel(indentLevel + 1),
+        );
       }
       updated = updated.put(ParchmentAttribute.ol);
     } else if (element.localName == 'ul') {
       if (_hasList(updated)) {
         final indentLevel = updated.value(ParchmentAttribute.indent) ?? 0;
-        updated =
-            updated.put(ParchmentAttribute.indent.withLevel(indentLevel + 1));
+        updated = updated.put(
+          ParchmentAttribute.indent.withLevel(indentLevel + 1),
+        );
       }
       updated = updated.put(ParchmentAttribute.ul);
     } else if (element.localName == 'input' &&

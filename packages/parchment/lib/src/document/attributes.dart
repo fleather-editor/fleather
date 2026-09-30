@@ -200,7 +200,9 @@ class ParchmentAttribute<T> implements ParchmentAttributeBuilder<T> {
   static ParchmentAttribute _fromKeyValue(String key, dynamic value) {
     if (!_registry.containsKey(key)) {
       throw ArgumentError.value(
-          key, 'No attribute with key "$key" registered.');
+        key,
+        'No attribute with key "$key" registered.',
+      );
     }
     final builder = _registry[key]!;
     return builder.withValue(value);
@@ -383,8 +385,10 @@ class ParchmentStyle {
   /// Returns JSON-serializable representation of this style.
   Map<String, dynamic>? toJson() => _data.isEmpty
       ? null
-      : _data.map<String, dynamic>((String _, ParchmentAttribute value) =>
-          MapEntry<String, dynamic>(value.key, value.value));
+      : _data.map<String, dynamic>(
+          (String _, ParchmentAttribute value) =>
+              MapEntry<String, dynamic>(value.key, value.value),
+        );
 
   @override
   bool operator ==(Object other) {
@@ -396,8 +400,9 @@ class ParchmentStyle {
 
   @override
   int get hashCode {
-    final hashes =
-        _data.entries.map((entry) => Object.hash(entry.key, entry.value));
+    final hashes = _data.entries.map(
+      (entry) => Object.hash(entry.key, entry.value),
+    );
     return Object.hashAll(hashes);
   }
 
@@ -638,6 +643,9 @@ class IndentAttributeBuilder extends ParchmentAttributeBuilder<int> {
       return unset;
     }
     return ParchmentAttribute._(
-        key, scope, math.min(_maxIndentationLevel, level));
+      key,
+      scope,
+      math.min(_maxIndentationLevel, level),
+    );
   }
 }
