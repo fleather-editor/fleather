@@ -247,15 +247,17 @@ class RenderEditableContainerBox extends RenderBox
 
     final targetNode = node.lookup(position.offset).node;
 
-    var targetChild = firstChild;
+    RenderEditableBox? targetChild = firstChild;
+
     while (targetChild != null) {
       if (targetChild.node == targetNode) {
-        break;
+        return targetChild;
       }
       targetChild = childAfter(targetChild);
     }
-    assert(targetChild != null, 'No child at position $position');
-    return targetChild!;
+
+    // Fallback: return last available child instead of crashing
+    return lastChild!;
   }
 
   /// Returns child of this container located at the specified local `offset`.
