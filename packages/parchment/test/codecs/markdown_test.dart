@@ -469,6 +469,72 @@ void main() {
       expect(delta, exp);
     });
 
+    test('image embed decode', () {
+      final markdown = '![alt text](https://example.com/image.jpg)';
+      final document = parchmentMarkdown.decode(markdown);
+      final delta = document.toDelta();
+
+      expect(delta.length, 2);
+      final embed = delta.elementAt(0).data;
+      expect(embed, isA<BlockEmbed>());
+      expect((embed as BlockEmbed).type, 'image');
+      expect(embed.data['source'], 'https://example.com/image.jpg');
+      expect(delta.elementAt(1).data, '\n');
+    });
+
+    test('image embed decode without alt text', () {
+      final markdown = '![](https://example.com/image.png)';
+      final document = parchmentMarkdown.decode(markdown);
+      final delta = document.toDelta();
+
+      expect(delta.length, 2);
+      final embed = delta.elementAt(0).data;
+      expect(embed, isA<BlockEmbed>());
+      expect((embed as BlockEmbed).type, 'image');
+      expect(embed.data['source'], 'https://example.com/image.png');
+    });
+
+    test('multiple images', () {
+      final markdown = '''![First](https://example.com/image1.jpg)
+![Second](https://example.com/image2.png)''';
+      final document = parchmentMarkdown.decode(markdown);
+      final delta = document.toDelta();
+
+      expect(delta.length, 4);
+
+      // First image
+      final firstEmbed = delta.elementAt(0).data;
+      expect(firstEmbed, isA<BlockEmbed>());
+      expect((firstEmbed as BlockEmbed).type, 'image');
+      expect(firstEmbed.data['source'], 'https://example.com/image1.jpg');
+      expect(delta.elementAt(1).data, '\n');
+
+      // Second image
+      final secondEmbed = delta.elementAt(2).data;
+      expect(secondEmbed, isA<BlockEmbed>());
+      expect((secondEmbed as BlockEmbed).type, 'image');
+      expect(secondEmbed.data['source'], 'https://example.com/image2.png');
+      expect(delta.elementAt(3).data, '\n');
+    });
+
+    test('image with text around', () {
+      final markdown = '''Some text before
+![Image](https://example.com/image.jpg)
+Some text after''';
+      final document = parchmentMarkdown.decode(markdown);
+      final delta = document.toDelta();
+
+      expect(delta.length, 3);
+      expect(delta.elementAt(0).data, 'Some text before\n');
+
+      final embed = delta.elementAt(1).data;
+      expect(embed, isA<BlockEmbed>());
+      expect((embed as BlockEmbed).type, 'image');
+      expect(embed.data['source'], 'https://example.com/image.jpg');
+
+      expect(delta.elementAt(2).data, '\nSome text after\n');
+    });
+
     test('multiple styles', () {
       final delta = parchmentMarkdown.decode(markdown);
       final andBack = parchmentMarkdown.encode(delta);
@@ -477,6 +543,48 @@ void main() {
   });
 
   group('ParchmentMarkdownCodec.encode', () {
+    test('image embed encode', () {
+      final imageEmbed = BlockEmbed.image('https://example.com/image.jpg');
+      final delta = Delta()
+        ..insert(imageEmbed)
+        ..insert('\n');
+      final document = ParchmentDocument.fromDelta(delta);
+
+      final markdown = parchmentMarkdown.encode(document);
+      expect(markdown, '![](https://example.com/image.jpg)\n\n');
+    });
+
+    test('multiple images encode', () {
+      final delta = Delta()
+        ..insert(BlockEmbed.image('https://example.com/image1.jpg'))
+        ..insert('\n')
+        ..insert(BlockEmbed.image('https://example.com/image2.png'))
+        ..insert('\n');
+      final document = ParchmentDocument.fromDelta(delta);
+
+      final markdown = parchmentMarkdown.encode(document);
+      expect(markdown,
+          '![](https://example.com/image1.jpg)\n\n![](https://example.com/image2.png)\n\n');
+    });
+
+    test('image round trip conversion', () {
+      final originalMarkdown = '![](https://example.com/image.jpg)';
+      final document = parchmentMarkdown.decode(originalMarkdown);
+      final backToMarkdown = parchmentMarkdown.encode(document);
+
+      // The output will have extra formatting but should contain the image
+      expect(backToMarkdown, contains('![](https://example.com/image.jpg)'));
+
+      // Round trip back to ensure data integrity
+      final roundTripDocument = parchmentMarkdown.decode(backToMarkdown);
+      final roundTripDelta = roundTripDocument.toDelta();
+
+      final embed = roundTripDelta.elementAt(0).data;
+      expect(embed, isA<BlockEmbed>());
+      expect((embed as BlockEmbed).type, 'image');
+      expect(embed.data['source'], 'https://example.com/image.jpg');
+    });
+
     test('split adjacent paragraphs', () {
       final delta = Delta()..insert('First line\nSecond line\n');
       final result =
