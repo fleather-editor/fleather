@@ -1430,9 +1430,8 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
     // Prefer below the presenter, but flip above it when that offers more room.
     final bool showAbove =
         childSize.height > spaceBelow && spaceAbove > spaceBelow;
-    final double y = showAbove
-        ? presenter.top - _selectorScreenPadding - childSize.height
-        : presenter.bottom + _selectorScreenPadding;
+    final double y =
+        showAbove ? presenter.top - childSize.height : presenter.bottom;
     return _fitInsideScreen(subScreen, childSize, Offset(x, y));
   }
 
@@ -1462,7 +1461,7 @@ class _SelectorLayout extends SingleChildLayoutDelegate {
           padding.right;
     }
     if (y < screen.top + _selectorScreenPadding + padding.top) {
-      y = screen.top + _selectorScreenPadding + padding.top;
+      y = _selectorScreenPadding + padding.top;
     } else if (y + childSize.height >
         screen.bottom - _selectorScreenPadding - padding.bottom) {
       y = screen.bottom -
