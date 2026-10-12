@@ -359,7 +359,7 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
     if (!lineStyle.containsKey(ParchmentAttribute.block.key)) return null;
 
     final blockStyle = <String, dynamic>{
-      ParchmentAttribute.block.key: lineStyle[ParchmentAttribute.block.key]
+      ParchmentAttribute.block.key: lineStyle[ParchmentAttribute.block.key],
     };
 
     Map<String, dynamic> resetStyle = {};
@@ -447,7 +447,9 @@ class InsertBlockEmbedsRule extends InsertRule {
   }
 
   Map<String, dynamic>? _getLineStyle(
-      DeltaIterator iterator, Operation current) {
+    DeltaIterator iterator,
+    Operation current,
+  ) {
     final currentText = current.data is String ? current.data as String : '';
 
     if (currentText.contains('\n')) {
