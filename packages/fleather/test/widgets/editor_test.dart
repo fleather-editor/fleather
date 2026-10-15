@@ -1,14 +1,14 @@
+import 'package:cupertino_ui/cupertino_ui.dart' hide SystemContextMenu;
 import 'package:fleather/fleather.dart';
 import 'package:fleather/src/services/spell_check_suggestions_toolbar.dart';
 import 'package:fleather/src/widgets/checkbox.dart';
 import 'package:fleather/src/widgets/keyboard_listener.dart';
 import 'package:fleather/src/widgets/system_context_menu.dart';
 import 'package:fleather/src/widgets/text_selection.dart';
-import 'package:cupertino_ui/cupertino_ui.dart' hide SystemContextMenu;
 import 'package:flutter/gestures.dart';
-import 'package:material_ui/material_ui.dart' hide SystemContextMenu;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart' hide SystemContextMenu;
 
 import '../testing.dart';
 
@@ -312,6 +312,52 @@ void main() {
             Delta()
               ..insert('Hello world')
               ..insert('\n', {'block': 'ul'}));
+      });
+
+      testWidgets('lines with span embeds do not force StrutStyle height', (
+        tester,
+      ) async {
+        final doc = ParchmentDocument.fromJson([
+          {'insert': 'Hello world\n'},
+          {
+            'insert': {'_type': 'something', '_inline': true},
+          },
+          {'insert': '\n'},
+        ]);
+        final strutStyle = StrutStyle(
+          leading: 0.2,
+          height: 1.0,
+          forceStrutHeight: true,
+        );
+        final BuildContext context = tester.element(find.byType(Container));
+        final editor = EditorSandBox(
+          tester: tester,
+          document: doc,
+          fleatherTheme: FleatherThemeData.fallback(context)
+              .copyWith(strutStyle: strutStyle),
+          embedBuilder: (_, __) {
+            return const Padding(
+              padding: EdgeInsets.only(left: 4, right: 2, top: 2, bottom: 2),
+              child: SizedBox(width: 300, height: 300),
+            );
+          },
+        );
+        await editor.pump();
+        final richTexts =
+            tester.widgetList<RichText>(find.byType(RichText)).toList();
+        final textLine = richTexts.first;
+        final embedLine = richTexts.last;
+        // Plain text line keeps the theme strut as is
+        expect(textLine.strutStyle?.forceStrutHeight, isTrue);
+        // Line with span embed keeps theme strut but does not force height
+        expect(embedLine.strutStyle?.leading, strutStyle.leading);
+        expect(embedLine.strutStyle?.height, strutStyle.height);
+        expect(embedLine.strutStyle?.forceStrutHeight, isFalse);
+        // The line grows to fit the embed (300 + vertical padding of 4)
+        expect(
+          tester.getSize(find.byWidget(embedLine)).height,
+          greaterThanOrEqualTo(304),
+        );
       });
     });
 
