@@ -1,8 +1,8 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:parchment/parchment.dart';
 
 import 'controller.dart';
@@ -128,11 +128,19 @@ class _TextLineState extends State<TextLine> {
     final theme = FleatherTheme.of(context)!;
     final text = buildText(context, widget.node, theme);
     final textAlign = getTextAlign(widget.node);
-    final strutStyle = theme.strutStyle?.inheritFromTextStyle(text.style) ??
-        StrutStyle.fromTextStyle(text.style!,
-            // We don't want to force strut height when the line contains inline
-            // embeds
-            forceStrutHeight: !widget.node.hasSpanEmbed);
+    // We don't want to force strut height when the line contains inline
+    // embeds: an embed taller than the strut would otherwise overflow its
+    // line and overlap the surrounding content.
+    final hasSpanEmbed = widget.node.hasSpanEmbed;
+    final themeStrutStyle = theme.strutStyle?.inheritFromTextStyle(text.style);
+    final strutStyle = themeStrutStyle != null
+        ? (hasSpanEmbed
+            ? themeStrutStyle.merge(const StrutStyle(forceStrutHeight: false))
+            : themeStrutStyle)
+        : StrutStyle.fromTextStyle(
+            text.style!,
+            forceStrutHeight: !hasSpanEmbed,
+          );
     return RichTextProxy(
       textStyle: text.style!,
       textAlign: textAlign,
